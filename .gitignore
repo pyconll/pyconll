@@ -1,1 +1,6 @@
+__pycache__/
+venv/
+
+MANIFEST
 *.pyc
+.*.swp
