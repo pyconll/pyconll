@@ -1,42 +1,32 @@
-def _is_underscore(s):
-    """
-    Checks if the provided string is an underscore.
-
-    Args:
-    The string to check.
-
-    Returns:
-    True if the string is an underscore and False otherwise.
-    """
-    return s == '_'
-
-def _unit_empty_map(value):
+def _unit_empty_map(value, empty):
     """
     Map unit values for CoNLL-U columns that are empty to a value of None.
 
     Args:
     value: The value to check for existence. Should be a string.
+    empty: The empty representation for this unit.
 
     Returns:
-    None if value is an underscore and value otherwise.
+    None if value is empty and value otherwise.
     """
-    return None if _is_underscore(value) else value
+    return None if value == empty else value
 
-def _dict_empty_map(values, delim, av_separator, v_delimiter):
+def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     """
     Map dict based values for CoNLL-U columns that are empty to an empty dict.
 
     Args:
     values: The value to check for existence. Should be a string.
+    empty: The empty representation for this dict.
     delim: The delimiter between values in the provided string.
     av_separator: The attribute-value separator in the provided string.
     v_delimiter: The delimiter between values for the same attribute.
 
     Returns:
-    An empty dict if value is an underscore. Otherwise, a dict of key-value
-    pairs split on the Token feature delimiter.
+    An empty dict if value is empty. Otherwise, a dict of key-value pairs split
+    on the Token feature delimiter.
     """
-    if _is_underscore(values):
+    if values == empty:
         return {}
     else:
         d = {}
@@ -47,33 +37,34 @@ def _dict_empty_map(values, delim, av_separator, v_delimiter):
 
         return d
 
-def _list_empty_map(values, delim):
+def _list_empty_map(values, empty, delim):
     """
     Map list based values for CoNLL-U columns that are empty to an empty list.
 
     Args:
     values: The value to check for existence. Should be a string.
+    empty: The empty representation for this list.
     delim: The delimiter between values in the provided string.
 
     Returns:
-    An empty list if the value is an underscore and a list of the values
-    otherwise.
+    An empty list if the value is empty and a list of the values otherwise.
     """
     return [] if _is_underscore(values) else values.split(delim)
 
-def _unit_conllu_map(value):
+def _unit_conllu_map(value, empty):
     """
     Map a unit value to its CoNLL-U format equivalent.
 
     Args:
     value: The value to convert to its CoNLL-U format. Should be a string.
+    empty: The empty representation for a unit in CoNLL-U.
 
     Returns:
-    '_' if value is None and value otherwise.
+    empty if value is None and value otherwise.
     """
-    return '_' if value is None else value
+    return empty if value is None else value
 
-def _dict_conllu_map(values, delim, av_separator, v_delimiter):
+def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
     """
     Map a dict based value to its CoNLL-U format equivalent.
 
@@ -81,6 +72,7 @@ def _dict_conllu_map(values, delim, av_separator, v_delimiter):
 
     Args:
     values: The dict to convert to its CoNLL-U format.
+    empty: The empty representation for a dict in CoNLL-U.
     delim: The delimiter between values in the output.
     av_separator: The attribute-value separator in the provided string.
     v_delimiter: The delimiter between values in attribute-value pairs.
@@ -89,7 +81,7 @@ def _dict_conllu_map(values, delim, av_separator, v_delimiter):
     The CoNLL-U format as a string.
     """
     if values == {}:
-        return '_'
+        return empty
     else:
         sorted_d = sorted(values.items(), key=lambda k, v: k)
         for pair in sorted_d:
@@ -98,19 +90,19 @@ def _dict_conllu_map(values, delim, av_separator, v_delimiter):
         return
             [pair.join(av_separator) for pair in sorted_d].join(delim)
 
-def _list_conllu_map(values, delim):
+def _list_conllu_map(values, empty, delim):
     """
     Map a list to its CoNLL-U format equivalent.
 
     Args:
     values: The list to convert to its CoNLL-U format.
+    empty: The empty representation for a list in CoNLL-U.
     delim: The delimiter between the values of the list.
 
     Returns:
-    The CoNLL-U format as a string.
+    The list in CoNLL-U format as a string.
     """
-    # TODO: Remove '_' and use empty marker.
-    return '_' if values == [] else values.join(delim)
+    return empty if values == [] else values.join(delim)
 
 
 class Token:
@@ -130,15 +122,30 @@ class Token:
     COMPONENT_DELIMITER = '|'
     AV_SEPARATOR = '='
     V_DELIMITER = ','
+    EMPTY = '_'
 
-    def __init__(self, line):
+    def __init__(self, line, empty=True):
         """
-        Construct the token from the given line. A Token line must end in an an
-        LF line break according to the specification. However, this method will
-        accept a line with or without this ending line break.
+        Construct the token from the given line.
+
+        A Token line must end in an an LF line break according to the
+        specification. However, this method will accept a line with or without
+        this ending line break.
+
+        Further, a '_' that appears in the form and lemma is ambiguous and can
+        either refer to an empty value or an actual underscore. So the flag
+        empty_form allows for control over this if it is known from outside
+        information. If, the token is a multiword token, all fields except for
+        form are empty.
+
+        Note that no validation is done on input. Valid input will be processed
+        properly, but there is no guarantee as to invalid input that does not
+        follow the CoNLL-U specifications.
 
         Args:
         line: The line that represents the Token in CoNLL-U format.
+        empty: A flag to signify if the word form and lemma can be assumed to be
+            empty and not the token signifying empty.
         """
         if line[-1] == '\n':
             line = line[:-1]
@@ -146,20 +153,37 @@ class Token:
         fields = line.split(Token.FIELD_DELIMITER)
 
         # Assign all the field values from the line to internal equivalents.
-        # TODO: How to properly handle underscores.
-        # NOTE: Multiword tokens have '_' in all fields except 2
         self.id = fields[0]
-        self.form = _unit_empty_map(fields[1])
-        self.lemma = _unit_empty_map(fields[2])
-        self.upos = _unit_empty_map(fields[3])
-        self.xpos = _unit_empty_map(fields[4])
-        self.feats = _dict_empty_map(fields[5], Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER)
-        self.head = _unit_empty_map(fields[6])
-        self.deprel = _unit_empty_map(fields[7])
-        self.deps = _dict_empty_map(fields[8], Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER)
-        self.misc = _list_empty_map(fields[9], Token.COMPONENT_DELIMITER)
+
+        # If we can assume the form and lemma are empty, or if either of the
+        # fields are not the empty token, then we can proceed as usual.
+        # Otherwise, these empty tokens might not mean empty, but rather the
+        # actual tokens.
+        if empty or (fields[1] != Token.EMPTY or fields[2] != Token.EMPTY):
+            self.form = _unit_empty_map(fields[1], Token.EMPTY)
+            self.lemma = _unit_empty_map(fields[2], Token.EMPTY)
+        elif fields[1] == Token.EMPTY and fields[2] == Token.EMPTY:
+            self.form = fields[1]
+            self.lemma = fields[2]
+
+        self.upos = _unit_empty_map(fields[3], Token.EMPTY)
+        self.xpos = _unit_empty_map(fields[4], Token.EMPTY)
+        self.feats = _dict_empty_map(fields[5], Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
+        self.head = _unit_empty_map(fields[6], Token.EMPTY)
+        self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
+        self.deps = _dict_empty_map(fields[8], Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
+        self.misc = _list_empty_map(fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER)
+
+    def is_multiword(self):
+        """
+        Checks if this token is a multiword token.
+
+        Returns:
+        True if this token is a multiword token, and False otherwise.
+        """
+        return '-' in self.id
 
     def __str__(self):
         """
