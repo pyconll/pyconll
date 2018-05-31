@@ -1,3 +1,6 @@
+test:
+	python -m pytest
+
 build:
 	python setup.py build
 
@@ -8,7 +11,7 @@ publish:
 	python setup.py sdist
 	twine upload dist/*
 
-publishtests:
+publishtest:
 	python setup.py sdist
 	twine upload --repository-url https://test.pypi.org/legacy dist/*
 
