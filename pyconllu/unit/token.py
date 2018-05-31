@@ -1,3 +1,5 @@
+import operator
+
 def _unit_empty_map(value, empty):
     """
     Map unit values for CoNLL-U columns that are empty to a value of None.
@@ -18,7 +20,7 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     Args:
     values: The value to check for existence. Should be a string.
     empty: The empty representation for this dict.
-    delim: The delimiter between values in the provided string.
+    delim: The delimiter between components in the provided string.
     av_separator: The attribute-value separator in the provided string.
     v_delimiter: The delimiter between values for the same attribute.
 
@@ -73,7 +75,7 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
     Args:
     values: The dict to convert to its CoNLL-U format.
     empty: The empty representation for a dict in CoNLL-U.
-    delim: The delimiter between values in the output.
+    delim: The delimiter between components in the output.
     av_separator: The attribute-value separator in the provided string.
     v_delimiter: The delimiter between values in attribute-value pairs.
 
@@ -83,12 +85,16 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
     if values == {}:
         return empty
     else:
-        sorted_d = sorted(values.items(), key=lambda k, v: k)
-        for pair in sorted_d:
-            pair[1] = sorted(pair[1], key=str.lower).join(v_delimiter)
+        sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
+        string_av_pairs = []
+        for pair in sorted_av_pairs:
+            sorted_attr_values = sorted(pair[1], key=str.lower)
+            str_attrs = v_delimiter.join(sorted_attr_values)
+
+            string_av_pairs.append([pair[0], str_attrs])
 
         return \
-            [pair.join(av_separator) for pair in sorted_d].join(delim)
+            delim.join([av_separator.join(pair) for pair in string_av_pairs])
 
 def _list_conllu_map(values, empty, delim):
     """
@@ -97,12 +103,12 @@ def _list_conllu_map(values, empty, delim):
     Args:
     values: The list to convert to its CoNLL-U format.
     empty: The empty representation for a list in CoNLL-U.
-    delim: The delimiter between the values of the list.
+    delim: The delimiter between the components of the list.
 
     Returns:
     The list in CoNLL-U format as a string.
     """
-    return empty if values == [] else values.join(delim)
+    return empty if values == [] else delim.join(values)
 
 
 class Token:
@@ -115,12 +121,13 @@ class Token:
 
     # The different delimiters and separators for the CoNLL-U format.
     # FIELD_DELIMITER separates columns on the token line.
-    # COMPONENT_DELIMITER separates a field with multiple values.
+    # COMPONENT_DELIMITER separates a field with multiple components.
     # AV_SEPARATOR separates the attribute from the value in a component.
     # V_DELIMITER separates the values in an attribute-value pair.
     FIELD_DELIMITER = '\t'
     COMPONENT_DELIMITER = '|'
     AV_SEPARATOR = '='
+    AV_DEPS_SEPARATOR = ':'
     V_DELIMITER = ','
     EMPTY = '_'
 
@@ -173,8 +180,10 @@ class Token:
         self.head = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
         self.deps = _dict_empty_map(fields[8], Token.EMPTY,
-            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
-        self.misc = _list_empty_map(fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER)
+            Token.COMPONENT_DELIMITER, Token.AV_DEPS_SEPARATOR,
+            Token.V_DELIMITER)
+        self.misc = _list_empty_map(fields[9], Token.EMPTY,
+            Token.COMPONENT_DELIMITER)
 
     def is_multiword(self):
         """
@@ -187,16 +196,9 @@ class Token:
 
     def __str__(self):
         """
-        Convert to a string by providing the word form of the token.
-
-        Returns:
-        The word form of the token as a string representation.
-        """
-        return self.form
-
-    def __repr__(self):
-        """
         Convert Token to the CoNLL-U representation.
+
+        Note that this does not include a newline at the end.
 
         Returns:
         A string representing the token as a line in a CoNLL-U file.
@@ -204,17 +206,19 @@ class Token:
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.
         id = self.id
-        form = _unit_conllu_map(self.form)
-        lemma = _unit_conllu_map(self.lemma)
-        upos = _unit_conllu_map(self.upos)
-        xpos = _unit_conllu_map(self.xpos)
-        feats = _dict_conllu_map(self.feats, Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER)
-        head = _unit_conllu_map(self.head)
-        deprel = _unit_conllu_map(self.deprel)
-        deps = _dict_conllu_map(self.deps, Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER)
-        misc = _list_conllu_map(self.misc, Token.COMPONENT_DELIMITER)
+        form = _unit_conllu_map(self.form, Token.EMPTY)
+        lemma = _unit_conllu_map(self.lemma, Token.EMPTY)
+        upos = _unit_conllu_map(self.upos, Token.EMPTY)
+        xpos = _unit_conllu_map(self.xpos, Token.EMPTY)
+        feats = _dict_conllu_map(self.feats, Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
+        head = _unit_conllu_map(self.head, Token.EMPTY)
+        deprel = _unit_conllu_map(self.deprel, Token.EMPTY)
+        deps = _dict_conllu_map(self.deps, Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
+        misc = _list_conllu_map(self.misc, Token.EMPTY,
+            Token.COMPONENT_DELIMITER)
 
         items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
+
         return Token.FIELD_DELIMITER.join(items)
