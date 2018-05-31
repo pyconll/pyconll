@@ -15,3 +15,5 @@ Installation is easy like with most python packages. Simply use `pip` to install
 ```
 pip install pyconll
 ```
+
+This package is designed for, and only tested with python 3.4 and above.

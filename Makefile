@@ -17,7 +17,7 @@ publishtest:
 
 docs:
 	pandoc --from=markdown --to=rst --output=README.rst README.md
-	pandoc --from=markdown --to=plain --output=README.rst README.md
+	pandoc --from=markdown --to=plain --output=README README.md
 
 clean:
 	if [ -d 'dist' ]; then \
