@@ -168,29 +168,3 @@ class SentenceTree(Tree):
             next_t = Tree(child)
             self._construct_tree(next_t, deps)
             t.add_children(next_t)
-
-class Word(object):
-    FIELD_DELIMITER = '\t'
-    FEATURE_DELIMITER = '|'
-
-    def __init__(self, annotation, line_num=-1):
-        self.line_num = line_num
-        fields = annotation.split(Word.FIELD_DELIMITER)
-
-        self.index = fields[0]
-        self.phon = fields[1]
-        self.lemma = fields[2]
-        self.pos = fields[3]
-        self.features = fields[5]
-        self.dep_index = fields[6]
-        self.dep = fields[7]
-        self.deps = fields[8]
-        self.misc = fields[9]
-
-    def __str__(self):
-        return self.phon
-
-    def __repr__(self):
-        items = [self.index, self.phon, self.lemma, self.pos, self.features,
-                 self.dep_index, self.dep, self.deps, self.misc]
-        return Word.FIELD_DELIMITER.join(items)
