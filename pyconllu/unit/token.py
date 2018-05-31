@@ -30,7 +30,7 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
         return {}
     else:
         d = {}
-        for el in values.split(value_delimiter):
+        for el in values.split(delim):
             k, v = el.split(av_separator)
             v = set(v.split(v_delimiter))
             d[k] = v
@@ -49,7 +49,7 @@ def _list_empty_map(values, empty, delim):
     Returns:
     An empty list if the value is empty and a list of the values otherwise.
     """
-    return [] if _is_underscore(values) else values.split(delim)
+    return [] if values == empty else values.split(delim)
 
 def _unit_conllu_map(value, empty):
     """
@@ -87,7 +87,7 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
         for pair in sorted_d:
             pair[1] = sorted(pair[1], key=str.lower).join(v_delimiter)
 
-        return
+        return \
             [pair.join(av_separator) for pair in sorted_d].join(delim)
 
 def _list_conllu_map(values, empty, delim):
