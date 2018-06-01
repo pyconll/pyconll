@@ -1,3 +1,6 @@
+# TODO: Look back over docstrings for helper methods.
+# TODO: Refactor dict and dict_singleton
+
 import operator
 
 def _unit_empty_map(value, empty):
@@ -39,19 +42,27 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
 
         return d
 
-def _list_empty_map(values, empty, delim):
+def _dict_singleton_empty_map(values, empty, delim, av_separator):
     """
-    Map list based values for CoNLL-U columns that are empty to an empty list.
+    Map dict based values for CoNLL-U columns to dict with singleton values.
 
     Args:
-    values: The value to check for existence. Should be a string.
-    empty: The empty representation for this list.
-    delim: The delimiter between values in the provided string.
+    values: The value to parse.
+    empty: The empty representation for this value in CoNLL-U format.
+    delim: The delimiter between components in the value.
+    av_separator: The separator between attribute and value in each component.
 
     Returns:
-    An empty list if the value is empty and a list of the values otherwise.
     """
-    return [] if values == empty else values.split(delim)
+    if values == empty:
+        return {}
+    else:
+        d = {}
+        for el in values.split(delim):
+            k, v = el.split(av_separator)
+            d[k] = v
+
+        return d
 
 def _unit_conllu_map(value, empty):
     """
@@ -96,19 +107,12 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
         return \
             delim.join([av_separator.join(pair) for pair in string_av_pairs])
 
-def _list_conllu_map(values, empty, delim):
-    """
-    Map a list to its CoNLL-U format equivalent.
-
-    Args:
-    values: The list to convert to its CoNLL-U format.
-    empty: The empty representation for a list in CoNLL-U.
-    delim: The delimiter between the components of the list.
-
-    Returns:
-    The list in CoNLL-U format as a string.
-    """
-    return empty if values == [] else delim.join(values)
+def _dict_singleton_conllu_map(values, empty, delim, av_separator):
+    if values == {}:
+        return empty
+    else:
+        sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
+        return delim.join([av_separator.join(pair) for pair in sorted_av_pairs])
 
 
 class Token:
@@ -179,11 +183,10 @@ class Token:
             Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
         self.head = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps = _dict_empty_map(fields[8], Token.EMPTY,
-            Token.COMPONENT_DELIMITER, Token.AV_DEPS_SEPARATOR,
-            Token.V_DELIMITER)
-        self.misc = _list_empty_map(fields[9], Token.EMPTY,
-            Token.COMPONENT_DELIMITER)
+        self.deps = _dict_singleton_empty_map(fields[8], Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_DEPS_SEPARATOR)
+        self.misc = _dict_empty_map(fields[9], Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
 
     def is_multiword(self):
         """
@@ -214,10 +217,10 @@ class Token:
             Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
         head = _unit_conllu_map(self.head, Token.EMPTY)
         deprel = _unit_conllu_map(self.deprel, Token.EMPTY)
-        deps = _dict_conllu_map(self.deps, Token.EMPTY,
+        deps = _dict_singleton_conllu_map(self.deps, Token.EMPTY,
+            Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR)
+        misc = _dict_conllu_map(self.misc, Token.EMPTY,
             Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR, Token.V_DELIMITER)
-        misc = _list_conllu_map(self.misc, Token.EMPTY,
-            Token.COMPONENT_DELIMITER)
 
         items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
 
