@@ -1,7 +1,8 @@
 from pyconllu.unit import Token
 
-def _test_token_members(token, id, form, lemma, upos, xpos, feats, head, deprel,
-    deps, misc):
+
+def _test_token_members(token, id, form, lemma, upos, xpos, feats, head,
+                        deprel, deps, misc):
     # NOTE: This uses equality for None comparison, is it worth doing differently?
     assert token.id == id
     assert token.form == form
@@ -14,6 +15,7 @@ def _test_token_members(token, id, form, lemma, upos, xpos, feats, head, deprel,
     assert token.deps == deps
     assert token.misc == misc
 
+
 def test_construction():
     """
     Test the normal construction of a general token.
@@ -21,9 +23,11 @@ def test_construction():
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n'
     token = Token(token_line)
 
-    _test_token_members(token, '7', 'vie', 'vie', 'NOUN', None,
-        { 'Gender': set(('Fem',)), 'Number': set(('Sing',)) },
-        '4', 'nmod', {}, { 'SpaceAfter': set(('No',)) })
+    _test_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
+        'Gender': set(('Fem', )),
+        'Number': set(('Sing', ))
+    }, '4', 'nmod', {}, {'SpaceAfter': set(('No', ))})
+
 
 def test_construction_no_newline():
     """
@@ -32,9 +36,11 @@ def test_construction_no_newline():
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_'
     token = Token(token_line)
 
-    _test_token_members(token, '7', 'vie', 'vie', 'NOUN', None,
-        { 'Gender': set(('Fem',)), 'Number': set(('Sing',)) },
-        '4', 'nmod', {}, {})
+    _test_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
+        'Gender': set(('Fem', )),
+        'Number': set(('Sing', ))
+    }, '4', 'nmod', {}, {})
+
 
 def test_only_form_and_lemma():
     """
@@ -44,7 +50,8 @@ def test_only_form_and_lemma():
     token = Token(token_line)
 
     _test_token_members(token, '10.1', 'micro-pays', 'micro-pays', None, None,
-        {}, None, None, {}, {})
+                        {}, None, None, {}, {})
+
 
 def test_multiple_features_modify():
     """
@@ -54,24 +61,25 @@ def test_multiple_features_modify():
         'Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	30	det	_	_\n'
     token = Token(token_line)
 
-    _test_token_members(token, '28', 'une', 'un', 'DET', None,
-        { 'Definite': set(('Ind',)),
-          'Gender': set(('Fem',)),
-          'Number': set(('Sing',)),
-          'PronType': set(('Art',))
-        },
-        '30', 'det', {}, {})
+    _test_token_members(
+        token, '28', 'une', 'un', 'DET', None, {
+            'Definite': set(('Ind', )),
+            'Gender': set(('Fem', )),
+            'Number': set(('Sing', )),
+            'PronType': set(('Art', ))
+        }, '30', 'det', {}, {})
 
     # Somehow this word is definite and indefinite!
     token.feats['Definite'].add('Def')
 
-    _test_token_members(token, '28', 'une', 'un', 'DET', None,
-        { 'Definite': set(('Ind', 'Def')),
-          'Gender': set(('Fem',)),
-          'Number': set(('Sing',)),
-          'PronType': set(('Art',))
-        },
-        '30', 'det', {}, {})
+    _test_token_members(
+        token, '28', 'une', 'un', 'DET', None, {
+            'Definite': set(('Ind', 'Def')),
+            'Gender': set(('Fem', )),
+            'Number': set(('Sing', )),
+            'PronType': set(('Art', ))
+        }, '30', 'det', {}, {})
+
 
 def test_deps_construction():
     """
@@ -80,14 +88,14 @@ def test_deps_construction():
     token_line = '1	They	they	PRON	PRP	Case=Nom|Number=Plur	2	nsubj	2:nsubj|4:nsubj	_\n'
     token = Token(token_line)
 
-    _test_token_members(token, '1', 'They', 'they', 'PRON', 'PRP',
-        { 'Case': set(('Nom',)),
-          'Number': set(('Plur',))
-        },
-        '2', 'nsubj',
-        { '2': 'nsubj',
-          '4': 'nsubj'
-        }, {})
+    _test_token_members(token, '1', 'They', 'they', 'PRON', 'PRP', {
+        'Case': set(('Nom', )),
+        'Number': set(('Plur', ))
+    }, '2', 'nsubj', {
+        '2': 'nsubj',
+        '4': 'nsubj'
+    }, {})
+
 
 def test_multiword_construction():
     """
@@ -97,8 +105,9 @@ def test_multiword_construction():
     token = Token(token_line)
 
     _test_token_members(token, '8-9', 'du', None, None, None, {}, None, None,
-        {}, {})
+                        {}, {})
     assert token.is_multiword()
+
 
 def test_to_string():
     """
@@ -109,6 +118,7 @@ def test_to_string():
     token = Token(token_line)
 
     assert str(token) == token_line
+
 
 def test_modify_unit_field_to_string():
     """
@@ -126,6 +136,7 @@ def test_modify_unit_field_to_string():
 
     assert str(token) == new_token_line
 
+
 def test_modify_dict_field_to_string():
     """
     Test a token's string representation after adding a feature.
@@ -140,6 +151,7 @@ def test_modify_dict_field_to_string():
         'Gender=Fem,Masc|Number=Sing	30	nmod	_	SpaceAfter=No'
 
     assert str(token) == new_token_line
+
 
 def test_remove_feature_to_string():
     """
