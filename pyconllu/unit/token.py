@@ -27,7 +27,8 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     v_delimiter: The delimiter between values for the same attribute.
 
     Returns:
-    An empty dict if value is empty. Otherwise, a dict of key-value where the values are sets.
+    An empty dict if value is empty. Otherwise, a dict of key-value where the
+    values are sets.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, False)
@@ -98,7 +99,7 @@ def _unit_conllu_map(value, empty):
 
 def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
     """
-    Map a dict whose attributes can have multiple values to its CoNLL-U format equivalent.
+    Map a dict whose attributes can have multiple values to CoNLL-U format.
 
     This CoNLL-U format will be sorted alphabetically by attribute and
     attributes with more than one value will have values sorted
@@ -120,7 +121,7 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
 
 def _dict_singleton_conllu_map(values, empty, delim, av_separator):
     """
-    Map a dict whose attributes can only have one value to its CoNLL-U format equivalent.
+    Map a dict whose attributes can only have one value to CoNLL-U format.
 
     Args:
     values: The dict to convert to CoNLL-U format.
@@ -145,8 +146,10 @@ def _dict_conllu_map_helper(values, empty, delim, av_separator, v_delimiter,
     empty: The empty CoNLL-U reprsentation for this value.
     delim: The delimiter between attribute-value pairs.
     av_separator: The separator between attribute and value.
-    v_delimiter: The delimiter between values of the same attribute if necessary.
-    singleton: Flag to indicate if the dictionary values are singletons or collections.
+    v_delimiter: The delimiter between values of the same attribute if
+        necessary.
+    singleton: Flag to indicate if the dictionary values are singletons or
+        collections.
 
     Returns:
     The CoNLL-U formatted equivalent to the value.
@@ -175,6 +178,13 @@ class Token:
     a single tab character and ending in an LF ('\n') line break. Each of the 10
     column values corresponds to a specific component of the token, such as id,
     word form, lemma, etc.
+
+    This class does not do any formatting validation on input or output. This
+    means that invalid input may be properly processed and then output. Or that
+    client changes to the token may result in invalid data that can then be
+    output. Properly formatted CoNLL-U will always work on input and as long as
+    all basic units are strings output will work as expected. The result may
+    just not be proper CoNLL-U.
     """
 
     # The different delimiters and separators for the CoNLL-U format.
@@ -210,7 +220,9 @@ class Token:
         Args:
         line: The line that represents the Token in CoNLL-U format.
         empty: A flag to signify if the word form and lemma can be assumed to be
-            empty and not the token signifying empty.
+            empty and not the token signifying empty. Only if both the form and
+            lemma are both the same token as empty and there is no empty
+            assumption, will they not be assigned to None.
         """
         if line[-1] == '\n':
             line = line[:-1]
