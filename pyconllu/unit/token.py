@@ -1,5 +1,4 @@
 # TODO: Look back over docstrings for helper methods.
-# TODO: Refactor dict and dict_singleton
 
 import operator
 
@@ -31,16 +30,8 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     An empty dict if value is empty. Otherwise, a dict of key-value pairs split
     on the Token feature delimiter.
     """
-    if values == empty:
-        return {}
-    else:
-        d = {}
-        for el in values.split(delim):
-            k, v = el.split(av_separator)
-            v = set(v.split(v_delimiter))
-            d[k] = v
-
-        return d
+    return _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
+        False)
 
 def _dict_singleton_empty_map(values, empty, delim, av_separator):
     """
@@ -53,6 +44,26 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
     av_separator: The separator between attribute and value in each component.
 
     Returns:
+    An empty dict if values is empty. Otherwise, a dict of key-value pairs where
+    the values are singletons.
+    """
+    return _dict_empty_map_helper(values, empty, delim, av_separator, None, True)
+
+def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
+    singleton):
+    """
+    A helper to consolidate logic between singleton and non-singleton mapping.
+
+    Args:
+    values: The value to parse.
+    empty: The empty representation for this value in CoNLL-U format.
+    delim: The delimiter between components of the value.
+    av_separator: The separator between attribute and value in each component.
+    v_delimiter: The delimiter between values for the same attribute.
+    singleton: A flag to indicate if the value has singleton values or not.
+
+    Returns:
+    An empty dict if the value is empty and otherwise a parsed equivalent.
     """
     if values == empty:
         return {}
@@ -60,7 +71,11 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
         d = {}
         for el in values.split(delim):
             k, v = el.split(av_separator)
-            d[k] = v
+            if singleton:
+                d[k] = v
+            else:
+                v = set(v.split(v_delimiter))
+                d[k] = v
 
         return d
 
@@ -93,26 +108,30 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
     Returns:
     The CoNLL-U format as a string.
     """
-    if values == {}:
-        return empty
-    else:
-        sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
-        string_av_pairs = []
-        for pair in sorted_av_pairs:
-            sorted_attr_values = sorted(pair[1], key=str.lower)
-            str_attrs = v_delimiter.join(sorted_attr_values)
-
-            string_av_pairs.append([pair[0], str_attrs])
-
-        return \
-            delim.join([av_separator.join(pair) for pair in string_av_pairs])
+    return _dict_conllu_map_helper(values, empty, delim, av_separator, v_delimiter,
+        False)
 
 def _dict_singleton_conllu_map(values, empty, delim, av_separator):
+    return _dict_conllu_map_helper(values, empty, delim, av_separator, None, True)
+
+def _dict_conllu_map_helper(values, empty, delim, av_separator, v_delimiter,
+    singleton):
     if values == {}:
         return empty
     else:
         sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
-        return delim.join([av_separator.join(pair) for pair in sorted_av_pairs])
+
+        if singleton:
+            av_pairs = sorted_av_pairs
+        else:
+            av_pairs = []
+            for pair in sorted_av_pairs:
+                sorted_attr_values = sorted(pair[1], key=str.lower)
+                str_attrs = v_delimiter.join(sorted_attr_values)
+
+                av_pairs.append([pair[0], str_attrs])
+
+        return delim.join([av_separator.join(pair) for pair in av_pairs])
 
 
 class Token:
