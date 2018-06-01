@@ -1,3 +1,6 @@
+format:
+	yapf -p -r -i pyconllu/ tests/
+
 test:
 	python -m pytest
 
