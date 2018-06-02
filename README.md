@@ -13,7 +13,7 @@ When working with the Universal Dependencies project, I was dissapointed with th
 Installation is easy like with most python packages. Simply use `pip` to install from PyPi.
 
 ```
-pip install pyconll
+pip install pyconllu
 ```
 
 This package is designed for, and only tested with python 3.4 and above.

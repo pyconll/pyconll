@@ -30,6 +30,6 @@ to install from PyPi.
 
 ::
 
-    pip install pyconll
+    pip install pyconllu
 
 This package is designed for, and only tested with python 3.4 and above.
