@@ -253,6 +253,8 @@ class Token:
         self.deps = _dict_singleton_empty_map(fields[8], Token.EMPTY,
                                               Token.COMPONENT_DELIMITER,
                                               Token.AV_DEPS_SEPARATOR)
+        # TODO: Handle misc field better. I'm not sure if it has to be key-value
+        # structure.
         self.misc = _dict_empty_map(fields[9], Token.EMPTY,
                                     Token.COMPONENT_DELIMITER,
                                     Token.AV_SEPARATOR, Token.V_DELIMITER)
@@ -266,7 +268,7 @@ class Token:
         """
         return '-' in self.id
 
-    def __str__(self):
+    def conllu(self):
         """
         Convert Token to the CoNLL-U representation.
 
