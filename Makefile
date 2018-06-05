@@ -2,7 +2,7 @@ format:
 	yapf -p -r -i pyconllu/ tests/
 
 test:
-	python -m pytest
+	python -m pytest -vv
 
 build:
 	python setup.py build

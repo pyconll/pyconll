@@ -1,19 +1,5 @@
 from pyconllu.unit import Token
-
-
-def _test_token_members(token, id, form, lemma, upos, xpos, feats, head,
-                        deprel, deps, misc):
-    # NOTE: This uses equality for None comparison, is it worth doing differently?
-    assert token.id == id
-    assert token.form == form
-    assert token.lemma == lemma
-    assert token.upos == upos
-    assert token.xpos == xpos
-    assert token.feats == feats
-    assert token.head == head
-    assert token.deprel == deprel
-    assert token.deps == deps
-    assert token.misc == misc
+from util import assert_token_members
 
 
 def test_construction():
@@ -23,7 +9,7 @@ def test_construction():
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n'
     token = Token(token_line)
 
-    _test_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
+    assert_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
         'Gender': set(('Fem', )),
         'Number': set(('Sing', ))
     }, '4', 'nmod', {}, {'SpaceAfter': set(('No', ))})
@@ -36,7 +22,7 @@ def test_construction_no_newline():
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_'
     token = Token(token_line)
 
-    _test_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
+    assert_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
         'Gender': set(('Fem', )),
         'Number': set(('Sing', ))
     }, '4', 'nmod', {}, {})
@@ -49,8 +35,8 @@ def test_only_form_and_lemma():
     token_line = '10.1	micro-pays	micro-pays	_	_	_	_	_	_	_\n'
     token = Token(token_line)
 
-    _test_token_members(token, '10.1', 'micro-pays', 'micro-pays', None, None,
-                        {}, None, None, {}, {})
+    assert_token_members(token, '10.1', 'micro-pays', 'micro-pays', None, None,
+                         {}, None, None, {}, {})
 
 
 def test_multiple_features_modify():
@@ -61,7 +47,7 @@ def test_multiple_features_modify():
         'Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	30	det	_	_\n'
     token = Token(token_line)
 
-    _test_token_members(
+    assert_token_members(
         token, '28', 'une', 'un', 'DET', None, {
             'Definite': set(('Ind', )),
             'Gender': set(('Fem', )),
@@ -72,7 +58,7 @@ def test_multiple_features_modify():
     # Somehow this word is definite and indefinite!
     token.feats['Definite'].add('Def')
 
-    _test_token_members(
+    assert_token_members(
         token, '28', 'une', 'un', 'DET', None, {
             'Definite': set(('Ind', 'Def')),
             'Gender': set(('Fem', )),
@@ -88,7 +74,7 @@ def test_deps_construction():
     token_line = '1	They	they	PRON	PRP	Case=Nom|Number=Plur	2	nsubj	2:nsubj|4:nsubj	_\n'
     token = Token(token_line)
 
-    _test_token_members(token, '1', 'They', 'they', 'PRON', 'PRP', {
+    assert_token_members(token, '1', 'They', 'they', 'PRON', 'PRP', {
         'Case': set(('Nom', )),
         'Number': set(('Plur', ))
     }, '2', 'nsubj', {
@@ -104,8 +90,8 @@ def test_multiword_construction():
     token_line = '8-9	du	_	_	_	_	_	_	_	_'
     token = Token(token_line)
 
-    _test_token_members(token, '8-9', 'du', None, None, None, {}, None, None,
-                        {}, {})
+    assert_token_members(token, '8-9', 'du', None, None, None, {}, None, None,
+                         {}, {})
     assert token.is_multiword()
 
 
@@ -176,8 +162,8 @@ def test_underscore_construction():
     token_line = '33	_	_	PUN	_	_	30	nmod	_	SpaceAfter=No'
     token = Token(token_line, empty=False)
 
-    _test_token_members(token, '33', '_', '_', 'PUN', None, {}, '30', 'nmod',
-                        {}, {'SpaceAfter': set(('No', ))})
+    assert_token_members(token, '33', '_', '_', 'PUN', None, {}, '30', 'nmod',
+                         {}, {'SpaceAfter': set(('No', ))})
 
 
 def test_empty_form_present_lemma():
@@ -187,8 +173,8 @@ def test_empty_form_present_lemma():
     token_line = '33	hate	_	VERB	_	_	30	nmod	_	SpaceAfter=No'
     token = Token(token_line, empty=False)
 
-    _test_token_members(token, '33', 'hate', None, 'VERB', None, {}, '30',
-                        'nmod', {}, {'SpaceAfter': set(('No', ))})
+    assert_token_members(token, '33', 'hate', None, 'VERB', None, {}, '30',
+                         'nmod', {}, {'SpaceAfter': set(('No', ))})
 
 
 def test_empty_lemma_present_form():
@@ -198,5 +184,5 @@ def test_empty_lemma_present_form():
     token_line = '33	_	hate	VERB	_	_	30	nmod	_	SpaceAfter=No'
     token = Token(token_line, empty=False)
 
-    _test_token_members(token, '33', None, 'hate', 'VERB', None, {}, '30',
-                        'nmod', {}, {'SpaceAfter': set(('No', ))})
+    assert_token_members(token, '33', None, 'hate', 'VERB', None, {}, '30',
+                         'nmod', {}, {'SpaceAfter': set(('No', ))})
