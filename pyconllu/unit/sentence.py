@@ -3,6 +3,7 @@ import re
 
 from pyconllu.unit import Token
 
+
 def _same_type_hierarchy(obj1, obj2):
     """
     Checks if two objects are within the same type hierarhcy.
@@ -46,21 +47,21 @@ class Sentence:
     """
 
     COMMENT_MARKER = '#'
-    KEY_VALUE_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S+)\s*=\s*(\S+)'
+    KEY_VALUE_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S+)\s*=\s*(.+)'
     SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S+)$'
 
     SENTENCE_ID_KEY = 'sent_id'
 
-    def __init__(self, conllu_s):
+    def __init__(self, source, doc=None, par=None):
         """
         Construct a Sentence object from the provided CoNLL-U string.
 
         Args:
-        conllu_s: The raw CoNLL-U string to parse. Comments must precede token
+        source: The raw CoNLL-U string to parse. Comments must precede token
             lines.
         """
-        self._source = conllu_s
-        lines = conllu_s.split('\n')
+        self.source = source
+        lines = self.source.split('\n')
 
         # Assign defaults to id and text now, and then reassign them if they
         # exist.
@@ -72,24 +73,26 @@ class Sentence:
         self._ids_to_indexes = {}
 
         for line in lines:
-            if line[0] == Sentence.COMMENT_MARKER:
-                kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN, line)
-                singleton_match = re.match(Sentence.SINGLETON_COMMENT_PATTERN,
-                                           line)
+            if line:
+                if line[0] == Sentence.COMMENT_MARKER:
+                    kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN,
+                                        line)
+                    singleton_match = re.match(
+                        Sentence.SINGLETON_COMMENT_PATTERN, line)
 
-                if kv_match:
-                    k = kv_match.group(1)
-                    v = kv_match.group(2)
-                    self.meta[k] = v
-                elif singleton_match:
-                    k = kv_match.group(1)
-                    self.meta[k] = None
-            else:
-                token = Token(line)
-                self._tokens.append(token)
+                    if kv_match:
+                        k = kv_match.group(1)
+                        v = kv_match.group(2)
+                        self.meta[k] = v
+                    elif singleton_match:
+                        k = kv_match.group(1)
+                        self.meta[k] = None
+                else:
+                    token = Token(line)
+                    self._tokens.append(token)
 
-                if token.id is not None:
-                    self._ids_to_indexes[token.id] = len(self._tokens) - 1
+                    if token.id is not None:
+                        self._ids_to_indexes[token.id] = len(self._tokens) - 1
 
         # TODO: keep track of whitespace here.
 
