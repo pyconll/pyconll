@@ -1,3 +1,5 @@
+import pytest
+
 from pyconllu.unit import Token
 from util import assert_token_members
 
@@ -37,6 +39,17 @@ def test_only_form_and_lemma():
 
     assert_token_members(token, '10.1', 'micro-pays', 'micro-pays', None, None,
                          {}, None, None, {}, {})
+
+
+def test_form_readonly():
+    """
+    Test that the word form for a Token is readonly.
+    """
+    token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_'
+    token = Token(token_line)
+
+    with pytest.raises(AttributeError):
+        token.form = 'vi'
 
 
 def test_multiple_features_modify():
@@ -114,10 +127,9 @@ def test_modify_unit_field_to_string():
         '30	nmod	_	SpaceAfter=No'
     token = Token(token_line)
 
-    token.form = 'pain'
     token.lemma = 'pain'
 
-    new_token_line = '33	pain	pain	NOUN	_	' \
+    new_token_line = '33	cintre	pain	NOUN	_	' \
         'Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No'
 
     assert token.conllu() == new_token_line
