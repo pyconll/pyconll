@@ -185,6 +185,10 @@ class Token:
     output. Properly formatted CoNLL-U will always work on input and as long as
     all basic units are strings output will work as expected. The result may
     just not be proper CoNLL-U.
+
+    Also note that the word form for a token is immutable. This is because
+    CoNLL-U is inherently interested in annotation schemes and not storing
+    sentences.
     """
 
     # The different delimiters and separators for the CoNLL-U format.
@@ -237,10 +241,10 @@ class Token:
         # Otherwise, these empty tokens might not mean empty, but rather the
         # actual tokens.
         if empty or (fields[1] != Token.EMPTY or fields[2] != Token.EMPTY):
-            self.form = _unit_empty_map(fields[1], Token.EMPTY)
+            self._form = _unit_empty_map(fields[1], Token.EMPTY)
             self.lemma = _unit_empty_map(fields[2], Token.EMPTY)
         elif fields[1] == Token.EMPTY and fields[2] == Token.EMPTY:
-            self.form = fields[1]
+            self._form = fields[1]
             self.lemma = fields[2]
 
         self.upos = _unit_empty_map(fields[3], Token.EMPTY)
@@ -258,6 +262,16 @@ class Token:
         self.misc = _dict_empty_map(fields[9], Token.EMPTY,
                                     Token.COMPONENT_DELIMITER,
                                     Token.AV_SEPARATOR, Token.V_DELIMITER)
+
+    @property
+    def form(self):
+        """
+        Provide the word form of this Token. This property makes it readonly.
+
+        Returns:
+        The Token wordform.
+        """
+        return self._form
 
     def is_multiword(self):
         """
