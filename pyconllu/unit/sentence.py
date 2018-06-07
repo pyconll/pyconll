@@ -50,7 +50,7 @@ class Sentence:
         self.source = source
         lines = self.source.split('\n')
 
-        self.meta = {}
+        self._meta = {}
         self._tokens = []
         self._ids_to_indexes = {}
 
@@ -65,10 +65,10 @@ class Sentence:
                     if kv_match:
                         k = kv_match.group(1)
                         v = kv_match.group(2)
-                        self.meta[k] = v
+                        self._meta[k] = v
                     elif singleton_match:
-                        k = kv_match.group(1)
-                        self.meta[k] = None
+                        k = singleton_match.group(1)
+                        self._meta[k] = None
                 else:
                     token = Token(line)
                     self._tokens.append(token)
@@ -84,7 +84,7 @@ class Sentence:
         Returns:
         The sentence id.
         """
-        return self.meta[Sentence.SENTENCE_ID_KEY]
+        return self._meta[Sentence.SENTENCE_ID_KEY]
 
     @id.setter
     def id(self, new_id):
@@ -94,7 +94,7 @@ class Sentence:
         Args:
         new_id: The new id of this sentence.
         """
-        self.meta[Sentence.SENTENCE_ID_KEY] = new_id
+        self._meta[Sentence.SENTENCE_ID_KEY] = new_id
 
     @property
     def text(self):
@@ -104,7 +104,22 @@ class Sentence:
         Returns;
         The continuous text of this sentence.
         """
-        return self.meta[Sentence.TEXT_KEY]
+        return self._meta[Sentence.TEXT_KEY]
+
+    def meta(self, key):
+        """
+        Returns the value associated with the key in the metadata (comments).
+
+        Args:
+        key: The key whose value to look up.
+
+        Returns:
+        The value associated with the key as a string or True if the key had no
+        associated value and was just a singleton.
+        """
+        v = self._meta[key]
+
+        return v if v is not None else True
 
     def conllu(self, include_text=True):
         """
@@ -118,7 +133,7 @@ class Sentence:
         A string representing the Sentence in CoNLL-U format.
         """
         lines = []
-        sorted_meta = sorted(self.meta.items(), key=operator.itemgetter(0))
+        sorted_meta = sorted(self._meta.items(), key=operator.itemgetter(0))
         for meta in sorted_meta:
             if meta[1] is not None:
                 line = '{} {} = {}'.format(Sentence.COMMENT_MARKER, meta[0],
