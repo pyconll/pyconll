@@ -1,3 +1,5 @@
+import pytest
+
 from pyconllu.unit import Sentence
 from util import assert_token_members
 
@@ -28,6 +30,22 @@ def test_simple_sentence_construction():
                          'punct', {}, {})
 
 
+def test_cannot_assign_tokens():
+    """
+    Test Sentence tokens cannot be assigned by id.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	3	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+
+    with pytest.raises(TypeError):
+        sentence['1'] = sentence['2']
+
+
 def test_metadata_parsing():
     """
     Test if the sentence can accurately parse all metadata in the comments.
@@ -43,11 +61,32 @@ def test_metadata_parsing():
               '4	?	?	PUNCT	_	_	3	punct	_	_\n')
     sentence = Sentence(source)
 
-    assert sentence.meta['sent_id'] == 'fr-ud-dev_00003'
-    assert sentence.meta['newdoc id'] == 'test id'
-    assert sentence.meta['text'] == 'Mais comment faire ?'
-    assert sentence.meta['text_en'] == 'But how is it done ?'
-    assert sentence.meta['translit'] == 'tat yathānuśrūyate.'
+    assert sentence.meta('sent_id') == 'fr-ud-dev_00003'
+    assert sentence.meta('newdoc id') == 'test id'
+    assert sentence.meta('text') == 'Mais comment faire ?'
+    assert sentence.meta('text_en') == 'But how is it done ?'
+    assert sentence.meta('translit') == 'tat yathānuśrūyate.'
+
+def test_singleton_parsing():
+    """
+    Test if the sentence can accurately parse all metadata in the comments.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# newdoc\n'
+              '# text = Mais comment faire ?\n'
+              '# text_en = But how is it done ?\n'
+              '# translit = tat yathānuśrūyate.\n'
+              '1	Mais	mais	CCONJ	_	_	3	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+
+    assert sentence.meta('sent_id') == 'fr-ud-dev_00003'
+    assert sentence.meta('newdoc') is True
+    assert sentence.meta('text') == 'Mais comment faire ?'
+    assert sentence.meta('text_en') == 'But how is it done ?'
+    assert sentence.meta('translit') == 'tat yathānuśrūyate.'
 
 def test_id_updating():
     """
@@ -65,7 +104,7 @@ def test_id_updating():
     sentence = Sentence(source)
 
     sentence.id = 'fr-ud-train_00123'
-    assert sentence.meta['sent_id'] == 'fr-ud-train_00123'
+    assert sentence.meta('sent_id') == 'fr-ud-train_00123'
 
 def test_output():
     """
