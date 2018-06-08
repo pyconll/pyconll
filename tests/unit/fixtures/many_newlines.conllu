@@ -1,0 +1,103 @@
+
+
+# sent_id = fr-ud-dev_00001
+# text = Aviator, un film sur la vie de Hughes.
+1	Aviator	Aviator	PROPN	_	_	0	root	_	SpaceAfter=No
+2	,	,	PUNCT	_	_	1	punct	_	_
+3	un	un	DET	_	Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
+4	film	film	NOUN	_	Gender=Masc|Number=Sing	1	appos	_	_
+5	sur	sur	ADP	_	_	7	case	_	_
+6	la	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	7	det	_	_
+7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_
+8	de	de	ADP	_	_	9	case	_	_
+9	Hughes	Hughes	PROPN	_	_	7	nmod	_	SpaceAfter=No
+10	.	.	PUNCT	_	_	1	punct	_	_
+
+# sent_id = fr-ud-dev_00002
+# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.
+1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_
+2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_
+3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+4	six	six	NUM	_	_	5	nummod	_	_
+5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_
+6	mais	mais	CCONJ	_	_	9	cc	_	_
+7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_
+8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_
+9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_
+10	donc	donc	ADV	_	_	9	advmod	_	_
+11	selon	selon	ADP	_	_	13	case	_	_
+12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_
+13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No
+14	.	.	PUNCT	_	_	3	punct	_	_
+
+
+# sent_id = fr-ud-dev_00003
+# text = Mais comment faire dans un contexte structurellement raciste ?
+1	Mais	mais	CCONJ	_	_	3	cc	_	_
+2	comment	comment	ADV	_	_	3	advmod	_	_
+3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_
+4	dans	dans	ADP	_	_	6	case	_	_
+5	un	un	DET	_	Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	6	det	_	_
+6	contexte	contexte	NOUN	_	Gender=Masc|Number=Sing	3	obl:mod	_	_
+7	structurellement	structurellement	ADV	_	_	8	advmod	_	_
+8	raciste	raciste	ADJ	_	Gender=Masc|Number=Sing	6	amod	_	_
+9	?	?	PUNCT	_	_	3	punct	_	_
+
+# sent_id = fr-ud-dev_00004
+# text = L'« oasis de vie », dans un milieu où règne l'obscurité totale et une pression hydrostatique importante, est riche et varié : les chercheurs y découvrent de nouvelles espèces de bivalves, de poissons, de crustacés, de poulpes dans des zones pensées jusqu'alors désertiques.
+1	L'	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	SpaceAfter=No
+2	«	«	PUNCT	_	_	3	punct	_	_
+3	oasis	oasis	NOUN	_	Gender=Fem|Number=Sing	23	nsubj	_	_
+4	de	de	ADP	_	_	5	case	_	_
+5	vie	vie	NOUN	_	Gender=Fem|Number=Sing	3	nmod	_	_
+6	»	»	PUNCT	_	_	3	punct	_	SpaceAfter=No
+7	,	,	PUNCT	_	_	3	punct	_	_
+8	dans	dans	ADP	_	_	10	case	_	_
+9	un	un	DET	_	Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	10	det	_	_
+10	milieu	milieu	NOUN	_	Gender=Masc|Number=Sing	23	obl:mod	_	_
+11	où	où	PRON	_	PronType=Rel	12	obl	_	_
+12	règne	régner	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	10	acl:relcl	_	_
+13	l'	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	14	det	_	SpaceAfter=No
+14	obscurité	obscurité	NOUN	_	Gender=Fem|Number=Sing	12	nsubj	_	_
+15	totale	total	ADJ	_	Gender=Fem|Number=Sing	14	amod	_	_
+16	et	et	CCONJ	_	_	18	cc	_	_
+17	une	un	DET	_	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	18	det	_	_
+18	pression	pression	NOUN	_	Gender=Fem|Number=Sing	14	conj	_	_
+19	hydrostatique	hydrostatique	ADJ	_	Gender=Fem|Number=Sing	18	amod	_	_
+20	importante	important	ADJ	_	Gender=Fem|Number=Sing	18	amod	_	SpaceAfter=No
+21	,	,	PUNCT	_	_	23	punct	_	_
+22	est	être	AUX	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	23	cop	_	_
+23	riche	riche	ADJ	_	Gender=Fem|Number=Sing	0	root	_	_
+24	et	et	CCONJ	_	_	25	cc	_	_
+25	varié	varié	ADJ	_	Gender=Masc|Number=Sing	23	conj	_	_
+26	:	:	PUNCT	_	_	23	punct	_	_
+27	les	le	DET	_	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	28	det	_	_
+28	chercheurs	chercheur	NOUN	_	Gender=Masc|Number=Plur	30	nsubj	_	_
+29	y	y	PRON	_	_	30	advmod	_	_
+30	découvrent	découvrir	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	23	parataxis	_	_
+31	de	un	DET	_	Definite=Ind|Gender=Fem|Number=Plur|PronType=Art	33	det	_	_
+32	nouvelles	nouveau	ADJ	_	Gender=Fem|Number=Plur	33	amod	_	_
+33	espèces	espèce	NOUN	_	Gender=Fem|Number=Plur	30	obj	_	_
+34	de	de	ADP	_	_	35	case	_	_
+35	bivalves	bivalve	NOUN	_	Gender=Masc|Number=Plur	33	nmod	_	SpaceAfter=No
+36	,	,	PUNCT	_	_	38	punct	_	_
+37	de	de	ADP	_	_	38	case	_	_
+38	poissons	poisson	NOUN	_	Gender=Masc|Number=Plur	35	conj	_	SpaceAfter=No
+39	,	,	PUNCT	_	_	41	punct	_	_
+40	de	de	ADP	_	_	41	case	_	_
+41	crustacés	crustacé	NOUN	_	Gender=Masc|Number=Plur	35	conj	_	SpaceAfter=No
+42	,	,	PUNCT	_	_	44	punct	_	_
+43	de	de	ADP	_	_	44	case	_	_
+44	poulpes	poulpe	NOUN	_	Gender=Masc|Number=Plur	35	conj	_	_
+45	dans	dans	ADP	_	_	47	case	_	_
+46	des	un	DET	_	Definite=Ind|Gender=Fem|Number=Plur|PronType=Art	47	det	_	_
+47	zones	zone	NOUN	_	Gender=Fem|Number=Plur	30	obl:mod	_	_
+48	pensées	penser	VERB	_	Gender=Fem|Number=Plur|Tense=Past|VerbForm=Part	47	acl	_	_
+49	jusqu'	jusque	ADP	_	_	50	case	_	SpaceAfter=No
+50	alors	alors	ADV	_	_	48	advmod	_	_
+51	désertiques	désertique	ADJ	_	Gender=Fem|Number=Plur	48	amod	_	SpaceAfter=No
+52	.	.	PUNCT	_	_	23	punct	_	_ 
+
+
+
+
