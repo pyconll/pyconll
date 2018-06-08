@@ -1,4 +1,4 @@
-## pyconll
+## pyconllU
 
 A simple package with simple intentions. Easily manipulate conll files using the familiar syntax of python.
 
