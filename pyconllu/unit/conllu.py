@@ -1,3 +1,5 @@
+import itertools
+
 from pyconllu.unit import Sentence
 
 
@@ -49,6 +51,43 @@ class Conllu:
 
             if sentence.id is not None:
                 self._ids_to_indexes[sentence.id] = len(self._sentences) - 1
+
+    def conllu(self):
+        """
+        Output the Conllu object to a CoNLL-U formatted string.
+
+        Returns:
+        The CoNLL-U object as a string. This string will end in a newline.
+        """
+        # Add newlines along with sentence strings so that there is no need to
+        # slice potentially long lists or modify strings.
+        components = []
+        for sentence in self._sentences:
+            sentence_strings.append(sentence.conllu())
+            components.append('\n\n')
+
+        components[-1] = '\n'
+
+        return ''.join(components)
+
+    def write(self, writable):
+        """
+        Write the Conllu object to something that is writable.
+
+        For simply writing, this method is more efficient than calling conllu
+        then writing since no string of the entire Conllu object is created. The
+        final output will include a final newline.
+
+        Args:
+        writable: The writable object such as a file. Must have a write method.
+        """
+        for sentence in itertools.islice(self._sentences, 0, -1):
+            writable.write(sentence.conllu())
+            writable.write('\n\n')
+
+        last = self._sentences[-1]
+        writable.write(last.conllu())
+        writable.write('\n')
 
     def __iter__(self):
         """
