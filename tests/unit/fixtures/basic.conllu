@@ -93,5 +93,5 @@
 49	jusqu'	jusque	ADP	_	_	50	case	_	SpaceAfter=No
 50	alors	alors	ADV	_	_	48	advmod	_	_
 51	désertiques	désertique	ADJ	_	Gender=Fem|Number=Plur	48	amod	_	SpaceAfter=No
-52	.	.	PUNCT	_	_	23	punct	_	_ 
+52	.	.	PUNCT	_	_	23	punct	_	_
 

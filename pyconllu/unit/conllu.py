@@ -63,10 +63,8 @@ class Conllu:
         # slice potentially long lists or modify strings.
         components = []
         for sentence in self._sentences:
-            sentence_strings.append(sentence.conllu())
+            components.append(sentence.conllu())
             components.append('\n\n')
-
-        components[-1] = '\n'
 
         return ''.join(components)
 
@@ -81,13 +79,9 @@ class Conllu:
         Args:
         writable: The writable object such as a file. Must have a write method.
         """
-        for sentence in itertools.islice(self._sentences, 0, -1):
+        for sentence in self._sentences:
             writable.write(sentence.conllu())
             writable.write('\n\n')
-
-        last = self._sentences[-1]
-        writable.write(last.conllu())
-        writable.write('\n')
 
     def __iter__(self):
         """
