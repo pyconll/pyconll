@@ -110,3 +110,33 @@ def test_slice_indexing():
 
     every_2 = conllu[1:6:2]
     assert len(every_2) == 3
+
+def test_string_output():
+    """
+    Test that the strings are properly created.
+    """
+    with open(_fixture_location('basic.conllu')) as f:
+        contents = f.read()
+        f.seek(0)
+        conllu = Conllu(f)
+
+    assert contents == conllu.conllu()
+
+def test_writing_output():
+    """
+    Test that CoNLL-U files are properly created.
+    """
+    with open(_fixture_location('basic.conllu')) as f:
+        contents_basic = f.read()
+        f.seek(0)
+        conllu = Conllu(f)
+
+    output_loc = _fixture_location('output.conllu')
+    with open(output_loc, 'w') as f:
+        conllu.write(f)
+
+    with open(output_loc) as f:
+        contents_write = f.read()
+    os.remove(_fixture_location('output.conllu'))
+
+    assert contents_basic == contents_write
