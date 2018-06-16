@@ -111,6 +111,7 @@ def test_slice_indexing():
     every_2 = conllu[1:6:2]
     assert len(every_2) == 3
 
+
 def test_string_output():
     """
     Test that the strings are properly created.
@@ -121,6 +122,7 @@ def test_string_output():
         conllu = Conllu(f)
 
     assert contents == conllu.conllu()
+
 
 def test_writing_output():
     """

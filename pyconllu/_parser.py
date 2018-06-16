@@ -1,5 +1,6 @@
 from pyconllu.unit import Sentence
 
+
 def iter_sentences(lines_it):
     """
     Iterate over the constructed sentences in the given lines.

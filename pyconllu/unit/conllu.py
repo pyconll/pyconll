@@ -1,7 +1,7 @@
 import itertools
 
-from pyconllu._parser import iter_sentences
 from pyconllu.unit import Sentence
+import pyconllu._parser
 
 
 class Conllu:
@@ -14,6 +14,8 @@ class Conllu:
     """
 
     def __init__(self, it):
+        # Replacing from ... import syntax with this semi equivalent.
+        #iter_sentences = pyconllu._parser.iter_sentences
         """
         Create a CoNLL-U file collection of sentences.
 
@@ -23,11 +25,10 @@ class Conllu:
         self._sentences = []
         self._ids_to_indexes = {}
 
-        for sentence in iter_sentences(it):
+        for sentence in pyconllu._parser.iter_sentences(it):
             if sentence.id is not None:
                 self._sentences.append(sentence)
-                self._ids_to_indexes[sentence.id] = len(
-                    self._sentences) - 1
+                self._ids_to_indexes[sentence.id] = len(self._sentences) - 1
 
     def conllu(self):
         """

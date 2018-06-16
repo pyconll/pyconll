@@ -1,6 +1,7 @@
 from pyconllu._parser import iter_sentences
 from pyconllu.unit import Conllu
 
+
 def load_from_string(source):
     """
     Load CoNLL-U source in a string into a Conllu object.
@@ -62,5 +63,5 @@ def iter_from_file(filename):
     An iterator that yields consecutive sentences.
     """
     with open(filename) as f:
-         for sentence in iter_sentences(f):
+        for sentence in iter_sentences(f):
             yield sentence
