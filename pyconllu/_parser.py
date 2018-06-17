@@ -44,7 +44,7 @@ def _create_sentence(sent_lines, start, end):
     The create Sentence.
     """
     sent_source = '\n'.join(sent_lines)
-    sentence = Sentence(sent_source, _start_line=start, _end_line=end)
+    sentence = Sentence(sent_source, _start_line_number=start, _end_line_number=end)
     sent_lines.clear()
 
     return sentence

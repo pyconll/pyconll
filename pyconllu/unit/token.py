@@ -203,7 +203,7 @@ class Token:
     V_DELIMITER = ','
     EMPTY = '_'
 
-    def __init__(self, source, empty=True, line=None):
+    def __init__(self, source, empty=True, _line_number=None):
         """
         Construct the token from the given source.
 
@@ -227,11 +227,13 @@ class Token:
             empty and not the token signifying empty. Only if both the form and
             lemma are both the same token as empty and there is no empty
             assumption, will they not be assigned to None.
+        _line_number: The line number for this Token in a CoNLL-U file. For
+            internal use mostly.
         """
         if source[-1] == '\n':
             source = source[:-1]
 
-        self.line = line
+        self.line_number = _line_number
 
         fields = source.split(Token.FIELD_DELIMITER)
 
