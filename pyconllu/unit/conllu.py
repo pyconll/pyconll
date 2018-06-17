@@ -61,6 +61,37 @@ class Conllu:
             writable.write(sentence.conllu())
             writable.write('\n\n')
 
+    def conllu(self):
+        """
+        Output the Conllu object to a CoNLL-U formatted string.
+
+        Returns:
+        The CoNLL-U object as a string. This string will end in a newline.
+        """
+        # Add newlines along with sentence strings so that there is no need to
+        # slice potentially long lists or modify strings.
+        components = []
+        for sentence in self._sentences:
+            components.append(sentence.conllu())
+            components.append('\n\n')
+
+        return ''.join(components)
+
+    def write(self, writable):
+        """
+        Write the Conllu object to something that is writable.
+
+        For simply writing, this method is more efficient than calling conllu
+        then writing since no string of the entire Conllu object is created. The
+        final output will include a final newline.
+
+        Args:
+        writable: The writable object such as a file. Must have a write method.
+        """
+        for sentence in self._sentences:
+            writable.write(sentence.conllu())
+            writable.write('\n\n')
+
     def __iter__(self):
         """
         Allows for iteration over every sentence in the CoNLL-U file.
