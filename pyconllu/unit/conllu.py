@@ -1,7 +1,7 @@
 import itertools
 
-from pyconllu.unit import Sentence
 import pyconllu._parser
+from pyconllu.unit import Sentence
 
 
 class Conllu:
@@ -14,13 +14,14 @@ class Conllu:
     """
 
     def __init__(self, it):
-        # Replacing from ... import syntax with this semi equivalent.
-        #iter_sentences = pyconllu._parser.iter_sentences
         """
         Create a CoNLL-U file collection of sentences.
 
         Args:
         it: An iterator of the lines of the CoNLL-U file.
+        with_lines: An optional flag indicating to include line numbers when
+            constructing Sentences. If set, the Sentences will have a start and
+            end line number, and Tokens will have a line number.
         """
         self._sentences = []
         self._ids_to_indexes = {}
