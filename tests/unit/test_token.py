@@ -1,7 +1,7 @@
 import pytest
 
 from pyconllu.unit import Token
-from util import assert_token_members
+from tests.unit.util import assert_token_members
 
 
 def test_construction():
