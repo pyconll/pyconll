@@ -15,15 +15,9 @@ class Sentence:
     field. For singleton comments with no key-value structure, the value in the
     dict has a value of None.
 
-    Note the sent_id field is also assigned to the id property for usability.
-    Also note that to get the current text of the Sentence, use the text
-    property. The value in the meta dict is not updated as tokens change and so
-    will not be current. The id field will be None if to start if there is no
-    id comment. The text field will never be None to start and instead computes
-    the text each time from the tokens.
-
-    TODO: This use of fields seems somewhat complicated. There may be a clearer
-    way.
+    Note the sent_id field is also assigned to the id property, and the text
+    field is assigned to the text property for usability. The text property is
+    read only.
 
     Then second, are the token lines. Each sentence is made up of many token
     lines that provide annotation to the text provided. While a sentence usually
@@ -39,22 +33,27 @@ class Sentence:
     TEXT_KEY = 'text'
 
     # TODO: How to handle doc and par.
-    def __init__(self, source):
+    def __init__(self, source, _start_line=None, _end_line=None):
         """
         Construct a Sentence object from the provided CoNLL-U string.
 
         Args:
         source: The raw CoNLL-U string to parse. Comments must precede token
             lines.
+        _start_line: The starting line of the sentence. Mostly for internal use.
+        _end_line: The ending line of the sentence. Mostly for internal use.
         """
         self.source = source
         lines = self.source.split('\n')
+
+        self.start_line = _start_line
+        self.end_line = _end_line
 
         self._meta = {}
         self._tokens = []
         self._ids_to_indexes = {}
 
-        for line in lines:
+        for i, line in enumerate(lines):
             if line:
                 if line[0] == Sentence.COMMENT_MARKER:
                     kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN,
@@ -70,7 +69,13 @@ class Sentence:
                         k = singleton_match.group(1)
                         self._meta[k] = None
                 else:
-                    token = Token(line)
+                    # If there is a line number for the sentence, then include
+                    # the line number for the token.
+                    if self.start_line:
+                        token = Token(line, self.start_line + i)
+                    else:
+                        token = Token(line)
+
                     self._tokens.append(token)
 
                     if token.id is not None:

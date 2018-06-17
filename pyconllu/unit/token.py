@@ -203,9 +203,9 @@ class Token:
     V_DELIMITER = ','
     EMPTY = '_'
 
-    def __init__(self, line, empty=True):
+    def __init__(self, source, empty=True, line=None):
         """
-        Construct the token from the given line.
+        Construct the token from the given source.
 
         A Token line must end in an an LF line break according to the
         specification. However, this method will accept a line with or without
@@ -215,7 +215,7 @@ class Token:
         either refer to an empty value or an actual underscore. So the flag
         empty_form allows for control over this if it is known from outside
         information. If, the token is a multiword token, all fields except for
-        form are empty.
+        form should be empty.
 
         Note that no validation is done on input. Valid input will be processed
         properly, but there is no guarantee as to invalid input that does not
@@ -228,10 +228,12 @@ class Token:
             lemma are both the same token as empty and there is no empty
             assumption, will they not be assigned to None.
         """
-        if line[-1] == '\n':
-            line = line[:-1]
+        if source[-1] == '\n':
+            source = source[:-1]
 
-        fields = line.split(Token.FIELD_DELIMITER)
+        self.line = line
+
+        fields = source.split(Token.FIELD_DELIMITER)
 
         # Assign all the field values from the line to internal equivalents.
         self.id = fields[0]
