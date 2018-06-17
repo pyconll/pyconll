@@ -33,21 +33,23 @@ class Sentence:
     TEXT_KEY = 'text'
 
     # TODO: How to handle doc and par.
-    def __init__(self, source, _start_line=None, _end_line=None):
+    def __init__(self, source, _start_line_number=None, _end_line_number=None):
         """
         Construct a Sentence object from the provided CoNLL-U string.
 
         Args:
         source: The raw CoNLL-U string to parse. Comments must precede token
             lines.
-        _start_line: The starting line of the sentence. Mostly for internal use.
-        _end_line: The ending line of the sentence. Mostly for internal use.
+        _start_line_number: The starting line of the sentence. Mostly for
+            internal use.
+        _end_line_number: The ending line of the sentence. Mostly for internal
+            use.
         """
         self.source = source
         lines = self.source.split('\n')
 
-        self.start_line = _start_line
-        self.end_line = _end_line
+        self.start_line_number = _start_line_number
+        self.end_line_number = _end_line_number
 
         self._meta = {}
         self._tokens = []
@@ -71,8 +73,8 @@ class Sentence:
                 else:
                     # If there is a line number for the sentence, then include
                     # the line number for the token.
-                    if self.start_line:
-                        token = Token(line, self.start_line + i)
+                    if self.start_line_number:
+                        token = Token(line, _line_number=self.start_line_number + i)
                     else:
                         token = Token(line)
 
