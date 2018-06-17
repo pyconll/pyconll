@@ -1,1 +1,3 @@
-__all__ = ['conllu', 'unit']
+__all__ = ['load', 'unit']
+
+from .load import load_from_string, load_from_file, iter_from_string, iter_from_file
