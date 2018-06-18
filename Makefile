@@ -4,6 +4,9 @@ format:
 test:
 	python -m pytest -vv
 
+coveragetest:
+	coverage run --source pyconllu -m pytest
+
 build:
 	python setup.py build
 
