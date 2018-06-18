@@ -136,3 +136,34 @@ def test_writing_output():
     os.remove(fixture_location('output.conllu'))
 
     assert contents_basic == contents_write
+
+
+def test_sentence_line_numbers():
+    """
+    Test that the CoNLL-U files properly associate line numbers.
+    """
+    sentence_bounds = [(1, 12), (14, 29), (31, 41), (43, 96)]
+
+    with open(fixture_location('basic.conllu')) as f:
+        c = Conllu(f)
+
+    for i, sent in enumerate(c):
+        cur_bounds = sentence_bounds[i]
+        assert sent.start_line_number == cur_bounds[0]
+        assert sent.end_line_number == cur_bounds[1]
+
+
+def test_sentence_line_numbers_extra_newlines():
+    """
+    Test that the CoNLL-U files properly read in the sentence lines when there
+    are extra newlines.
+    """
+    sentence_bounds = [(3, 14), (16, 31), (34, 44), (46, 99)]
+
+    with open(fixture_location('many_newlines.conllu')) as f:
+        c = Conllu(f)
+
+    for i, sent in enumerate(c):
+        cur_bounds = sentence_bounds[i]
+        assert sent.start_line_number == cur_bounds[0]
+        assert sent.end_line_number == cur_bounds[1]

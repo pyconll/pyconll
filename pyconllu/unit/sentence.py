@@ -74,7 +74,8 @@ class Sentence:
                     # If there is a line number for the sentence, then include
                     # the line number for the token.
                     if self.start_line_number:
-                        token = Token(line, _line_number=self.start_line_number + i)
+                        token = Token(
+                            line, _line_number=self.start_line_number + i)
                     else:
                         token = Token(line)
 
