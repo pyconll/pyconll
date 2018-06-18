@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/matgrioni/pyconllu.svg?branch=master)](https://travis-ci.org/matgrioni/pyconllu)
+[![Coverage Status](https://coveralls.io/repos/github/matgrioni/pyconllu/badge.svg?branch=master)](https://coveralls.io/github/matgrioni/pyconllu?branch=master)
+
 ## pyconllu
 
 A simple package with simple intentions. Easily manipulate conll files using the familiar syntax of python.

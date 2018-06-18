@@ -1,3 +1,5 @@
+|Build Status| |Coverage Status|
+
 pyconllu
 --------
 
@@ -43,3 +45,8 @@ to install from PyPi.
     pip install pyconllu
 
 This package is designed for, and only tested with python 3.4 and above.
+
+.. |Build Status| image:: https://travis-ci.org/matgrioni/pyconllu.svg?branch=master
+   :target: https://travis-ci.org/matgrioni/pyconllu
+.. |Coverage Status| image:: https://coveralls.io/repos/github/matgrioni/pyconllu/badge.svg?branch=master
+   :target: https://coveralls.io/github/matgrioni/pyconllu?branch=master
