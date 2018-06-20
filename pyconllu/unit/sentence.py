@@ -114,7 +114,7 @@ class Sentence:
         """
         return self._meta[Sentence.TEXT_KEY]
 
-    def meta(self, key):
+    def meta_value(self, key):
         """
         Returns the value associated with the key in the metadata (comments).
 
