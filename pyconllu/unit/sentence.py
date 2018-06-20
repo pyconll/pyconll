@@ -175,6 +175,13 @@ class Sentence:
         """
         Return the desired tokens from the Sentence.
 
+        Args:
+        key: The indicator for the tokens to return. Can either be an integer, a
+            string, or a slice. For an integer, the numeric indexes of Tokens
+            are used. For a string, the id of the Token is used. And for a slice
+            the start and end must be the same data types, and can be both
+            string and integer.
+
         Returns:
         If the key is a string then the appropriate Token. The key can also be
         a slice in which case a list of tokens is provided.
@@ -182,9 +189,15 @@ class Sentence:
         if isinstance(key, str):
             idx = self._ids_to_indexes[key]
             return self._tokens[idx]
+        elif isinstance(key, int):
+            return self._tokens[key]
         elif isinstance(key, slice):
-            start_idx = self._ids_to_indexes[key.start]
-            end_idx = self._ids_toindexes[key.end]
+            if isinstance(key.start, str):
+                start_idx = self._ids_to_indexes[key.start]
+                end_idx = self._ids_to_indexes[key.stop]
+            else:
+                start_idx = key.start
+                end_idx = key.stop
 
             return self._tokens[start_idx:end_idx:key.step]
 
