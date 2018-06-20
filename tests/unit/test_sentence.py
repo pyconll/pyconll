@@ -132,6 +132,7 @@ def test_id_updating():
     sentence.id = 'fr-ud-train_00123'
     assert sentence.meta_value('sent_id') == 'fr-ud-train_00123'
 
+
 def test_iter():
     """
     Test that the sentence can be properly iterated over.
@@ -180,7 +181,11 @@ def test_str_indexing():
     sentence = Sentence(source)
 
     test_token = sentence['8']
-    assert_token_members(test_token, '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
+    assert_token_members(test_token, '8', 'contenu', 'contenu', 'NOUN', None, {
+        'Gender': set(('Masc', )),
+        'Number': set(('Sing', ))
+    }, '9', 'nsubj', {}, {})
+
 
 def test_int_indexing():
     """
@@ -206,7 +211,10 @@ def test_int_indexing():
     sentence = Sentence(source)
 
     test_token = sentence[7]
-    assert_token_members(test_token, '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
+    assert_token_members(test_token, '8', 'contenu', 'contenu', 'NOUN', None, {
+        'Gender': set(('Masc', )),
+        'Number': set(('Sing', ))
+    }, '9', 'nsubj', {}, {})
 
 
 def test_int_slice_indexing():
@@ -233,10 +241,21 @@ def test_int_slice_indexing():
     sentence = Sentence(source)
 
     test_tokens = sentence[7:10]
-    assert_token_members(test_tokens[0], '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
-    assert_token_members(test_tokens[1], '9', 'diffère', 'différer', 'VERB', None, {'Mood': set(('Ind',)), 'Number': set(('Sing',)), 'Person': set(('3',)), 'Tense': set(('Pres',)), 'VerbForm': set(('Fin',))}, '3', 'conj', {}, {})
-    assert_token_members(test_tokens[2], '10', 'donc', 'donc', 'ADV', None, {}, '9', 'advmod', {}, {})
-
+    assert_token_members(test_tokens[0], '8', 'contenu', 'contenu', 'NOUN',
+                         None, {
+                             'Gender': set(('Masc', )),
+                             'Number': set(('Sing', ))
+                         }, '9', 'nsubj', {}, {})
+    assert_token_members(
+        test_tokens[1], '9', 'diffère', 'différer', 'VERB', None, {
+            'Mood': set(('Ind', )),
+            'Number': set(('Sing', )),
+            'Person': set(('3', )),
+            'Tense': set(('Pres', )),
+            'VerbForm': set(('Fin', ))
+        }, '3', 'conj', {}, {})
+    assert_token_members(test_tokens[2], '10', 'donc', 'donc', 'ADV', None, {},
+                         '9', 'advmod', {}, {})
 
 
 def test_str_slice_indexing():
@@ -263,9 +282,21 @@ def test_str_slice_indexing():
     sentence = Sentence(source)
 
     test_tokens = sentence['8':'11']
-    assert_token_members(test_tokens[0], '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
-    assert_token_members(test_tokens[1], '9', 'diffère', 'différer', 'VERB', None, {'Mood': set(('Ind',)), 'Number': set(('Sing',)), 'Person': set(('3',)), 'Tense': set(('Pres',)), 'VerbForm': set(('Fin',))}, '3', 'conj', {}, {})
-    assert_token_members(test_tokens[2], '10', 'donc', 'donc', 'ADV', None, {}, '9', 'advmod', {}, {})
+    assert_token_members(test_tokens[0], '8', 'contenu', 'contenu', 'NOUN',
+                         None, {
+                             'Gender': set(('Masc', )),
+                             'Number': set(('Sing', ))
+                         }, '9', 'nsubj', {}, {})
+    assert_token_members(
+        test_tokens[1], '9', 'diffère', 'différer', 'VERB', None, {
+            'Mood': set(('Ind', )),
+            'Number': set(('Sing', )),
+            'Person': set(('3', )),
+            'Tense': set(('Pres', )),
+            'VerbForm': set(('Fin', ))
+        }, '3', 'conj', {}, {})
+    assert_token_members(test_tokens[2], '10', 'donc', 'donc', 'ADV', None, {},
+                         '9', 'advmod', {}, {})
 
 
 def test_len_basic():
@@ -292,6 +323,7 @@ def test_len_basic():
     sentence = Sentence(source)
 
     assert len(sentence) == 14
+
 
 def test_len_empty():
     """
