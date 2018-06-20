@@ -132,6 +132,205 @@ def test_id_updating():
     sentence.id = 'fr-ud-train_00123'
     assert sentence.meta_value('sent_id') == 'fr-ud-train_00123'
 
+def test_iter():
+    """
+    Test that the sentence can be properly iterated over.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# newdoc id = test id\n'
+              '# text = Mais comment faire ?\n'
+              '# text_en = But how is it done ?\n'
+              '# translit = tat yathānuśrūyate.\n'
+              '1	Mais	mais	CCONJ	_	_	3	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+
+    expected_ids = ['1', '2', '3', '4']
+    expected_forms = ['Mais', 'comment', 'faire', '?']
+    actual_ids = [token.id for token in sentence]
+    actual_forms = [token.form for token in sentence]
+
+    assert expected_ids == actual_ids
+    assert expected_forms == actual_forms
+
+
+def test_str_indexing():
+    """
+    Test indexing by token id (string).
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    test_token = sentence['8']
+    assert_token_members(test_token, '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
+
+def test_int_indexing():
+    """
+    Test indexing by the integer position in the sentence (int).
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    test_token = sentence[7]
+    assert_token_members(test_token, '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
+
+
+def test_int_slice_indexing():
+    """
+    Test slicing with integer over tokens.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    test_tokens = sentence[7:10]
+    assert_token_members(test_tokens[0], '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
+    assert_token_members(test_tokens[1], '9', 'diffère', 'différer', 'VERB', None, {'Mood': set(('Ind',)), 'Number': set(('Sing',)), 'Person': set(('3',)), 'Tense': set(('Pres',)), 'VerbForm': set(('Fin',))}, '3', 'conj', {}, {})
+    assert_token_members(test_tokens[2], '10', 'donc', 'donc', 'ADV', None, {}, '9', 'advmod', {}, {})
+
+
+
+def test_str_slice_indexing():
+    """
+    Test slicing with strings over tokens.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    test_tokens = sentence['8':'11']
+    assert_token_members(test_tokens[0], '8', 'contenu', 'contenu', 'NOUN', None, {'Gender': set(('Masc',)), 'Number': set(('Sing',))}, '9', 'nsubj', {}, {})
+    assert_token_members(test_tokens[1], '9', 'diffère', 'différer', 'VERB', None, {'Mood': set(('Ind',)), 'Number': set(('Sing',)), 'Person': set(('3',)), 'Tense': set(('Pres',)), 'VerbForm': set(('Fin',))}, '3', 'conj', {}, {})
+    assert_token_members(test_tokens[2], '10', 'donc', 'donc', 'ADV', None, {}, '9', 'advmod', {}, {})
+
+
+def test_len_basic():
+    """
+    Test if the length is appropriate for a normal sentence.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    assert len(sentence) == 14
+
+def test_len_empty():
+    """
+    Test if an empty sentence is properly parsed.
+    """
+    source = ''
+    sentence = Sentence(source)
+
+    assert len(sentence) == 0
+
+
+def test_text_readonly():
+    """
+    Test that the text comment of a Sentence is read properly and is readonly.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    with pytest.raises(AttributeError):
+        sentence.text = 'error causing text'
+
+    assert sentence.text == 'Les études durent six ans mais leur contenu diffère donc selon les Facultés.'
+
 
 def test_output():
     """
