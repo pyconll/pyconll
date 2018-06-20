@@ -9,20 +9,20 @@ class Sentence:
     A sentence in a CoNLL-U file. A sentence consists of several components.
 
     First, are comments. Each sentence must have two comments per UD v2
-    guidelines, which are sent_id and text. While this class does not have this
-    requirement, a sent_id or text comment must have the correct structure. This
-    means no ':' instead of '='. Comments are stored as a dict in the meta
-    field. For singleton comments with no key-value structure, the value in the
-    dict has a value of None.
+    guidelines, which are sent_id and text. Comments are stored as a dict in
+    the meta field. For singleton comments with no key-value structure, the
+    value in the dict has a value of None.
 
     Note the sent_id field is also assigned to the id property, and the text
-    field is assigned to the text property for usability. The text property is
-    read only.
+    field is assigned to the text property for usability, and their importance
+    as comments. The text property is read only.
 
-    Then second, are the token lines. Each sentence is made up of many token
+    Then comes the token annotations. Each sentence is made up of many token
     lines that provide annotation to the text provided. While a sentence usually
-    means a collection of tokens, in this CoNLL-U since, it is more useful to
+    means a collection of tokens, in this CoNLL-U sense, it is more useful to
     think of it as a collection of annotations with some associated metadata.
+    Therefore the text of the sentence cannot be changed with this class, only
+    the associated annotations can be changed.
     """
 
     COMMENT_MARKER = '#'
@@ -122,20 +122,28 @@ class Sentence:
         key: The key whose value to look up.
 
         Returns:
-        The value associated with the key as a string or True if the key had no
-        associated value and was just a singleton.
+        The value associated with the key as a string. If the key is not present
+        then a KeyError is thrown, and if the key is a singleton then None is
+        returned.
         """
-        v = self._meta[key]
+        return self._meta[key]
 
-        return v if v is not None else True
-
-    def conllu(self, include_text=True):
+    def meta_present(self, key):
         """
-        Convert the sentence to a CoNLL-U representation.
+        Check if the key is present as a singleton or as a pair.
 
         Args:
-        include_text: Flag to indicate if the output should include a comment
-            for the text.
+        key: The value to check for in the comments.
+
+        Returns:
+        True if the key was provided as a singleton or as a key value pair.
+        False otherwise.
+        """
+        return key in self._meta
+
+    def conllu(self):
+        """
+        Convert the sentence to a CoNLL-U representation.
 
         Returns:
         A string representing the Sentence in CoNLL-U format.
@@ -166,6 +174,10 @@ class Sentence:
     def __getitem__(self, key):
         """
         Return the desired tokens from the Sentence.
+
+        Returns:
+        If the key is a string then the appropriate Token. The key can also be
+        a slice in which case a list of tokens is provided.
         """
         if isinstance(key, str):
             idx = self._ids_to_indexes[key]
