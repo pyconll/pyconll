@@ -61,11 +61,15 @@ def test_metadata_parsing():
               '4	?	?	PUNCT	_	_	3	punct	_	_\n')
     sentence = Sentence(source)
 
-    assert sentence.meta('sent_id') == 'fr-ud-dev_00003'
-    assert sentence.meta('newdoc id') == 'test id'
-    assert sentence.meta('text') == 'Mais comment faire ?'
-    assert sentence.meta('text_en') == 'But how is it done ?'
-    assert sentence.meta('translit') == 'tat yathānuśrūyate.'
+    assert sentence.meta_value('sent_id') == 'fr-ud-dev_00003'
+    assert sentence.meta_value('newdoc id') == 'test id'
+    assert sentence.meta_value('text') == 'Mais comment faire ?'
+    assert sentence.meta_value('text_en') == 'But how is it done ?'
+    assert sentence.meta_value('translit') == 'tat yathānuśrūyate.'
+
+    assert sentence.meta_present('text') is True
+    assert sentence.meta_present('translit') is True
+    assert sentence.meta_present('fake') is False
 
 
 def test_singleton_parsing():
@@ -83,11 +87,31 @@ def test_singleton_parsing():
               '4	?	?	PUNCT	_	_	3	punct	_	_\n')
     sentence = Sentence(source)
 
-    assert sentence.meta('sent_id') == 'fr-ud-dev_00003'
-    assert sentence.meta('newdoc') is True
-    assert sentence.meta('text') == 'Mais comment faire ?'
-    assert sentence.meta('text_en') == 'But how is it done ?'
-    assert sentence.meta('translit') == 'tat yathānuśrūyate.'
+    assert sentence.meta_value('sent_id') == 'fr-ud-dev_00003'
+    assert sentence.meta_present('newdoc') is True
+    assert sentence.meta_value('text') == 'Mais comment faire ?'
+    assert sentence.meta_value('text_en') == 'But how is it done ?'
+    assert sentence.meta_value('translit') == 'tat yathānuśrūyate.'
+
+
+def test_metadata_error():
+    """
+    Test if the proper error is seen when asking for the value of a nonexisting
+    comment.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# newdoc\n'
+              '# text = Mais comment faire ?\n'
+              '# text_en = But how is it done ?\n'
+              '# translit = tat yathānuśrūyate.\n'
+              '1	Mais	mais	CCONJ	_	_	3	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+
+    with pytest.raises(KeyError):
+        sentence.meta_value('newpar')
 
 
 def test_id_updating():
@@ -106,7 +130,7 @@ def test_id_updating():
     sentence = Sentence(source)
 
     sentence.id = 'fr-ud-train_00123'
-    assert sentence.meta('sent_id') == 'fr-ud-train_00123'
+    assert sentence.meta_value('sent_id') == 'fr-ud-train_00123'
 
 
 def test_output():
