@@ -4,6 +4,30 @@ import re
 from pyconllu.unit import Token
 
 
+def _read_sentence_meta(sent, key, default):
+    """
+    Read in the meta value from the sentence associated with key.
+
+    Args:
+    sent: The sentence to read the meta data from.
+    key: The key of the meta data item.
+    default: The default item to return if the value is not found.
+
+    Returns:
+    default if the key is a singleton or the key doesn't exist. The key's value
+    otherwise.
+    """
+    try:
+        v = sent.meta_value(key)
+
+        if v is not None:
+            return v
+        else:
+            return default
+    except KeyError:
+        return default
+
+
 class Sentence:
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
@@ -15,7 +39,10 @@ class Sentence:
 
     Note the sent_id field is also assigned to the id property, and the text
     field is assigned to the text property for usability, and their importance
-    as comments. The text property is read only.
+    as comments. The text property is read only along with the paragraph and
+    document id. This is because the paragraph and document id are not defined
+    per Sentence but across multiple sentences. Instead, these fields can be
+    changed through changing the metadata of the Sentences.
 
     Then comes the token annotations. Each sentence is made up of many token
     lines that provide annotation to the text provided. While a sentence usually
@@ -32,7 +59,6 @@ class Sentence:
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
 
-    # TODO: How to handle doc and par.
     def __init__(self, source, _start_line_number=None, _end_line_number=None):
         """
         Construct a Sentence object from the provided CoNLL-U string.
@@ -84,6 +110,9 @@ class Sentence:
                     if token.id is not None:
                         self._ids_to_indexes[token.id] = len(self._tokens) - 1
 
+        self._par_id = _read_sentence_meta(self, 'newpar id', None)
+        self._doc_id = _read_sentence_meta(self, 'newdoc id', None)
+
     @property
     def id(self):
         """
@@ -114,6 +143,26 @@ class Sentence:
         """
         return self._meta[Sentence.TEXT_KEY]
 
+    @property
+    def par_id(self):
+        """
+        Get the paragraph id associated with this Sentence. Read-only.
+
+        Returns:
+        The paragraph id or None if no id is associated.
+        """
+        return self._par_id
+
+    @property
+    def doc_id(self):
+        """
+        Get the document id associated with this Sentence. Read-only.
+
+        Returns:
+        The document id or None if no id is associated.
+        """
+        return self._doc_id
+
     def meta_value(self, key):
         """
         Returns the value associated with the key in the metadata (comments).
@@ -140,6 +189,21 @@ class Sentence:
         False otherwise.
         """
         return key in self._meta
+
+    def set_meta(self, key, value=None):
+        """
+        Set the metadata or comments associated with this Sentence.
+
+        Args:
+        key: The key for the comment.
+        value: The value to associated with the key. If the comment is a
+            singleton, this field can be ignored or set to None.
+        """
+        if key == Sentence.SENTENCE_ID_KEY or key == Sentence.TEXT_KEY:
+            raise ValueError('Key cannot be {} or {}'.format(
+                Sentence.SENTENCE_ID_KEY, Sentence.TEXT_KEY))
+
+        self._meta[key] = value
 
     def conllu(self):
         """
