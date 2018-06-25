@@ -167,3 +167,37 @@ def test_sentence_line_numbers_extra_newlines():
         cur_bounds = sentence_bounds[i]
         assert sent.start_line_number == cur_bounds[0]
         assert sent.end_line_number == cur_bounds[1]
+
+
+def test_par_and_doc_id_basic():
+    """
+    Test that the paragraph and document ids are properly associated with the
+    Sentences.
+    """
+    with open(fixture_location('par_doc_ids_basic.conllu')) as f:
+        c = Conllu(f)
+
+    expected_doc_ids = ['2', '2', '1', '1']
+    actual_doc_ids = [s.doc_id for s in c]
+
+    assert expected_doc_ids == actual_doc_ids
+
+
+def test_par_and_doc_id_long():
+    """
+    Test that the paragraph and document ids are properly associated with the
+    Sentences.
+    """
+    with open(fixture_location('par_doc_ids_long.conllu')) as f:
+        c = Conllu(f)
+
+    expected_doc_ids = [
+        None, None, 'abc-1', 'abc-1', 'xyz-2', 'xyz-2', 'xyz-2', None, None
+    ]
+    actual_doc_ids = [s.doc_id for s in c]
+
+    expected_par_ids = [None, None, None, '70', '70', None, '71', '71', '71']
+    actual_par_ids = [s.par_id for s in c]
+
+    assert expected_doc_ids == actual_doc_ids
+    assert expected_par_ids == actual_par_ids
