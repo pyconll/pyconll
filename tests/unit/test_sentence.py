@@ -469,3 +469,143 @@ def test_token_line_numbers():
 
     assert sentence['1'].line_number == 16
     assert sentence['7'].line_number == 22
+
+def test_change_comments():
+    """
+    Test that comment values (other than text or id) can be changed through the
+    meta api.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+
+    expected = (
+        '# newpar id = xyz-1\n'
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+
+    sentence = Sentence(source)
+    sentence.set_meta('newpar id', 'xyz-1')
+
+    assert sentence.conll() == expected
+
+def test_add_comments():
+    """
+    Test that comment values (other than text or id) can be added through the
+    meta api.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+
+    expected = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '# x-coord = 2\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+
+    sentence = Sentence(source)
+    sentence.set_meta('x-coord', '2')
+
+    assert sentence.conll() == expected
+
+def test_singleton_comment():
+    """
+    Test that a singleton comment is properly output.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+
+    expected = (
+        '# foreign\n'
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+
+    sentence = Sentence(source)
+    sentence.set_meta('foreign')
+
+    assert sentence.conll() == expected
