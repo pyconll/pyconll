@@ -1,11 +1,11 @@
 format:
-	yapf -p -r -i pyconllu/ tests/
+	yapf -p -r -i pyconll/ tests/
 
 test:
 	python -m pytest -vv
 
 coveragetest:
-	coverage run --source pyconllu -m pytest
+	coverage run --source pyconll -m pytest
 
 build:
 	python setup.py build

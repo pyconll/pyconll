@@ -1,7 +1,7 @@
 [Build Status] [Coverage Status]
 
 
-pyconllu
+pyconll
 
 A simple package with simple intentions. Easily manipulate conll files
 using the familiar syntax of python.
@@ -40,6 +40,6 @@ Install
 Installation is easy like with most python packages. Simply use pip to
 install from PyPi.
 
-    pip install pyconllu
+    pip install pyconll
 
 This package is designed for, and only tested with python 3.4 and above.

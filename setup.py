@@ -18,14 +18,14 @@ def read(fn):
     return contents
 
 setup(
-    name = 'pyconllu',
-    packages = ['pyconllu'],
+    name = 'pyconll',
+    packages = ['pyconll'],
     version = '0.1',
-    description = 'Read and maniuplate CoNLL-U files',
+    description = 'Read and maniuplate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
     author_email = 'matgrioni@gmail.com',
-    url = 'https://github.com/matgrioni/pyconllu',
+    url = 'https://github.com/matgrioni/pyconll',
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
     classifiers = [

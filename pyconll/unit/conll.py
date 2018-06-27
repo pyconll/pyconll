@@ -1,10 +1,10 @@
 import itertools
 
-import pyconllu._parser
-from pyconllu.unit import Sentence
+import pyconll._parser
+from pyconll.unit import Sentence
 
 
-class Conllu:
+class Conll:
     """
     The abstraction for a CoNLL-U file. A CoNLL-U file is more or less just a
     collection of sentences in order. These sentences can be accessed by
@@ -26,14 +26,14 @@ class Conllu:
         self._sentences = []
         self._ids_to_indexes = {}
 
-        for sentence in pyconllu._parser.iter_sentences(it):
+        for sentence in pyconll._parser.iter_sentences(it):
             if sentence.id is not None:
                 self._sentences.append(sentence)
                 self._ids_to_indexes[sentence.id] = len(self._sentences) - 1
 
-    def conllu(self):
+    def conll(self):
         """
-        Output the Conllu object to a CoNLL-U formatted string.
+        Output the Conll object to a CoNLL-U formatted string.
 
         Returns:
         The CoNLL-U object as a string. This string will end in a newline.
@@ -42,29 +42,29 @@ class Conllu:
         # slice potentially long lists or modify strings.
         components = []
         for sentence in self._sentences:
-            components.append(sentence.conllu())
+            components.append(sentence.conll())
             components.append('\n\n')
 
         return ''.join(components)
 
     def write(self, writable):
         """
-        Write the Conllu object to something that is writable.
+        Write the Conll object to something that is writable.
 
-        For simply writing, this method is more efficient than calling conllu
-        then writing since no string of the entire Conllu object is created. The
+        For simply writing, this method is more efficient than calling conll
+        then writing since no string of the entire Conll object is created. The
         final output will include a final newline.
 
         Args:
         writable: The writable object such as a file. Must have a write method.
         """
         for sentence in self._sentences:
-            writable.write(sentence.conllu())
+            writable.write(sentence.conll())
             writable.write('\n\n')
 
-    def conllu(self):
+    def conll(self):
         """
-        Output the Conllu object to a CoNLL-U formatted string.
+        Output the Conll object to a CoNLL-U formatted string.
 
         Returns:
         The CoNLL-U object as a string. This string will end in a newline.
@@ -73,24 +73,24 @@ class Conllu:
         # slice potentially long lists or modify strings.
         components = []
         for sentence in self._sentences:
-            components.append(sentence.conllu())
+            components.append(sentence.conll())
             components.append('\n\n')
 
         return ''.join(components)
 
     def write(self, writable):
         """
-        Write the Conllu object to something that is writable.
+        Write the Conll object to something that is writable.
 
-        For simply writing, this method is more efficient than calling conllu
-        then writing since no string of the entire Conllu object is created. The
+        For simply writing, this method is more efficient than calling conll
+        then writing since no string of the entire Conll object is created. The
         final output will include a final newline.
 
         Args:
         writable: The writable object such as a file. Must have a write method.
         """
         for sentence in self._sentences:
-            writable.write(sentence.conllu())
+            writable.write(sentence.conll())
             writable.write('\n\n')
 
     def __iter__(self):
@@ -110,7 +110,7 @@ class Conllu:
 
         Returns:
         The corresponding sentence if the key is an int or string or the
-        sentences if the key is a slice in the form of another Conllu object.
+        sentences if the key is a slice in the form of another Conll object.
         """
         if isinstance(key, int):
             return self._sentences[key]
@@ -124,14 +124,14 @@ class Conllu:
                 start_idx = self._ids_to_indexes[key.start]
                 stop_idx = self._ids_to_indexes[key.stop]
 
-                sliced_conllu = Conllu([])
-                sliced_conllu._sentences = self._sentences[start_idx:stop_idx:
-                                                           key.step]
-                for i, sentence in enumerate(sliced_conllu._sentences):
+                sliced_conll = Conll([])
+                sliced_conll._sentences = self._sentences[start_idx:stop_idx:
+                                                          key.step]
+                for i, sentence in enumerate(sliced_conll._sentences):
                     if sentence.id is not None:
-                        sliced_conllu._ids_to_indexes[sentence.id] = i
+                        sliced_conll._ids_to_indexes[sentence.id] = i
 
-                return sliced_conllu
+                return sliced_conll
 
     def __len__(self):
         """

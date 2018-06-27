@@ -1,13 +1,13 @@
-from pyconllu import load_from_string, load_from_file, iter_from_string, iter_from_file
+from pyconll import load_from_string, load_from_file, iter_from_string, iter_from_file
 from tests.util import fixture_location
 from tests.unit.util import assert_token_members
 
 
 def test_load_from_string():
     """
-    Test that a CoNLL-U file can properly be loaded from a string.
+    Test that a CoNLL file can properly be loaded from a string.
     """
-    with open(fixture_location('basic.conllu')) as f:
+    with open(fixture_location('basic.conll')) as f:
         contents = f.read()
 
     c = load_from_string(contents)
@@ -19,9 +19,9 @@ def test_load_from_string():
 
 def test_load_from_file():
     """
-    Test that a CoNLL-U file can properly be loaded from a filename.
+    Test that a CoNLL file can properly be loaded from a filename.
     """
-    c = load_from_file(fixture_location('basic.conllu'))
+    c = load_from_file(fixture_location('basic.conll'))
 
     assert len(c) == 4
     assert len(c['fr-ud-dev_00002']) == 14
@@ -30,20 +30,20 @@ def test_load_from_file():
 
 def test_load_from_file_and_string_equivalence():
     """
-    Test that the Conllu object created from a string and file is the same if
+    Test that the Conll object created from a string and file is the same if
     the underlying source is the same.
     """
-    with open(fixture_location('long.conllu')) as f:
+    with open(fixture_location('long.conll')) as f:
         contents = f.read()
     str_c = load_from_string(contents)
-    file_c = load_from_file(fixture_location('long.conllu'))
+    file_c = load_from_file(fixture_location('long.conll'))
 
     assert len(str_c) == len(file_c)
     for i in range(len(str_c)):
         assert str_c[i].id == file_c[i].id
         assert str_c[i].text == file_c[i].text
-        print(str_c[i].conllu())
-        print(file_c[i].conllu())
+        print(str_c[i].conll())
+        print(file_c[i].conll())
 
         for str_token in str_c[i]:
             file_token = file_c[i][str_token.id]
@@ -56,9 +56,9 @@ def test_load_from_file_and_string_equivalence():
 
 def test_iter_from_string():
     """
-    Test that CoNLL-U files in string form can be iterated over without memory.
+    Test that CoNLL files in string form can be iterated over without memory.
     """
-    with open(fixture_location('basic.conllu')) as f:
+    with open(fixture_location('basic.conll')) as f:
         contents = f.read()
 
     expected_ids = ['fr-ud-dev_0000{}'.format(i) for i in range(1, 5)]
@@ -69,12 +69,12 @@ def test_iter_from_string():
 
 def test_iter_from_file():
     """
-    Test that CoNLL-U files can be iterated over without memory given the
+    Test that CoNLL files can be iterated over without memory given the
     filename.
     """
     expected_ids = ['fr-ud-dev_0000{}'.format(i) for i in range(1, 5)]
     actual_ids = [
-        sent.id for sent in iter_from_file(fixture_location('basic.conllu'))
+        sent.id for sent in iter_from_file(fixture_location('basic.conll'))
     ]
 
     assert expected_ids == actual_ids

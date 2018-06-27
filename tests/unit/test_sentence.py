@@ -1,6 +1,6 @@
 import pytest
 
-from pyconllu.unit import Sentence
+from pyconll.unit import Sentence
 from tests.unit.util import assert_token_members
 
 
@@ -387,7 +387,7 @@ def test_output():
         '14	.	.	PUNCT	_	_	3	punct	_	_')
     sentence = Sentence(source)
 
-    assert sentence.conllu() == source
+    assert sentence.conll() == source
 
 
 def test_modified_output():
@@ -438,7 +438,7 @@ def test_modified_output():
         '13	Facultés	facultés	NOUN	_	Number=Fem	9	obl	_	SpaceAfter=No\n'
         '14	.	.	PUNCT	_	_	3	punct	_	_')
 
-    assert sentence.conllu() == output
+    assert sentence.conll() == output
 
 
 def test_token_line_numbers():

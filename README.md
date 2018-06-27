@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/matgrioni/pyconllu.svg?branch=master)](https://travis-ci.org/matgrioni/pyconllu)
-[![Coverage Status](https://coveralls.io/repos/github/matgrioni/pyconllu/badge.svg?branch=master)](https://coveralls.io/github/matgrioni/pyconllu?branch=master)
+[![Build Status](https://travis-ci.org/matgrioni/pyconll.svg?branch=master)](https://travis-ci.org/matgrioni/pyconll)
+[![Coverage Status](https://coveralls.io/repos/github/matgrioni/pyconll/badge.svg?branch=master)](https://coveralls.io/github/matgrioni/pyconll?branch=master)
 
-## pyconllu
+## pyconll
 
 A simple package with simple intentions. Easily manipulate conll files using the familiar syntax of python.
 
@@ -21,7 +21,7 @@ The usage of this package is to enable editing of CoNLL-U format annotations of 
 Installation is easy like with most python packages. Simply use `pip` to install from PyPi.
 
 ```
-pip install pyconllu
+pip install pyconll
 ```
 
 This package is designed for, and only tested with python 3.4 and above.
