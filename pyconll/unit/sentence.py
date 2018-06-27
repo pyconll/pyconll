@@ -1,7 +1,7 @@
 import operator
 import re
 
-from pyconllu.unit import Token
+from pyconll.unit import Token
 
 
 def _read_sentence_meta(sent, key, default):
@@ -205,7 +205,7 @@ class Sentence:
 
         self._meta[key] = value
 
-    def conllu(self):
+    def conll(self):
         """
         Convert the sentence to a CoNLL-U representation.
 
@@ -224,7 +224,7 @@ class Sentence:
             lines.append(line)
 
         for token in self._tokens:
-            lines.append(token.conllu())
+            lines.append(token.conll())
 
         return '\n'.join(lines)
 

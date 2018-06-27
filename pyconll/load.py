@@ -1,19 +1,19 @@
-from pyconllu._parser import iter_sentences
-from pyconllu.unit import Conllu
+from pyconll._parser import iter_sentences
+from pyconll.unit import Conll
 
 
 def load_from_string(source):
     """
-    Load CoNLL-U source in a string into a Conllu object.
+    Load CoNLL-U source in a string into a Conll object.
 
     Args:
     source: The CoNLL-U formatted string.
 
     Returns:
-    A Conllu object equivalent to the provided source.
+    A Conll object equivalent to the provided source.
     """
     lines = source.splitlines()
-    c = Conllu(lines)
+    c = Conll(lines)
 
     return c
 
@@ -26,10 +26,10 @@ def load_from_file(filename):
     filename: The location of the file.
 
     Returns:
-    A Conllu object equivalent to the provided file.
+    A Conll object equivalent to the provided file.
     """
     with open(filename) as f:
-        c = Conllu(f)
+        c = Conll(f)
 
     return c
 
@@ -39,7 +39,7 @@ def iter_from_string(source):
     Iterate over a CoNLL-U string's sentences.
 
     Use this method if you only need to iterate over the CoNLL-U file once and
-    do not need to create or store the Conllu object.
+    do not need to create or store the Conll object.
 
     Args:
     source: The CoNLL-U string.

@@ -1,6 +1,6 @@
 import pytest
 
-from pyconllu.unit import Token
+from pyconll.unit import Token
 from tests.unit.util import assert_token_members
 
 
@@ -116,7 +116,7 @@ def test_to_string():
         'Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_'
     token = Token(token_line)
 
-    assert token.conllu() == token_line
+    assert token.conll() == token_line
 
 
 def test_modify_unit_field_to_string():
@@ -132,7 +132,7 @@ def test_modify_unit_field_to_string():
     new_token_line = '33	cintre	pain	NOUN	_	' \
         'Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No'
 
-    assert token.conllu() == new_token_line
+    assert token.conll() == new_token_line
 
 
 def test_modify_dict_field_to_string():
@@ -148,7 +148,7 @@ def test_modify_dict_field_to_string():
     new_token_line = '33	cintre	cintre	NOUN	_	' \
         'Gender=Fem,Masc|Number=Sing	30	nmod	_	SpaceAfter=No'
 
-    assert token.conllu() == new_token_line
+    assert token.conll() == new_token_line
 
 
 def test_remove_feature_to_string():
@@ -164,7 +164,7 @@ def test_remove_feature_to_string():
     new_token_line = '33	cintre	cintre	NOUN	_	' \
         'Number=Sing	30	nmod	_	SpaceAfter=No'
 
-    assert token.conllu() == new_token_line
+    assert token.conll() == new_token_line
 
 
 def test_underscore_construction():

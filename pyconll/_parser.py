@@ -1,4 +1,4 @@
-from pyconllu.unit import Sentence
+from pyconll.unit import Sentence
 
 
 def iter_sentences(lines_it):

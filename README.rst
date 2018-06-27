@@ -1,7 +1,7 @@
 |Build Status| |Coverage Status|
 
-pyconllu
---------
+pyconll
+-------
 
 A simple package with simple intentions. Easily manipulate conll files
 using the familiar syntax of python.
@@ -42,11 +42,11 @@ to install from PyPi.
 
 ::
 
-    pip install pyconllu
+    pip install pyconll
 
 This package is designed for, and only tested with python 3.4 and above.
 
-.. |Build Status| image:: https://travis-ci.org/matgrioni/pyconllu.svg?branch=master
-   :target: https://travis-ci.org/matgrioni/pyconllu
-.. |Coverage Status| image:: https://coveralls.io/repos/github/matgrioni/pyconllu/badge.svg?branch=master
-   :target: https://coveralls.io/github/matgrioni/pyconllu?branch=master
+.. |Build Status| image:: https://travis-ci.org/matgrioni/pyconll.svg?branch=master
+   :target: https://travis-ci.org/matgrioni/pyconll
+.. |Coverage Status| image:: https://coveralls.io/repos/github/matgrioni/pyconll/badge.svg?branch=master
+   :target: https://coveralls.io/github/matgrioni/pyconll?branch=master

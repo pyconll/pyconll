@@ -83,7 +83,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         return d
 
 
-def _unit_conllu_map(value, empty):
+def _unit_conll_map(value, empty):
     """
     Map a unit value to its CoNLL-U format equivalent.
 
@@ -97,7 +97,7 @@ def _unit_conllu_map(value, empty):
     return empty if value is None else value
 
 
-def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
+def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
     """
     Map a dict whose attributes can have multiple values to CoNLL-U format.
 
@@ -115,11 +115,11 @@ def _dict_conllu_map(values, empty, delim, av_separator, v_delimiter):
     Returns:
     The CoNLL-U format as a string.
     """
-    return _dict_conllu_map_helper(values, empty, delim, av_separator,
-                                   v_delimiter, False)
+    return _dict_conll_map_helper(values, empty, delim, av_separator,
+                                  v_delimiter, False)
 
 
-def _dict_singleton_conllu_map(values, empty, delim, av_separator):
+def _dict_singleton_conll_map(values, empty, delim, av_separator):
     """
     Map a dict whose attributes can only have one value to CoNLL-U format.
 
@@ -132,12 +132,12 @@ def _dict_singleton_conllu_map(values, empty, delim, av_separator):
     Returns:
     The CoNLL-U formatted equivalent to the value.
     """
-    return _dict_conllu_map_helper(values, empty, delim, av_separator, None,
-                                   True)
+    return _dict_conll_map_helper(values, empty, delim, av_separator, None,
+                                  True)
 
 
-def _dict_conllu_map_helper(values, empty, delim, av_separator, v_delimiter,
-                            singleton):
+def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
+                           singleton):
     """
     Helper to map dicts to CoNLL-U format equivalents.
 
@@ -286,7 +286,7 @@ class Token:
         """
         return '-' in self.id
 
-    def conllu(self):
+    def conll(self):
         """
         Convert Token to the CoNLL-U representation.
 
@@ -298,21 +298,21 @@ class Token:
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.
         id = self.id
-        form = _unit_conllu_map(self.form, Token.EMPTY)
-        lemma = _unit_conllu_map(self.lemma, Token.EMPTY)
-        upos = _unit_conllu_map(self.upos, Token.EMPTY)
-        xpos = _unit_conllu_map(self.xpos, Token.EMPTY)
-        feats = _dict_conllu_map(self.feats, Token.EMPTY,
-                                 Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
-                                 Token.V_DELIMITER)
-        head = _unit_conllu_map(self.head, Token.EMPTY)
-        deprel = _unit_conllu_map(self.deprel, Token.EMPTY)
-        deps = _dict_singleton_conllu_map(self.deps, Token.EMPTY,
-                                          Token.COMPONENT_DELIMITER,
-                                          Token.AV_SEPARATOR)
-        misc = _dict_conllu_map(self.misc, Token.EMPTY,
+        form = _unit_conll_map(self.form, Token.EMPTY)
+        lemma = _unit_conll_map(self.lemma, Token.EMPTY)
+        upos = _unit_conll_map(self.upos, Token.EMPTY)
+        xpos = _unit_conll_map(self.xpos, Token.EMPTY)
+        feats = _dict_conll_map(self.feats, Token.EMPTY,
                                 Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
                                 Token.V_DELIMITER)
+        head = _unit_conll_map(self.head, Token.EMPTY)
+        deprel = _unit_conll_map(self.deprel, Token.EMPTY)
+        deps = _dict_singleton_conll_map(self.deps, Token.EMPTY,
+                                         Token.COMPONENT_DELIMITER,
+                                         Token.AV_SEPARATOR)
+        misc = _dict_conll_map(self.misc, Token.EMPTY,
+                               Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
+                               Token.V_DELIMITER)
 
         items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
 
