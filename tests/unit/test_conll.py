@@ -275,7 +275,7 @@ def test_delitem_slice_int():
     assert actual_ids == expected_ids
 
 
-def test_delitem_slice_int():
+def test_delitem_slice_str():
     """
     Test that Sentences can be deleted through slices with string boundaries.
     """
