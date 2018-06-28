@@ -131,16 +131,16 @@ class Conll:
                 idx_end = key.stop
             else:
                 idx_start = self._ids_to_indexes[key.start]
-                idx_end = self._ids_to_indexes[key.end]
+                idx_end = self._ids_to_indexes[key.stop]
 
             for sentence in self._sentences[idx_start:idx_end]:
                 del self._ids_to_indexes[sentence.id]
 
-            del self._sentences[idx_start:idx_end]
+            del self._sentences[idx_start:idx_end:key.step]
         else:
             if isinstance(key, int):
                 idx = key
-                sent_id = self._sentences[key]
+                sent_id = self._sentences[key].id
             elif isinstance(key, str):
                 idx = self._ids_to_indexes[key]
                 sent_id = key

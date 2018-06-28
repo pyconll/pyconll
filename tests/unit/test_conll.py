@@ -1,6 +1,7 @@
 import os
 
 from pyconll.unit import Conll
+from pyconll.unit import Sentence
 from tests.util import fixture_location
 
 
@@ -201,3 +202,90 @@ def test_par_and_doc_id_long():
 
     assert expected_doc_ids == actual_doc_ids
     assert expected_par_ids == actual_par_ids
+
+
+def test_setitem():
+    """
+    Test that Sentences are properly assigned when using setitem.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        c = Conll(f)
+
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    c[1] = sentence
+    assert c[1].conll() == source
+    assert c[1].id == 'fr-ud-dev_00002'
+
+
+def test_delitem_single_int():
+    """
+    Test that Sentences keyed by index are properly deleted from Conll objects.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        c = Conll(f)
+
+    del c[2]
+    assert len(c) == 3
+    assert c[2].id == 'fr-ud-dev_00004'
+
+
+def test_delitem_single_str():
+    """
+    Test that Sentences keyed by id are properly deleted from Conll objects.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        c = Conll(f)
+
+    del c['fr-ud-dev_00003']
+    assert len(c) == 3
+    assert c[2].id == 'fr-ud-dev_00004'
+
+
+def test_delitem_slice_int():
+    """
+    Test that Sentences can be deleted through slices with integer boundaries.
+    """
+    with open(fixture_location('long.conll')) as f:
+        c = Conll(f)
+
+    del c[3:8:2]
+    assert len(c) == 6
+
+    expected_ids = ['fr-ud-test_0000{}'.format(i + 1) for i in range(9)]
+    del expected_ids[3:8:2]
+    actual_ids = [sent.id for sent in c]
+    assert actual_ids == expected_ids
+
+
+def test_delitem_slice_int():
+    """
+    Test that Sentences can be deleted through slices with string boundaries.
+    """
+    with open(fixture_location('long.conll')) as f:
+        c = Conll(f)
+
+    del c['fr-ud-test_00004':'fr-ud-test_00009':2]
+    assert len(c) == 6
+
+    expected_ids = ['fr-ud-test_0000{}'.format(i + 1) for i in range(9)]
+    del expected_ids[3:8:2]
+    actual_ids = [sent.id for sent in c]
+    assert actual_ids == expected_ids
