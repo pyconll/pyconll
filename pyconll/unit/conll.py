@@ -102,6 +102,52 @@ class Conll:
 
                 return sliced_conll
 
+    def __setitem__(self, key, sent):
+        """
+        Set the given location to the Sentence.
+
+        Args:
+        key: The location in the Conll file to set to the given sentence. This
+            only accepts integer keys.
+        """
+        old_id = self._sentences[key].id
+        del self._ids_to_indexes[old_id]
+
+        self._sentences[key] = sent
+        self._ids_to_indexes[sent.id] = key
+
+    def __delitem__(self, key):
+        """
+        Delete the Sentence corresponding with the given key.
+
+        Args:
+        key: The info to get the Sentence to delete. Can be the integer position
+            in the file, the sentence id, or a slice, where the slice can have
+            either id or integer start and stop.
+        """
+        if isinstance(key, slice):
+            if isinstance(key.start, int):
+                idx_start = key.start
+                idx_end = key.stop
+            else:
+                idx_start = self._ids_to_indexes[key.start]
+                idx_end = self._ids_to_indexes[key.end]
+
+            for sentence in self._sentences[idx_start:idx_end]:
+                del self._ids_to_indexes[sentence.id]
+
+            del self._sentences[idx_start:idx_end]
+        else:
+            if isinstance(key, int):
+                idx = key
+                sent_id = self._sentences[key]
+            elif isinstance(key, str):
+                idx = self._ids_to_indexes[key]
+                sent_id = key
+
+            del self._sentences[idx]
+            del self._ids_to_indexes[sent_id]
+
     def __len__(self):
         """
         Returns the number of sentences in the CoNLL-U file.
