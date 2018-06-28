@@ -470,6 +470,7 @@ def test_token_line_numbers():
     assert sentence['1'].line_number == 16
     assert sentence['7'].line_number == 22
 
+
 def test_change_comments():
     """
     Test that comment values (other than text or id) can be changed through the
@@ -517,6 +518,7 @@ def test_change_comments():
 
     assert sentence.conll() == expected
 
+
 def test_add_comments():
     """
     Test that comment values (other than text or id) can be added through the
@@ -563,6 +565,7 @@ def test_add_comments():
     sentence.set_meta('x-coord', '2')
 
     assert sentence.conll() == expected
+
 
 def test_singleton_comment():
     """
