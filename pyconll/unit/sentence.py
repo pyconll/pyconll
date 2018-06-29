@@ -18,6 +18,7 @@ def _read_sentence_meta(sent, key, default):
     otherwise.
     """
     try:
+        print(sent._meta)
         v = sent.meta_value(key)
 
         if v is not None:
@@ -54,7 +55,7 @@ class Sentence:
 
     COMMENT_MARKER = '#'
     KEY_VALUE_COMMENT_PATTERN = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
-    SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S+)$'
+    SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S.*)$'
 
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
