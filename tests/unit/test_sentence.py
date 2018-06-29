@@ -639,3 +639,29 @@ def test_invalid_comment_modification():
 
     with pytest.raises(ValueError):
         sentence.set_meta('text', 'Qualcosa differente alla frase')
+
+def test_new_pardoc_comment_parsing():
+    """
+    Test that the id keyword does not inappropriately trigger an id association.
+    """
+    source = (
+        '# newpar id\n'
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    assert sentence.par_id is None
