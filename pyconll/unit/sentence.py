@@ -199,7 +199,7 @@ class Sentence:
         value: The value to associated with the key. If the comment is a
             singleton, this field can be ignored or set to None.
         """
-        if key == Sentence.SENTENCE_ID_KEY or key == Sentence.TEXT_KEY:
+        if key == Sentence.TEXT_KEY:
             raise ValueError('Key cannot be {} or {}'.format(
                 Sentence.SENTENCE_ID_KEY, Sentence.TEXT_KEY))
 
