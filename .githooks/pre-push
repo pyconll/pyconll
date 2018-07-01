@@ -14,4 +14,4 @@ else
     echo "Working state must be clean to run formatting."
 fi
 
-exit o
+exit 0
