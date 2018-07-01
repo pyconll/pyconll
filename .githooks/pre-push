@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if git diff-index --quiet HEAD --; then
+    # There were no changes.
+    make format
+
+    if ! git diff-index --quiet HEAD --; then
+        # There were formatting changes.
+        git add --all
+        git commit -m "YAPF default formatting."
+    fi
+else
+    # There were changes.
+    echo "Working state must be clean to run formatting."
+fi
+
+exit o
