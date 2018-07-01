@@ -62,6 +62,70 @@ class Conll:
             writable.write(sentence.conll())
             writable.write('\n\n')
 
+    def get_sentence_by_id(self, sent_id):
+        """
+        Retrieve the sentence in this Conll associated with the given ID.
+
+        Args:
+        sent_id: The id of the sentence to look for.
+
+        Returns:
+        An ordered pair. The first element is the numeric index of the sentence
+        in the file and the second element is the Sentence object. The sentence
+        corresponding in this Conll with this id. If none exists, then a
+        KeyError is thrown.
+        """
+        sent_idx = self._ids_to_indexes[sent_id]
+        return self._sentences[sent_idx]
+
+    def contains_sentence_id(self, sent_id):
+        """
+        Check if the sentence id is in the Conll file.
+
+        Args:
+        sent_id: The sentence id to check for in this file.
+
+        Returns:
+        True if there exists a sentence in this file with the given id and False
+        otherwise.
+        """
+        return sent_id in self._ids_to_indexes[sent_id]
+
+    def delete_sentence_by_id(self, sent_id):
+        """
+        Delete the given sentence by its id. Noop if id doesn't exist in file.
+
+        Args:
+        sent_id: The id of the sentence to delete if it exists.
+        """
+        try:
+            sent_idx = self._ids_to_indexes[sent_id]
+
+            del self[sent_idx]
+        except KeyError:
+            pass
+
+    def append(self, sent):
+        """
+        """
+        pass
+
+    def insert(self, index, sent):
+        """
+        """
+        pass
+
+    def __contains__(self, sent):
+        """
+        """
+        try:
+            # TODO: Look over stuff like duplicate ids.
+            # TODO: Handle equality of sentences, tokens, and conlls.
+            sent_idx = self._ids_to_indexes[sent.id]
+            return sent == self[sent_idx]
+        except KeyError:
+            return False
+
     def __iter__(self):
         """
         Allows for iteration over every sentence in the CoNLL-U file.
@@ -75,26 +139,18 @@ class Conll:
 
         Args:
         key: The key to index the sentence by. This key can either be a numeric
-        key, the sentence id, or a slice.
+        key, or a slice.
 
         Returns:
-        The corresponding sentence if the key is an int or string or the
-        sentences if the key is a slice in the form of another Conll object.
+        The corresponding sentence if the key is an int or the sentences if the
+        key is a slice in the form of another Conll object.
         """
         if isinstance(key, int):
             return self._sentences[key]
-        elif isinstance(key, str):
-            idx = self._ids_to_indexes[key]
-            return self._sentences[idx]
         else:
             if isinstance(key.start, int):
-                return self._sentences[key.start:key.stop:key.step]
-            elif isinstance(key.start, str):
-                start_idx = self._ids_to_indexes[key.start]
-                stop_idx = self._ids_to_indexes[key.stop]
-
                 sliced_conll = Conll([])
-                sliced_conll._sentences = self._sentences[start_idx:stop_idx:
+                sliced_conll._sentences = self._sentences[key.start:key.end:
                                                           key.step]
                 for i, sentence in enumerate(sliced_conll._sentences):
                     if sentence.id is not None:
@@ -122,30 +178,17 @@ class Conll:
 
         Args:
         key: The info to get the Sentence to delete. Can be the integer position
-            in the file, the sentence id, or a slice, where the slice can have
-            either id or integer start and stop.
+            in the file, or a slice.
         """
         if isinstance(key, slice):
-            if isinstance(key.start, int):
-                idx_start = key.start
-                idx_end = key.stop
-            else:
-                idx_start = self._ids_to_indexes[key.start]
-                idx_end = self._ids_to_indexes[key.stop]
-
-            for sentence in self._sentences[idx_start:idx_end]:
+            for sentence in self._sentences[key.start:key.end:key.stop]:
                 del self._ids_to_indexes[sentence.id]
 
-            del self._sentences[idx_start:idx_end:key.step]
+            del self._sentences[key.start:key.end:key.step]
         else:
-            if isinstance(key, int):
-                idx = key
-                sent_id = self._sentences[key].id
-            elif isinstance(key, str):
-                idx = self._ids_to_indexes[key]
-                sent_id = key
+            sent_id = self._sentences[key].id
 
-            del self._sentences[idx]
+            del self._sentences[key]
             del self._ids_to_indexes[sent_id]
 
     def __len__(self):
