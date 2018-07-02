@@ -613,6 +613,7 @@ def test_singleton_comment():
 
     assert sentence.conll() == expected
 
+
 def test_invalid_comment_modification():
     """
     Test that an error is thrown when the text is attempted to be changed
@@ -639,6 +640,7 @@ def test_invalid_comment_modification():
 
     with pytest.raises(ValueError):
         sentence.set_meta('text', 'Qualcosa differente alla frase')
+
 
 def test_new_pardoc_comment_parsing():
     """
