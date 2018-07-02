@@ -96,16 +96,13 @@ class Conll:
         Returns:
         True if this Sentence is exactly in the Conll object. False, otherwise.
         """
-        try:
-            sent_idxs = self._ids_to_indexes[sent.id]
+        sent_idxs = self._ids_to_indexes[sent.id]
 
-            equal = False
-            for idx in sent_idxs:
-                equal = equal or sent == self[idx]
+        equal = False
+        for idx in sent_idxs:
+            equal = equal or sent == self[idx]
 
-            return equal
-        except KeyError:
-            return False
+        return equal
 
     def __iter__(self):
         """
