@@ -97,7 +97,6 @@ class Conll:
         True if this Sentence is exactly in the Conll object. False, otherwise.
         """
         try:
-            # TODO: Handle equality of sentences, tokens, and conlls.
             sent_ids = self._ids_to_indexes[sent.id]
 
             equal = False
