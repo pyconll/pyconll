@@ -71,7 +71,7 @@ class Conll:
         sent: The Sentence object to add.
         """
         self._sentences.append(sent)
-        self._ids_to_indexes[sent.id].add(len(self._sentences) - 1))
+        self._ids_to_indexes[sent.id].add(len(self._sentences) - 1)
 
     def insert(self, index, sent):
         """
@@ -102,7 +102,7 @@ class Conll:
 
             equal = False
             for id in sent_ids:
-                equal = equal || sent == self[sent_id]
+                equal = equal or sent == self[sent_id]
         except KeyError:
             return False
 
@@ -160,8 +160,9 @@ class Conll:
             in the file, or a slice.
         """
         if isinstance(key, slice):
-            for sentence in self._sentences[key.start:key.stop:key.stop]:
-                self._ids_to_indexes[sentence.id].remove(key)
+            for i, sentence in enumerate(self._sentences[key.start:key.stop:key.stop]):
+                idx = i + key.start
+                self._ids_to_indexes[sentence.id].remove(idx)
 
             del self._sentences[key.start:key.stop:key.step]
         else:

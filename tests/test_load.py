@@ -11,7 +11,7 @@ def test_load_from_string():
         contents = f.read()
 
     c = load_from_string(contents)
-    sent = c.get_sentence_by_id('fr-ud-dev_00002')
+    sent = c[1]
 
     assert len(c) == 4
     assert len(sent) == 14
@@ -23,7 +23,7 @@ def test_load_from_file():
     Test that a CoNLL file can properly be loaded from a filename.
     """
     c = load_from_file(fixture_location('basic.conll'))
-    sent = c.get_sentence_by_id('fr-ud-dev_00002')
+    sent = c[1]
 
     assert len(c) == 4
     assert len(sent) == 14

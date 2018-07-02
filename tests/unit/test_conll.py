@@ -79,19 +79,6 @@ def test_numeric_indexing():
     assert conll[0].id == 'fr-ud-dev_00001'
 
 
-def test_id_access():
-    """
-    Test the ability to index sentences through their ids.
-    """
-    with open(fixture_location('basic.conll')) as f:
-        conll = Conll(f)
-
-    sent = conll.get_sentence_by_id('fr-ud-dev_00001')
-
-    assert len(sent) == 10
-    assert sent.id == 'fr-ud-dev_00001'
-
-
 def test_slice_indexing():
     """
     Test the ability to slice up a Conll object and its result.
@@ -103,7 +90,7 @@ def test_slice_indexing():
 
     assert len(every_3) == 2
     assert every_3[0].id == 'fr-ud-test_00002'
-    assert len(every_3.get_sentence_by_id('fr-ud-test_00005')) == 38
+    assert len(every_3[1]) == 38
 
     every_2 = conll[1:6:2]
     assert len(every_2) == 3
@@ -245,19 +232,6 @@ def test_delitem_single_int():
         c = Conll(f)
 
     del c[2]
-    assert len(c) == 3
-    assert c[2].id == 'fr-ud-dev_00004'
-
-
-def test_delitem_single_str():
-    """
-    Test that Sentences keyed by id are properly deleted from Conll objects.
-    """
-    with open(fixture_location('basic.conll')) as f:
-        c = Conll(f)
-
-    c.delete_sentence_by_id('fr-ud-dev_00003')
-
     assert len(c) == 3
     assert c[2].id == 'fr-ud-dev_00004'
 
