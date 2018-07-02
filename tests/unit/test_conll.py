@@ -128,6 +128,136 @@ def test_writing_output():
     assert contents_basic == contents_write
 
 
+def test_append():
+    """
+    Test that a sentence can be properly added to a Conll object.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        conll = Conll(f)
+    orig_length = len(conll)
+
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    conll.append(sentence)
+
+    assert len(conll) == orig_length + 1
+    assert conll[-1].id == 'fr-ud-dev_00002'
+    assert len(conll[-1]) == 14
+
+def test_insert():
+    """
+    Test that a sentence can be inserted to a Conll object.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        conll = Conll(f)
+    orig_length = len(conll)
+
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    conll.insert(2, sentence)
+
+    assert len(conll) == orig_length + 1
+    assert conll[2].id == 'fr-ud-dev_00002'
+    assert len(conll[2]) == 14
+
+
+def test_contains_true():
+    """
+    Test that a Conll object can test for membership presence properly.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        conll = Conll(f)
+
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+    conll.append(sentence)
+
+    assert sentence in conll
+
+    sentence['1'].pos = 'NOUN'
+
+    assert sentence in conll
+
+
+def test_contains_false():
+    """
+    Test that a Conll object can test for membership presence.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        conll = Conll(f)
+
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    assert sentence not in conll
+
+
 def test_sentence_line_numbers():
     """
     Test that the CoNLL files properly associate line numbers.
