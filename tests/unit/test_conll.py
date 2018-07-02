@@ -237,22 +237,24 @@ def test_contains_false():
         conll = Conll(f)
 
     source = (
-        '# sent_id = fr-ud-dev_00002\n'
-        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
-        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
-        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
-        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
-        '4	six	six	NUM	_	_	5	nummod	_	_\n'
-        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
-        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
-        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
-        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
-        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
-        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
-        '11	selon	selon	ADP	_	_	13	case	_	_\n'
-        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
-        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
-        '14	.	.	PUNCT	_	_	3	punct	_	_')
+        '# sent_id = fr-ud-dev_00037'
+        '# text = Thionville et Congerville furent créée en 1793 avec leur nom actuel et fusionnèrent en 1973.\n'
+        '1	Thionville	Thionville	PROPN	_	_	5	nsubj:pass	_	_\n'
+        '2	et	et	CCONJ	_	_	3	cc	_	_\n'
+        '3	Congerville	Congerville	PROPN	_	_	1	conj	_	_\n'
+        '4	furent	être	AUX	_	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	5	aux:pass	_	_\n'
+        '5	créée	créer	VERB	_	Gender=Fem|Number=Sing|Tense=Past|VerbForm=Part	0	root	_	_\n'
+        '6	en	en	ADP	_	_	7	case	_	_\n'
+        '7	1793	1793	NUM	_	_	5	obl	_	_\n'
+        '8	avec	avec	ADP	_	_	10	case	_	_\n'
+        '9	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	10	det	_	_\n'
+        '10	nom	nom	NOUN	_	Gender=Masc|Number=Sing	5	obl:mod	_	_\n'
+        '11	actuel	actuel	ADJ	_	Gender=Masc|Number=Sing	10	amod	_	_\n'
+        '12	et	et	CCONJ	_	_	13	cc	_	_\n'
+        '13	fusionnèrent	fusionner	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	5	conj	_	_\n'
+        '14	en	en	ADP	_	_	15	case	_	_\n'
+        '15	1973	1973	NUM	_	_	13	obl	_	SpaceAfter=No\n'
+        '16	.	.	PUNCT	_	_	5	punct	_	_\n')
     sentence = Sentence(source)
 
     assert sentence not in conll

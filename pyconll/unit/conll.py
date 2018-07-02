@@ -97,11 +97,13 @@ class Conll:
         True if this Sentence is exactly in the Conll object. False, otherwise.
         """
         try:
-            sent_ids = self._ids_to_indexes[sent.id]
+            sent_idxs = self._ids_to_indexes[sent.id]
 
             equal = False
-            for id in sent_ids:
-                equal = equal or sent == self[sent_id]
+            for idx in sent_idxs:
+                equal = equal or sent == self[idx]
+
+            return equal
         except KeyError:
             return False
 
