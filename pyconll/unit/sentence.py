@@ -18,7 +18,6 @@ def _read_sentence_meta(sent, key, default):
     otherwise.
     """
     try:
-        print(sent._meta)
         v = sent.meta_value(key)
 
         if v is not None:
