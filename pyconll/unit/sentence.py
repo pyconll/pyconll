@@ -228,6 +228,24 @@ class Sentence:
 
         return '\n'.join(lines)
 
+    def __eq__(self, other):
+        """
+        Defines equality for a sentence.
+
+        Args:
+        other: The other Sentence to compare for equality against this one.
+
+        Returns:
+        True if the this Sentence and the other one are the same. Sentences are
+        the same when their comments are the same and their tokens are the same.
+        Line numbers are not including in the equality definition.
+        """
+        same = self._meta == other._meta
+        for s_token, o_token in zip(self._tokens, other._tokens):
+            same = same and s_token == o_token
+
+        return same
+
     def __iter__(self):
         """
         Iterate through all the tokens in the Sentence including multiword tokens.

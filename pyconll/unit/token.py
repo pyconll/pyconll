@@ -232,10 +232,12 @@ class Token:
         """
         if source[-1] == '\n':
             source = source[:-1]
+        self._source = source
 
         self.line_number = _line_number
 
         fields = source.split(Token.FIELD_DELIMITER)
+        self._fields = fields
 
         # Assign all the field values from the line to internal equivalents.
         self.id = fields[0]
@@ -317,3 +319,16 @@ class Token:
         items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
 
         return Token.FIELD_DELIMITER.join(items)
+
+    def __eq__(self, other):
+        """
+        Test if this Token is equal to other.
+
+        Args:
+        other: The other token to compare against.
+
+        Returns:
+        True if the this Token and the other are the same. Two tokens are
+        considered the same when all columns are the same.
+        """
+        return self._source == other._source
