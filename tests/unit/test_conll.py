@@ -161,6 +161,7 @@ def test_append():
     assert conll[-1].id == 'fr-ud-dev_00002'
     assert len(conll[-1]) == 14
 
+
 def test_insert():
     """
     Test that a sentence can be inserted to a Conll object.
