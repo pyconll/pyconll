@@ -79,15 +79,17 @@ def test_numeric_indexing():
     assert conll[0].id == 'fr-ud-dev_00001'
 
 
-def test_id_indexing():
+def test_id_access():
     """
     Test the ability to index sentences through their ids.
     """
     with open(fixture_location('basic.conll')) as f:
         conll = Conll(f)
 
-    assert len(conll['fr-ud-dev_00001']) == 10
-    assert conll['fr-ud-dev_00001'].id == 'fr-ud-dev_00001'
+    sent = conll.get_sentence_by_id('fr-ud-dev_00001')
+
+    assert len(sent) == 10
+    assert sent.id == 'fr-ud-dev_00001'
 
 
 def test_slice_indexing():
@@ -97,11 +99,11 @@ def test_slice_indexing():
     with open(fixture_location('long.conll')) as f:
         conll = Conll(f)
 
-    every_3 = conll['fr-ud-test_00002':'fr-ud-test_00008':3]
+    every_3 = conll[1:7:3]
 
     assert len(every_3) == 2
     assert every_3[0].id == 'fr-ud-test_00002'
-    assert len(every_3['fr-ud-test_00005']) == 38
+    assert len(every_3.get_sentence_by_id('fr-ud-test_00005')) == 38
 
     every_2 = conll[1:6:2]
     assert len(every_2) == 3
@@ -254,7 +256,8 @@ def test_delitem_single_str():
     with open(fixture_location('basic.conll')) as f:
         c = Conll(f)
 
-    del c['fr-ud-dev_00003']
+    c.delete_sentence_by_id('fr-ud-dev_00003')
+
     assert len(c) == 3
     assert c[2].id == 'fr-ud-dev_00004'
 
@@ -267,22 +270,6 @@ def test_delitem_slice_int():
         c = Conll(f)
 
     del c[3:8:2]
-    assert len(c) == 6
-
-    expected_ids = ['fr-ud-test_0000{}'.format(i + 1) for i in range(9)]
-    del expected_ids[3:8:2]
-    actual_ids = [sent.id for sent in c]
-    assert actual_ids == expected_ids
-
-
-def test_delitem_slice_str():
-    """
-    Test that Sentences can be deleted through slices with string boundaries.
-    """
-    with open(fixture_location('long.conll')) as f:
-        c = Conll(f)
-
-    del c['fr-ud-test_00004':'fr-ud-test_00009':2]
     assert len(c) == 6
 
     expected_ids = ['fr-ud-test_0000{}'.format(i + 1) for i in range(9)]

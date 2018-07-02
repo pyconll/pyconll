@@ -11,10 +11,11 @@ def test_load_from_string():
         contents = f.read()
 
     c = load_from_string(contents)
+    sent = c.get_sentence_by_id('fr-ud-dev_00002')
 
     assert len(c) == 4
-    assert len(c['fr-ud-dev_00002']) == 14
-    assert c['fr-ud-dev_00002']['10'].form == 'donc'
+    assert len(sent) == 14
+    assert sent['10'].form == 'donc'
 
 
 def test_load_from_file():
@@ -22,10 +23,11 @@ def test_load_from_file():
     Test that a CoNLL file can properly be loaded from a filename.
     """
     c = load_from_file(fixture_location('basic.conll'))
+    sent = c.get_sentence_by_id('fr-ud-dev_00002')
 
     assert len(c) == 4
-    assert len(c['fr-ud-dev_00002']) == 14
-    assert c['fr-ud-dev_00002']['10'].form == 'donc'
+    assert len(sent) == 14
+    assert sent['10'].form == 'donc'
 
 
 def test_load_from_file_and_string_equivalence():
