@@ -19,15 +19,11 @@ class Conll:
 
         Args:
         it: An iterator of the lines of the CoNLL-U file.
-        with_lines: An optional flag indicating to include line numbers when
-            constructing Sentences. If set, the Sentences will have a start and
-            end line number, and Tokens will have a line number.
         """
         self._sentences = []
 
         for sentence in pyconll._parser.iter_sentences(it):
-            if sentence.id is not None:
-                self._sentences.append(sentence)
+            self._sentences.append(sentence)
 
     def conll(self):
         """
@@ -73,6 +69,8 @@ class Conll:
         """
         Insert the given sentence into the given location.
 
+        This function behaves in the same way as python lists insert.
+
         Args:
         index: The numeric index to insert the sentence into.
         sent: The sentence to insert.
@@ -116,12 +114,14 @@ class Conll:
         """
         if isinstance(key, int):
             return self._sentences[key]
-        else:
+        elif isinstance(key, slice):
             sliced_conll = Conll([])
             sliced_conll._sentences = self._sentences[key.start:key.stop:
                                                       key.step]
 
             return sliced_conll
+        else:
+            raise ValueError('The key must be an int or a slice.')
 
     def __setitem__(self, key, sent):
         """
@@ -131,8 +131,10 @@ class Conll:
         key: The location in the Conll file to set to the given sentence. This
             only accepts integer keys.
         """
-        old_id = self._sentences[key].id
-        self._sentences[key] = sent
+        try:
+            self._sentences[key] = sent
+        except IndexError as e:
+            raise IndexError('The index is out of range.') from e
 
     def __delitem__(self, key):
         """
@@ -143,15 +145,14 @@ class Conll:
             in the file, or a slice.
         """
         if isinstance(key, slice):
-            for i, sentence in enumerate(
-                    self._sentences[key.start:key.stop:key.stop]):
-                idx = i + key.start
-
-            del self._sentences[key.start:key.stop:key.step]
-        else:
-            sent_id = self._sentences[key].id
-
+            try:
+                del self._sentences[key.start:key.stop:key.step]
+            except KeyError as e:
+                raise KeyError('Slice indices are out of range.') from e
+        elif isinstance(key, int):
             del self._sentences[key]
+        else:
+            raise ValueError('The key must be an int or slice.')
 
     def __len__(self):
         """

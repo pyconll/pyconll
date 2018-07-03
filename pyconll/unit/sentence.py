@@ -54,7 +54,7 @@ class Sentence:
 
     COMMENT_MARKER = '#'
     KEY_VALUE_COMMENT_PATTERN = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
-    SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S.*)$'
+    SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
 
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
@@ -110,6 +110,7 @@ class Sentence:
                     if token.id is not None:
                         self._ids_to_indexes[token.id] = len(self._tokens) - 1
 
+        # TODO: What is up with this?
         self._par_id = _read_sentence_meta(self, 'newpar id', None)
         self._doc_id = _read_sentence_meta(self, 'newdoc id', None)
 
@@ -119,9 +120,12 @@ class Sentence:
         Get the sentence id.
 
         Returns:
-        The sentence id.
+        The sentence id. If there is none, then returns None.
         """
-        return self._meta[Sentence.SENTENCE_ID_KEY]
+        try:
+            return self._meta[Sentence.SENTENCE_ID_KEY]
+        except KeyError:
+            return None
 
     @id.setter
     def id(self, new_id):
@@ -139,9 +143,13 @@ class Sentence:
         Get the continuous text for this sentence. Read-only.
 
         Returns;
-        The continuous text of this sentence.
+        The continuous text of this sentence. If none is provided in comments,
+        then None is returned.
         """
-        return self._meta[Sentence.TEXT_KEY]
+        try:
+            return self._meta[Sentence.TEXT_KEY]
+        except KeyError:
+            return None
 
     @property
     def par_id(self):
@@ -282,6 +290,8 @@ class Sentence:
                 end_idx = key.stop
 
             return self._tokens[start_idx:end_idx:key.step]
+        else:
+            raise ValueError('The key must be a str, int, or slice.')
 
     def __len__(self):
         """
