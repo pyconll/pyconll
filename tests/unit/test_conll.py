@@ -415,6 +415,7 @@ def test_delitem_slice_int():
     actual_ids = [sent.id for sent in c]
     assert actual_ids == expected_ids
 
+
 def test_delitem_contains():
     """
     Test that the contains method still works after deletion.
@@ -427,6 +428,7 @@ def test_delitem_contains():
     assert sent in c
     del c[1]
     assert sent not in c
+
 
 def test_insert_contains():
     """
@@ -456,7 +458,7 @@ def test_insert_contains():
     new_sent = Sentence(source)
     other_sent = Sentence(source)
     other_sent.id = 'xyz'
-    
+
     c.insert(3, new_sent)
 
     assert new_sent in c
@@ -492,7 +494,7 @@ def test_append_contains():
     new_sent = Sentence(source)
     other_sent = Sentence(source)
     other_sent.id = 'xyz'
-    
+
     c.append(new_sent)
 
     assert new_sent in c
