@@ -239,6 +239,9 @@ class Token:
         fields = source.split(Token.FIELD_DELIMITER)
         self._fields = fields
 
+        if len(self._fields) != 10:
+            raise ValueError('The number of columns per token line is 10')
+
         # Assign all the field values from the line to internal equivalents.
         self.id = fields[0]
 
