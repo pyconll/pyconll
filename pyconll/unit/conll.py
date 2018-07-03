@@ -1,5 +1,4 @@
 import collections
-import itertools
 
 import pyconll._parser
 from pyconll.unit import Sentence
@@ -25,12 +24,10 @@ class Conll:
             end line number, and Tokens will have a line number.
         """
         self._sentences = []
-        self._ids_to_indexes = collections.defaultdict(set)
 
         for sentence in pyconll._parser.iter_sentences(it):
             if sentence.id is not None:
                 self._sentences.append(sentence)
-                self._ids_to_indexes[sentence.id].add(len(self._sentences) - 1)
 
     def conll(self):
         """
@@ -71,7 +68,6 @@ class Conll:
         sent: The Sentence object to add.
         """
         self._sentences.append(sent)
-        self._ids_to_indexes[sent.id].add(len(self._sentences) - 1)
 
     def insert(self, index, sent):
         """
@@ -83,26 +79,21 @@ class Conll:
         """
         self._sentences.insert(index, sent)
 
-        for idx, sent in enumerate(self._sentences[index:]):
-            self._ids_to_indexes[sent.id] = idx
-
-    def __contains__(self, sent):
+    def __contains__(self, other):
         """
         Check if the Conll object has this sentence.
 
         Args:
-        sent: The sentence to check for.
+        other: The sentence to check for.
 
         Returns:
         True if this Sentence is exactly in the Conll object. False, otherwise.
         """
-        sent_idxs = self._ids_to_indexes[sent.id]
+        for sentence in self._sentences:
+            if other == sentence:
+                return True
 
-        equal = False
-        for idx in sent_idxs:
-            equal = equal or sent == self[idx]
-
-        return equal
+        return False
 
     def __iter__(self):
         """
@@ -129,9 +120,6 @@ class Conll:
             sliced_conll = Conll([])
             sliced_conll._sentences = self._sentences[key.start:key.stop:
                                                       key.step]
-            for i, sentence in enumerate(sliced_conll._sentences):
-                if sentence.id is not None:
-                    sliced_conll._ids_to_indexes[sentence.id].add(i)
 
             return sliced_conll
 
@@ -144,10 +132,7 @@ class Conll:
             only accepts integer keys.
         """
         old_id = self._sentences[key].id
-        self._ids_to_indexes[old_id].remove(key)
-
         self._sentences[key] = sent
-        self._ids_to_indexes[sent.id].add(key)
 
     def __delitem__(self, key):
         """
@@ -161,14 +146,12 @@ class Conll:
             for i, sentence in enumerate(
                     self._sentences[key.start:key.stop:key.stop]):
                 idx = i + key.start
-                self._ids_to_indexes[sentence.id].remove(idx)
 
             del self._sentences[key.start:key.stop:key.step]
         else:
             sent_id = self._sentences[key].id
 
             del self._sentences[key]
-            self._ids_to_indexes[sent_id].remove(key)
 
     def __len__(self):
         """
