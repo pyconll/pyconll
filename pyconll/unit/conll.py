@@ -111,6 +111,9 @@ class Conll:
         Returns:
         The corresponding sentence if the key is an int or the sentences if the
         key is a slice in the form of another Conll object.
+
+        Raises:
+        ValueError if the key is not an integer or slice.
         """
         if isinstance(key, int):
             return self._sentences[key]
@@ -129,7 +132,10 @@ class Conll:
 
         Args:
         key: The location in the Conll file to set to the given sentence. This
-            only accepts integer keys.
+            only accepts integer keys and accepts negative indexing.
+
+        Raises:
+        IndexError if the key provided is out of range.
         """
         try:
             self._sentences[key] = sent
@@ -143,6 +149,9 @@ class Conll:
         Args:
         key: The info to get the Sentence to delete. Can be the integer position
             in the file, or a slice.
+
+        Raises:
+        ValueError if the key is not an integer or a slice.
         """
         if isinstance(key, slice):
             try:

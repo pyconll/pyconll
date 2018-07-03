@@ -229,6 +229,10 @@ class Token:
             assumption, will they not be assigned to None.
         _line_number: The line number for this Token in a CoNLL-U file. For
             internal use mostly.
+
+        Raises:
+        ValueError if the provided source is not composed of 10 tab separated
+        columns.
         """
         if source[-1] == '\n':
             source = source[:-1]
