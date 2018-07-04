@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from pyconll.unit import Conll
 from pyconll.unit import Sentence
 from tests.util import fixture_location
@@ -386,6 +388,16 @@ def test_setitem():
     c[1] = sentence
     assert c[1].conll() == source
     assert c[1].id == 'fr-ud-dev_00002'
+
+def test_getitem_raises_typeerror():
+    """
+    Test that a non integer or slice key raises a TypeError.
+    """
+    with open(fixture_location('basic.conll')) as f:
+        c = Conll(f)
+
+    with pytest.raises(TypeError):
+        sent = c['error']
 
 
 def test_delitem_single_int():

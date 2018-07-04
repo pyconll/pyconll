@@ -198,3 +198,12 @@ def test_empty_lemma_present_form():
 
     assert_token_members(token, '33', None, 'hate', 'VERB', None, {}, '30',
                          'nmod', {}, {'SpaceAfter': set(('No', ))})
+
+def test_improper_source():
+    """
+    Test that when an input without 10 delimited columns raises a ValueError.
+    """
+    token_line = '33	hate	_	VERB	_	_	30	nmod	_'
+
+    with pytest.raises(ValueError):
+        token = Token(token_line)
