@@ -113,18 +113,17 @@ class Conll:
         key is a slice in the form of another Conll object.
 
         Raises:
-        ValueError if the key is not an integer or slice.
+        TypeError if the key is not an integer or slice.
         """
         if isinstance(key, int):
             return self._sentences[key]
         elif isinstance(key, slice):
             sliced_conll = Conll([])
-            sliced_conll._sentences = self._sentences[key.start:key.stop:
-                                                      key.step]
+            sliced_conll._sentences = self._sentences[key]
 
             return sliced_conll
         else:
-            raise ValueError('The key must be an int or a slice.')
+            raise TypeError('Conll indices must be ints or slices, not str')
 
     def __setitem__(self, key, sent):
         """
@@ -133,14 +132,8 @@ class Conll:
         Args:
         key: The location in the Conll file to set to the given sentence. This
             only accepts integer keys and accepts negative indexing.
-
-        Raises:
-        IndexError if the key provided is out of range.
         """
-        try:
-            self._sentences[key] = sent
-        except IndexError as e:
-            raise IndexError('The index is out of range.') from e
+        self._sentences[key] = sent
 
     def __delitem__(self, key):
         """
@@ -149,19 +142,8 @@ class Conll:
         Args:
         key: The info to get the Sentence to delete. Can be the integer position
             in the file, or a slice.
-
-        Raises:
-        ValueError if the key is not an integer or a slice.
         """
-        if isinstance(key, slice):
-            try:
-                del self._sentences[key.start:key.stop:key.step]
-            except KeyError as e:
-                raise KeyError('Slice indices are out of range.') from e
-        elif isinstance(key, int):
-            del self._sentences[key]
-        else:
-            raise ValueError('The key must be an int or slice.')
+        del self._sentences[key]
 
     def __len__(self):
         """
