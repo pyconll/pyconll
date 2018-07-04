@@ -30,43 +30,48 @@ def iter_sentences(lines_it):
             sent_lines.append(line)
         elif sent_lines:
             sentence = _create_sentence(sent_lines, last_start, i)
-            cur_par_id = _assign_sentence_ids(sentence, 'newpar', '_par_id',
+            cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY, Sentence.NEWPAR_ID_KEY,
                                               cur_par_id)
-            cur_doc_id = _assign_sentence_ids(sentence, 'newdoc', '_doc_id',
+            sentence._set_par_id(cur_par_id)
+            cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY, Sentence.NEWDOC_ID_KEY,
                                               cur_doc_id)
+            sentence._set_doc_id(cur_doc_id)
 
             yield sentence
 
     if sent_lines:
         sentence = _create_sentence(sent_lines, last_start, i)
-        cur_par_id = _assign_sentence_ids(sentence, 'newpar', '_par_id',
+        cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY, Sentence.NEWPAR_ID_KEY,
                                           cur_par_id)
-        cur_doc_id = _assign_sentence_ids(sentence, 'newdoc', '_doc_id',
+        sentence._set_par_id(cur_par_id)
+        cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY, Sentence.NEWDOC_ID_KEY,
                                           cur_doc_id)
+        sentence._set_doc_id(cur_doc_id)
 
         yield sentence
 
 
-def _assign_sentence_ids(sentence, meta_key, id_name, old_id):
+def _determine_sentence_id(sentence, new_id, id_name, old_id):
     """
-    Assign the appropriate id to the sentence and return the current id.
+    Determine the appropriate id for this sentence.
 
     Ids here means doc id or par id.
 
     Args:
     sentence: The sentence whose ids to check.
-    meta_key: The key that the id can come up as without the id key word.
-    id_name: The id to modify. One of '_par_id', or '_doc_id'.
+    new_id: The key that the id can come up as without the id key word.
+    id_name: The id in the comments to modify. One of 'newpar id', or
+        'newdoc id'.
     old_id: The id of the previous sentence.
 
     Returns:
     The value of the id of the sentence.
     """
-    if getattr(sentence, id_name) is not None or \
-        sentence.meta_present(meta_key):
-        return getattr(sentence, id_name)
+    if sentence.meta_present(id_name):
+        return sentence.meta_value(id_name)
+    elif sentence.meta_present(new_id):
+        return None
     else:
-        setattr(sentence, id_name, old_id)
         return old_id
 
 

@@ -4,30 +4,6 @@ import re
 from pyconll.unit import Token
 
 
-def _read_sentence_meta(sent, key, default):
-    """
-    Read in the meta value from the sentence associated with key.
-
-    Args:
-    sent: The sentence to read the meta data from.
-    key: The key of the meta data item.
-    default: The default item to return if the value is not found.
-
-    Returns:
-    default if the key is a singleton or the key doesn't exist. The key's value
-    otherwise.
-    """
-    try:
-        v = sent.meta_value(key)
-
-        if v is not None:
-            return v
-        else:
-            return default
-    except KeyError:
-        return default
-
-
 class Sentence:
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
@@ -58,6 +34,10 @@ class Sentence:
 
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
+    NEWPAR_ID_KEY = 'newpar id'
+    NEWDOC_ID_KEY = 'newdoc id'
+    NEWPAR_KEY = 'newpar'
+    NEWDOC_KEY = 'newdoc'
 
     def __init__(self, source, _start_line_number=None, _end_line_number=None):
         """
@@ -110,9 +90,8 @@ class Sentence:
                     if token.id is not None:
                         self._ids_to_indexes[token.id] = len(self._tokens) - 1
 
-        # TODO: What is up with this?
-        self._par_id = _read_sentence_meta(self, 'newpar id', None)
-        self._doc_id = _read_sentence_meta(self, 'newdoc id', None)
+        self._doc_id = self._meta.get(Sentence.NEWDOC_ID_KEY, None)
+        self._par_id = self._meta.get(Sentence.NEWPAR_ID_KEY, None)
 
     @property
     def id(self):
@@ -302,3 +281,21 @@ class Sentence:
         includes both all the multiword tokens and their decompositions.
         """
         return len(self._tokens)
+
+    def _set_par_id(self, new_par_id):
+        """
+        Set the sentence's paragraph id. For internal use.
+
+        Args:
+        The new paragraph id of this sentence.
+        """
+        self._par_id = new_par_id
+
+    def _set_doc_id(self, new_doc_id):
+        """
+        Set the sentence's document id. For internal use.
+
+        Args:
+        The new document id of this sentence.
+        """
+        self._doc_id = new_doc_id
