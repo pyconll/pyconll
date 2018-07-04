@@ -27,17 +27,11 @@ def load_from_file(filename):
 
     Returns:
     A Conll object equivalent to the provided file.
-
-    Throws:
-    IOError when the file cannot be opened.
     """
-    try:
-        with open(filename) as f:
-            c = Conll(f)
+    with open(filename) as f:
+        c = Conll(f)
 
-        return c
-    except IOError as e:
-        raise IOError('There was an error opening the file.') from e
+    return c
 
 
 def iter_from_string(source):
@@ -67,13 +61,7 @@ def iter_from_file(filename):
 
     Returns:
     An iterator that yields consecutive sentences.
-
-    Throws:
-    IOError when the file cannot be opened.
     """
-    try:
-        with open(filename) as f:
-            for sentence in iter_sentences(f):
-                yield sentence
-    except IOError as e:
-        raise IOError('There was an error opening the file.') from e
+    with open(filename) as f:
+        for sentence in iter_sentences(f):
+            yield sentence
