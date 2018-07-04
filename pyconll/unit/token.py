@@ -73,8 +73,14 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
     else:
         d = {}
         for el in values.split(delim):
-            k, v = el.split(av_separator)
-            if singleton:
+            parts = el.split(av_separator)
+            if len(parts) == 1:
+                k = parts
+                v = None
+            elif len(parts) == 2:
+                k, v = parts
+
+            if singleton or v is None:
                 d[k] = v
             else:
                 v = set(v.split(v_delimiter))
