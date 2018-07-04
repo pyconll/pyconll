@@ -30,22 +30,24 @@ def iter_sentences(lines_it):
             sent_lines.append(line)
         elif sent_lines:
             sentence = _create_sentence(sent_lines, last_start, i)
-            cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY, Sentence.NEWPAR_ID_KEY,
-                                              cur_par_id)
+            cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
+                                                Sentence.NEWPAR_ID_KEY,
+                                                cur_par_id)
             sentence._set_par_id(cur_par_id)
-            cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY, Sentence.NEWDOC_ID_KEY,
-                                              cur_doc_id)
+            cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY,
+                                                Sentence.NEWDOC_ID_KEY,
+                                                cur_doc_id)
             sentence._set_doc_id(cur_doc_id)
 
             yield sentence
 
     if sent_lines:
         sentence = _create_sentence(sent_lines, last_start, i)
-        cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY, Sentence.NEWPAR_ID_KEY,
-                                          cur_par_id)
+        cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
+                                            Sentence.NEWPAR_ID_KEY, cur_par_id)
         sentence._set_par_id(cur_par_id)
-        cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY, Sentence.NEWDOC_ID_KEY,
-                                          cur_doc_id)
+        cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY,
+                                            Sentence.NEWDOC_ID_KEY, cur_doc_id)
         sentence._set_doc_id(cur_doc_id)
 
         yield sentence
