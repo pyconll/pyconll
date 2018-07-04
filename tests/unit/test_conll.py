@@ -389,6 +389,7 @@ def test_setitem():
     assert c[1].conll() == source
     assert c[1].id == 'fr-ud-dev_00002'
 
+
 def test_getitem_raises_typeerror():
     """
     Test that a non integer or slice key raises a TypeError.

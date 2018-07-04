@@ -694,6 +694,7 @@ def test_no_id():
 
     assert sentence.id is None
 
+
 def test_no_id_singleton():
     """
     Test that a sentence can be properly constructed with no id.
