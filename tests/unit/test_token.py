@@ -225,3 +225,16 @@ def test_misc_parsing():
     assert token.misc['SpaceAfter'] == set(('No', ))
     assert token.misc['French'] is None
     assert token.misc['Independent'] == set(('P', 'Q'))
+
+
+def test_deps_parsing():
+    """
+    Test that the deps field is properly parsed.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
+        '30	nmod	2:nsubj|4:nmod	SpaceAfter=No'
+    token = Token(token_line)
+
+    assert token.deps['2'] == 'nsubj'
+    assert token.deps['4'] == 'nmod'
+    assert token.conll() == token_line
