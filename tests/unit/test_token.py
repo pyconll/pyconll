@@ -222,6 +222,6 @@ def test_misc_parsing():
     assert 'French' in token.misc
     assert 'Independent' in token.misc
 
-    assert token.misc['SpaceAfter'] == set(('No',))
+    assert token.misc['SpaceAfter'] == set(('No', ))
     assert token.misc['French'] is None
     assert token.misc['Independent'] == set(('P', 'Q'))
