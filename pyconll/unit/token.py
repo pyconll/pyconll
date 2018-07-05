@@ -75,7 +75,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         for el in values.split(delim):
             parts = el.split(av_separator)
             if len(parts) == 1:
-                k = parts
+                k = parts[0]
                 v = None
             elif len(parts) == 2:
                 k, v = parts

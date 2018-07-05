@@ -208,3 +208,20 @@ def test_improper_source():
 
     with pytest.raises(ValueError):
         token = Token(token_line)
+
+
+def test_misc_parsing():
+    """
+    Test that a misc field is properly parsed in all of its cases.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
+        '30	nmod	_	SpaceAfter=No|French|Independent=P,Q'
+    token = Token(token_line)
+
+    assert 'SpaceAfter' in token.misc
+    assert 'French' in token.misc
+    assert 'Independent' in token.misc
+
+    assert token.misc['SpaceAfter'] == set(('No',))
+    assert token.misc['French'] is None
+    assert token.misc['Independent'] == set(('P', 'Q'))
