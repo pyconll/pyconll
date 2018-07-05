@@ -3,7 +3,7 @@
 
 ## pyconll
 
-A simple package with simple intentions. Easily manipulate conll files using the familiar syntax of python.
+A simple package with simple intentions. Easily manipulate conll files using the familiar syntax of python. The current version is 0.1. This is a pretty stable version, passes a lot of tests and has full functionality essentially. The only thing that is missing is documentation which will be coming soon.
 
 
 ## Motivation
