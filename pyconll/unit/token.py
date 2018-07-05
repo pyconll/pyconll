@@ -324,7 +324,7 @@ class Token:
         deprel = _unit_conll_map(self.deprel, Token.EMPTY)
         deps = _dict_singleton_conll_map(self.deps, Token.EMPTY,
                                          Token.COMPONENT_DELIMITER,
-                                         Token.AV_SEPARATOR)
+                                         Token.AV_DEPS_SEPARATOR)
         misc = _dict_conll_map(self.misc, Token.EMPTY,
                                Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
                                Token.V_DELIMITER)
