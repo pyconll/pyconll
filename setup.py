@@ -1,4 +1,5 @@
 from distutils.core import setup
+import os
 
 def read(fn):
     """
@@ -32,7 +33,7 @@ setup(
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
-        'Intented Audience :: Science/Research',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython',

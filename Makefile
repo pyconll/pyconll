@@ -19,7 +19,7 @@ publish:
 
 publishtest:
 	python setup.py sdist
-	twine upload --repository-url https://test.pypi.org/legacy dist/*
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 docs:
 	pandoc --from=markdown --to=rst --output=README.rst README.md
