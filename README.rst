@@ -10,7 +10,7 @@ functionality essentially. The only thing that is missing is
 documentation which will be coming soon.
 
 Motivation
-----------
+~~~~~~~~~~
 
 When working with the Universal Dependencies project, I was dissapointed
 with the lack of good API options for maniuplating the conll files.
@@ -28,7 +28,7 @@ popular language that can be used in complex systems or small one off
 scripts.
 
 Uses
-----
+~~~~
 
 The usage of this package is to enable editing of CoNLL-U format
 annotations of sentences. For this reason, word forms for Tokens are not
@@ -38,7 +38,7 @@ CoNLL-U format. This does not include changing tokenization or creating
 completely new Sentences from scratch.
 
 Install
--------
+~~~~~~~
 
 Installation is easy like with most python packages. Simply use ``pip``
 to install from PyPi.

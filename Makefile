@@ -1,3 +1,5 @@
+.PHONY: docs clean
+
 format:
 	yapf -p -r -i pyconll/ tests/
 
@@ -24,6 +26,7 @@ publishtest:
 docs:
 	pandoc --from=markdown --to=rst --output=README.rst README.md
 	pandoc --from=markdown --to=plain --output=README README.md
+	pandoc --from=markdown --to=rst --output=CHANGELOG.rst CHANGELOG.md
 
 clean:
 	if [ -d 'dist' ]; then \

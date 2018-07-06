@@ -121,7 +121,7 @@ class Sentence:
         """
         Get the continuous text for this sentence. Read-only.
 
-        Returns;
+        Returns:
         The continuous text of this sentence. If none is provided in comments,
         then None is returned.
         """
