@@ -11,7 +11,6 @@ Jinja2==2.10
 MarkupSafe==1.0
 more-itertools==4.2.0
 packaging==17.1
-pkg-resources==0.0.0
 pkginfo==1.4.2
 pluggy==0.6.0
 py==1.5.3
