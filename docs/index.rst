@@ -16,7 +16,7 @@ pyconll documentation
    pyconll/unit/sentence
    pyconll/unit/token
 
-   readme
+   README <readme>
    changelog
 
 
