@@ -29,9 +29,9 @@ copyright = '2018, Matias Grioni'
 author = 'Matias Grioni'
 
 # The short X.Y version
-version = ''
+version = '0.1'
 # The full version, including alpha/beta/rc tags
-release = 'v0.1'
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------

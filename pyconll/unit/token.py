@@ -163,6 +163,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     if values == {}:
         return empty
     else:
+        # TODO: what if one of values is None
         sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
 
         if singleton:
@@ -179,6 +180,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
 
 
 class Token:
+    # TODO: Allow custom, token parsing for misc field if necessary somehow.
     """
     A token in a CoNLL-U file. This consists of 10 columns, each separated by
     a single tab character and ending in an LF ('\n') line break. Each of the 10
