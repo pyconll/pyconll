@@ -20,11 +20,4 @@ This is the homepage of the ``pyconll`` documentation. Here you can find most in
 If you are looking for example code, please see the ``examples`` directory on github_.
 
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-
 .. _github: https://github.com/matgrioni/pyconll/
