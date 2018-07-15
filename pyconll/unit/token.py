@@ -183,7 +183,7 @@ class Token:
     # TODO: Allow custom, token parsing for misc field if necessary somehow.
     """
     A token in a CoNLL-U file. This consists of 10 columns, each separated by
-    a single tab character and ending in an LF ('\n') line break. Each of the 10
+    a single tab character and ending in an LF ('\\n') line break. Each of the 10
     column values corresponds to a specific component of the token, such as id,
     word form, lemma, etc.
 
