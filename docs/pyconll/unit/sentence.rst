@@ -9,6 +9,10 @@ Comments are treated as key-value pairs, where the separating character between 
 
 Some things to keep in mind is that the id and text of a sentence can be accessed through member properties directly rather than through method APIs. So ``sentence.id``, rather than ``sentence.meta_value('id')``. Note that since this API does not support changing the forms of tokens, and focuses on the annotation of tokens, the text value cannot be changed of a sentence, but all other meta values can be.
 
+Document and Paragraph ID
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Document and paragraph id of a sentence are automatically inferred from a CoNLL treebank given the comments on each sentence. Note that if you wish to reassign these ids, it will have to be at the sentence level, there is no simplifying API to allow for easier mass assignment of this.
+
 Tokens
 ----------------------------------
 These are the meat of the sentence. Some things to note for tokens are that they can be accessed either through id as defined in the CoNLL data as a string or as numeric index. The string id indexing allows for multitoken and null nodes to be included easily. So the same indexing syntax understands both, ``sentence['2-3']`` and ``sentence[2]``.
