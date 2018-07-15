@@ -27,9 +27,7 @@ This example counts the number of times a token with a lemma of ``linguistic`` a
 
 
 
-API Reference
------------------------------------
-
-
+API
+----------------------------------
 .. automodule:: pyconll.load
     :members:

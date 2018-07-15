@@ -20,6 +20,10 @@ misc
 
 Currently, all fields are strings except for ``feats``, ``deps``, and ``misc``, which are ``dicts``. There are specific semantics for each of these according to the UDv2 guidelines. ``feats`` is a dictionary of attribute value pairs, where there can be multiple values. So the values for ``feats`` is a set. ``deps`` is also a dictionary of attribute value pairs, but there is only one value, so the values are strings. Lastly, for ``misc``, the documentation only specifies that the values are separated by a '|'. So for this reason, the value for ``misc`` is either ``None`` for entries with no '=', and an attribute value pair otherwise.
 
+In order to use this class explicity, use can import ``pyconll.unit`` and use ``pyconll.unit.Token`` or use the ``import .. from ...`` syntax.
+
+API
+----------------------------------
 .. automodule:: pyconll.unit.token
     :members:
     :special-members:
