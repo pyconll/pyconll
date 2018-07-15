@@ -183,7 +183,7 @@ class Sentence:
 
         Args:
         key: The key for the comment.
-        value: The value to associated with the key. If the comment is a
+        value: The value to associate with the key. If the comment is a
             singleton, this field can be ignored or set to None.
         """
         if key == Sentence.TEXT_KEY:
@@ -287,7 +287,7 @@ class Sentence:
         Set the sentence's paragraph id. For internal use.
 
         Args:
-        The new paragraph id of this sentence.
+        new_par_id: The new paragraph id of this sentence.
         """
         self._par_id = new_par_id
 
@@ -296,6 +296,6 @@ class Sentence:
         Set the sentence's document id. For internal use.
 
         Args:
-        The new document id of this sentence.
+        new_doc_id: The new document id of this sentence.
         """
         self._doc_id = new_doc_id
