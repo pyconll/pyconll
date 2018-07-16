@@ -17,7 +17,8 @@ def find_ngrams(conll, ngram, case_sensitive=True):
         sensitive.
 
     Returns:
-    An iterator over the ngrams in the Conll object.
+    An iterator over the ngrams in the Conll object. The first element is the
+    sentence and the second element is the numeric token index.
     """
     for sentence in conll:
         i = 0
@@ -25,15 +26,21 @@ def find_ngrams(conll, ngram, case_sensitive=True):
         while i < len(sentence):
             token = sentence[i]
 
-            cased_form, cased_ngram_start = _get_cased_versions(
-                case_sensitive, token.form, ngram[0])
+            cased_form, cased_ngram_start = _get_cased(case_sensitive,
+                                                       token.form, ngram[0])
 
-            if cased_form == cased_ngram_start:
+            if cased_form == cased_ngram_start and not token.is_multiword():
                 matches = True
+                multiword_token_offset = 0
 
                 for j, ngram_token in enumerate(
                         itertools.islice(ngram, 1, None)):
-                    new_token = sentence[i + j + 1]
+                    new_token = sentence[i + j + multiword_token_offset + 1]
+                    if new_token.is_multiword():
+                        multiword_token_offset += 1
+                        new_token = sentence[i + j + multiword_token_offset +
+                                             1]
+
                     if new_token.form != ngram_token:
                         matches = False
                         break
@@ -44,8 +51,16 @@ def find_ngrams(conll, ngram, case_sensitive=True):
             i += 1
 
 
-def _get_cased_versions(case_sensitive, *args):
+def _get_cased(case_sensitive, *args):
     """
+    Get the cased versions of the provided strings if applicable.
+
+    Args:
+    case_sensitive: If False, then returns lowercase versions of all strings.
+    args: The strings to get appropriately cased versions of.
+
+    Returns:
+    A list of case converted strings as necessary.
     """
     if not case_sensitive:
         args = map(lambda s: s.lower(), args)

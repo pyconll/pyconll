@@ -55,3 +55,19 @@ def test_ngram_first_word_match():
 
     with pytest.raises(StopIteration):
         next(it)
+
+
+def test_ngram_multiword_split():
+    """
+    Test that ngram searches still work when they go over a multiword token.
+    """
+    c = load_from_file(fixture_location('long.conll'))
+
+    it = find_ngrams(c, 'de " décentrement de le Sujet "'.split())
+    s, i = next(it)
+
+    assert s.id == 'fr-ud-test_00002'
+    assert i == 8
+
+    with pytest.raises(StopIteration):
+        next(it)
