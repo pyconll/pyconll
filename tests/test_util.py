@@ -71,3 +71,20 @@ def test_ngram_multiword_split():
 
     with pytest.raises(StopIteration):
         next(it)
+
+
+def test_ngram_case_insensitive():
+    """
+    Test that the case sensitivity function works.
+    """
+    c = load_from_file(fixture_location('long.conll'))
+    results = list(find_ngrams(c, 'Il'.split(), case_sensitive=False))
+
+    actual_ids = list(map(lambda res: res[0].id, results))
+    actual_indices = list(map(operator.itemgetter(1), results))
+
+    expected_ids = ['fr-ud-test_00003', 'fr-ud-test_00005', 'fr-ud-test_00008']
+    expected_indices = [1, 16, 0]
+
+    assert actual_ids == expected_ids
+    assert actual_indices == expected_indices
