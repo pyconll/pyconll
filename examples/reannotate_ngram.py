@@ -67,7 +67,7 @@ def find_ngrams(sentence, ngram, case_sensitive=True):
 
         if ngram_start < 0:
             i += 1
-            
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='The name of the file to transform')
