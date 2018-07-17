@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.2] - 2018-07-16
+### Added
+- More documentation
+- Util package for convenient and common logic
+
 ## [0.1.1] - 2018-07-15
 ### Added
 - Documentation which can be found [here](https://pyconll.readthedocs.io/en/latest/).
