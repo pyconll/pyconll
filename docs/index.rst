@@ -10,6 +10,7 @@ pyconll
    changelog
 
    pyconll/load
+   pyconll/util
    pyconll/unit/conll
    pyconll/unit/sentence
    pyconll/unit/token
