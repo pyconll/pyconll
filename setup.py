@@ -21,7 +21,7 @@ def read(fn):
 setup(
     name = 'pyconll',
     packages = ['pyconll'],
-    version = '0.1.1',
+    version = '0.2',
     description = 'Read and maniuplate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
@@ -30,7 +30,7 @@ setup(
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
     classifiers = [
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
