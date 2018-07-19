@@ -10,3 +10,5 @@ build/
 dist/
 
 docs/_build
+
+pyconll.egg-info/

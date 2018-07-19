@@ -6,7 +6,7 @@
 
 *Easily work with **CoNLL** files using the familiar syntax of **python**.*
 
-The current version is 0.2.1. This version is fully functional, stable, tested and documented.
+The current version is 0.2.2. This version is fully functional, stable, tested and documented.
 
 
 ### Motivation

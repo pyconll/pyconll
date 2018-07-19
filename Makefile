@@ -11,16 +11,14 @@ coveragetest:
 
 build:
 	python setup.py build
-
-sdist:
-	python setup.py sdist
+	python setup.py sdist bdist_wheel
 
 publish:
-	python setup.py sdist
+	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
 publishtest:
-	python setup.py sdist
+	python setup.py sdist bdist_wheel
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 docs:
@@ -35,6 +33,10 @@ clean:
 
 	if [ -d 'build' ]; then \
 		rm -r build; \
+	fi
+
+	if [ -d 'pyconll.egg-info' ]; then \
+		rm -r pyconll.egg-info; \
 	fi
 
 hooks:
