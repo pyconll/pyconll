@@ -6,11 +6,11 @@ def _unit_empty_map(value, empty):
     Map unit values for CoNLL-U columns to a string or None if empty.
 
     Args:
-    value: The value to map.
-    empty: The empty representation for this unit.
+        value: The value to map.
+        empty: The empty representation for this unit.
 
     Returns:
-    None if value is empty and value otherwise.
+        None if value is empty and value otherwise.
     """
     return None if value == empty else value
 
@@ -20,15 +20,15 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     Map dict values for CoNLL-U columns to a dict or empty dict if empty.
 
     Args:
-    values: The value to check for existence.
-    empty: The empty representation for this dict.
-    delim: The delimiter between components in the provided value.
-    av_separator: The attribute-value separator for each component.
-    v_delimiter: The delimiter between values for the same attribute.
+        values: The value to check for existence.
+        empty: The empty representation for this dict.
+        delim: The delimiter between components in the provided value.
+        av_separator: The attribute-value separator for each component.
+        v_delimiter: The delimiter between values for the same attribute.
 
     Returns:
-    An empty dict if value is empty. Otherwise, a dict of key-value where the
-    values are sets.
+        An empty dict if value is empty. Otherwise, a dict of key-value where
+        the values are sets.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, False)
@@ -39,14 +39,15 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
     Map dict based values for CoNLL-U columns to dict with singleton values.
 
     Args:
-    values: The value to parse.
-    empty: The empty representation for this value in CoNLL-U format.
-    delim: The delimiter between components in the value.
-    av_separator: The separator between attribute and value in each component.
+        values: The value to parse.
+        empty: The empty representation for this value in CoNLL-U format.
+        delim: The delimiter between components in the value.
+        av_separator: The separator between attribute and value in each
+            component.
 
     Returns:
-    An empty dict if values is empty. Otherwise, a dict of key-value pairs where
-    the values are singletons.
+        An empty dict if values is empty. Otherwise, a dict of key-value pairs
+        where the values are singletons.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator, None,
                                   True)
@@ -58,15 +59,16 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
     A helper to consolidate logic between singleton and non-singleton mapping.
 
     Args:
-    values: The value to parse.
-    empty: The empty representation for this value in CoNLL-U format.
-    delim: The delimiter between components of the value.
-    av_separator: The separator between attribute and value in each component.
-    v_delimiter: The delimiter between values for the same attribute.
-    singleton: A flag to indicate if the value has singleton values or not.
+        values: The value to parse.
+        empty: The empty representation for this value in CoNLL-U format.
+        delim: The delimiter between components of the value.
+        av_separator: The separator between attribute and value in each
+            component.
+        v_delimiter: The delimiter between values for the same attribute.
+        singleton: A flag to indicate if the value has singleton values or not.
 
     Returns:
-    An empty dict if the value is empty and otherwise a parsed equivalent.
+        An empty dict if the value is empty and otherwise a parsed equivalent.
     """
     if values == empty:
         return {}
@@ -94,11 +96,11 @@ def _unit_conll_map(value, empty):
     Map a unit value to its CoNLL-U format equivalent.
 
     Args:
-    value: The value to convert to its CoNLL-U format.
-    empty: The empty representation for a unit in CoNLL-U.
+        value: The value to convert to its CoNLL-U format.
+        empty: The empty representation for a unit in CoNLL-U.
 
     Returns:
-    empty if value is None and value otherwise.
+        empty if value is None and value otherwise.
     """
     return empty if value is None else value
 
@@ -112,14 +114,14 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
     alphabetically.
 
     Args:
-    values: The dict to convert to its CoNLL-U format.
-    empty: The empty representation for a dict in CoNLL-U.
-    delim: The delimiter between components in the output.
-    av_separator: The attribute-value separator in the provided string.
-    v_delimiter: The delimiter between values in attribute-value pairs.
+        values: The dict to convert to its CoNLL-U format.
+        empty: The empty representation for a dict in CoNLL-U.
+        delim: The delimiter between components in the output.
+        av_separator: The attribute-value separator in the provided string.
+        v_delimiter: The delimiter between values in attribute-value pairs.
 
     Returns:
-    The CoNLL-U format as a string.
+        The CoNLL-U format as a string.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, False)
@@ -130,13 +132,13 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
     Map a dict whose attributes can only have one value to CoNLL-U format.
 
     Args:
-    values: The dict to convert to CoNLL-U format.
-    empty: The empty CoNLL-U representation for this value.
-    delim: The delimiter between attribute-value pairs.
-    av_separator: The separator between attribute and value.
+        values: The dict to convert to CoNLL-U format.
+        empty: The empty CoNLL-U representation for this value.
+        delim: The delimiter between attribute-value pairs.
+        av_separator: The separator between attribute and value.
 
     Returns:
-    The CoNLL-U formatted equivalent to the value.
+        The CoNLL-U formatted equivalent to the value.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator, None,
                                   True)
@@ -148,17 +150,17 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     Helper to map dicts to CoNLL-U format equivalents.
 
     Args:
-    values: The value, dict, to map.
-    empty: The empty CoNLL-U reprsentation for this value.
-    delim: The delimiter between attribute-value pairs.
-    av_separator: The separator between attribute and value.
-    v_delimiter: The delimiter between values of the same attribute if
-        necessary.
-    singleton: Flag to indicate if the dictionary values are singletons or
-        collections.
+        values: The value, dict, to map.
+        empty: The empty CoNLL-U reprsentation for this value.
+        delim: The delimiter between attribute-value pairs.
+        av_separator: The separator between attribute and value.
+        v_delimiter: The delimiter between values of the same attribute if
+            necessary.
+        singleton: Flag to indicate if the dictionary values are singletons or
+            collections.
 
     Returns:
-    The CoNLL-U formatted equivalent to the value.
+        The CoNLL-U formatted equivalent to the value.
     """
     if values == {}:
         return empty
@@ -230,17 +232,17 @@ class Token:
         follow the CoNLL-U specifications.
 
         Args:
-        line: The line that represents the Token in CoNLL-U format.
-        empty: A flag to signify if the word form and lemma can be assumed to be
-            empty and not the token signifying empty. Only if both the form and
-            lemma are both the same token as empty and there is no empty
-            assumption, will they not be assigned to None.
-        _line_number: The line number for this Token in a CoNLL-U file. For
-            internal use mostly.
+            line: The line that represents the Token in CoNLL-U format.
+            empty: A flag to signify if the word form and lemma can be assumed
+                to be empty and not the token signifying empty. Only if both the
+                form and lemma are both the same token as empty and there is no
+                empty assumption, will they not be assigned to None.
+            _line_number: The line number for this Token in a CoNLL-U file. For
+                internal use mostly.
 
         Raises:
-        ValueError if the provided source is not composed of 10 tab separated
-        columns.
+            ValueError: If the provided source is not composed of 10 tab
+            separated columns.
         """
         if source[-1] == '\n':
             source = source[:-1]
@@ -290,7 +292,7 @@ class Token:
         Provide the word form of this Token. This property makes it readonly.
 
         Returns:
-        The Token wordform.
+            The Token wordform.
         """
         return self._form
 
@@ -299,7 +301,7 @@ class Token:
         Checks if this token is a multiword token.
 
         Returns:
-        True if this token is a multiword token, and False otherwise.
+            True if this token is a multiword token, and False otherwise.
         """
         return '-' in self.id
 
@@ -310,7 +312,7 @@ class Token:
         Note that this does not include a newline at the end.
 
         Returns:
-        A string representing the token as a line in a CoNLL-U file.
+            A string representing the token as a line in a CoNLL-U file.
         """
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.
@@ -340,10 +342,10 @@ class Token:
         Test if this Token is equal to other.
 
         Args:
-        other: The other token to compare against.
+            other: The other token to compare against.
 
         Returns:
-        True if the this Token and the other are the same. Two tokens are
-        considered the same when all columns are the same.
+            True if the this Token and the other are the same. Two tokens are
+            considered the same when all columns are the same.
         """
         return self._source == other._source
