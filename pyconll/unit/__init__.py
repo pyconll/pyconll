@@ -1,4 +1,4 @@
-__all__ = ['token']
+__all__ = ['conll', 'sentence', 'token']
 
 from .token import Token
 from .sentence import Sentence
