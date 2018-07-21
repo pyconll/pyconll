@@ -18,7 +18,7 @@ class Conll:
         Create a CoNLL-U file collection of sentences.
 
         Args:
-        it: An iterator of the lines of the CoNLL-U file.
+            it: An iterator of the lines of the CoNLL-U file.
         """
         self._sentences = []
 
@@ -30,7 +30,7 @@ class Conll:
         Output the Conll object to a CoNLL-U formatted string.
 
         Returns:
-        The CoNLL-U object as a string. This string will end in a newline.
+            The CoNLL-U object as a string. This string will end in a newline.
         """
         # Add newlines along with sentence strings so that there is no need to
         # slice potentially long lists or modify strings.
@@ -50,7 +50,8 @@ class Conll:
         final output will include a final newline.
 
         Args:
-        writable: The writable object such as a file. Must have a write method.
+            writable: The writable object such as a file. Must have a write
+                method.
         """
         for sentence in self._sentences:
             writable.write(sentence.conll())
@@ -61,7 +62,7 @@ class Conll:
         Add the given sentence to the end of this Conll object.
 
         Args:
-        sent: The Sentence object to add.
+            sent: The Sentence object to add.
         """
         self._sentences.append(sent)
 
@@ -72,8 +73,8 @@ class Conll:
         This function behaves in the same way as python lists insert.
 
         Args:
-        index: The numeric index to insert the sentence into.
-        sent: The sentence to insert.
+            index: The numeric index to insert the sentence into.
+            sent: The sentence to insert.
         """
         self._sentences.insert(index, sent)
 
@@ -82,10 +83,11 @@ class Conll:
         Check if the Conll object has this sentence.
 
         Args:
-        other: The sentence to check for.
+            other: The sentence to check for.
 
         Returns:
-        True if this Sentence is exactly in the Conll object. False, otherwise.
+            True if this Sentence is exactly in the Conll object. False,
+            otherwise.
         """
         for sentence in self._sentences:
             if other == sentence:
@@ -105,15 +107,15 @@ class Conll:
         Index a sentence by key value.
 
         Args:
-        key: The key to index the sentence by. This key can either be a numeric
-        key, or a slice.
+            key: The key to index the sentence by. This key can either be a
+                numeric key, or a slice.
 
         Returns:
-        The corresponding sentence if the key is an int or the sentences if the
-        key is a slice in the form of another Conll object.
+            The corresponding sentence if the key is an int or the sentences
+            if the key is a slice in the form of another Conll object.
 
         Raises:
-        TypeError if the key is not an integer or slice.
+            TypeError: If the key is not an integer or slice.
         """
         if isinstance(key, int):
             return self._sentences[key]
@@ -130,8 +132,8 @@ class Conll:
         Set the given location to the Sentence.
 
         Args:
-        key: The location in the Conll file to set to the given sentence. This
-            only accepts integer keys and accepts negative indexing.
+            key: The location in the Conll file to set to the given sentence.
+                This only accepts integer keys and accepts negative indexing.
         """
         self._sentences[key] = sent
 
@@ -140,8 +142,8 @@ class Conll:
         Delete the Sentence corresponding with the given key.
 
         Args:
-        key: The info to get the Sentence to delete. Can be the integer position
-            in the file, or a slice.
+            key: The info to get the Sentence to delete. Can be the integer
+                position in the file, or a slice.
         """
         del self._sentences[key]
 
@@ -150,6 +152,6 @@ class Conll:
         Returns the number of sentences in the CoNLL-U file.
 
         Returns:
-        The size of the CoNLL-U file in sentences.
+            The size of the CoNLL-U file in sentences.
         """
         return len(self._sentences)

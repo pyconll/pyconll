@@ -7,10 +7,10 @@ def load_from_string(source):
     Load CoNLL-U source in a string into a Conll object.
 
     Args:
-    source: The CoNLL-U formatted string.
+        source: The CoNLL-U formatted string.
 
     Returns:
-    A Conll object equivalent to the provided source.
+        A Conll object equivalent to the provided source.
     """
     lines = source.splitlines()
     c = Conll(lines)
@@ -23,10 +23,10 @@ def load_from_file(filename):
     Load a CoNLL-U file given the filename where it resides.
 
     Args:
-    filename: The location of the file.
+        filename: The location of the file.
 
     Returns:
-    A Conll object equivalent to the provided file.
+        A Conll object equivalent to the provided file.
     """
     with open(filename) as f:
         c = Conll(f)
@@ -42,10 +42,10 @@ def iter_from_string(source):
     do not need to create or store the Conll object.
 
     Args:
-    source: The CoNLL-U string.
+        source: The CoNLL-U string.
 
     Returns:
-    An iterator that yields consecutive sentences.
+        An iterator that yields consecutive sentences.
     """
     lines = source.splitlines()
     for sentence in iter_sentences(lines):
@@ -57,10 +57,10 @@ def iter_from_file(filename):
     Iterate over a CoNLL-U file's sentences.
 
     Args:
-    filename: The name of the file whose sentences should be iterated over.
+        filename: The name of the file whose sentences should be iterated over.
 
     Returns:
-    An iterator that yields consecutive sentences.
+        An iterator that yields consecutive sentences.
     """
     with open(filename) as f:
         for sentence in iter_sentences(f):

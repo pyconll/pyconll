@@ -44,12 +44,12 @@ class Sentence:
         Construct a Sentence object from the provided CoNLL-U string.
 
         Args:
-        source: The raw CoNLL-U string to parse. Comments must precede token
-            lines.
-        _start_line_number: The starting line of the sentence. Mostly for
-            internal use.
-        _end_line_number: The ending line of the sentence. Mostly for internal
-            use.
+            source: The raw CoNLL-U string to parse. Comments must precede token
+                lines.
+            _start_line_number: The starting line of the sentence. Mostly for
+                internal use.
+            _end_line_number: The ending line of the sentence. Mostly for
+                internal use.
         """
         self.source = source
         lines = self.source.split('\n')
@@ -99,7 +99,7 @@ class Sentence:
         Get the sentence id.
 
         Returns:
-        The sentence id. If there is none, then returns None.
+            The sentence id. If there is none, then returns None.
         """
         try:
             return self._meta[Sentence.SENTENCE_ID_KEY]
@@ -112,7 +112,7 @@ class Sentence:
         Set the sentence id.
 
         Args:
-        new_id: The new id of this sentence.
+            new_id: The new id of this sentence.
         """
         self._meta[Sentence.SENTENCE_ID_KEY] = new_id
 
@@ -122,8 +122,8 @@ class Sentence:
         Get the continuous text for this sentence. Read-only.
 
         Returns:
-        The continuous text of this sentence. If none is provided in comments,
-        then None is returned.
+            The continuous text of this sentence. If none is provided in
+            comments, then None is returned.
         """
         try:
             return self._meta[Sentence.TEXT_KEY]
@@ -136,7 +136,7 @@ class Sentence:
         Get the paragraph id associated with this Sentence. Read-only.
 
         Returns:
-        The paragraph id or None if no id is associated.
+            The paragraph id or None if no id is associated.
         """
         return self._par_id
 
@@ -146,7 +146,7 @@ class Sentence:
         Get the document id associated with this Sentence. Read-only.
 
         Returns:
-        The document id or None if no id is associated.
+            The document id or None if no id is associated.
         """
         return self._doc_id
 
@@ -155,12 +155,14 @@ class Sentence:
         Returns the value associated with the key in the metadata (comments).
 
         Args:
-        key: The key whose value to look up.
+            key: The key whose value to look up.
 
         Returns:
-        The value associated with the key as a string. If the key is not present
-        then a KeyError is thrown, and if the key is a singleton then None is
-        returned.
+            The value associated with the key as a string. If the key is a
+            singleton then None is returned.
+
+        Raises:
+            KeyError: If the key is not present in the comments.
         """
         return self._meta[key]
 
@@ -169,11 +171,11 @@ class Sentence:
         Check if the key is present as a singleton or as a pair.
 
         Args:
-        key: The value to check for in the comments.
+            key: The value to check for in the comments.
 
         Returns:
-        True if the key was provided as a singleton or as a key value pair.
-        False otherwise.
+            True if the key was provided as a singleton or as a key value pair.
+            False otherwise.
         """
         return key in self._meta
 
@@ -182,9 +184,9 @@ class Sentence:
         Set the metadata or comments associated with this Sentence.
 
         Args:
-        key: The key for the comment.
-        value: The value to associate with the key. If the comment is a
-            singleton, this field can be ignored or set to None.
+            key: The key for the comment.
+            value: The value to associate with the key. If the comment is a
+                singleton, this field can be ignored or set to None.
         """
         if key == Sentence.TEXT_KEY:
             raise ValueError('Key cannot be {} or {}'.format(
@@ -197,7 +199,7 @@ class Sentence:
         Convert the sentence to a CoNLL-U representation.
 
         Returns:
-        A string representing the Sentence in CoNLL-U format.
+            A string representing the Sentence in CoNLL-U format.
         """
         lines = []
         sorted_meta = sorted(self._meta.items(), key=operator.itemgetter(0))
@@ -220,12 +222,12 @@ class Sentence:
         Defines equality for a sentence.
 
         Args:
-        other: The other Sentence to compare for equality against this one.
+            other: The other Sentence to compare for equality against this one.
 
         Returns:
-        True if the this Sentence and the other one are the same. Sentences are
-        the same when their comments are the same and their tokens are the same.
-        Line numbers are not including in the equality definition.
+            True if the this Sentence and the other one are the same. Sentences
+            are the same when their comments are the same and their tokens are
+            the same. Line numbers are not including in the equality definition.
         """
         same = self._meta == other._meta
         for s_token, o_token in zip(self._tokens, other._tokens):
@@ -235,7 +237,8 @@ class Sentence:
 
     def __iter__(self):
         """
-        Iterate through all the tokens in the Sentence including multiword tokens.
+        Iterate through all the tokens in the Sentence including multiword
+        tokens.
         """
         for token in self._tokens:
             yield token
@@ -245,15 +248,15 @@ class Sentence:
         Return the desired tokens from the Sentence.
 
         Args:
-        key: The indicator for the tokens to return. Can either be an integer, a
-            string, or a slice. For an integer, the numeric indexes of Tokens
-            are used. For a string, the id of the Token is used. And for a slice
-            the start and end must be the same data types, and can be both
-            string and integer.
+            key: The indicator for the tokens to return. Can either be an
+                integer, a string, or a slice. For an integer, the numeric
+                indexes of Tokens are used. For a string, the id of the Token is
+                used. And for a slice the start and end must be the same data
+                types, and can be both string and integer.
 
         Returns:
-        If the key is a string then the appropriate Token. The key can also be
-        a slice in which case a list of tokens is provided.
+            If the key is a string then the appropriate Token. The key can also
+            be a slice in which case a list of tokens is provided.
         """
         if isinstance(key, str):
             idx = self._ids_to_indexes[key]
@@ -277,8 +280,8 @@ class Sentence:
         Get the length of this sentence.
 
         Returns:
-        The amount of tokens in this sentence. In the CoNLL-U sense, this
-        includes both all the multiword tokens and their decompositions.
+            The amount of tokens in this sentence. In the CoNLL-U sense, this
+            includes both all the multiword tokens and their decompositions.
         """
         return len(self._tokens)
 
@@ -287,7 +290,7 @@ class Sentence:
         Set the sentence's paragraph id. For internal use.
 
         Args:
-        new_par_id: The new paragraph id of this sentence.
+            new_par_id: The new paragraph id of this sentence.
         """
         self._par_id = new_par_id
 
@@ -296,6 +299,6 @@ class Sentence:
         Set the sentence's document id. For internal use.
 
         Args:
-        new_doc_id: The new document id of this sentence.
+            new_doc_id: The new document id of this sentence.
         """
         self._doc_id = new_doc_id
