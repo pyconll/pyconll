@@ -98,6 +98,9 @@ class Conll:
     def __iter__(self):
         """
         Allows for iteration over every sentence in the CoNLL-U file.
+
+        Yields:
+            An iterator over the sentences in this Conll object.
         """
         for sentence in self._sentences:
             yield sentence
