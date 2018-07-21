@@ -11,14 +11,14 @@ def find_ngrams(conll, ngram, case_sensitive=True):
     "not" in the input.
 
     Args:
-    sentence: The sentence in which to search for the ngram.
-    ngram: The ngram to search for. A random access iterator.
-    case_sensitive: Flag to indicate if the ngram search should be case
-        sensitive.
+        sentence: The sentence in which to search for the ngram.
+        ngram: The ngram to search for. A random access iterator.
+        case_sensitive: Flag to indicate if the ngram search should be case
+            sensitive.
 
     Returns:
-    An iterator over the ngrams in the Conll object. The first element is the
-    sentence and the second element is the numeric token index.
+        An iterator over the ngrams in the Conll object. The first element is
+        the sentence and the second element is the numeric token index.
     """
     for sentence in conll:
         i = 0
@@ -56,11 +56,12 @@ def _get_cased(case_sensitive, *args):
     Get the cased versions of the provided strings if applicable.
 
     Args:
-    case_sensitive: If False, then returns lowercase versions of all strings.
-    args: The strings to get appropriately cased versions of.
+        case_sensitive: If False, then returns lowercase versions of all
+            strings.
+        args: The strings to get appropriately cased versions of.
 
     Returns:
-    A list of case converted strings as necessary.
+        A list of case converted strings as necessary.
     """
     if not case_sensitive:
         args = map(lambda s: s.lower(), args)
