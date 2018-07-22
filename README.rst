@@ -94,7 +94,7 @@ properly. The code formatter is YAPF, and using this ensures that new
 code stays in the same style.
 
 .. |Build Status| image:: https://travis-ci.org/pyconll/pyconll.svg?branch=master
-   :target: https://travis-ci.org/matgrioni/pyconll
+   :target: https://travis-ci.org/pyconll/pyconll
 .. |Coverage Status| image:: https://coveralls.io/repos/github/pyconll/pyconll/badge.svg?branch=master
    :target: https://coveralls.io/github/pyconll/pyconll?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/pyconll/badge/?version=latest
