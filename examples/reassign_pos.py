@@ -26,4 +26,5 @@ for sentence in corpus:
             token.misc['COUNTRY'] = 'YES'
             token.upos = 'PROPN'
 
-corpus.conll()
+# Print to standard out which can then be redirected.
+print(corpus.conll())
