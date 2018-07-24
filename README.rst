@@ -9,6 +9,12 @@ pyconll
 The current version is 0.2.2. This version is fully functional, stable,
 tested and documented.
 
+Links
+'''''
+
+-  `Homepage <https://pyconll.github.io>`__
+-  `Documentation <https://pyconll.readthedocs.io/>`__
+
 Motivation
 ~~~~~~~~~~
 
@@ -33,6 +39,24 @@ will use it as a building block for more popular tools. By using
 ``pyconll``, researchers gain a standardized and feature rich base on
 which they can build larger projects and not worry about CoNLL
 annotation and output.
+
+Code Snippet
+~~~~~~~~~~~~
+
+.. code:: python
+
+    # Make sure 'Lord of the Rings' has 'Lord' and 'Rings' annotated as regular NOUN.
+    import pyconll
+
+    UD_ENGLISH_TRAIN = './ud/train.conll'
+
+    train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
+
+    for sentence in train:
+        for token in sentence:
+            # Do work here.
+
+More examples can be found in the ``examples`` folder.
 
 Uses and Limitations
 ~~~~~~~~~~~~~~~~~~~~
@@ -61,11 +85,9 @@ Backporting to python 2.7 is not in future plans.
 Documentation
 ~~~~~~~~~~~~~
 
-Documentation is essential to learning how to use any library. The full
-API documentation can be found online at
-https://pyconll.readthedocs.io/en/latest/. Examples are also important
-and a growing number of examples can be found in the ``examples``
-folder.
+The full API documentation can be found online at
+https://pyconll.readthedocs.io/. A growing number of examples can be
+found in the ``examples`` folder.
 
 Contributing
 ~~~~~~~~~~~~

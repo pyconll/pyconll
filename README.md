@@ -8,12 +8,33 @@
 
 The current version is 0.2.2. This version is fully functional, stable, tested and documented.
 
+##### Links
+- [Homepage](https://pyconll.github.io)
+- [Documentation](https://pyconll.readthedocs.io/)
+
 
 ### Motivation
 
 When working with the Universal Dependencies project, there are a dissapointing lack of low level APIs. There are many great tools, but few are general purpose enough. Grew is a great tool, but it is slightly limiting for some tasks (and extremely productive for others). Treex is similar to Grew in this regard. CL-CoNLLU is a good tool in this regard, but it is written in a language that many are not familiar with, Common Lisp. UDAPI might fit the bill with its python API, but the package itself is quite large and the documentation impossible to get through. Various more tools can be found on the Universal Dependencies website and all are very nice pieces of software, but most of them are lacking in this desired usage pattern. ``pyconll`` creates a thin API on top of raw CoNLL annotations that is simple and intuitive. This is an attempt at a small, minimal, and intuitive package in a popular language that can be used as building block in a complex system or the engine in small one off scripts.
 
 Hopefully, individual researchers will find use in this project, and will use it as a building block for more popular tools. By using `pyconll`, researchers gain a standardized and feature rich base on which they can build larger projects and not worry about CoNLL annotation and output.
+
+### Code Snippet 
+
+```python
+# Make sure 'Lord of the Rings' has 'Lord' and 'Rings' annotated as regular NOUN.
+import pyconll
+
+UD_ENGLISH_TRAIN = './ud/train.conll'
+
+train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
+
+for sentence in train:
+    for token in sentence:
+        # Do work here.
+```
+
+More examples can be found in the `examples` folder.
 
 
 ### Uses and Limitations
@@ -34,7 +55,7 @@ This package is designed for, and only tested with python 3.4 and above. Backpor
 
 ### Documentation
 
-Documentation is essential to learning how to use any library. The full API documentation can be found online at [https://pyconll.readthedocs.io/en/latest/](https://pyconll.readthedocs.io/en/latest/). Examples are also important and a growing number of examples can be found in the `examples` folder.
+The full API documentation can be found online at [https://pyconll.readthedocs.io/](https://pyconll.readthedocs.io/). A growing number of examples can be found in the `examples` folder.
 
 
 ### Contributing
