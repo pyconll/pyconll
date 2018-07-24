@@ -4,8 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2018-07-23
+### Fixed
+- Issues with documentation since docstrings were not in RST. Fixed by using napoleon sphinx extension
+
+### Added
+- A little more docs
+- More README info
+- Better examples
+
 ## [0.2.2] - 2018-07-18
-## Fixed
+### Fixed
 - Installation issues again with wheel when using ``pip``.
 
 ## [0.2.1] - 2018-07-18

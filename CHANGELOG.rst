@@ -7,11 +7,27 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[0.2.3] - 2018-07-23
+--------------------
+
+Fixed
+~~~~~
+
+-  Issues with documentation since docstrings were not in RST. Fixed by
+   using napoleon sphinx extension
+
+Added
+~~~~~
+
+-  A little more docs
+-  More README info
+-  Better examples
+
 [0.2.2] - 2018-07-18
 --------------------
 
 Fixed
------
+~~~~~
 
 -  Installation issues again with wheel when using ``pip``.
 

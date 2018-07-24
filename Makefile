@@ -25,6 +25,7 @@ docs:
 	pandoc --from=markdown --to=rst --output=README.rst README.md
 	pandoc --from=markdown --to=plain --output=README README.md
 	pandoc --from=markdown --to=rst --output=CHANGELOG.rst CHANGELOG.md
+	pandoc --from=markdown --to=plain --output=CHANGELOG CHANGELOG.md
 
 clean:
 	if [ -d 'dist' ]; then \
