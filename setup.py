@@ -21,12 +21,12 @@ def read(fn):
 setup(
     name = 'pyconll',
     packages = ['pyconll'],
-    version = '0.2.2',
+    version = '0.2.3',
     description = 'Read and maniuplate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
     author_email = 'matgrioni@gmail.com',
-    url = 'https://github.com/matgrioni/pyconll',
+    url = 'https://github.com/pyconll/pyconll',
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
     classifiers = [
