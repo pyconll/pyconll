@@ -55,6 +55,7 @@ Code Snippet
     for sentence in train:
         for token in sentence:
             # Do work here.
+            pass
 
 More examples can be found in the ``examples`` folder.
 
