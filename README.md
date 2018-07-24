@@ -19,7 +19,7 @@ When working with the Universal Dependencies project, there are a dissapointing 
 
 Hopefully, individual researchers will find use in this project, and will use it as a building block for more popular tools. By using `pyconll`, researchers gain a standardized and feature rich base on which they can build larger projects and not worry about CoNLL annotation and output.
 
-### Code Snippet 
+### Code Snippet
 
 ```python
 # Make sure 'Lord of the Rings' has 'Lord' and 'Rings' annotated as regular NOUN.
