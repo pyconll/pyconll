@@ -1,3 +1,5 @@
+import requests
+
 from pyconll._parser import iter_sentences
 from pyconll.unit import Conll
 
@@ -27,9 +29,36 @@ def load_from_file(filename):
 
     Returns:
         A Conll object equivalent to the provided file.
+
+    Throws:
+        IOError: If there is an error opening the given filename.
     """
     with open(filename) as f:
         c = Conll(f)
+
+    return c
+
+
+def load_from_url(url):
+    """
+    Load a CoNLL-U file that is pointed to by a given URL.
+
+    Args:
+        url: The URL that points to the CoNLL-U file.
+
+    Returns:
+        A Conll object equivalent to the provided file.
+
+    Throws:
+        requests.exceptions.RequestException: If the url was unable to be properly
+            retrieved.
+    """
+    resp = requests.get(url)
+    resp.raise_for_status()
+
+    resp.encoding = 'utf-8'
+    lines = resp.text.splitlines()
+    c = Conll(lines)
 
     return c
 
@@ -44,8 +73,8 @@ def iter_from_string(source):
     Args:
         source: The CoNLL-U string.
 
-    Returns:
-        An iterator that yields consecutive sentences.
+    Yields:
+        The sentences that make up the CoNLL-U file.
     """
     lines = source.splitlines()
     for sentence in iter_sentences(lines):
@@ -59,9 +88,34 @@ def iter_from_file(filename):
     Args:
         filename: The name of the file whose sentences should be iterated over.
 
-    Returns:
-        An iterator that yields consecutive sentences.
+    Yields:
+        The sentences that make up the CoNLL-U file.
+
+    Throws:
+        IOError if there is an error opening the file.
     """
     with open(filename) as f:
         for sentence in iter_sentences(f):
             yield sentence
+
+
+def iter_from_url(url):
+    """
+    Iterate over a CoNLL-U file that is pointed to by a given URL.
+
+    Args:
+        url: The URL that points to the CoNLL-U file.
+
+    Yields:
+        The sentences that make up the CoNLL-U file.
+
+    Throws:
+        requests.exceptions.RequestException: If the url was unable to be properly
+            retrieved.
+    """
+    resp = requests.get(url)
+    resp.raise_for_status()
+
+    lines = resp.text.splitlines()
+    for sentence in iter_sentences(lines):
+        yield sentence
