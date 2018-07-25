@@ -266,6 +266,8 @@ class Sentence:
         elif isinstance(key, slice):
             if isinstance(key.start, str):
                 start_idx = self._ids_to_indexes[key.start]
+
+            if isinstance(key.stop, str):
                 end_idx = self._ids_to_indexes[key.stop]
             else:
                 start_idx = key.start
