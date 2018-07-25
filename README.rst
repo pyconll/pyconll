@@ -45,7 +45,6 @@ Code Snippet
 
 .. code:: python
 
-    # Make sure 'Lord of the Rings' has 'Lord' and 'Rings' annotated as regular NOUN.
     import pyconll
 
     UD_ENGLISH_TRAIN = './ud/train.conll'
@@ -55,7 +54,8 @@ Code Snippet
     for sentence in train:
         for token in sentence:
             # Do work here.
-            pass
+            if token.form == 'Spain':
+                token.upos = 'PROPN'
 
 More examples can be found in the ``examples`` folder.
 
