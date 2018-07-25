@@ -22,7 +22,6 @@ Hopefully, individual researchers will find use in this project, and will use it
 ### Code Snippet
 
 ```python
-# Make sure 'Lord of the Rings' has 'Lord' and 'Rings' annotated as regular NOUN.
 import pyconll
 
 UD_ENGLISH_TRAIN = './ud/train.conll'
@@ -32,7 +31,8 @@ train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
 for sentence in train:
     for token in sentence:
         # Do work here.
-        pass
+        if token.form == 'Spain':
+            token.upos = 'PROPN'
 ```
 
 More examples can be found in the `examples` folder.
