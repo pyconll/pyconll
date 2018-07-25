@@ -258,6 +258,96 @@ def test_int_slice_indexing():
                          '9', 'advmod', {}, {})
 
 
+def test_int_slice_indexing_step():
+    """
+    Test slicing with integers and with a step size.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    test_tokens = sentence[0:5:2]
+    assert_token_members(
+        test_tokens[0], '1', 'Les', 'le', 'DET', None, {
+            'Definite': set(('Def', )),
+            'Gender': set(('Fem', )),
+            'Number': set(('Plur', )),
+            'PronType': set(('Art', ))
+        }, '2', 'det', {}, {})
+    assert_token_members(
+        test_tokens[1], '3', 'durent', 'durer', 'VERB', None, {
+            'Mood': set(('Ind', )),
+            'Number': set(('Plur', )),
+            'Person': set(('3', )),
+            'Tense': set(('Pres', )),
+            'VerbForm': set(('Fin', ))
+        }, '0', 'root', {}, {})
+    assert_token_members(test_tokens[2], '5', 'ans', 'an', 'NOUN', None, {
+        'Gender': set(('Masc', )),
+        'Number': set(('Plur', )),
+    }, '3', 'obj', {}, {})
+
+
+def test_str_slice_indexing_step():
+    """
+    Test slicing with string indices and with a step size.
+    """
+    source = (
+        '# sent_id = fr-ud-dev_00002\n'
+        '# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n'
+        '1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n'
+        '2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n'
+        '3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n'
+        '4	six	six	NUM	_	_	5	nummod	_	_\n'
+        '5	ans	an	NOUN	_	Gender=Masc|Number=Plur	3	obj	_	_\n'
+        '6	mais	mais	CCONJ	_	_	9	cc	_	_\n'
+        '7	leur	son	DET	_	Gender=Masc|Number=Sing|Poss=Yes|PronType=Prs	8	det	_	_\n'
+        '8	contenu	contenu	NOUN	_	Gender=Masc|Number=Sing	9	nsubj	_	_\n'
+        '9	diffère	différer	VERB	_	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	conj	_	_\n'
+        '10	donc	donc	ADV	_	_	9	advmod	_	_\n'
+        '11	selon	selon	ADP	_	_	13	case	_	_\n'
+        '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
+        '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
+        '14	.	.	PUNCT	_	_	3	punct	_	_')
+    sentence = Sentence(source)
+
+    test_tokens = sentence['1':'6':2]
+    assert_token_members(
+        test_tokens[0], '1', 'Les', 'le', 'DET', None, {
+            'Definite': set(('Def', )),
+            'Gender': set(('Fem', )),
+            'Number': set(('Plur', )),
+            'PronType': set(('Art', ))
+        }, '2', 'det', {}, {})
+    assert_token_members(
+        test_tokens[1], '3', 'durent', 'durer', 'VERB', None, {
+            'Mood': set(('Ind', )),
+            'Number': set(('Plur', )),
+            'Person': set(('3', )),
+            'Tense': set(('Pres', )),
+            'VerbForm': set(('Fin', ))
+        }, '0', 'root', {}, {})
+    assert_token_members(test_tokens[2], '5', 'ans', 'an', 'NOUN', None, {
+        'Gender': set(('Masc', )),
+        'Number': set(('Plur', )),
+    }, '3', 'obj', {}, {})
+
+
 def test_str_slice_indexing():
     """
     Test slicing with strings over tokens.
