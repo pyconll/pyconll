@@ -51,7 +51,7 @@ def load_from_url(url):
 
     Throws:
         requests.exceptions.RequestException: If the url was unable to be properly
-            retrieved.
+            retrieved and status was 4xx or 5xx.
     """
     resp = requests.get(url)
     resp.raise_for_status()
