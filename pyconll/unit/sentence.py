@@ -50,6 +50,9 @@ class Sentence:
                 internal use.
             _end_line_number: The ending line of the sentence. Mostly for
                 internal use.
+
+        Raises:
+            ValueError: If there is any token that was not valid.
         """
         self.source = source
         lines = self.source.split('\n')
@@ -79,11 +82,16 @@ class Sentence:
                 else:
                     # If there is a line number for the sentence, then include
                     # the line number for the token.
-                    if self.start_line_number:
-                        token = Token(
-                            line, _line_number=self.start_line_number + i)
-                    else:
-                        token = Token(line)
+                    try:
+                        if self.start_line_number:
+                            token = Token(
+                                line, _line_number=self.start_line_number + i)
+                        else:
+                            token = Token(line)
+                    except ValueError as e:
+                        raise ValueError(
+                            'There was an invalid token in constructing the sentence.'
+                        ) from e
 
                     self._tokens.append(token)
 
