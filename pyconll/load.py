@@ -13,6 +13,9 @@ def load_from_string(source):
 
     Returns:
         A Conll object equivalent to the provided source.
+
+    Raises:
+        ValueError: If there is an error parsing the input into a Conll object.
     """
     lines = source.splitlines()
     c = Conll(lines)
@@ -30,8 +33,9 @@ def load_from_file(filename):
     Returns:
         A Conll object equivalent to the provided file.
 
-    Throws:
+    Raises:
         IOError: If there is an error opening the given filename.
+        ValueError: If there is an error parsing the input into a Conll object.
     """
     with open(filename) as f:
         c = Conll(f)
@@ -49,9 +53,10 @@ def load_from_url(url):
     Returns:
         A Conll object equivalent to the provided file.
 
-    Throws:
+    Raises:
         requests.exceptions.RequestException: If the url was unable to be properly
             retrieved and status was 4xx or 5xx.
+        ValueError: If there is an error parsing the input into a Conll object.
     """
     resp = requests.get(url)
     resp.raise_for_status()
@@ -75,6 +80,9 @@ def iter_from_string(source):
 
     Yields:
         The sentences that make up the CoNLL-U file.
+
+    Raises:
+        ValueError: If there is an error parsing the input into a Conll object.
     """
     lines = source.splitlines()
     for sentence in iter_sentences(lines):
@@ -91,8 +99,9 @@ def iter_from_file(filename):
     Yields:
         The sentences that make up the CoNLL-U file.
 
-    Throws:
+    Raises:
         IOError if there is an error opening the file.
+        ValueError: If there is an error parsing the input into a Conll object.
     """
     with open(filename) as f:
         for sentence in iter_sentences(f):
@@ -109,9 +118,10 @@ def iter_from_url(url):
     Yields:
         The sentences that make up the CoNLL-U file.
 
-    Throws:
+    Raises:
         requests.exceptions.RequestException: If the url was unable to be properly
             retrieved.
+        ValueError: If there is an error parsing the input into a Conll object.
     """
     resp = requests.get(url)
     resp.raise_for_status()

@@ -36,6 +36,9 @@ def _create_sentence(sent_lines, start, end):
 
     Returns:
         The created Sentence.
+
+    Raises:
+        ValueError: If the sentence source is not valid.
     """
     sent_source = '\n'.join(sent_lines)
     sentence = Sentence(
@@ -56,6 +59,9 @@ def iter_sentences(lines_it):
 
     Yields:
         An iterator over the constructed Sentence objects found in the source.
+
+    Raises:
+        ValueError: If there is an error constructing the Sentence.
     """
     last_start = -1
     cur_par_id = None
@@ -74,6 +80,7 @@ def iter_sentences(lines_it):
             sent_lines.append(line)
         elif sent_lines:
             sentence = _create_sentence(sent_lines, last_start, i)
+
             cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
                                                 Sentence.NEWPAR_ID_KEY,
                                                 cur_par_id)
@@ -87,6 +94,7 @@ def iter_sentences(lines_it):
 
     if sent_lines:
         sentence = _create_sentence(sent_lines, last_start, i)
+
         cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
                                             Sentence.NEWPAR_ID_KEY, cur_par_id)
         sentence._set_par_id(cur_par_id)
