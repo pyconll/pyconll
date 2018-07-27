@@ -29,9 +29,12 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     Returns:
         An empty dict if value is empty. Otherwise, a dict of key-value where
         the values are sets.
+
+    Raises:
+        ValueError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, False)
+                                  v_delimiter, False, False)
 
 
 def _dict_singleton_empty_map(values, empty, delim, av_separator):
@@ -48,13 +51,37 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
     Returns:
         An empty dict if values is empty. Otherwise, a dict of key-value pairs
         where the values are singletons.
+
+    Raises:
+        ValueError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator, None,
-                                  True)
+                                  True, False)
+
+
+def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
+    """
+    Map dict based values for CoNLL-U columns to dict with mixed values.
+
+    Mixed values are those that can be either singletons or sets.
+
+    Args:
+        values: The value to parse.
+        empty: The empty representation for this value in CoNLL-U format.
+        delim: The delimiter between components in the value.
+        av_separator: The separator between attribute and value in each
+            component.
+        v_delimiter: The delimiter between values for the same attribute.
+
+    Raises:
+        ValueError: If the dict format was unable to parsed.
+    """
+    return _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
+                                  False, True)
 
 
 def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           singleton):
+                           singleton, mixed):
     """
     A helper to consolidate logic between singleton and non-singleton mapping.
 
@@ -69,6 +96,9 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
 
     Returns:
         An empty dict if the value is empty and otherwise a parsed equivalent.
+
+    Raises:
+        ValueError: If the dict format was unable to parsed.
     """
     if values == empty:
         return {}
@@ -82,11 +112,14 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
             elif len(parts) == 2:
                 k, v = parts
 
-            if singleton or v is None:
+            if (singleton and v is not None) or (mixed and v is None):
                 d[k] = v
+            elif (not singleton and not mixed and v is not None) or mixed:
+                vs = set(v.split(v_delimiter))
+                d[k] = vs
             else:
-                v = set(v.split(v_delimiter))
-                d[k] = v
+                error_msg = 'Error parsing {} properly.'.format(values)
+                raise ValueError(error_msg)
 
         return d
 
@@ -124,7 +157,7 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
         The CoNLL-U format as a string.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, False)
+                                  v_delimiter, False, False)
 
 
 def _dict_singleton_conll_map(values, empty, delim, av_separator):
@@ -141,11 +174,30 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
         The CoNLL-U formatted equivalent to the value.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator, None,
-                                  True)
+                                  True, False)
+
+
+def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
+    """
+    Map a dict whose components can be mixed to a CoNLL-U format.
+
+    Args:
+        values: The dict to convert to CoNLL-U format.
+        empty: The empty CoNLL-U representation for this value.
+        delim: The delimiter between attribute-value pairs.
+        av_separator: The separator between attribute and value.
+        v_delimiter: The delimiter between values of the same attribute if
+            necessary.
+
+    Returns:
+        The CoNLL-U formatted equivalent to the value.
+    """
+    return _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
+                                  False, True)
 
 
 def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           singleton):
+                           singleton, mixed):
     """
     Helper to map dicts to CoNLL-U format equivalents.
 
@@ -165,7 +217,6 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     if values == {}:
         return empty
     else:
-        # TODO: what if one of values is None
         sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
 
         if singleton:
@@ -173,10 +224,13 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
         else:
             av_pairs = []
             for pair in sorted_av_pairs:
-                sorted_attr_values = sorted(pair[1], key=str.lower)
-                str_attrs = v_delimiter.join(sorted_attr_values)
+                if mixed and pair[1] is None:
+                    av_pairs.append([pair[0]])
+                else:
+                    sorted_attr_values = sorted(pair[1], key=str.lower)
+                    str_attrs = v_delimiter.join(sorted_attr_values)
 
-                av_pairs.append([pair[0], str_attrs])
+                    av_pairs.append([pair[0], str_attrs])
 
         return delim.join([av_separator.join(pair) for pair in av_pairs])
 
@@ -254,7 +308,9 @@ class Token:
         self._fields = fields
 
         if len(self._fields) != 10:
-            raise ValueError('The number of columns per token line is 10')
+            error_msg = 'The number of columns per token line must be 10. Invalid token: {}'.format(
+                source)
+            raise ValueError(error_msg)
 
         # Assign all the field values from the line to internal equivalents.
         self.id = fields[0]
@@ -282,7 +338,7 @@ class Token:
                                               Token.AV_DEPS_SEPARATOR)
         # TODO: Handle misc field better. I'm not sure if it has to be key-value
         # structure.
-        self.misc = _dict_empty_map(fields[9], Token.EMPTY,
+        self.misc = _dict_mixed_empty_map(fields[9], Token.EMPTY,
                                     Token.COMPONENT_DELIMITER,
                                     Token.AV_SEPARATOR, Token.V_DELIMITER)
 
@@ -329,9 +385,9 @@ class Token:
         deps = _dict_singleton_conll_map(self.deps, Token.EMPTY,
                                          Token.COMPONENT_DELIMITER,
                                          Token.AV_DEPS_SEPARATOR)
-        misc = _dict_conll_map(self.misc, Token.EMPTY,
-                               Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
-                               Token.V_DELIMITER)
+        misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
+                                     Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
+                                     Token.V_DELIMITER)
 
         items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
 
