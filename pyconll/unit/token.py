@@ -76,8 +76,8 @@ def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
     Raises:
         ValueError: If the dict format was unable to parsed.
     """
-    return _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
-                                  False, True)
+    return _dict_empty_map_helper(values, empty, delim, av_separator,
+                                  v_delimiter, False, True)
 
 
 def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
@@ -192,8 +192,8 @@ def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
-    return _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
-                                  False, True)
+    return _dict_conll_map_helper(values, empty, delim, av_separator,
+                                  v_delimiter, False, True)
 
 
 def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
@@ -338,9 +338,9 @@ class Token:
                                               Token.AV_DEPS_SEPARATOR)
         # TODO: Handle misc field better. I'm not sure if it has to be key-value
         # structure.
-        self.misc = _dict_mixed_empty_map(fields[9], Token.EMPTY,
-                                    Token.COMPONENT_DELIMITER,
-                                    Token.AV_SEPARATOR, Token.V_DELIMITER)
+        self.misc = _dict_mixed_empty_map(
+            fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR, Token.V_DELIMITER)
 
     @property
     def form(self):
@@ -386,8 +386,8 @@ class Token:
                                          Token.COMPONENT_DELIMITER,
                                          Token.AV_DEPS_SEPARATOR)
         misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
-                                     Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
-                                     Token.V_DELIMITER)
+                                     Token.COMPONENT_DELIMITER,
+                                     Token.AV_SEPARATOR, Token.V_DELIMITER)
 
         items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
 
