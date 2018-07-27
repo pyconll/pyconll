@@ -238,3 +238,56 @@ def test_deps_parsing():
     assert token.deps['2'] == 'nsubj'
     assert token.deps['4'] == 'nmod'
     assert token.conll() == token_line
+
+
+def test_invalid_token():
+    """
+    Test that a token is identified as invalid.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	'
+
+    with pytest.raises(ValueError):
+        token = Token(token_line)
+
+
+def test_invalid_token_feats():
+    """
+    Test that the features field must have an attribute value form.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender|Number=Sing	' \
+        '30	nmod	_	SpaceAfter=No|French|Independent=P,Q'
+
+    with pytest.raises(ValueError):
+        token = Token(token_line)
+
+
+def test_invalid_token_deps():
+    """
+    Test that there is no singleton parsing in the misc field.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	_	SpaceAfter=No'
+    token = Token(token_line)
+
+    assert token.misc['SpaceAfter'] == set(('No',))
+
+
+def test_enhanced_deps_parsing():
+    """
+    Test that the enhanced deps field is parsed properly.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj,noun|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    assert token.deps['2'] == 'nsubj,noun'
+    assert token.deps['4'] == 'root'
+
+def test_enhanced_deps_parsing_invalid():
+    """
+    Test that an error is thrown when the enhanced deps is invalid.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4	SpaceAfter=No'
+    with pytest.raises(ValueError):
+        token = Token(token_line)
