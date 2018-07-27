@@ -1,10 +1,10 @@
-import collections
+from collections import MutableSequence
 
 import pyconll._parser
 from pyconll.unit import Sentence
 
 
-class Conll:
+class Conll(MutableSequence):
     """
     The abstraction for a CoNLL-U file. A CoNLL-U file is more or less just a
     collection of sentences in order. These sentences can be accessed by
