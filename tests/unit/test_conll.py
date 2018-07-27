@@ -513,3 +513,12 @@ def test_append_contains():
     assert new_sent in c
     assert sent in c
     assert other_sent not in c
+
+
+def test_invalid_conll():
+    """
+    Test that an invalid sentence results in an invalid Conll object.
+    """
+    with open(fixture_location('invalid.conll')) as f:
+        with pytest.raises(ValueError):
+            c = Conll(f)
