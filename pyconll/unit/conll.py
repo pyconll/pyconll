@@ -61,15 +61,6 @@ class Conll(MutableSequence):
             writable.write(sentence.conll())
             writable.write('\n\n')
 
-    def append(self, sent):
-        """
-        Add the given sentence to the end of this Conll object.
-
-        Args:
-            sent: The Sentence object to add.
-        """
-        self._sentences.append(sent)
-
     def insert(self, index, sent):
         """
         Insert the given sentence into the given location.

@@ -269,7 +269,7 @@ def test_invalid_token_deps():
         '30	nmod	_	SpaceAfter=No'
     token = Token(token_line)
 
-    assert token.misc['SpaceAfter'] == set(('No',))
+    assert token.misc['SpaceAfter'] == set(('No', ))
 
 
 def test_enhanced_deps_parsing():
@@ -282,6 +282,7 @@ def test_enhanced_deps_parsing():
 
     assert token.deps['2'] == 'nsubj,noun'
     assert token.deps['4'] == 'root'
+
 
 def test_enhanced_deps_parsing_invalid():
     """
