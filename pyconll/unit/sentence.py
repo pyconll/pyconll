@@ -82,16 +82,11 @@ class Sentence:
                 else:
                     # If there is a line number for the sentence, then include
                     # the line number for the token.
-                    try:
-                        if self.start_line_number:
-                            token = Token(
-                                line, _line_number=self.start_line_number + i)
-                        else:
-                            token = Token(line)
-                    except ValueError as e:
-                        raise ValueError(
-                            'There was an invalid token in constructing the sentence.'
-                        ) from e
+                    if self.start_line_number:
+                        token = Token(
+                            line, _line_number=self.start_line_number + i)
+                    else:
+                        token = Token(line)
 
                     self._tokens.append(token)
 
