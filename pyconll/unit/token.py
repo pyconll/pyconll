@@ -229,13 +229,15 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
             for pair in sorted_av_pairs:
                 if mixed and pair[1] is None:
                     av_pairs.append([pair[0]])
-                else:
+                elif pair[1]:
                     sorted_attr_values = sorted(pair[1], key=str.lower)
                     str_attrs = v_delimiter.join(sorted_attr_values)
 
                     av_pairs.append([pair[0], str_attrs])
 
-        return delim.join([av_separator.join(pair) for pair in av_pairs])
+        output = delim.join([av_separator.join(pair) for pair in av_pairs])
+
+        return output if output else empty
 
 
 class Token:
