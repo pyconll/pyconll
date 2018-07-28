@@ -315,3 +315,35 @@ def test_misc_parsing_output():
     expected_output = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	Independent|OtherTest=X,Y,Z|SpaceAfter=No,Yes'
     assert expected_output == token.conll()
+
+
+def test_feats_empty_values():
+    """
+    Test that a feature with no values is not output.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    token.feats['Gender'].pop()
+
+    expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+
+    assert expected == token.conll()
+
+def test_misc_empty_values():
+    """
+    Test that a misc feature with no values is not output.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    del token.feats['Gender']
+    token.misc['SpaceAfter'].pop()
+
+    expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	_'
+
+    assert expected == token.conll()
