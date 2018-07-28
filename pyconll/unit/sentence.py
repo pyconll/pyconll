@@ -269,11 +269,12 @@ class Sentence:
         elif isinstance(key, slice):
             if isinstance(key.start, str):
                 start_idx = self._ids_to_indexes[key.start]
+            else:
+                start_idx = key.start
 
             if isinstance(key.stop, str):
                 end_idx = self._ids_to_indexes[key.stop]
             else:
-                start_idx = key.start
                 end_idx = key.stop
 
             return self._tokens[start_idx:end_idx:key.step]

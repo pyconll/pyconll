@@ -7,6 +7,26 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[0.3] - 2018-07-28
+------------------
+
+Added
+~~~~~
+
+-  Ability to easily load CoNLL files from a network path (url)
+-  Some parsing validation. Before the error was not caught up front so
+   the error could unexpectedly later show up.
+-  Sentence slicing had an issue before if either the start or end was
+   omittted.
+-  More documentation and examples.
+-  Conll is now a ``MutableSequence``, so it handles methods beyond its
+   implementation as well as defined by python.
+
+Fixed
+~~~~~
+
+-  Some small bug fixes with parsing the token dicts.
+
 [0.2.3] - 2018-07-23
 --------------------
 
