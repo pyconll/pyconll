@@ -3,6 +3,8 @@ import pytest
 from pyconll.unit import Token
 from tests.unit.util import assert_token_members
 
+from pyconll.exception import ParseError
+
 
 def test_construction():
     """
@@ -202,11 +204,11 @@ def test_empty_lemma_present_form():
 
 def test_improper_source():
     """
-    Test that when an input without 10 delimited columns raises a ValueError.
+    Test that when an input without 10 delimited columns raises a ParseError.
     """
     token_line = '33	hate	_	VERB	_	_	30	nmod	_'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ParseError):
         token = Token(token_line)
 
 
@@ -246,7 +248,7 @@ def test_invalid_token():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ParseError):
         token = Token(token_line)
 
 
@@ -257,7 +259,7 @@ def test_invalid_token_feats():
     token_line = '33	cintre	cintre	NOUN	_	Gender|Number=Sing	' \
         '30	nmod	_	SpaceAfter=No|French|Independent=P,Q'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ParseError):
         token = Token(token_line)
 
 
@@ -290,7 +292,7 @@ def test_enhanced_deps_parsing_invalid():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4	SpaceAfter=No'
-    with pytest.raises(ValueError):
+    with pytest.raises(ParseError):
         token = Token(token_line)
 
 
