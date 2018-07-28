@@ -292,3 +292,24 @@ def test_enhanced_deps_parsing_invalid():
         '30	nmod	2:nsubj|4	SpaceAfter=No'
     with pytest.raises(ValueError):
         token = Token(token_line)
+
+
+def test_misc_parsing_output():
+    """
+    Test that the misc field is properly output in CoNLL-U format.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    token.misc['Independent'] = None
+    token.misc['SpaceAfter'].add('Yes')
+
+    token.misc['OtherTest'] = set()
+    token.misc['OtherTest'].add('X')
+    token.misc['OtherTest'].add('Z')
+    token.misc['OtherTest'].add('Y')
+
+    expected_output = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	Independent|OtherTest=X,Y,Z|SpaceAfter=No,Yes'
+    assert expected_output == token.conll()

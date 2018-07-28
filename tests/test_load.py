@@ -163,7 +163,7 @@ def test_iter_from_network():
 
 
 @responses.activate
-def test_iter_from_network():
+def test_iter_from_network_fail():
     """
     Test that a CoNLL file over a network can be iterated.
     """
