@@ -332,6 +332,7 @@ def test_feats_empty_values():
 
     assert expected == token.conll()
 
+
 def test_misc_empty_values():
     """
     Test that a misc feature with no values is not output.
