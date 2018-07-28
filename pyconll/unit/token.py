@@ -120,7 +120,8 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
                 vs = set(v.split(v_delimiter))
                 d[k] = vs
             else:
-                error_msg = 'Error parsing {} properly. Please check against CoNLL format spec.'.format(values)
+                error_msg = 'Error parsing {} properly. Please check against CoNLL format spec.'.format(
+                    values)
                 raise ParseError(error_msg)
 
         return d
