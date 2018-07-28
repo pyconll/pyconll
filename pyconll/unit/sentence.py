@@ -52,7 +52,7 @@ class Sentence:
                 internal use.
 
         Raises:
-            ValueError: If there is any token that was not valid.
+            ParseError: If there is any token that was not valid.
         """
         self.source = source
         lines = self.source.split('\n')

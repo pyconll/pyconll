@@ -21,7 +21,7 @@ class Conll(MutableSequence):
             it: An iterator of the lines of the CoNLL-U file.
 
         Raises:
-            ValueError: If there is an error constructing the sentences in the
+            ParseError: If there is an error constructing the sentences in the
                 iterator.
         """
         self._sentences = []

@@ -1,5 +1,7 @@
 import operator
 
+from pyconll.exception import ParseError
+
 
 def _unit_empty_map(value, empty):
     """
@@ -31,7 +33,7 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
         the values are sets.
 
     Raises:
-        ValueError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, False, False)
@@ -53,7 +55,7 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
         where the values are singletons.
 
     Raises:
-        ValueError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator, None,
                                   True, False)
@@ -74,7 +76,7 @@ def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
         v_delimiter: The delimiter between values for the same attribute.
 
     Raises:
-        ValueError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, False, True)
@@ -98,7 +100,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         An empty dict if the value is empty and otherwise a parsed equivalent.
 
     Raises:
-        ValueError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed.
     """
     if values == empty:
         return {}
@@ -118,8 +120,8 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
                 vs = set(v.split(v_delimiter))
                 d[k] = vs
             else:
-                error_msg = 'Error parsing {} properly.'.format(values)
-                raise ValueError(error_msg)
+                error_msg = 'Error parsing {} properly. Please check against CoNLL format spec.'.format(values)
+                raise ParseError(error_msg)
 
         return d
 
@@ -295,8 +297,8 @@ class Token:
                 internal use mostly.
 
         Raises:
-            ValueError: If the provided source is not composed of 10 tab
-            separated columns.
+            ParseError: If the provided source is not composed of 10 tab
+                separated columns.
         """
         if source[-1] == '\n':
             source = source[:-1]
@@ -310,7 +312,7 @@ class Token:
         if len(self._fields) != 10:
             error_msg = 'The number of columns per token line must be 10. Invalid token: {}'.format(
                 source)
-            raise ValueError(error_msg)
+            raise ParseError(error_msg)
 
         # Assign all the field values from the line to internal equivalents.
         self.id = fields[0]
