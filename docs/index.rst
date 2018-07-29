@@ -9,6 +9,7 @@ pyconll
    README <readme>
    changelog
 
+   pyconll/exception
    pyconll/load
    pyconll/util
    pyconll/unit/conll
