@@ -22,3 +22,4 @@ API
 ----------------------------------
 .. automodule:: pyconll.unit.sentence
     :members:
+    :exclude-members: __dict__, __weakref__
