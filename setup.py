@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 
 def read(fn):
@@ -20,8 +20,8 @@ def read(fn):
 
 setup(
     name = 'pyconll',
-    packages = ['pyconll'],
-    version = '0.3',
+    packages = find_packages(),
+    version = '0.3.1',
     description = 'Read and maniuplate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
