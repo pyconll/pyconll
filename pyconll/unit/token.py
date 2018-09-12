@@ -17,6 +17,29 @@ def _unit_empty_map(value, empty):
     return None if value == empty else value
 
 
+def _dict_empty_map_parser(v, v_delimiter):
+    """
+    Map a value into the appropriate form, for a standard dict based column.
+
+    Args:
+        v: The raw string value that was parsed from the column as a value.
+        v_delimiter: The delimiter between components of the value.
+
+    Returns:
+        The parsed value, as a set of its components.
+
+    Raises:
+        ParseError: If there was an error parsing the value.
+    """
+    if v is not None:
+        vs = set(v.split(v_delimiter))
+        return vs
+    else:
+        error_msg = 'Error parsing "{}" properly. Please check against CoNLL format spec.'.format(
+            v)
+        raise ParseError(error_msg)
+
+
 def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
     """
     Map dict values for CoNLL-U columns to a dict or empty dict if empty.
@@ -36,7 +59,29 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
         ParseError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, False, False)
+                                  v_delimiter, _dict_empty_map_parser)
+
+
+def _dict_singleton_empty_parser(v, v_delimiter):
+    """
+    Map a value into the appropriate form, for a singleton based column.
+
+    Args:
+        v: The raw string value parsed from a column.
+        v_delimiter: The delimiter between components of the value. Not used.
+
+    Returns:
+        The parsed value.
+
+    Raises:
+        ParseError: If there was an error parsing the value.
+    """
+    if v is not None:
+        return v
+    else:
+        error_msg = 'Error parsing "{}" as singleton properly. Please check against CoNLL format spec.'.format(
+            v)
+        raise ParseError(error_msg)
 
 
 def _dict_singleton_empty_map(values, empty, delim, av_separator):
@@ -52,13 +97,33 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
 
     Returns:
         An empty dict if values is empty. Otherwise, a dict of key-value pairs
-        where the values are singletons.
+        where the values are singletons. Singletons are defined as length capped
+        tuples or as strings.
 
     Raises:
         ParseError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator, None,
-                                  True, False)
+                                  _dict_singleton_empty_parser)
+
+
+def _dict_mixed_empty_parser(v, v_delimiter):
+    """
+    Parse a value into the appropriate form, for a mixed value based column.
+
+    Args:
+        v: The raw string value parsed from a column.
+        v_delimiter: The delimiter between components of the value.
+
+    Returns:
+        The parsed value, which can either be None in the case of no
+        corresponding value, or a set of the components in the value.
+    """
+    if v is None:
+        return v
+    else:
+        vs = set(v.split(v_delimiter))
+        return vs
 
 
 def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
@@ -79,11 +144,11 @@ def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
         ParseError: If the dict format was unable to parsed.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, False, True)
+                                  v_delimiter, _dict_mixed_empty_parser)
 
 
 def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           singleton, mixed):
+                           parser):
     """
     A helper to consolidate logic between singleton and non-singleton mapping.
 
@@ -94,7 +159,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         av_separator: The separator between attribute and value in each
             component.
         v_delimiter: The delimiter between values for the same attribute.
-        singleton: A flag to indicate if the value has singleton values or not.
+        parser: The parser of the value from the attribute value pair.
 
     Returns:
         An empty dict if the value is empty and otherwise a parsed equivalent.
@@ -107,22 +172,15 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
     else:
         d = {}
         for el in values.split(delim):
-            parts = el.split(av_separator)
+            parts = el.split(av_separator, 1)
             if len(parts) == 1:
                 k = parts[0]
                 v = None
             elif len(parts) == 2:
                 k, v = parts
 
-            if (singleton and v is not None) or (mixed and v is None):
-                d[k] = v
-            elif (not singleton and not mixed and v is not None) or mixed:
-                vs = set(v.split(v_delimiter))
-                d[k] = vs
-            else:
-                error_msg = 'Error parsing {} properly. Please check against CoNLL format spec.'.format(
-                    values)
-                raise ParseError(error_msg)
+            parsed = parser(v, v_delimiter)
+            d[k] = parsed
 
         return d
 
@@ -213,6 +271,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
             necessary.
         singleton: Flag to indicate if the dictionary values are singletons or
             collections.
+        mixed: Flag to indicate if the dictionary values are mixed.
 
     Returns:
         The CoNLL-U formatted equivalent to the value.
@@ -223,6 +282,9 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
         sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
 
         if singleton:
+            if v_delimiter is not None:
+                pass
+
             av_pairs = sorted_av_pairs
         else:
             av_pairs = []
