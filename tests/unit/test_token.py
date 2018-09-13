@@ -93,8 +93,8 @@ def test_deps_construction():
         'Case': set(('Nom', )),
         'Number': set(('Plur', ))
     }, '2', 'nsubj', {
-        '2': 'nsubj',
-        '4': 'nsubj'
+        '2': ('nsubj', None, None, None),
+        '4': ('nsubj', None, None, None)
     }, {})
 
 
@@ -282,8 +282,8 @@ def test_enhanced_deps_parsing():
         '30	nmod	2:nsubj,noun|4:root	SpaceAfter=No'
     token = Token(token_line)
 
-    assert token.deps['2'] == 'nsubj,noun'
-    assert token.deps['4'] == 'root'
+    assert token.deps['2'] == ('nsubj,noun', None, None, None)
+    assert token.deps['4'] == ('root', None, None, None)
 
 
 def test_enhanced_deps_parsing_invalid():

@@ -29,7 +29,8 @@ def _dict_empty_map_parser(v, v_delimiter):
         The parsed value, as a set of its components.
 
     Raises:
-        ParseError: If there was an error parsing the value.
+        ParseError: If there was an error parsing the value. This happens when
+            the value is None.
     """
     if v is not None:
         vs = set(v.split(v_delimiter))
@@ -56,7 +57,8 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
         the values are sets.
 
     Raises:
-        ParseError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed, because of a lack
+            of a value.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, _dict_empty_map_parser)
@@ -74,7 +76,8 @@ def _dict_singleton_empty_parser(v, v_delimiter):
         The parsed value.
 
     Raises:
-        ParseError: If there was an error parsing the value.
+        ParseError: If there was an error parsing the value. This happens when
+            the value is None.
     """
     if v is not None:
         return v
@@ -101,10 +104,95 @@ def _dict_singleton_empty_map(values, empty, delim, av_separator):
         tuples or as strings.
 
     Raises:
-        ParseError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed because there is an
+            item with no corresponding value.
     """
     return _dict_empty_map_helper(values, empty, delim, av_separator, None,
                                   _dict_singleton_empty_parser)
+
+
+def _create_dict_tupled_empty_parse(size, strict):
+    """
+    Parameterized creation of a parser for tupled values.
+
+    Args:
+        size: The expected size of the tuple.
+        strict: Flag to signifiy if parsed values with less components than size
+            will be accepted. In this case, missing values will be supplated
+            with None.
+
+    Returns:
+        The parameterized parser function for parsing tupled columns.
+
+    Raises:
+        ParseError: If the parsing is strict and there is a component size
+            mismatch, or if there are too many components in general.
+    """
+    def _dict_tupled_empty_parser(v, v_delimiter):
+        """
+        Map a value into the appropriate form, for a tupled based column.
+
+        Args:
+            v: The raw string value parsed from a column.
+            v_delimiter: The delimiter between components of the value.
+
+        Returns:
+            The parsed value as a tuple.
+
+        Raises:
+            ParseError: If there was an error parsing the value as a tuple.
+        """
+        if v is not None:
+            components = v.split(v_delimiter)
+            left = size - len(components)
+
+            if not strict and left > 0:
+                vs = tuple(components + [None] * left)
+            elif len(components) == size:
+                vs = tuple(components)
+            else:
+                error_msg = 'Error parsing "{}" as singleton properly. Please check against CoNLL format spec.'.format(
+                    v)
+                raise ParseError(error_msg)
+
+            return vs
+
+    return _dict_tupled_empty_parser
+
+
+memoize = {}
+def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter, size):
+    """
+    Map dict based values for CoNLL-U columns to a dict with tupled values.
+
+    Tupled values are those with a maximum number of components, which is also
+    greater than 1.
+
+    Args:
+        values: The value to parse.
+        empty: The empty representation for this value in CoNLL format.
+        delim: The delimiter between components in the value.
+        av_separator: The separator between the attribute and value in each
+            component.
+        v_delimiter: The delimiter between values for the same attribute.
+        size: The maximum size of the tuple. Components with less values than
+            this will be supplanted with None.
+
+    Returns:
+        An empty dict if values was empty. Otherwise, a dictionary with fixed
+        length tuples as the values.
+
+    Raises:
+        ParseError: If there was an error parsing the tuple. Related to the
+            number of components.
+    """
+    try:
+        parser = memoize[size]
+    except KeyError:
+        parser = _create_dict_tupled_empty_parse(size, False)
+
+    return _dict_empty_map_helper(values, empty, delim, av_separator, None,
+                                  parser)
 
 
 def _dict_mixed_empty_parser(v, v_delimiter):
@@ -139,6 +227,10 @@ def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
         av_separator: The separator between attribute and value in each
             component.
         v_delimiter: The delimiter between values for the same attribute.
+
+    Returns:
+        An empty dict if values is empty. Otherwise, a dictionary with either
+        None, or a set of strings as the values.
 
     Raises:
         ParseError: If the dict format was unable to parsed.
@@ -332,6 +424,7 @@ class Token:
     AV_SEPARATOR = '='
     AV_DEPS_SEPARATOR = ':'
     V_DELIMITER = ','
+    V_DEPS_DELIMITER = ':'
     EMPTY = '_'
 
     def __init__(self, source, empty=True, _line_number=None):
@@ -400,9 +493,10 @@ class Token:
                                      Token.AV_SEPARATOR, Token.V_DELIMITER)
         self.head = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps = _dict_singleton_empty_map(fields[8], Token.EMPTY,
-                                              Token.COMPONENT_DELIMITER,
-                                              Token.AV_DEPS_SEPARATOR)
+        self.deps = _dict_tupled_empty_map(fields[8], Token.EMPTY,
+                                           Token.COMPONENT_DELIMITER,
+                                           Token.AV_DEPS_SEPARATOR,
+                                           Token.V_DEPS_DELIMITER, 4)
         # TODO: Handle misc field better. I'm not sure if it has to be key-value
         # structure.
         self.misc = _dict_mixed_empty_map(
