@@ -367,7 +367,7 @@ def test_all_empty_deps_component_error():
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
     token = Token(token_line)
 
-    cur_list = [None] + list(token.deps['2'][1:})
+    cur_list = [None] + list(token.deps['2'][1:])
     token.deps['2'] = cur_list
 
     with pytest.raises(FormatError):
