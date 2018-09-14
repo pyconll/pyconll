@@ -199,8 +199,8 @@ def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
     except KeyError:
         parser = _create_dict_tupled_empty_parse(size, False)
 
-    return _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
-                                  parser)
+    return _dict_empty_map_helper(values, empty, delim, av_separator,
+                                  v_delimiter, parser)
 
 
 def _dict_mixed_empty_parser(v, v_delimiter):
@@ -480,10 +480,11 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
+
     def paramed(pair):
         f = formatter(pair[1], v_delimiter)
         if f is None:
-            return (pair[0],)
+            return (pair[0], )
         else:
             return (pair[0], f)
 
