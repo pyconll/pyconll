@@ -395,6 +395,7 @@ def test_empty_deps():
     with pytest.raises(ParseError):
         token = Token(token_line)
 
+
 def test_no_empty_deps():
     """
     Test that the deps for a field cannot be empty.
