@@ -21,7 +21,7 @@ def read(fn):
 setup(
     name = 'pyconll',
     packages = find_packages(),
-    version = '0.3.1',
+    version = '1.0',
     description = 'Read and maniuplate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
