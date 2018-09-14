@@ -356,8 +356,15 @@ def _dict_singleton_conll_formatter(v, v_delimiter):
 
     Returns:
         The value passed in as a singleton.
+
+    Raises:
+        FormatError: If the value is None, since singleton keys must have a value.
     """
-    return v
+    if v is not None:
+        return v
+    else:
+        error_msg = 'Singleton value cannot be None'
+        raise FormatError(error_msg)
 
 
 def _dict_singleton_conll_map(values, empty, delim, av_separator):
@@ -372,6 +379,9 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
 
     Returns:
         The CoNLL-U formatted equivalent to the value.
+
+    Raises:
+        FormatError: If there is an error formatting the values as singletons.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator, None,
                                   _dict_singleton_conll_formatter)
@@ -475,7 +485,8 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
         formatter: The function to convert an attribute value pair into a CoNLL
             column representation. This function should take in a value
             representation, and a value delimiter, and output a string
-            representation.
+            representation. It should also output None to mean there is no
+            string representation.
 
     Returns:
         The CoNLL-U formatted equivalent to the value.
