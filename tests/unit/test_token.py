@@ -3,7 +3,7 @@ import pytest
 from pyconll.unit import Token
 from tests.unit.util import assert_token_members
 
-from pyconll.exception import ParseError
+from pyconll.exception import ParseError, FormatError
 
 
 def test_construction():
@@ -317,37 +317,29 @@ def test_misc_parsing_output():
     assert expected_output == token.conll()
 
 
-def test_feats_empty_values():
+def test_del_values():
     """
-    Test that a feature with no values is not output.
-    """
-    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
-        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-    token = Token(token_line)
-
-    token.feats['Gender'].pop()
-
-    expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
-        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-
-    assert expected == token.conll()
-
-
-def test_misc_empty_values():
-    """
-    Test that a misc feature with no values is not output.
+    Test that values and features can be deleted from different token columns.
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
     token = Token(token_line)
 
     del token.feats['Gender']
-    token.misc['SpaceAfter'].pop()
+    del token.misc['SpaceAfter']
 
     expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
         '30	nmod	2:nsubj|4:root	_'
 
-    print(repr(expected))
-    print(repr(token.conll()))
-
     assert expected == token.conll()
+
+
+def test_deps_max_size():
+    """
+    Test that only up to 4 components are allowed in the deps field.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj:another:field:here:andhere:j	SpaceAfter=No'
+
+    with pytest.raises(ParseError):
+        token = Token(token_line)

@@ -199,7 +199,7 @@ def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
     except KeyError:
         parser = _create_dict_tupled_empty_parse(size, False)
 
-    return _dict_empty_map_helper(values, empty, delim, av_separator, None,
+    return _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
                                   parser)
 
 
@@ -303,8 +303,12 @@ def _unit_conll_map(value, empty):
 def _dict_conll_map_formatter(v, v_delimiter):
     """
     """
-    sorted_vs = sorted(v, key=str.lower)
-    str_vs = v_delimiter.join(sorted_vs)
+    if len(v) == 0:
+        error_msg = 'There are no values to format'
+        raise FormatError(error_msg)
+    else:
+        sorted_vs = sorted(v, key=str.lower)
+        str_vs = v_delimiter.join(sorted_vs)
 
     return str_vs
 
@@ -357,9 +361,12 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
 def _dict_tupled_conll_formatter(v, v_delimiter):
     """
     """
-    presents = filter(lambda el: el is not None, v)
-    form = v_delimiter.join(presents)
+    presents = list(filter(lambda el: el is not None, v))
+    if len(presents) == 0:
+        error_msg = 'All values in the tuple are None.'
+        raise FormatError(error_msg)
 
+    form = v_delimiter.join(presents)
     return form
 
 
@@ -401,15 +408,6 @@ def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
                                   v_delimiter, _dict_mixed_conll_formatter)
 
 
-def _pair_mapper(formatter, pair, v_delimiter):
-    form = formatter(pair[1], v_delimiter)
-
-    if form is None:
-        return (pair[0], )
-    else:
-        return (pair[0], form)
-
-
 def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
                            formatter):
     """
@@ -430,18 +428,19 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
-
-    def helper(pair):
-        return _pair_mapper(formatter, pair, v_delimiter)
+    def paramed(pair):
+        f = formatter(pair[1], v_delimiter)
+        if f is None:
+            return (pair[0],)
+        else:
+            return (pair[0], f)
 
     if values == {}:
         return empty
     else:
         sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
-        formatted = map(helper, sorted_av_pairs)
-        filtered = filter(lambda pair: len(pair) == 1 or pair[1] != '',
-                          formatted)
-        output = delim.join([av_separator.join(form) for form in filtered])
+        formatted = map(paramed, sorted_av_pairs)
+        output = delim.join([av_separator.join(form) for form in formatted])
 
         return output if output else empty
 
