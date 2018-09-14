@@ -302,6 +302,17 @@ def _unit_conll_map(value, empty):
 
 def _dict_conll_map_formatter(v, v_delimiter):
     """
+    Formatter to convert a set of CoNLL values to a string representation.
+
+    Args:
+        v: The set of values.
+        v_delimiter: The delimiter between the values in a string representation.
+
+    Returns:
+        The appropriate string representation of the value in CoNLL format.
+
+    Raises:
+        FormatError: When there are no values to output.
     """
     if len(v) == 0:
         error_msg = 'There are no values to format'
@@ -337,6 +348,14 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
 
 def _dict_singleton_conll_formatter(v, v_delimiter):
     """
+    Identity function to realize a string representation from a singleton value.
+
+    Args:
+        v: The value.
+        v_delimiter: The delimiter between the values in a string representation.
+
+    Returns:
+        The value passed in as a singleton.
     """
     return v
 
@@ -360,6 +379,17 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
 
 def _dict_tupled_conll_formatter(v, v_delimiter):
     """
+    Convert a tuple of values into a CoNLL string representation.
+
+    Args:
+        v: The tuple of values to convert.
+        v_delimiter: The delimiter between values in the ConLL representation.
+
+    Returns:
+        The string representation of the tuple in CoNLL format.
+
+    Raises:
+        FormatError: When all values in the tuple value are None.
     """
     presents = list(filter(lambda el: el is not None, v))
     if len(presents) == 0:
@@ -372,6 +402,20 @@ def _dict_tupled_conll_formatter(v, v_delimiter):
 
 def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter):
     """
+    Map a dict whose components are max length tuples to a CoNLL format.
+
+    Args:
+        values: The dict to convert.
+        empty: The empty CoNLL representation for this value.
+        delim: The delimiter between attribute-value pairs.
+        av_separator: The separator between the attribute and value.
+        v_delimiter: The delimiter between values of the same attribute.
+
+    Returns:
+        The CoNLL formatted equivalent to the provided value as a tupled column.
+
+    Raises:
+        FormatError: If there was an error converting a tuple to a CoNLL format.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, _dict_tupled_conll_formatter)
@@ -379,6 +423,14 @@ def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter):
 
 def _dict_mixed_conll_formatter(v, v_delimiter):
     """
+    Format a mixed value into a string representation.
+
+    Args:
+        v: The value to convert to a mixed CoNLL string format.
+        v_delimiter: The delimiter between values in the string.
+
+    Returns:
+        A CoNLL representation of the mixed value.
     """
     if v is None:
         return v
