@@ -19,6 +19,7 @@ Added
 -  Certain token fields with empty values, were not output when calling
    ``Token#conll`` and were instead ignored. This situation now causes a
    FormatError.
+-  Stricter parsing and validation of general CoNLL guidelines.
 
 Fixed
 ~~~~~
