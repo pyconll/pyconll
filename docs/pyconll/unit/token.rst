@@ -31,7 +31,7 @@ feats
 
 deps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``deps`` is also a dictionary of attribute value pairs, but there is only one value, so the values are ``strings``.
+``deps`` is also a dictionary of attribute value pairs, where the values are tuples of cardinality 4. Most Universal Dependencies, only use a token index and relation in the ``deps``, but according to documentation, there are up to 4 components in this field, not including the token index. Note that this fixed parsing was introduced in version 1.0 and is not backward compatible. When adding new ``deps``, the values should also be of 4 tuples therefore.
 
 misc
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
