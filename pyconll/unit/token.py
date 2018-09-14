@@ -147,7 +147,7 @@ def _create_dict_tupled_empty_parse(size, strict):
             components = v.split(v_delimiter)
             left = size - len(components)
 
-            if not strict and left > 0:
+            if not strict and left >= 0 and left < size:
                 vs = tuple(components + [None] * left)
             elif len(components) == size:
                 vs = tuple(components)
@@ -274,7 +274,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         d = {}
         for el in values.split(delim):
             parts = el.split(av_separator, 1)
-            if len(parts) == 1:
+            if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
                 k = parts[0]
                 v = None
             elif len(parts) == 2:

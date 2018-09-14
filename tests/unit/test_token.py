@@ -372,3 +372,35 @@ def test_all_empty_deps_component_error():
 
     with pytest.raises(FormatError):
         token.conll()
+
+
+def test_all_deps_components():
+    """
+    Test that deps can be parsed properly when all items are provided.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj:another:and:another|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    assert token.deps['2'] == ('nsubj', 'another', 'and', 'another')
+
+
+def test_empty_deps():
+    """
+    Test that the deps for a field cannot be empty.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:|4:root	SpaceAfter=No'
+
+    with pytest.raises(ParseError):
+        token = Token(token_line)
+
+def test_no_empty_deps():
+    """
+    Test that the deps for a field cannot be empty.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4	SpaceAfter=No'
+
+    with pytest.raises(ParseError):
+        token = Token(token_line)
