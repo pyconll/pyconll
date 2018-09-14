@@ -128,6 +128,7 @@ def _create_dict_tupled_empty_parse(size, strict):
         ParseError: If the parsing is strict and there is a component size
             mismatch, or if there are too many components in general.
     """
+
     def _dict_tupled_empty_parser(v, v_delimiter):
         """
         Map a value into the appropriate form, for a tupled based column.
@@ -151,17 +152,24 @@ def _create_dict_tupled_empty_parse(size, strict):
             elif len(components) == size:
                 vs = tuple(components)
             else:
-                error_msg = 'Error parsing "{}" as singleton properly. Please check against CoNLL format spec.'.format(
+                error_msg = 'Error parsing "{}" as tuple properly. Please check against CoNLL format spec.'.format(
                     v)
                 raise ParseError(error_msg)
 
             return vs
+        else:
+            error_msg = 'Error parsing "{}" as tuple properly. Please check against CoNLL format spec'.format(
+                v)
+            raise ParseError(error_msg)
 
     return _dict_tupled_empty_parser
 
 
 memoize = {}
-def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter, size):
+
+
+def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
+                           size):
     """
     Map dict based values for CoNLL-U columns to a dict with tupled values.
 
@@ -257,7 +265,8 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         An empty dict if the value is empty and otherwise a parsed equivalent.
 
     Raises:
-        ParseError: If the dict format was unable to parsed.
+        ParseError: If the dict format was unable to parsed. This error will be
+            raised by the provided parser.
     """
     if values == empty:
         return {}
@@ -291,6 +300,15 @@ def _unit_conll_map(value, empty):
     return empty if value is None else value
 
 
+def _dict_conll_map_formatter(v, v_delimiter):
+    """
+    """
+    sorted_vs = sorted(v, key=str.lower)
+    str_vs = v_delimiter.join(sorted_vs)
+
+    return str_vs
+
+
 def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
     """
     Map a dict whose attributes can have multiple values to CoNLL-U format.
@@ -310,7 +328,13 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
         The CoNLL-U format as a string.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, False, False)
+                                  v_delimiter, _dict_conll_map_formatter)
+
+
+def _dict_singleton_conll_formatter(v, v_delimiter):
+    """
+    """
+    return v
 
 
 def _dict_singleton_conll_map(values, empty, delim, av_separator):
@@ -327,7 +351,35 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
         The CoNLL-U formatted equivalent to the value.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator, None,
-                                  True, False)
+                                  _dict_singleton_conll_formatter)
+
+
+def _dict_tupled_conll_formatter(v, v_delimiter):
+    """
+    """
+    presents = filter(lambda el: el is not None, v)
+    form = v_delimiter.join(presents)
+
+    return form
+
+
+def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter):
+    """
+    """
+    return _dict_conll_map_helper(values, empty, delim, av_separator,
+                                  v_delimiter, _dict_tupled_conll_formatter)
+
+
+def _dict_mixed_conll_formatter(v, v_delimiter):
+    """
+    """
+    if v is None:
+        return v
+    else:
+        sorted_vs = sorted(v, key=str.lower)
+        str_vs = v_delimiter.join(sorted_vs)
+
+        return str_vs
 
 
 def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
@@ -346,11 +398,20 @@ def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
         The CoNLL-U formatted equivalent to the value.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, False, True)
+                                  v_delimiter, _dict_mixed_conll_formatter)
+
+
+def _pair_mapper(formatter, pair, v_delimiter):
+    form = formatter(pair[1], v_delimiter)
+
+    if form is None:
+        return (pair[0], )
+    else:
+        return (pair[0], form)
 
 
 def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           singleton, mixed):
+                           formatter):
     """
     Helper to map dicts to CoNLL-U format equivalents.
 
@@ -361,35 +422,26 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
         av_separator: The separator between attribute and value.
         v_delimiter: The delimiter between values of the same attribute if
             necessary.
-        singleton: Flag to indicate if the dictionary values are singletons or
-            collections.
-        mixed: Flag to indicate if the dictionary values are mixed.
+        formatter: The function to convert an attribute value pair into a CoNLL
+            column representation. This function should take in a value
+            representation, and a value delimiter, and output a string
+            representation.
 
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
+
+    def helper(pair):
+        return _pair_mapper(formatter, pair, v_delimiter)
+
     if values == {}:
         return empty
     else:
         sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
-
-        if singleton:
-            if v_delimiter is not None:
-                pass
-
-            av_pairs = sorted_av_pairs
-        else:
-            av_pairs = []
-            for pair in sorted_av_pairs:
-                if mixed and pair[1] is None:
-                    av_pairs.append([pair[0]])
-                elif pair[1]:
-                    sorted_attr_values = sorted(pair[1], key=str.lower)
-                    str_attrs = v_delimiter.join(sorted_attr_values)
-
-                    av_pairs.append([pair[0], str_attrs])
-
-        output = delim.join([av_separator.join(pair) for pair in av_pairs])
+        formatted = map(helper, sorted_av_pairs)
+        filtered = filter(lambda pair: len(pair) == 1 or pair[1] != '',
+                          formatted)
+        output = delim.join([av_separator.join(form) for form in filtered])
 
         return output if output else empty
 
@@ -493,10 +545,9 @@ class Token:
                                      Token.AV_SEPARATOR, Token.V_DELIMITER)
         self.head = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps = _dict_tupled_empty_map(fields[8], Token.EMPTY,
-                                           Token.COMPONENT_DELIMITER,
-                                           Token.AV_DEPS_SEPARATOR,
-                                           Token.V_DEPS_DELIMITER, 4)
+        self.deps = _dict_tupled_empty_map(
+            fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
         # TODO: Handle misc field better. I'm not sure if it has to be key-value
         # structure.
         self.misc = _dict_mixed_empty_map(
@@ -543,9 +594,9 @@ class Token:
                                 Token.V_DELIMITER)
         head = _unit_conll_map(self.head, Token.EMPTY)
         deprel = _unit_conll_map(self.deprel, Token.EMPTY)
-        deps = _dict_singleton_conll_map(self.deps, Token.EMPTY,
-                                         Token.COMPONENT_DELIMITER,
-                                         Token.AV_DEPS_SEPARATOR)
+        deps = _dict_tupled_conll_map(
+            self.deps, Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER)
         misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
                                      Token.COMPONENT_DELIMITER,
                                      Token.AV_SEPARATOR, Token.V_DELIMITER)

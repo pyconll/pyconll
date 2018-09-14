@@ -237,8 +237,8 @@ def test_deps_parsing():
         '30	nmod	2:nsubj|4:nmod	SpaceAfter=No'
     token = Token(token_line)
 
-    assert token.deps['2'] == 'nsubj'
-    assert token.deps['4'] == 'nmod'
+    assert token.deps['2'] == ('nsubj', None, None, None)
+    assert token.deps['4'] == ('nmod', None, None, None)
     assert token.conll() == token_line
 
 
@@ -346,5 +346,8 @@ def test_misc_empty_values():
 
     expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
         '30	nmod	2:nsubj|4:root	_'
+
+    print(repr(expected))
+    print(repr(token.conll()))
 
     assert expected == token.conll()
