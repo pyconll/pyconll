@@ -3,7 +3,7 @@ import pytest
 from pyconll.unit import Token
 from tests.unit.util import assert_token_members
 
-from pyconll.exception import ParseError
+from pyconll.exception import ParseError, FormatError
 
 
 def test_construction():
@@ -93,8 +93,8 @@ def test_deps_construction():
         'Case': set(('Nom', )),
         'Number': set(('Plur', ))
     }, '2', 'nsubj', {
-        '2': 'nsubj',
-        '4': 'nsubj'
+        '2': ('nsubj', None, None, None),
+        '4': ('nsubj', None, None, None)
     }, {})
 
 
@@ -237,8 +237,8 @@ def test_deps_parsing():
         '30	nmod	2:nsubj|4:nmod	SpaceAfter=No'
     token = Token(token_line)
 
-    assert token.deps['2'] == 'nsubj'
-    assert token.deps['4'] == 'nmod'
+    assert token.deps['2'] == ('nsubj', None, None, None)
+    assert token.deps['4'] == ('nmod', None, None, None)
     assert token.conll() == token_line
 
 
@@ -282,8 +282,8 @@ def test_enhanced_deps_parsing():
         '30	nmod	2:nsubj,noun|4:root	SpaceAfter=No'
     token = Token(token_line)
 
-    assert token.deps['2'] == 'nsubj,noun'
-    assert token.deps['4'] == 'root'
+    assert token.deps['2'] == ('nsubj,noun', None, None, None)
+    assert token.deps['4'] == ('root', None, None, None)
 
 
 def test_enhanced_deps_parsing_invalid():
@@ -317,9 +317,37 @@ def test_misc_parsing_output():
     assert expected_output == token.conll()
 
 
-def test_feats_empty_values():
+def test_del_values():
     """
-    Test that a feature with no values is not output.
+    Test that values and features can be deleted from different token columns.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    del token.feats['Gender']
+    del token.misc['SpaceAfter']
+
+    expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	_'
+
+    assert expected == token.conll()
+
+
+def test_deps_max_size():
+    """
+    Test that only up to 4 components are allowed in the deps field.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj:another:field:here:andhere:j	SpaceAfter=No'
+
+    with pytest.raises(ParseError):
+        token = Token(token_line)
+
+
+def test_empty_set_format_error():
+    """
+    Test that outputing an empty collection for the values of a column errors.
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
@@ -327,24 +355,19 @@ def test_feats_empty_values():
 
     token.feats['Gender'].pop()
 
-    expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
-        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-
-    assert expected == token.conll()
+    with pytest.raises(FormatError):
+        token.conll()
 
 
-def test_misc_empty_values():
+def test_all_empty_deps_component_error():
     """
-    Test that a misc feature with no values is not output.
+    Test that an error is thrown when all components of a dep value are None.
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
     token = Token(token_line)
 
-    del token.feats['Gender']
-    token.misc['SpaceAfter'].pop()
+    token.deps['2'] = (None, *token.deps['2'][1:])
 
-    expected = '33	cintre	cintre	NOUN	_	Number=Sing	' \
-        '30	nmod	2:nsubj|4:root	_'
-
-    assert expected == token.conll()
+    with pytest.raises(FormatError):
+        token.conll()
