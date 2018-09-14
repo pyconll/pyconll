@@ -1,6 +1,6 @@
 import operator
 
-from pyconll.exception import ParseError
+from pyconll.exception import ParseError, FormatError
 
 
 def _unit_empty_map(value, empty):

@@ -343,3 +343,31 @@ def test_deps_max_size():
 
     with pytest.raises(ParseError):
         token = Token(token_line)
+
+
+def test_empty_set_format_error():
+    """
+    Test that outputing an empty collection for the values of a column errors.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    token.feats['Gender'].pop()
+
+    with pytest.raises(FormatError):
+        token.conll()
+
+
+def test_all_empty_deps_component_error():
+    """
+    Test that an error is thrown when all components of a dep value are None.
+    """
+    token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
+        '30	nmod	2:nsubj|4:root	SpaceAfter=No'
+    token = Token(token_line)
+
+    token.deps['2'] = (None, *token.deps['2'][1:])
+
+    with pytest.raises(FormatError):
+        token.conll()
