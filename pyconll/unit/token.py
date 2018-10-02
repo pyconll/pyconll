@@ -1,5 +1,6 @@
 import operator
 
+from pyconll.conllable import Conllable
 from pyconll.exception import ParseError, FormatError
 
 
@@ -509,7 +510,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
         return output if output else empty
 
 
-class Token:
+class Token(Conllable):
     # TODO: Allow custom, token parsing for misc field if necessary somehow.
     """
     A token in a CoNLL-U file. This consists of 10 columns, each separated by

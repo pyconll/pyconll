@@ -1,10 +1,11 @@
 import operator
 import re
 
+from pyconll.conllable import Conllable
 from pyconll.unit import Token
 
 
-class Sentence:
+class Sentence(Conllable):
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
 
