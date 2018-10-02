@@ -38,12 +38,43 @@ def _create_sentence(sent_lines, start, end):
         The created Sentence.
 
     Raises:
-        ValueError: If the sentence source is not valid.
+        ParseError: If the sentence source is not valid.
     """
     sent_source = '\n'.join(sent_lines)
     sentence = Sentence(
         sent_source, _start_line_number=start, _end_line_number=end)
     sent_lines.clear()
+
+    return sentence
+
+
+def _create_configured_sentence(sent_lines, start_line, end_line, cur_par_id, cur_doc_id):
+    """
+    Creates a Sentence with configured line bounds and paragraph and doc ids.
+
+    Args:
+        sent_lines: An iterable of the lines that make up the Sentence source.
+        start_line: The line number for the start of the lines.
+        end_line: The line number for the end of the lines.
+        cur_par_id: The current, in context, paragraph id.
+        cur_doc_id: The current, in context, document id.
+
+    Returns:
+        The created Sentence with configured paragraph and document ids.
+
+    Raises:
+        ParseError: If the sentence source is not valid.
+    """
+    sentence = _create_sentence(sent_lines, last_start, end_line)
+
+    cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
+                                        Sentence.NEWPAR_ID_KEY,
+                                        cur_par_id)
+    sentence._set_par_id(cur_par_id)
+    cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY,
+                                        Sentence.NEWDOC_ID_KEY,
+                                        cur_doc_id)
+    sentence._set_doc_id(cur_doc_id)
 
     return sentence
 
@@ -79,27 +110,10 @@ def iter_sentences(lines_it):
 
             sent_lines.append(line)
         elif sent_lines:
-            sentence = _create_sentence(sent_lines, last_start, i)
-
-            cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
-                                                Sentence.NEWPAR_ID_KEY,
-                                                cur_par_id)
-            sentence._set_par_id(cur_par_id)
-            cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY,
-                                                Sentence.NEWDOC_ID_KEY,
-                                                cur_doc_id)
-            sentence._set_doc_id(cur_doc_id)
+            sentence = _create_configured_sentence(sent_lines, last_start, i, cur_par_id, cur_doc_id)
 
             yield sentence
 
     if sent_lines:
-        sentence = _create_sentence(sent_lines, last_start, i)
-
-        cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
-                                            Sentence.NEWPAR_ID_KEY, cur_par_id)
-        sentence._set_par_id(cur_par_id)
-        cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY,
-                                            Sentence.NEWDOC_ID_KEY, cur_doc_id)
-        sentence._set_doc_id(cur_doc_id)
-
+        sentence = _create_configured_sentence(sent_lines, last_start, i + 1, cur_par_id, cur_doc_id)
         yield sentence
