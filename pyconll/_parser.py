@@ -66,7 +66,7 @@ def _create_configured_sentence(sent_lines, start_line, end_line, cur_par_id,
     Raises:
         ParseError: If the sentence source is not valid.
     """
-    sentence = _create_sentence(sent_lines, last_start, end_line)
+    sentence = _create_sentence(sent_lines, start_line, end_line)
 
     cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
                                         Sentence.NEWPAR_ID_KEY, cur_par_id)
@@ -111,6 +111,8 @@ def iter_sentences(lines_it):
         elif sent_lines:
             sentence = _create_configured_sentence(sent_lines, last_start, i,
                                                    cur_par_id, cur_doc_id)
+            cur_par_id = sentence.par_id
+            cur_doc_id = sentence.doc_id
 
             yield sentence
 
