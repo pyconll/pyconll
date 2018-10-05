@@ -48,7 +48,8 @@ def _create_sentence(sent_lines, start, end):
     return sentence
 
 
-def _create_configured_sentence(sent_lines, start_line, end_line, cur_par_id, cur_doc_id):
+def _create_configured_sentence(sent_lines, start_line, end_line, cur_par_id,
+                                cur_doc_id):
     """
     Creates a Sentence with configured line bounds and paragraph and doc ids.
 
@@ -68,12 +69,10 @@ def _create_configured_sentence(sent_lines, start_line, end_line, cur_par_id, cu
     sentence = _create_sentence(sent_lines, last_start, end_line)
 
     cur_par_id = _determine_sentence_id(sentence, Sentence.NEWPAR_KEY,
-                                        Sentence.NEWPAR_ID_KEY,
-                                        cur_par_id)
+                                        Sentence.NEWPAR_ID_KEY, cur_par_id)
     sentence._set_par_id(cur_par_id)
     cur_doc_id = _determine_sentence_id(sentence, Sentence.NEWDOC_KEY,
-                                        Sentence.NEWDOC_ID_KEY,
-                                        cur_doc_id)
+                                        Sentence.NEWDOC_ID_KEY, cur_doc_id)
     sentence._set_doc_id(cur_doc_id)
 
     return sentence
@@ -110,10 +109,12 @@ def iter_sentences(lines_it):
 
             sent_lines.append(line)
         elif sent_lines:
-            sentence = _create_configured_sentence(sent_lines, last_start, i, cur_par_id, cur_doc_id)
+            sentence = _create_configured_sentence(sent_lines, last_start, i,
+                                                   cur_par_id, cur_doc_id)
 
             yield sentence
 
     if sent_lines:
-        sentence = _create_configured_sentence(sent_lines, last_start, i + 1, cur_par_id, cur_doc_id)
+        sentence = _create_configured_sentence(sent_lines, last_start, i + 1,
+                                               cur_par_id, cur_doc_id)
         yield sentence
