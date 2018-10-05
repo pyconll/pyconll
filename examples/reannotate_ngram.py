@@ -3,8 +3,9 @@
 #
 # Change the annotation of a certain ngram. In this case, change any instances
 # of 'de plus' (FR) to a fixed annotation if they were previously connected.
-# The condition of having been previously connected requires conditions that are
-# difficult for most other tools I've seen to handle inside their DSL.
+# A variation of this, where right or left headedness of a relation is
+# important can be quite difficult or impossible to express in some DSL query
+# languages for CoNLL-U.
 #
 # Format:
 #   reannotate_ngram.py filename > transform.conll
