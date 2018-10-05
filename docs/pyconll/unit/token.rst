@@ -1,23 +1,7 @@
 token
 ===================================
 
-The Token module represents a single token (multiword or otherwise) in a CoNLL-U file. In text, this corresponds to one non-empty, non-comment line. Token has several members that correspond with the columns of the lines. All values are stored as strings. So ids are strings and not numeric. These fields are listed below and coresspond exactly with those found in the Universal Dependencenies project:
-
-.. highlight
-
-id
-form
-lemma
-upos
-xpos
-feats
-head
-deprel
-deps
-misc
-
-.. highlight:: none
-
+The Token module represents a single token (multiword or otherwise) in a CoNLL-U file. In text, this corresponds to one non-empty, non-comment line. Token has several members that correspond with the columns of the lines. All values are stored as strings. So ids are strings and not numeric. These fields are listed below and correspond exactly with those found in the Universal Dependencenies project: ``id``, ``form``, ``lemma``, ``upos``, ``xpos``, ``feats``, ``head``, ``deprel``, ``deps``, ``misc``
 
 Fields
 -----------------------------------
@@ -39,20 +23,16 @@ Lastly, for ``misc``, the documentation only specifies that the values are separ
 
 When adding a new key, the key must first be initialized manually as so:
 
-.. highlight
+.. code-block:: python
 
-token.misc['NewFeature'] = set(('No', ))
-
-.. highlight:: python
+    token.misc['NewFeature'] = set(('No', ))
 
 or alternatively as:
 
-.. highlight
+.. code-block:: python
 
-token.misc['NewFeature'] = set()
-token.misc['NewFeature'].add('No')
-
-.. highlight:: python
+    token.misc['NewFeature'] = set()
+    token.misc['NewFeature'].add('No')
 
 
 API
