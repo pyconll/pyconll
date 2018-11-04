@@ -639,8 +639,7 @@ def test_token_line_numbers():
         '12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n'
         '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
         '14	.	.	PUNCT	_	_	3	punct	_	_')
-    sentence = Sentence(
-        source, _start_line_number=sent_start, _end_line_number=sent_end)
+    sentence = Sentence(source, _start_line_number=sent_start)
 
     assert sentence['1'].line_number == 16
     assert sentence['7'].line_number == 22
