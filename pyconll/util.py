@@ -1,3 +1,8 @@
+"""
+A set of utilities for dealing with pyconll defined types. This is simply a
+collection of functions.
+"""
+
 import itertools
 
 

@@ -1,3 +1,7 @@
+"""
+Defines the Sentence type and the associated parsing and output logic.
+"""
+
 import operator
 import re
 

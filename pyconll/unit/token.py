@@ -1,3 +1,7 @@
+"""
+Defines the Token type and the associated parsing and output logic.
+"""
+
 import operator
 
 from pyconll.conllable import Conllable

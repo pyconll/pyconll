@@ -1,3 +1,7 @@
+"""
+Defines the Conll type and the associated parsing and output logic.
+"""
+
 from collections import MutableSequence
 
 import pyconll._parser
