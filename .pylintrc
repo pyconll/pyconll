@@ -209,7 +209,6 @@ spelling-store-unknown-words=no
 
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME,
-      XXX,
       TODO
 
 
@@ -267,19 +266,13 @@ logging-modules=logging
 
 [BASIC]
 
-# Naming style matching correct argument names.
-argument-naming-style=snake_case
-
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style.
-#argument-rgx=
-
-# Naming style matching correct attribute names.
-attr-naming-style=snake_case
+argument-rgx=(([a-z_][a-z0-9_]*)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style.
-#attr-rgx=
+attr-rgx=(([a-z_][a-z0-9_]*)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Bad variable names which should always be refused, separated by a comma.
 bad-names=foo,
@@ -316,10 +309,6 @@ docstring-min-length=-1
 
 # Naming style matching correct function names.
 function-naming-style=snake_case
-
-# Regular expression matching correct function names. Overrides function-
-# naming-style.
-#function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
 good-names=i,
@@ -366,12 +355,9 @@ no-docstring-rgx=^_
 # These decorators are taken in consideration only for invalid-name.
 property-classes=abc.abstractproperty
 
-# Naming style matching correct variable names.
-variable-naming-style=snake_case
-
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style.
-#variable-rgx=
+variable-rgx=(([a-z_][a-z0-9_]*)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 
 [TYPECHECK]
@@ -521,10 +507,10 @@ known-third-party=enchant
 [DESIGN]
 
 # Maximum number of arguments for function / method.
-max-args=5
+max-args=10
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=15
 
 # Maximum number of boolean expressions in an if statement.
 max-bool-expr=5
@@ -548,7 +534,7 @@ max-returns=6
 max-statements=50
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=2
+min-public-methods=-1
 
 
 [EXCEPTIONS]
