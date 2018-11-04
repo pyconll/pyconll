@@ -4,5 +4,15 @@ class Conllable:
     CoNLL representation.
     """
 
-    def conll():
+    def conll(self):
+        """
+        Provides a conll representation of the component.
+
+        Returns:
+            A string conll representation of the base component.
+
+        Raises:
+            NotImplementedError: If the child class does not implement the
+                method.
+        """
         raise NotImplementedError("No implementation for conll")
