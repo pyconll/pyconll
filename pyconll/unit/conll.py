@@ -2,7 +2,6 @@ from collections import MutableSequence
 
 import pyconll._parser
 from pyconll.conllable import Conllable
-from pyconll.unit import Sentence
 
 
 class Conll(MutableSequence, Conllable):
@@ -118,13 +117,14 @@ class Conll(MutableSequence, Conllable):
         """
         if isinstance(key, int):
             return self._sentences[key]
-        elif isinstance(key, slice):
+
+        if isinstance(key, slice):
             sliced_conll = Conll([])
             sliced_conll._sentences = self._sentences[key]
 
             return sliced_conll
-        else:
-            raise TypeError('Conll indices must be ints or slices, not str')
+
+        raise TypeError('Conll indices must be ints or slices, not str')
 
     def __setitem__(self, key, sent):
         """

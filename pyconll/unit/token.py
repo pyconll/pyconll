@@ -36,10 +36,10 @@ def _dict_empty_map_parser(v, v_delimiter):
     if v is not None:
         vs = set(v.split(v_delimiter))
         return vs
-    else:
-        error_msg = 'Error parsing "{}" properly. Please check against CoNLL format spec.'.format(
-            v)
-        raise ParseError(error_msg)
+
+    error_msg = 'Error parsing "{}" properly. Please check against CoNLL format spec.'.format(
+        v)
+    raise ParseError(error_msg)
 
 
 def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
@@ -82,10 +82,10 @@ def _dict_singleton_empty_parser(v, v_delimiter):
     """
     if v is not None:
         return v
-    else:
-        error_msg = ('Error parsing "{}" as singleton properly. Please check'
-                     'against CoNLL format spec.').format(v)
-        raise ParseError(error_msg)
+
+    error_msg = ('Error parsing "{}" as singleton properly. Please check'
+                 'against CoNLL format spec.').format(v)
+    raise ParseError(error_msg)
 
 
 def _dict_singleton_empty_map(values, empty, delim, av_separator):
@@ -166,7 +166,7 @@ def _create_dict_tupled_empty_parse(size, strict):
     return _dict_tupled_empty_parser
 
 
-memoize = {}
+tuple_parser_memoize = {}
 
 
 def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
@@ -196,9 +196,10 @@ def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
             number of components.
     """
     try:
-        parser = memoize[size]
+        parser = tuple_parser_memoize[size]
     except KeyError:
         parser = _create_dict_tupled_empty_parse(size, False)
+        tuple_parser_memoize[size] = parser
 
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, parser)
@@ -218,9 +219,9 @@ def _dict_mixed_empty_parser(v, v_delimiter):
     """
     if v is None:
         return v
-    else:
-        vs = set(v.split(v_delimiter))
-        return vs
+
+    vs = set(v.split(v_delimiter))
+    return vs
 
 
 def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
@@ -271,20 +272,20 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
     """
     if values == empty:
         return {}
-    else:
-        d = {}
-        for el in values.split(delim):
-            parts = el.split(av_separator, 1)
-            if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
-                k = parts[0]
-                v = None
-            elif len(parts) == 2:
-                k, v = parts
 
-            parsed = parser(v, v_delimiter)
-            d[k] = parsed
+    d = {}
+    for el in values.split(delim):
+        parts = el.split(av_separator, 1)
+        if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
+            k = parts[0]
+            v = None
+        elif len(parts) == 2:
+            k, v = parts
 
-        return d
+        parsed = parser(v, v_delimiter)
+        d[k] = parsed
+
+    return d
 
 
 def _unit_conll_map(value, empty):
@@ -315,12 +316,12 @@ def _dict_conll_map_formatter(v, v_delimiter):
     Raises:
         FormatError: When there are no values to output.
     """
-    if len(v) == 0:
-        error_msg = 'There are no values to format'
-        raise FormatError(error_msg)
-    else:
+    if v:
         sorted_vs = sorted(v, key=str.lower)
         str_vs = v_delimiter.join(sorted_vs)
+    else:
+        error_msg = 'There are no values to format'
+        raise FormatError(error_msg)
 
     return str_vs
 
@@ -363,9 +364,9 @@ def _dict_singleton_conll_formatter(v, v_delimiter):
     """
     if v is not None:
         return v
-    else:
-        error_msg = 'Singleton value cannot be None'
-        raise FormatError(error_msg)
+
+    error_msg = 'Singleton value cannot be None'
+    raise FormatError(error_msg)
 
 
 def _dict_singleton_conll_map(values, empty, delim, av_separator):
@@ -403,7 +404,7 @@ def _dict_tupled_conll_formatter(v, v_delimiter):
         FormatError: When all values in the tuple value are None.
     """
     presents = list(filter(lambda el: el is not None, v))
-    if len(presents) == 0:
+    if not presents:
         error_msg = 'All values in the tuple are None.'
         raise FormatError(error_msg)
 
@@ -445,11 +446,11 @@ def _dict_mixed_conll_formatter(v, v_delimiter):
     """
     if v is None:
         return v
-    else:
-        sorted_vs = sorted(v, key=str.lower)
-        str_vs = v_delimiter.join(sorted_vs)
 
-        return str_vs
+    sorted_vs = sorted(v, key=str.lower)
+    str_vs = v_delimiter.join(sorted_vs)
+
+    return str_vs
 
 
 def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
@@ -497,17 +498,17 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
         f = formatter(pair[1], v_delimiter)
         if f is None:
             return (pair[0], )
-        else:
-            return (pair[0], f)
+
+        return (pair[0], f)
 
     if values == {}:
         return empty
-    else:
-        sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
-        formatted = map(paramed, sorted_av_pairs)
-        output = delim.join([av_separator.join(form) for form in formatted])
 
-        return output if output else empty
+    sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
+    formatted = map(paramed, sorted_av_pairs)
+    output = delim.join([av_separator.join(form) for form in formatted])
+
+    return output if output else empty
 
 
 class Token(Conllable):
@@ -648,7 +649,7 @@ class Token(Conllable):
         """
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.
-        id = self.id
+        token_id = self.id
         form = _unit_conll_map(self.form, Token.EMPTY)
         lemma = _unit_conll_map(self.lemma, Token.EMPTY)
         upos = _unit_conll_map(self.upos, Token.EMPTY)
@@ -665,7 +666,9 @@ class Token(Conllable):
                                      Token.COMPONENT_DELIMITER,
                                      Token.AV_SEPARATOR, Token.V_DELIMITER)
 
-        items = [id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
+        items = [
+            token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc
+        ]
 
         return Token.FIELD_DELIMITER.join(items)
 
