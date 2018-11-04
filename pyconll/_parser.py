@@ -1,3 +1,9 @@
+"""
+An internal module for common parsing logic, which is currently creating
+Sentence objects from an iterator that returns CoNLL source lines. This logic
+can then be used in Conll or in pyconll.load.
+"""
+
 from pyconll.unit import Sentence
 
 

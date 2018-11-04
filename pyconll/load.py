@@ -1,3 +1,9 @@
+"""
+A wrapper around the Conll class that allow for easy loading of treebanks from
+multiple formats. This module also contains logic for iterating over treebank
+data without storing Conll objects in memory.
+"""
+
 import requests
 
 from pyconll._parser import iter_sentences
