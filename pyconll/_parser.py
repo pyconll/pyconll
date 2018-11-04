@@ -48,8 +48,7 @@ def _create_sentence(sent_lines, start, end):
         ParseError: If the sentence source is not valid.
     """
     sent_source = '\n'.join(sent_lines)
-    sentence = Sentence(
-        sent_source, _start_line_number=start, _end_line_number=end)
+    sentence = Sentence(sent_source, _start_line_number=start)
     sent_lines.clear()
 
     return sentence
