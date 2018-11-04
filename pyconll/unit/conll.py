@@ -45,9 +45,9 @@ class Conll(MutableSequence, Conllable):
         components = []
         for sentence in self._sentences:
             components.append(sentence.conll())
-            components.append('\n\n')
+        components.append('')
 
-        return ''.join(components)
+        return '\n\n'.join(components)
 
     def write(self, writable):
         """
