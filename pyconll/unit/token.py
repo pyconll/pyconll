@@ -83,8 +83,8 @@ def _dict_singleton_empty_parser(v, v_delimiter):
     if v is not None:
         return v
     else:
-        error_msg = 'Error parsing "{}" as singleton properly. Please check against CoNLL format spec.'.format(
-            v)
+        error_msg = ('Error parsing "{}" as singleton properly. Please check'
+                     'against CoNLL format spec.').format(v)
         raise ParseError(error_msg)
 
 
@@ -153,14 +153,14 @@ def _create_dict_tupled_empty_parse(size, strict):
             elif len(components) == size:
                 vs = tuple(components)
             else:
-                error_msg = 'Error parsing "{}" as tuple properly. Please check against CoNLL format spec.'.format(
-                    v)
+                error_msg = ('Error parsing "{}" as tuple properly. Please'
+                             'check against CoNLL format spec.').format(v)
                 raise ParseError(error_msg)
 
             return vs
         else:
-            error_msg = 'Error parsing "{}" as tuple properly. Please check against CoNLL format spec'.format(
-                v)
+            error_msg = ('Error parsing "{}" as tuple properly. Please check'
+                         'against CoNLL format spec').format(v)
             raise ParseError(error_msg)
 
     return _dict_tupled_empty_parser

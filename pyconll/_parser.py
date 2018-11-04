@@ -19,10 +19,11 @@ def _determine_sentence_id(sentence, new_id, id_name, old_id):
     """
     if sentence.meta_present(id_name):
         return sentence.meta_value(id_name)
-    elif sentence.meta_present(new_id):
+
+    if sentence.meta_present(new_id):
         return None
-    else:
-        return old_id
+
+    return old_id
 
 
 def _create_sentence(sent_lines, start, end):
@@ -117,6 +118,7 @@ def iter_sentences(lines_it):
             yield sentence
 
     if sent_lines:
-        sentence = _create_configured_sentence(sent_lines, last_start, i + 1,
-                                               cur_par_id, cur_doc_id)
+        lines_length = i + 1
+        sentence = _create_configured_sentence(
+            sent_lines, last_start, lines_length, cur_par_id, cur_doc_id)
         yield sentence
