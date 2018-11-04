@@ -3,6 +3,9 @@
 format:
 	yapf -p -r -i pyconll/ tests/
 
+lint:
+	pylint --rcfile .pylintrc pyconll/
+
 test:
 	python -m pytest -vv
 

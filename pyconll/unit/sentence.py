@@ -265,9 +265,11 @@ class Sentence(Conllable):
         if isinstance(key, str):
             idx = self._ids_to_indexes[key]
             return self._tokens[idx]
-        elif isinstance(key, int):
+
+        if isinstance(key, int):
             return self._tokens[key]
-        elif isinstance(key, slice):
+
+        if isinstance(key, slice):
             if isinstance(key.start, str):
                 start_idx = self._ids_to_indexes[key.start]
             else:
@@ -279,8 +281,8 @@ class Sentence(Conllable):
                 end_idx = key.stop
 
             return self._tokens[start_idx:end_idx:key.step]
-        else:
-            raise ValueError('The key must be a str, int, or slice.')
+
+        raise ValueError('The key must be a str, int, or slice.')
 
     def __len__(self):
         """
