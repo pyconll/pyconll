@@ -508,7 +508,7 @@ known-third-party=enchant
 [DESIGN]
 
 # Maximum number of arguments for function / method.
-max-args=10
+max-args=6
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=15
@@ -523,7 +523,7 @@ max-branches=12
 max-locals=15
 
 # Maximum number of parents for a class (see R0901).
-max-parents=7
+max-parents=10
 
 # Maximum number of public methods for a class (see R0904).
 max-public-methods=20
