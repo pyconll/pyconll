@@ -65,7 +65,7 @@ class Conll(MutableSequence, Conllable):
             writable.write(sentence.conll())
             writable.write('\n\n')
 
-    def insert(self, index, sent):
+    def insert(self, index, value):
         """
         Insert the given sentence into the given location.
 
@@ -73,9 +73,9 @@ class Conll(MutableSequence, Conllable):
 
         Args:
             index: The numeric index to insert the sentence into.
-            sent: The sentence to insert.
+            value: The sentence to insert.
         """
-        self._sentences.insert(index, sent)
+        self._sentences.insert(index, value)
 
     def __contains__(self, other):
         """
