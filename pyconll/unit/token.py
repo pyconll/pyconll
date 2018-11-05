@@ -69,13 +69,13 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
                                   v_delimiter, _dict_empty_map_parser)
 
 
-def _dict_singleton_empty_parser(v, v_delimiter):
+def _dict_singleton_empty_parser(v, _):
     """
     Map a value into the appropriate form, for a singleton based column.
 
     Args:
         v: The raw string value parsed from a column.
-        v_delimiter: The delimiter between components of the value. Not used.
+        _: The delimiter between components of the value. Not used.
 
     Returns:
         The parsed value.
@@ -170,7 +170,7 @@ def _create_dict_tupled_empty_parse(size, strict):
     return _dict_tupled_empty_parser
 
 
-tuple_parser_memoize = {}
+TUPLE_PARSER_MEMOIZE = {}
 
 
 def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
@@ -200,10 +200,10 @@ def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
             number of components.
     """
     try:
-        parser = tuple_parser_memoize[size]
+        parser = TUPLE_PARSER_MEMOIZE[size]
     except KeyError:
         parser = _create_dict_tupled_empty_parse(size, False)
-        tuple_parser_memoize[size] = parser
+        TUPLE_PARSER_MEMOIZE[size] = parser
 
     return _dict_empty_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, parser)
@@ -352,13 +352,13 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
                                   v_delimiter, _dict_conll_map_formatter)
 
 
-def _dict_singleton_conll_formatter(v, v_delimiter):
+def _dict_singleton_conll_formatter(v, _):
     """
     Identity function to realize a string representation from a singleton value.
 
     Args:
         v: The value.
-        v_delimiter: The delimiter between the values in a string representation.
+        _: The delimiter between the values in a string representation.
 
     Returns:
         The value passed in as a singleton.
@@ -516,7 +516,6 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
 
 
 class Token(Conllable):
-    # TODO: Allow custom, token parsing for misc field if necessary somehow.
     """
     A token in a CoNLL-U file. This consists of 10 columns, each separated by
     a single tab character and ending in an LF ('\\n') line break. Each of the 10
@@ -617,8 +616,6 @@ class Token(Conllable):
         self.deps = _dict_tupled_empty_map(
             fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
-        # TODO: Handle misc field better. I'm not sure if it has to be key-value
-        # structure.
         self.misc = _dict_mixed_empty_map(
             fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_SEPARATOR, Token.V_DELIMITER)
