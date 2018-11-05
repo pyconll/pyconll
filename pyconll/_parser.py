@@ -122,6 +122,6 @@ def iter_sentences(lines_it):
             yield sentence
 
     if sent_lines:
-        sentence = _create_configured_sentence(
-            sent_lines, last_start, cur_par_id, cur_doc_id)
+        sentence = _create_configured_sentence(sent_lines, last_start,
+                                               cur_par_id, cur_doc_id)
         yield sentence
