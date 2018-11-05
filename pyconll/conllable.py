@@ -4,6 +4,8 @@ is a Conll object, such as a treebank, sentence, or token, and therefore has a
 conll method.
 """
 
+import abc
+
 
 class Conllable:
     """
@@ -11,6 +13,9 @@ class Conllable:
     CoNLL representation.
     """
 
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def conll(self):
         """
         Provides a conll representation of the component.
