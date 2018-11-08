@@ -27,7 +27,7 @@ class Tree:
             self._children = []
         else:
             for child in children:
-                child.parent = self
+                child._parent = self
 
             self._children = children
 
