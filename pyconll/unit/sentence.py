@@ -198,8 +198,7 @@ class Sentence(Conllable):
                 singleton, this field can be ignored or set to None.
         """
         if key == Sentence.TEXT_KEY:
-            raise ValueError('Key cannot be {} or {}'.format(
-                Sentence.SENTENCE_ID_KEY, Sentence.TEXT_KEY))
+            raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
 
         self._meta[key] = value
 
