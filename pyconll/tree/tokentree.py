@@ -63,8 +63,11 @@ class TokenTree(Tree):
         if root_token:
             root = TokenTree._create_tree(self.sentence, root_token,
                                           children_tokens)
+            children = root.children
+        else:
+            children = None
 
-        super().__init__(root_token, root.children)
+        super().__init__(root_token, children)
 
     @property
     def sentence(self):

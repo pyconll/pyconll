@@ -69,9 +69,9 @@ class Tree:
 
     def __len__(self):
         """
-        Provides the number of children on the tree.
+        Provides the number of direct children on the tree.
 
         Returns:
-            The number of children on the tree.
+            The number of direct children on the tree.
         """
         return len(self._children)
