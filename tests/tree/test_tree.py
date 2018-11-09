@@ -2,6 +2,7 @@ import pytest
 
 from pyconll.tree import Tree
 
+
 def test_empty_tree_creation():
     """
     Test that an empty tree with no data and no children.
@@ -11,6 +12,7 @@ def test_empty_tree_creation():
     assert len(t) == 0
     assert t.children == []
     assert t.data is None
+
 
 def test_children_read_only():
     """
@@ -23,6 +25,7 @@ def test_children_read_only():
     with pytest.raises(AttributeError):
         t.children = []
 
+
 def test_parent_read_only():
     """
     Test that the parent field cannot be assigned after construction.
@@ -33,6 +36,7 @@ def test_parent_read_only():
 
     with pytest.raises(AttributeError):
         t[0].parent = None
+
 
 def test_get_children():
     """
@@ -48,6 +52,7 @@ def test_get_children():
     assert t[1] == child2
     assert t[0][0] == child11
 
+
 def test_iter_children():
     """
     Test that we can properly iterate over the children of a tree.
@@ -59,6 +64,7 @@ def test_iter_children():
 
     for i, child in enumerate(t):
         assert child.data == data[i]
+
 
 def test_len_children():
     """
@@ -73,6 +79,7 @@ def test_len_children():
     assert len(t) == len(data)
     for child in t:
         assert len(child) == len(subdata)
+
 
 def test_parent_assigment():
     """
