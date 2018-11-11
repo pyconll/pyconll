@@ -7,6 +7,27 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[1.1.0] - 2018-11-11
+--------------------
+
+Added
+~~~~~
+
+-  ``pylint`` to build process
+-  ``Conllable`` abstract base class to mark CoNLL serializable
+   components
+-  Tree data type construction of a sentence
+
+Changed
+~~~~~~~
+
+-  Linting patches suggested by ``pylint``.
+-  Removed ``_end_line_number`` from ``Sentence`` constructor. This is
+   an internal patch, as this parameter was not meant to be used by
+   callers.
+-  New, improved, and clearer documentation
+-  Update of ``requests`` dependency due to security flaw
+
 [1.0.1] - 2018-09-14
 --------------------
 
