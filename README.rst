@@ -6,7 +6,7 @@ pyconll
 *Easily work with **CoNLL** files using the familiar syntax of
 **python**.*
 
-The current version is 1.0.1. This version is fully functional, stable,
+The current version is 1.1.0. This version is fully functional, stable,
 tested, documented, and actively developed.
 
 Links
@@ -87,8 +87,8 @@ Documentation
 ~~~~~~~~~~~~~
 
 The full API documentation can be found online at
-https://pyconll.readthedocs.io/. A growing number of examples can be
-found in the ``examples`` folder.
+https://pyconll.readthedocs.io/. Examples can be found in the
+``examples`` folder and also in the ``tests`` folder.
 
 Contributing
 ~~~~~~~~~~~~
