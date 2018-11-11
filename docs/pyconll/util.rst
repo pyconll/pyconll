@@ -1,7 +1,7 @@
 util
 ===================================
 
-This is module that provides some useful functionality on top of pyconll. This adds logic on top of the API layer rather than extending it. Right now this module is pretty sparse, but it can be easiy extended as demand arises.
+This module provides additional, common methods that build off of the API layer. This module simply adds logic, rather than extending the API. Right now this module is pretty sparse, but will be extended as needed.
 
 
 API
