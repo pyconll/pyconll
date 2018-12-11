@@ -20,8 +20,8 @@ def read(fn):
 
 setup(
     name = 'pyconll',
-    packages = ['pyconll', 'pyconll.unit'],
-    version = '1.1.0',
+    packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
+    version = '1.1.1',
     description = 'Read and maniuplate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
