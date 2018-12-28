@@ -29,9 +29,9 @@ copyright = '2018, Matias Grioni'
 author = 'Matias Grioni'
 
 # The short X.Y version
-version = '1.0.2'
+version = '1.1.1'
 # The full version, including alpha/beta/rc tags
-release = '1.0.2'
+release = '1.1.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -46,8 +46,9 @@ release = '1.0.2'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode'
 ]
 
 napoleon_google_docstring = True

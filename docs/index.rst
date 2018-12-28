@@ -8,6 +8,7 @@ pyconll
 
    README <readme>
    changelog
+   Getting Started <starting>
 
    pyconll/conllable
    pyconll/exception
