@@ -1,7 +1,7 @@
 """
 Defines a base immutable tree type. This type can then be used to create a
-TokenTree which maps a sentence. This type is meant to be limited in scope and
-use and not as a general tree builder module.
+SentenceTree which maps a sentence. This type is meant to be limited in scope
+and use and not as a general tree builder module.
 """
 
 
@@ -47,7 +47,7 @@ class Tree:
         Provides the parent of the Tree. The property ensures it is readonly.
 
         Returns:
-            A pointer to the parent Tree reference.
+            A pointer to the parent Tree reference. None if there is no parent.
         """
         return self._parent
 
