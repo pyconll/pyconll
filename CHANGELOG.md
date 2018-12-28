@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2018-12-28
+### Added
+- *Getting Started* page on the documentation to make easier for newcomers
+
+### Fixed
+- Versioning on docs page which had not been properly updated
+- Some documentation errors
+- ``requests`` version used in ``requirements.txt`` was insecure and updated to newer version
+
 ## [1.1.1] - 2018-12-10
 ### Fixed
 - The ``pyconll.tree`` module was not properly included before in ``setup.py``
