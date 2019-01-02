@@ -43,7 +43,7 @@ def load_from_file(filename):
         IOError: If there is an error opening the given filename.
         ParseError: If there is an error parsing the input into a Conll object.
     """
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
         c = Conll(f)
 
     return c
