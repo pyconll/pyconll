@@ -109,7 +109,7 @@ def iter_from_file(filename):
         IOError if there is an error opening the file.
         ParseError: If there is an error parsing the input into a Conll object.
     """
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
         for sentence in iter_sentences(f):
             yield sentence
 
