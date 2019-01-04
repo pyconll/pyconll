@@ -7,6 +7,16 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[1.1.3] - 2019-01-03
+--------------------
+
+Fixed
+~~~~~
+
+-  When used on Windows, the default encoding of Windows-1252 was used
+   when loading CoNLL-U files, however, CoNLL-U is UTF-8. This is now
+   fixed.
+
 [1.1.2] - 2018-12-28
 --------------------
 

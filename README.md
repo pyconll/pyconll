@@ -6,7 +6,7 @@
 
 *Easily work with **CoNLL** files using the familiar syntax of **python**.*
 
-The current version is 1.1.2. This version is fully functional, stable, tested, documented, and actively developed.
+The current version is 1.1.3. This version is fully functional, stable, tested, documented, and actively developed.
 
 ##### Links
 - [Homepage](https://pyconll.github.io)

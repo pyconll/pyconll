@@ -25,13 +25,13 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'pyconll'
-copyright = '2018, Matias Grioni'
+copyright = '2019, Matias Grioni'
 author = 'Matias Grioni'
 
 # The short X.Y version
-version = '1.1.2'
+version = '1.1.3'
 # The full version, including alpha/beta/rc tags
-release = '1.1.2'
+release = '1.1.k'
 
 
 # -- General configuration ---------------------------------------------------
