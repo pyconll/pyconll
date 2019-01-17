@@ -1,7 +1,7 @@
 tree
 ===================================
 
-``Tree`` is a very basic immutable tree class. A ``Tree`` can have multiple children and has one parent. The parent and child of a tree are established when a ``Tree`` is created.
+``Tree`` is a very basic immutable tree class. A ``Tree`` can have multiple children and has one parent. The parent and child of a tree are established when a ``Tree`` is created. Accessing the data on a ``Tree`` can be done through the ``data`` member.
 
 API
 ----------------------------------
