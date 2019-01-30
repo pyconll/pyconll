@@ -5,7 +5,7 @@ tree as well to traverse the sentence in a new way.
 
 from pyconll.conllable import Conllable
 
-from . import Tree
+from . import Tree, TreeBuilder
 
 
 class SentenceTree(Conllable):
@@ -17,7 +17,7 @@ class SentenceTree(Conllable):
     """
 
     @staticmethod
-    def _create_tree(sentence, root, children_tokens):
+    def _create_tree(builder, sentence, root, children_tokens):
         """
         Method to create a tree from a sentence given the root token.
 
@@ -31,14 +31,15 @@ class SentenceTree(Conllable):
         """
         try:
             tokens = children_tokens[root.id]
-            trees = list(
-                map(
-                    lambda token: SentenceTree._create_tree(sentence, token, children_tokens),
-                    tokens))
         except KeyError:
-            trees = None
+            tokens = []
 
-        return Tree(sentence[root.id], trees)
+        for token in tokens:
+            builder.add_child(data=token, move=True)
+            SentenceTree._create_tree(builder, sentence, token, children_tokens)
+            builder.move_to_parent()
+
+        return builder.build()
 
     def __init__(self, sentence):
         """
@@ -62,8 +63,11 @@ class SentenceTree(Conllable):
             if token.head == '0':
                 root_token = token
 
-        root = SentenceTree._create_tree(self.sentence, root_token, children_tokens) \
-                    if root_token else Tree(root_token, None)
+        builder = TreeBuilder()
+        builder.set_data(root_token)
+
+        root = SentenceTree._create_tree(builder, self.sentence, root_token, children_tokens) \
+                    if root_token else Tree()
 
         self._tree = root
 

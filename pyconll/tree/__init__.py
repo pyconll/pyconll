@@ -6,5 +6,5 @@ constructs the appropriate / corresponding tree structure.
 
 __all__ = ['tree', 'sentencetree']
 
-from .tree import Tree
+from .tree import Tree, TreeBuilder
 from .sentencetree import SentenceTree
