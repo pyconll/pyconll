@@ -235,7 +235,7 @@ class Sentence(Conllable):
         Returns:
             True if the this Sentence and the other one are the same. Sentences
             are the same when their comments are the same and their tokens are
-            the same. Line numbers are not including in the equality definition.
+            the same. Line numbers are not included in the equality definition.
         """
         same = self._meta == other._meta
         for s_token, o_token in zip(self._tokens, other._tokens):
