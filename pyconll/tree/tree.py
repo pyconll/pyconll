@@ -1,8 +1,56 @@
 """
-Defines a base immutable tree type. This type can then be used to create a
-SentenceTree which maps a sentence. This type is meant to be limited in scope
-and use and not as a general tree builder module.
 """
+
+class TreeBuilder:
+    def __init__(self):
+        """
+        """
+        self.root = Tree()
+        self.current = self.root
+
+    def move_to_parent(self):
+        """
+        """
+        self.current = self.current.parent
+
+    def move_to_child(self, i):
+        """
+        """
+        self.current = self.current.children[i]
+
+    def move_to_root(self):
+        """
+        """
+        self.current = self.root
+
+    def add_child(self, data=None, move=False):
+        """
+        """
+        child = Tree()
+        if data is not None:
+            child.data = data
+        child._parent = self.current
+
+        self.current._children.append(child)
+
+        if move:
+            l = len(self.current._children)
+            self.move_to_child(l - 1)
+
+    def remove_child(self, i):
+        """
+        """
+        self.current._children.remove(i)
+
+    def set_data(self, data):
+        """
+        """
+        self.current.data = data
+
+    def build(self):
+        """
+        """
+        return self.root
 
 
 class Tree:
@@ -12,7 +60,7 @@ class Tree:
     immutable, so the parent and children cannot be changed once created.
     """
 
-    def __init__(self, data, children):
+    def __init__(self):
         """
         Create a new tree with the desired properties.
 
@@ -20,16 +68,9 @@ class Tree:
             data: The data to store on the tree.
             children: The children of this node. None if there are no children.
         """
-        self.data = data
+        self.data = None
         self._parent = None
-
-        if not children:
-            self._children = []
-        else:
-            for child in children:
-                child._parent = self
-
-            self._children = children
+        self._children = []
 
     @property
     def children(self):
