@@ -672,16 +672,3 @@ class Token(Conllable):
         ]
 
         return Token.FIELD_DELIMITER.join(items)
-
-    def __eq__(self, other):
-        """
-        Test if this Token is equal to other.
-
-        Args:
-            other: The other token to compare against.
-
-        Returns:
-            True if the this Token and the other are the same. Two tokens are
-            considered the same when all columns are the same.
-        """
-        return self._source == other._source
