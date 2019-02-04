@@ -16,14 +16,21 @@ class SentenceTree(Conllable):
     sentence input will have no data and no children.
     """
 
+    # TODO: Look at simply removing this class in favor of a nice method.
+    # There is no need to create this weird SentenceTree method and add it to the OM.
+
+    # TODO: Understand when to throw exceptions and edge cases for trees. I think this
+    # is the only place where I might have not created great design.
+
     @staticmethod
-    def _create_tree(builder, sentence, root, children_tokens):
+    def _create_tree_helper(builder, sentence, root, children_tokens):
         """
         Method to create a tree from a sentence given the root token.
 
         Args:
+            builder: The TreeBuilder currently being used to create the Tree.
             sentence: The sentence to construct the tree from.
-            root: The root token to start the tree at.
+            root: The current token we are constructing the tree at.
             children_tokens: A dictionary from token id to children tokens.
 
         Returns:
@@ -36,23 +43,25 @@ class SentenceTree(Conllable):
 
         for token in tokens:
             builder.add_child(data=token, move=True)
-            SentenceTree._create_tree(builder, sentence, token, children_tokens)
+            SentenceTree._create_tree_helper(builder, sentence, token,
+                                             children_tokens)
             builder.move_to_parent()
 
-        return builder.build()
-
-    def __init__(self, sentence):
+    @staticmethod
+    def _create_tree(sentence):
         """
-        Creates a new SentenceTree given the sentence.
+        Creates a new Tree from the provided sentence.
 
         Args:
-            sentence: The sentence to wrap and construct a tree from.
+            sentence: The sentence to create a Tree representation of.
+
+        Returns:
+            A constructed Tree that represents the dependencies in the sentence.
         """
-        self._sentence = sentence
         children_tokens = {}
 
         root_token = None
-        for token in self.sentence:
+        for token in sentence:
             parent_key = token.head
 
             try:
@@ -64,12 +73,23 @@ class SentenceTree(Conllable):
                 root_token = token
 
         builder = TreeBuilder()
-        builder.set_data(root_token)
+        builder.create_root(root_token)
+        if root_token:
+            SentenceTree._create_tree_helper(builder, sentence, root_token,
+                                             children_tokens)
+        root = builder.build()
 
-        root = SentenceTree._create_tree(builder, self.sentence, root_token, children_tokens) \
-                    if root_token else Tree()
+        return root
 
-        self._tree = root
+    def __init__(self, sentence):
+        """
+        Creates a new SentenceTree given the sentence.
+
+        Args:
+            sentence: The sentence to wrap and construct a tree from.
+        """
+        self._sentence = sentence
+        self._tree = SentenceTree._create_tree(sentence)
 
     @property
     def sentence(self):
@@ -93,7 +113,7 @@ class SentenceTree(Conllable):
 
     def conll(self):
         """
-        Outputs the provided tree into CoNLL format.
+        Outputs the tree into CoNLL format.
 
         Returns:
             The CoNLL formatted string.
