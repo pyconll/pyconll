@@ -3,23 +3,24 @@ import pytest
 from pyconll.tree import Tree, TreeBuilder
 
 
-def test_empty_tree_creation():
+def test_minimal_tree_creation():
     """
-    Test that an empty tree with no data and no children.
+    Test creating the minimal tree using the constructor.
     """
     t = Tree()
 
-    assert len(t) == 0
     assert t.data is None
+    assert t.parent is None
+    assert len(t) == 0
 
 
-def test_children_read_only():
+def test_data_read_only():
     """
-    Test that children on a Tree cannot be assigned after construction.
+    Test that the data on a Tree cannot be assigned after construction.
     """
     t = Tree()
     with pytest.raises(AttributeError):
-        t.children = []
+        t.data = 0
 
 
 def test_parent_read_only():
@@ -52,7 +53,7 @@ def test_iter_children():
     Test that we can properly iterate over the children of a tree.
     """
     builder = TreeBuilder()
-    builder.create_root()
+    builder.create_root(0)
 
     data = list(range(2, 15, 3))
     for datum in data:
@@ -68,7 +69,7 @@ def test_len_children():
     Test that we can properly get the number of children.
     """
     builder = TreeBuilder()
-    builder.create_root()
+    builder.create_root(0)
 
     data = list(range(2, 15, 3))
     subdata = [0, 1, 2, 3, 4]
@@ -91,7 +92,7 @@ def test_parent_assigment():
     Test that children tree's parents are properly assigned.
     """
     builder = TreeBuilder()
-    builder.create_root()
+    builder.create_root(0)
     builder.add_child(2, move=True)
     builder.add_child(13)
     builder.move_to_parent()
@@ -103,3 +104,40 @@ def test_parent_assigment():
     assert t[0].parent == t
     assert t[1].parent == t
     assert t[0][0].parent == t[0]
+
+
+def test_after_creation_copy():
+    """
+    """
+    builder = TreeBuilder()
+    builder.create_root(0)
+    builder.add_child(2, move=True)
+    builder.add_child(13)
+    builder.move_to_parent()
+    builder.add_child(7)
+
+    t1 = builder.build()
+
+    builder.move_to_root()
+    builder.set_data(4)
+    builder.add_child(3, move=True)
+    builder.add_child(15)
+
+    t2 = builder.build()
+
+    assert t2 is not t1
+    assert t2[0] is not t1[0]
+    assert t2[0][0] is not t1[0][0]
+    assert t2[1] is not t1[1]
+
+    assert t2.data == 4
+    assert t2[0].data == 2
+    assert t2[0][0].data == 13
+    assert t2[1].data == 7
+    assert t2[2].data == 3
+    assert t2[2][0].data == 15
+
+    assert len(t2) == 3
+    assert len(t2[0]) == 1
+    assert len(t2[1]) == 0
+    assert len(t2[2]) == 1
