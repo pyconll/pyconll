@@ -25,7 +25,7 @@ class TreeBuilder:
         self.current = None
         self.constructed = False
 
-    def create_root(self, data=None):
+    def create_root(self, data):
         """
         Creates the root of the tree. This is the first step in Tree building.
 
@@ -35,8 +35,7 @@ class TreeBuilder:
             data: The optional data to put on the root node.
         """
         self.root = Tree()
-        if data is not None:
-            self.root.data = data
+        self.root._data = data
         self.current = self.root
 
     def move_to_parent(self):
@@ -52,7 +51,7 @@ class TreeBuilder:
         Args:
             i: The index of the child to move to.
         """
-        self.current = self.current.children[i]
+        self.current = self.current[i]
 
     def move_to_root(self):
         """
@@ -68,7 +67,7 @@ class TreeBuilder:
             data: The data to place on the current cursor location's node.
         """
         self._copy_if_necessary()
-        self.current.data = data
+        self.current._data = data
 
     def remove_child(self, i):
         """
@@ -78,30 +77,27 @@ class TreeBuilder:
             i: The index of the child to remove.
         """
         self._copy_if_necessary()
-        self.current.children.remove(i)
+        self.current._children.remove(i)
 
-    def add_child(self, data=None, move=False):
-        # TODO: consider the data=None problem.
+    def add_child(self, data, move=False):
         """
         Adds a child to the current cursor location's node.
 
         Children indices are directly related to the order of their creation.
 
         Args:
-            data: The optional data to put on the created child.
+            data: The data to put on the created child.
             move: Flag to indicate if the cursor should move to this child.
         """
         self._copy_if_necessary()
 
         child = Tree()
-        if data is not None:
-            child.data = data
+        child._data = data
         child._parent = self.current
-
-        self.current.children.append(child)
+        self.current._children.append(child)
 
         if move:
-            l = len(self.current.children)
+            l = len(self.current)
             self.move_to_child(l - 1)
 
     def build(self):
@@ -127,21 +123,29 @@ class TreeBuilder:
         Internal method to copy the constructed Tree in memory.
         """
         new_root = Tree()
-        new_root.data = self.root.data
+        new_root._data = self.root.data
 
-        queue = [(new_root, self.root.children)]
+        new_current = None
+        if self.current is self.root:
+            new_current = new_root
+
+        queue = [(new_root, self.root._children)]
         while len(queue) > 0:
             new_parent, children = queue.pop()
 
             new_children = []
             for child in children:
                 new_child = Tree()
-                new_child.data = child.data
+                new_child._data = child.data
+                new_child._parent = new_parent
                 new_children.append(new_child)
 
-                queue.append((new_child, child.children))
+                queue.append((new_child, child._children))
 
-            new_parent.children = new_children
+                if self.current is child:
+                    new_current = new_child
+
+            new_parent._children = new_children
 
         self.root = new_root
         self.current = new_current
@@ -151,30 +155,26 @@ class Tree:
     """
     A tree node. This is the base representation for a tree, which can have many
     children which are accessible via child index. The tree's structure is
-    immutable, so the parent and children cannot be changed once created.
+    immutable, so the data, parent, children cannot be changed once created.
     """
 
     def __init__(self):
         """
-        Create a new tree with the desired properties.
-
-        Args:
-            data: The data to store on the tree.
-            children: The children of this node. None if there are no children.
+        Create a new empty tree. To create a useful Tree, use TreeBuilder.
         """
-        self.data = None
+        self._data = None
         self._parent = None
         self._children = []
 
     @property
-    def children(self):
+    def data(self):
         """
-        Provides the children of the Tree. The property ensures it is readonly.
+        The data on the tree node. The property ensures it is readonly.
 
         Returns:
-            The list of children nodes.
+            The data stored on the Tree. No data is represented as None.
         """
-        return self._children
+        return self._data
 
     @property
     def parent(self):
