@@ -98,7 +98,8 @@ def test_empty_sentence():
     st = SentenceTree(sentence)
 
     assert st.tree.data == None
-    assert st.tree.children == []
+    assert st.tree.parent == None
+    assert len(st.tree) == 0
 
 
 def test_no_extra_nodes():
