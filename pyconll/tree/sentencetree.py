@@ -16,12 +16,6 @@ class SentenceTree(Conllable):
     sentence input will have no data and no children.
     """
 
-    # TODO: Look at simply removing this class in favor of a nice method.
-    # There is no need to create this weird SentenceTree method and add it to the OM.
-
-    # TODO: Understand when to throw exceptions and edge cases for trees. I think this
-    # is the only place where I might have not created great design.
-
     @staticmethod
     def _create_tree_helper(builder, sentence, root, children_tokens):
         """
