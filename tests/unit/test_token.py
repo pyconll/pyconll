@@ -174,7 +174,7 @@ def test_underscore_construction():
     Test construction of token without empty assumption and no form or lemma.
     """
     token_line = '33	_	_	PUN	_	_	30	nmod	_	SpaceAfter=No'
-    token = Token(token_line, empty=False)
+    token = Token(token_line)
 
     assert_token_members(token, '33', '_', '_', 'PUN', None, {}, '30', 'nmod',
                          {}, {'SpaceAfter': set(('No', ))})
@@ -185,7 +185,7 @@ def test_empty_form_present_lemma():
     Test construction of token without empty assumption and no form but a present lemma.
     """
     token_line = '33	hate	_	VERB	_	_	30	nmod	_	SpaceAfter=No'
-    token = Token(token_line, empty=False)
+    token = Token(token_line)
 
     assert_token_members(token, '33', 'hate', None, 'VERB', None, {}, '30',
                          'nmod', {}, {'SpaceAfter': set(('No', ))})
@@ -196,10 +196,21 @@ def test_empty_lemma_present_form():
     Test construction of token without empty assumption and no lemma but a present form.
     """
     token_line = '33	_	hate	VERB	_	_	30	nmod	_	SpaceAfter=No'
-    token = Token(token_line, empty=False)
+    token = Token(token_line)
 
     assert_token_members(token, '33', None, 'hate', 'VERB', None, {}, '30',
                          'nmod', {}, {'SpaceAfter': set(('No', ))})
+
+
+def test_empty_lemma_empty_form_with_assumption():
+    """
+    Test that a Token with no form or lemma  with the empty assumption gets values of None.
+    """
+    token_line = '33	_	_	SYM	_	_	30	punct	_	SpaceAfter=No'
+    token = Token(token_line, empty=True)
+
+    assert_token_members(token, '33', None, None, 'SYM', None, {}, '30',
+                         'punct', {}, {'SpaceAfter': set(('No', ))})
 
 
 def test_improper_source():
