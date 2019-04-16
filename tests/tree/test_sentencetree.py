@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.tree import SentenceTree
+from pyconll.tree import sentencetree
 from pyconll.unit import Sentence
 
 
@@ -35,12 +35,9 @@ def test_standard_sentence():
               '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
               '4	?	?	PUNCT	_	_	3	punct	_	_\n')
     sentence = Sentence(source)
+    st = sentencetree.create(sentence)
 
-    st = SentenceTree(sentence)
-
-    assert st.sentence == sentence
-
-    assert_tree_structure(st.sentence, st.tree, sentence[2], {
+    assert_tree_structure(sentence, st, sentence[2], {
         (0, ): 0,
         (1, ): 1,
         (2, ): 3
@@ -69,10 +66,10 @@ def test_multi_level():
         '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
         '14	.	.	PUNCT	_	_	3	punct	_	_')
     sentence = Sentence(source)
-    st = SentenceTree(sentence)
+    st = sentencetree.create(sentence)
 
     assert_tree_structure(
-        st.sentence, st.tree, sentence[2], {
+        sentence, st, sentence[2], {
             (0, ): 1,
             (1, ): 4,
             (2, ): 8,
@@ -95,11 +92,11 @@ def test_empty_sentence():
     """
     source = ''
     sentence = Sentence(source)
-    st = SentenceTree(sentence)
+    st = sentencetree.create(sentence)
 
-    assert st.tree.data == None
-    assert st.tree.parent == None
-    assert len(st.tree) == 0
+    assert st.data == None
+    assert st.parent == None
+    assert len(st) == 0
 
 
 def test_no_extra_nodes():
@@ -124,10 +121,10 @@ def test_no_extra_nodes():
         '13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n'
         '14	.	.	PUNCT	_	_	3	punct	_	_')
     sentence = Sentence(source)
-    st = SentenceTree(sentence)
+    st = sentencetree.create(sentence)
 
     count = 0
-    nodes = [st.tree]
+    nodes = [st]
     while len(nodes) > 0:
         count += 1
         node = nodes.pop()
