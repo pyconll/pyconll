@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.tree import Tree, TreeBuilder
+from pyconll.tree._tree import Tree, TreeBuilder
 
 
 def test_minimal_tree_creation():
