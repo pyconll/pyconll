@@ -547,7 +547,7 @@ class Token(Conllable):
     V_DEPS_DELIMITER = ':'
     EMPTY = '_'
 
-    def __init__(self, source, empty=True, _line_number=None):
+    def __init__(self, source, empty=False, _line_number=None):
         """
         Construct the token from the given source.
 
@@ -602,7 +602,7 @@ class Token(Conllable):
         if empty or (fields[1] != Token.EMPTY or fields[2] != Token.EMPTY):
             self._form = _unit_empty_map(fields[1], Token.EMPTY)
             self.lemma = _unit_empty_map(fields[2], Token.EMPTY)
-        elif fields[1] == Token.EMPTY and fields[2] == Token.EMPTY:
+        else:
             self._form = fields[1]
             self.lemma = fields[2]
 
