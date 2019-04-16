@@ -130,7 +130,7 @@ class TreeBuilder:
             new_current = new_root
 
         queue = [(new_root, self.root._children)]
-        while len(queue) > 0:
+        while queue:
             new_parent, children = queue.pop()
 
             new_children = []

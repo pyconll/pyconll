@@ -5,7 +5,7 @@ tree as well to traverse the sentence in a new way.
 
 from pyconll.conllable import Conllable
 
-from . import Tree, TreeBuilder
+from . import TreeBuilder
 
 
 class SentenceTree(Conllable):
