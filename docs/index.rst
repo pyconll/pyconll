@@ -13,7 +13,7 @@ pyconll
    pyconll/conllable
    pyconll/exception
    pyconll/load
-   pyconll/tree/sentencetree
+   pyconll/sentencetree
    pyconll/tree/tree
    pyconll/util
    pyconll/unit/conll
