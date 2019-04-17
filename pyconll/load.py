@@ -132,6 +132,7 @@ def iter_from_url(url):
     resp = requests.get(url)
     resp.raise_for_status()
 
+    resp.encoding = 'utf-8'
     lines = resp.text.splitlines()
     for sentence in iter_sentences(lines):
         yield sentence
