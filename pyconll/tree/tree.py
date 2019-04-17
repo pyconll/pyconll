@@ -9,6 +9,10 @@ class Tree:
     A tree node. This is the base representation for a tree, which can have many
     children which are accessible via child index. The tree's structure is
     immutable, so the data, parent, children cannot be changed once created.
+
+    As is this class is useless, and must be created with the TreeBuilder
+    module which is a sort of friend class of Tree to maintain its immutable
+    public contract.
     """
 
     def __init__(self):
