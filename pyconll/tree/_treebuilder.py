@@ -44,7 +44,15 @@ class TreeBuilder:
     def move_to_parent(self):
         """
         Move the internal cursor of the TreeBuilder to cursor location's parent.
+
+        Raises:
+            ValueError: If the TreeBuilder's root has not been initialized, or
+                if the builder is already at the root.
         """
+        self._assert_initialization_status()
+        if self.current is self.root:
+            raise ValueError('Currently at root. Cannot move to parent')
+
         self.current = self.current.parent
 
     def move_to_child(self, i):
@@ -53,13 +61,26 @@ class TreeBuilder:
 
         Args:
             i: The index of the child to move to.
+
+        Raises:
+            IndexError: If the child index is out of range.
+            ValueError: If the TreeBuilder's root has not been initialized.
         """
-        self.current = self.current[i]
+        self._assert_initialization_status()
+
+        try:
+            self.current = self.current[i]
+        except IndexError as e:
+            raise IndexError('{}-th child is out of range. There are {} children on this node'.format(i, len(self.current))) from e
 
     def move_to_root(self):
         """
         Move the internal cursor to the root of the entire tree.
+
+        Raises:
+            ValueError: If the TreeBuilder's root has not been initialized.
         """
+        self._assert_initialization_status()
         self.current = self.root
 
     def set_data(self, data):
@@ -68,7 +89,11 @@ class TreeBuilder:
 
         Args:
             data: The data to place on the current cursor location's node.
+
+        Raises:
+            ValueError: If the TreeBuilder's root has not been initialized.
         """
+        self._assert_initialization_status()
         self._copy_if_necessary()
         self.current._data = data
 
@@ -78,9 +103,18 @@ class TreeBuilder:
 
         Args:
             i: The index of the child to remove.
+
+        Raises:
+            IndexError: If the child is out of range.
+            ValueError: If the TreeBuilder's root has not been initialized.
         """
+        self._assert_initialization_status()
         self._copy_if_necessary()
-        self.current._children.remove(i)
+
+        try:
+            self.current._children.remove(i)
+        except IndexError as e:
+            raise IndexError('{}-th child is out of range. There are {} children on this node'.format(i, len(self.current))) from e
 
     def add_child(self, data, move=False):
         """
@@ -91,7 +125,11 @@ class TreeBuilder:
         Args:
             data: The data to put on the created child.
             move: Flag to indicate if the cursor should move to this child.
+
+        Raises:
+            ValueError: If the TreeBuilder's root has not been initialized.
         """
+        self._assert_initialization_status()
         self._copy_if_necessary()
 
         child = Tree()
@@ -109,7 +147,11 @@ class TreeBuilder:
 
         Returns:
             The constructed Tree reference.
+
+        Raises:
+            ValueError: If the TreeBuilder's root has not been initialized.
         """
+        self._assert_initialization_status()
         self.constructed = True
         return self.root
 
@@ -152,3 +194,13 @@ class TreeBuilder:
 
         self.root = new_root
         self.current = new_current
+
+    def _assert_initialization_status(self):
+        """
+        Asserts the initialization invariant on the root of this builder.
+
+        Raises:
+            ValueError: If the TreeBuilder's root has not been initialized.
+        """
+        if self.root is None:
+            raise ValueError('The TreeBuilder has not created a root for the Tree yet')

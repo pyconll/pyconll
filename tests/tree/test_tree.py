@@ -143,3 +143,63 @@ def test_after_creation_copy():
     assert len(t2[0]) == 1
     assert len(t2[1]) == 0
     assert len(t2[2]) == 1
+
+
+def test_cannot_operate_on_rootless():
+    """
+    Verify that operations do not work on a TreeBuilder when no root is created.
+    """
+    builder = TreeBuilder()
+
+    with pytest.raises(ValueError):
+        builder.move_to_parent()
+
+    with pytest.raises(ValueError):
+        builder.move_to_root()
+
+    with pytest.raises(ValueError):
+        builder.set_data()
+
+    with pytest.raises(ValueError):
+        builder.remove_child()
+
+    with pytest.raises(ValueError):
+        builder.build()
+
+
+def test_cannot_move_up_on_root():
+    """
+    Test that when at the root node, the builder cannot move up to a parent.
+    """
+    builder = TreeBuilder()
+
+    builder.create_root(0)
+
+    with pytest.raises(ValueError):
+        builder.move_to_parent()
+
+
+def test_cannot_move_out_of_range():
+    """
+    Test that the builder cannot move to a child that is out of index.
+    """
+    builder = TreeBuilder()
+
+    builder.create_root(0)
+    builder.add_child(5)
+
+    with pytest.raises(IndexError):
+        builder.move_to_child(3)
+
+
+def test_cannot_remove_out_of_range():
+    """
+    Test that the builder cannot remove a child it does not have.
+    """
+    builder = TreeBuilder()
+
+    builder.create_root(0)
+    builder.add_child(5)
+
+    with pytest.raises(IndexError):
+        builder.remove_child(5)
