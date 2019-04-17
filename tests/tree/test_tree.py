@@ -152,16 +152,10 @@ def test_cannot_operate_on_rootless():
     builder = TreeBuilder()
 
     with pytest.raises(ValueError):
-        builder.move_to_parent()
-
-    with pytest.raises(ValueError):
         builder.move_to_root()
 
     with pytest.raises(ValueError):
-        builder.set_data()
-
-    with pytest.raises(ValueError):
-        builder.remove_child()
+        builder.move_to_parent()
 
     with pytest.raises(ValueError):
         builder.build()

@@ -112,7 +112,7 @@ class TreeBuilder:
         self._copy_if_necessary()
 
         try:
-            self.current._children.remove(i)
+            del self.current._children[i]
         except IndexError as e:
             raise IndexError('{}-th child is out of range. There are {} children on this node'.format(i, len(self.current))) from e
 
