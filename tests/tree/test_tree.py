@@ -1,6 +1,7 @@
 import pytest
 
-from pyconll.tree._tree import Tree, TreeBuilder
+from pyconll.tree.tree import Tree
+from pyconll.tree._treebuilder import TreeBuilder
 
 
 def test_minimal_tree_creation():
@@ -108,6 +109,7 @@ def test_parent_assigment():
 
 def test_after_creation_copy():
     """
+    Test that a single TreeBuilder can be used multiple times properly.
     """
     builder = TreeBuilder()
     builder.create_root(0)

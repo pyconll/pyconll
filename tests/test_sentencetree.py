@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.tree import sentencetree
+from pyconll import sentencetree
 from pyconll.unit import Sentence
 
 

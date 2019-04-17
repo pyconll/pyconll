@@ -1,14 +1,11 @@
 """
-Create the SentenceTree type as a wrapper around a sentence that constructs a
-tree as well to traverse the sentence in a new way.
+Defines the creation method for a tree structure from a Sentence object. This
+allows traversing of a Sentence in a new way.
 """
 
-from pyconll.conllable import Conllable
-
-from pyconll.tree._tree import TreeBuilder
+from pyconll.tree._treebuilder import TreeBuilder
 
 
-# TODO: Naming
 def _create_tree_helper(builder, sentence, root, children_tokens):
     """
     Method to create a tree from a sentence given the root token.
@@ -33,10 +30,11 @@ def _create_tree_helper(builder, sentence, root, children_tokens):
         builder.move_to_parent()
 
 
-# TODO: Naming
 def create(sentence):
     """
     Creates a new Tree from the provided sentence.
+
+    Note that an empty sentence will create a Tree with no data and no children.
 
     Args:
         sentence: The sentence to create a Tree representation of.
@@ -65,13 +63,3 @@ def create(sentence):
     root = builder.build()
 
     return root
-
-
-class SentenceTree(Conllable):
-    """
-    A Tree wrapper around a sentence. This type will take in an existing serial
-    sentence, and create a tree representation from it. This type holds both the
-    sentence and the tree representation of the sentence. Note that an empty
-    sentence input will have no data and no children.
-    """
-    pass
