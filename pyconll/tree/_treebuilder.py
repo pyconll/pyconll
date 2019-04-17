@@ -71,7 +71,9 @@ class TreeBuilder:
         try:
             self.current = self.current[i]
         except IndexError as e:
-            raise IndexError('{}-th child is out of range. There are {} children on this node'.format(i, len(self.current))) from e
+            raise IndexError(
+                '{}-th child is out of range. There are {} children on this node'.
+                format(i, len(self.current))) from e
 
     def move_to_root(self):
         """
@@ -114,7 +116,9 @@ class TreeBuilder:
         try:
             del self.current._children[i]
         except IndexError as e:
-            raise IndexError('{}-th child is out of range. There are {} children on this node'.format(i, len(self.current))) from e
+            raise IndexError(
+                '{}-th child is out of range. There are {} children on this node'.
+                format(i, len(self.current))) from e
 
     def add_child(self, data, move=False):
         """
@@ -203,4 +207,5 @@ class TreeBuilder:
             ValueError: If the TreeBuilder's root has not been initialized.
         """
         if self.root is None:
-            raise ValueError('The TreeBuilder has not created a root for the Tree yet')
+            raise ValueError(
+                'The TreeBuilder has not created a root for the Tree yet')
