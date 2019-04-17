@@ -6,6 +6,7 @@ immutable while allowing efficient creation of a new Tree in an easy fluent way.
 
 from pyconll.tree.tree import Tree
 
+
 class TreeBuilder:
     """
     A TreeBuilder is a utility to create arbitary, immutable Trees. TreeBuilder
@@ -151,5 +152,3 @@ class TreeBuilder:
 
         self.root = new_root
         self.current = new_current
-
-
