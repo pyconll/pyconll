@@ -84,7 +84,8 @@ def test_ngram_multiple_multiword_splits():
     """
     c = load_from_file(fixture_location('long.conll'))
 
-    it = find_ngrams(c, 'civile de le territoire non autonome de le Sahara'.split())
+    it = find_ngrams(
+        c, 'civile de le territoire non autonome de le Sahara'.split())
     s, i, tokens = next(it)
 
     actual_token_ids = list(map(lambda token: token.id, tokens))
@@ -120,7 +121,11 @@ def test_ngram_case_insensitive_n_token():
     Test that the case sensitivity function works, when it is the nth token.
     """
     c = load_from_file(fixture_location('long.conll'))
-    s, i, tokens = next(find_ngrams(c, 'l\' orgaNisaTion pour La sécurité et la'.split(), case_sensitive=False))
+    s, i, tokens = next(
+        find_ngrams(
+            c,
+            'l\' orgaNisaTion pour La sécurité et la'.split(),
+            case_sensitive=False))
 
     actual_token_ids = list(map(lambda token: token.id, tokens))
     expected_token_ids = ['9', '10', '11', '12', '13', '14', '15']
