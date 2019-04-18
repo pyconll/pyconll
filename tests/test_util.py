@@ -13,7 +13,8 @@ def test_ngram_standard():
     """
     c = load_from_file(fixture_location('basic.conll'))
 
-    s, i = next(find_ngrams(c, 'un film sur la'.split()))
+    s, i, _ = next(find_ngrams(c, 'un film sur la'.split()))
+
     assert s.id == 'fr-ud-dev_00001'
     assert i == 2
 
@@ -37,7 +38,7 @@ def test_ngram_multiple_per_sentence():
 
 def test_ngram_none():
     """
-    Test that no ngram is identified when no exist
+    Test that no ngram is identified when none exist
     """
     c = load_from_file(fixture_location('long.conll'))
     it = find_ngrams(c, 'cabinet'.split())
@@ -64,18 +65,42 @@ def test_ngram_multiword_split():
     c = load_from_file(fixture_location('long.conll'))
 
     it = find_ngrams(c, 'de " décentrement de le Sujet "'.split())
-    s, i = next(it)
+    s, i, tokens = next(it)
+
+    actual_token_ids = list(map(lambda token: token.id, tokens))
+    expected_token_ids = ['9', '10', '11', '12', '13', '14', '15']
 
     assert s.id == 'fr-ud-test_00002'
     assert i == 8
+    assert actual_token_ids == expected_token_ids
 
     with pytest.raises(StopIteration):
         next(it)
 
 
-def test_ngram_case_insensitive():
+def test_ngram_multiple_multiword_splits():
     """
-    Test that the case sensitivity function works.
+    Test that ngram searches work when they there is more than one multiword token.
+    """
+    c = load_from_file(fixture_location('long.conll'))
+
+    it = find_ngrams(c, 'civile de le territoire non autonome de le Sahara'.split())
+    s, i, tokens = next(it)
+
+    actual_token_ids = list(map(lambda token: token.id, tokens))
+    expected_token_ids = ['10', '11', '12', '13', '14', '15', '16', '17', '18']
+
+    assert s.id == 'fr-ud-test_00003'
+    assert i == 9
+    assert actual_token_ids == expected_token_ids
+
+    with pytest.raises(StopIteration):
+        next(it)
+
+
+def test_ngram_case_insensitive_first_token():
+    """
+    Test that the case sensitivity function works, when it is the first token.
     """
     c = load_from_file(fixture_location('long.conll'))
     results = list(find_ngrams(c, 'Il'.split(), case_sensitive=False))
@@ -88,3 +113,18 @@ def test_ngram_case_insensitive():
 
     assert actual_ids == expected_ids
     assert actual_indices == expected_indices
+
+
+def test_ngram_case_insensitive_n_token():
+    """
+    Test that the case sensitivity function works, when it is the nth token.
+    """
+    c = load_from_file(fixture_location('long.conll'))
+    s, i, tokens = next(find_ngrams(c, 'l\' orgaNisaTion pour La sécurité et la'.split(), case_sensitive=False))
+
+    actual_token_ids = list(map(lambda token: token.id, tokens))
+    expected_token_ids = ['9', '10', '11', '12', '13', '14', '15']
+
+    assert s.id == 'fr-ud-test_00004'
+    assert i == 8
+    assert actual_token_ids == expected_token_ids

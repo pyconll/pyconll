@@ -23,8 +23,10 @@ def find_ngrams(conll, ngram, case_sensitive=True):
             insensitive as the default behavior of python.
 
     Returns:
-        An iterator over the ngrams in the Conll object. The first element is
-        the sentence and the second element is the numeric token index.
+        An iterator of tuples over the ngrams in the Conll object. The first
+        element is the sentence, the second element is the numeric token index,
+        and the last element is the actual list of tokens references from the
+        sentence.
     """
     for sentence in conll:
         i = 0
@@ -37,6 +39,7 @@ def find_ngrams(conll, ngram, case_sensitive=True):
 
             if cased_form == cased_ngram_start and not token.is_multiword():
                 matches = True
+                matched_tokens = [token]
                 multiword_token_offset = 0
 
                 for j, ngram_token in enumerate(
@@ -47,12 +50,17 @@ def find_ngrams(conll, ngram, case_sensitive=True):
                         new_token = sentence[i + j + multiword_token_offset +
                                              1]
 
-                    if new_token.form != ngram_token:
+                    cased_new_token_form, cased_ngram_token = _get_cased(case_sensitive, new_token.form, ngram_token)
+                    if cased_new_token_form != cased_ngram_token:
                         matches = False
+                        matched_tokens.clear()
                         break
+                    else:
+                        matched_tokens.append(new_token)
 
                 if matches:
-                    yield (sentence, i)
+                    yield (sentence, i, matched_tokens)
+                    matched_tokens = []
 
             i += 1
 
@@ -67,8 +75,8 @@ def _get_cased(case_sensitive, *args):
         args: The strings to get appropriately cased versions of.
 
     Returns:
-        A list of case converted strings as necessary.
+        An iterable  of case converted strings as necessary.
     """
     if not case_sensitive:
-        args = map(str.lower, args)
+        args = list(map(str.lower, args))
     return args
