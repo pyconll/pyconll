@@ -50,7 +50,8 @@ def find_ngrams(conll, ngram, case_sensitive=True):
                         new_token = sentence[i + j + multiword_token_offset +
                                              1]
 
-                    cased_new_token_form, cased_ngram_token = _get_cased(case_sensitive, new_token.form, ngram_token)
+                    cased_new_token_form, cased_ngram_token = _get_cased(
+                        case_sensitive, new_token.form, ngram_token)
                     if cased_new_token_form != cased_ngram_token:
                         matches = False
                         matched_tokens.clear()
