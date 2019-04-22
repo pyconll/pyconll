@@ -26,12 +26,15 @@ def find_ngrams(conll, ngram, case_sensitive=True):
         An iterator of tuples over the ngrams in the Conll object. The first
         element is the sentence, the second element is the numeric token index,
         and the last element is the actual list of tokens references from the
-        sentence.
+        sentence. This list does not include any multiword token that were
+        skipped over.
     """
+    matched_tokens = []
+
     for sentence in conll:
         i = 0
 
-        while i < len(sentence):
+        while i <= len(sentence) - len(ngram):
             token = sentence[i]
 
             cased_form, cased_ngram_start = _get_cased(case_sensitive,
@@ -39,16 +42,16 @@ def find_ngrams(conll, ngram, case_sensitive=True):
 
             if cased_form == cased_ngram_start and not token.is_multiword():
                 matches = True
-                matched_tokens = [token]
-                multiword_token_offset = 0
+                matched_tokens.append(token)
+                cur_idx = i
 
-                for j, ngram_token in enumerate(
-                        itertools.islice(ngram, 1, None)):
-                    new_token = sentence[i + j + multiword_token_offset + 1]
+                for ngram_token in itertools.islice(ngram, 1, None):
+                    cur_idx += 1
+                    new_token = sentence[cur_idx]
+
                     if new_token.is_multiword():
-                        multiword_token_offset += 1
-                        new_token = sentence[i + j + multiword_token_offset +
-                                             1]
+                        cur_idx += 1
+                        new_token = sentence[cur_idx]
 
                     cased_new_token_form, cased_ngram_token = _get_cased(
                         case_sensitive, new_token.form, ngram_token)
