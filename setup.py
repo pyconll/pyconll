@@ -30,7 +30,7 @@ setup(
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
     install_requires =[
-        'requests >= 2.20'
+        'requests >= 2.21'
     ],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
