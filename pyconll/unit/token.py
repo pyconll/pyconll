@@ -324,7 +324,7 @@ def _dict_conll_map_formatter(v, v_delimiter):
         sorted_vs = sorted(v, key=str.lower)
         str_vs = v_delimiter.join(sorted_vs)
     else:
-        error_msg = 'There are no values to format'
+        error_msg = 'There are no values to format.'
         raise FormatError(error_msg)
 
     return str_vs
