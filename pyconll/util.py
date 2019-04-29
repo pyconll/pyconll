@@ -19,7 +19,8 @@ def find_ngrams(conll, ngram, case_sensitive=True):
         sentence: The sentence in which to search for the ngram.
         ngram: The ngram to search for. A random access iterator.
         case_sensitive: Flag to indicate if the ngram search should be case
-            sensitive.
+            sensitive. The case insensitive comparison currently is locale
+            insensitive as the default behavior of python.
 
     Returns:
         An iterator over the ngrams in the Conll object. The first element is
@@ -69,5 +70,5 @@ def _get_cased(case_sensitive, *args):
         A list of case converted strings as necessary.
     """
     if not case_sensitive:
-        args = map(lambda s: s.lower(), args)
+        args = map(str.lower, args)
     return args
