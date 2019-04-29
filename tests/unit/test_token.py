@@ -416,3 +416,30 @@ def test_no_empty_deps():
 
     with pytest.raises(ParseError):
         token = Token(token_line)
+
+
+def test_feats_keep_case_insensitive_order():
+    """
+    Test that the features are kept sorted via case insensitive attributes.
+    """
+    token_line = '10	gave	give	VERB	_	gender=Fem|Number=Sing	' \
+        '0	root	_	SpaceAfter=No'
+    token = Token(token_line)
+    conll = token.conll()
+
+    assert conll == token_line
+
+
+def test_feats_induce_case_insensitive_order():
+    """
+    Test that case insensitive sorting of feature attributes is induced.
+    """
+    token_line = '10	gave	give	VERB	_	Number=Sing|gender=Fem	' \
+        '0	root	_	SpaceAfter=No'
+    token = Token(token_line)
+    conll = token.conll()
+
+    formatted_line = '10	gave	give	VERB	_	gender=Fem|Number=Sing	' \
+        '0	root	_	SpaceAfter=No'
+
+    assert conll == formatted_line
