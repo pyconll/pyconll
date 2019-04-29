@@ -3,11 +3,11 @@ astroid==2.0.4
 atomicwrites==1.1.5
 attrs==18.1.0
 Babel==2.6.0
-certifi==2018.4.16
+certifi==2019.3.9
 chardet==3.0.4
 cookies==2.2.1
 docutils==0.14
-idna==2.7
+idna==2.8
 imagesize==1.0.0
 isort==4.3.4
 Jinja2==2.10.1
@@ -25,7 +25,7 @@ pylint==2.1.1
 pyparsing==2.2.0
 pytest==3.6.0
 pytz==2018.5
-requests==2.20.1
+requests==2.21.0
 requests-toolbelt==0.8.0
 responses==0.9.0
 six==1.11.0
@@ -36,6 +36,6 @@ sphinxcontrib-websupport==1.1.0
 tqdm==4.23.4
 twine==1.11.0
 typed-ast==1.1.0
-urllib3==1.25
+urllib3==1.24.2
 wrapt==1.10.11
 yapf==0.22.0
