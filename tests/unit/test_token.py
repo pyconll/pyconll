@@ -443,3 +443,35 @@ def test_feats_induce_case_insensitive_order():
         '0	root	_	SpaceAfter=No'
 
     assert conll == formatted_line
+
+
+def test_deps_sort_order():
+    """
+    Test that the enhanced dependencies order is properly sorted.
+    """
+    token_line = '10	gave	give	VERB	_	Number=Sing|Gender=Fem	' \
+            '0	root	4:nsubj|2:nmod	SpaceAfter=No'
+
+    token = Token(token_line)
+    conll = token.conll()
+
+    formatted_line = '10	gave	give	VERB	_	Gender=Fem|Number=Sing	' \
+            '0	root	2:nmod|4:nsubj	SpaceAfter=No'
+
+    assert conll == formatted_line
+
+
+def test_deps_sort_order_double_digits():
+    """
+    Test that enhanced dependencies are sorted via numeric index and not string.
+    """
+    token_line = '10	gave	give	VERB	_	Number=Sing|Gender=Fem	' \
+            '0	root	10:nsubj|2:nmod	SpaceAfter=No'
+
+    token = Token(token_line)
+    conll = token.conll()
+
+    formatted_line = '10	gave	give	VERB	_	Gender=Fem|Number=Sing	' \
+            '0	root	2:nmod|10:nsubj	SpaceAfter=No'
+
+    assert conll == formatted_line

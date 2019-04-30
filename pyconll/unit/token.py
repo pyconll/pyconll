@@ -2,8 +2,6 @@
 Defines the Token type and the associated parsing and output logic.
 """
 
-import operator
-
 from pyconll.conllable import Conllable
 from pyconll.exception import ParseError, FormatError
 
@@ -330,7 +328,7 @@ def _dict_conll_map_formatter(v, v_delimiter):
     return str_vs
 
 
-def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
+def _dict_conll_map(values, empty, delim, av_separator, v_delimiter, av_key):
     """
     Map a dict whose attributes can have multiple values to CoNLL-U format.
 
@@ -344,12 +342,14 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter):
         delim: The delimiter between components in the output.
         av_separator: The attribute-value separator in the provided string.
         v_delimiter: The delimiter between values in attribute-value pairs.
+        av_key: The key for attribute-value pairs ordering, on output.
 
     Returns:
         The CoNLL-U format as a string.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_conll_map_formatter)
+                                  v_delimiter, _dict_conll_map_formatter,
+                                  av_key)
 
 
 def _dict_singleton_conll_formatter(v, _):
@@ -390,7 +390,8 @@ def _dict_singleton_conll_map(values, empty, delim, av_separator):
         FormatError: If there is an error formatting the values as singletons.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator, None,
-                                  _dict_singleton_conll_formatter)
+                                  _dict_singleton_conll_formatter,
+                                  lambda attr: attr)
 
 
 def _dict_tupled_conll_formatter(v, v_delimiter):
@@ -416,7 +417,8 @@ def _dict_tupled_conll_formatter(v, v_delimiter):
     return form
 
 
-def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter):
+def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter,
+                           av_key):
     """
     Map a dict whose components are max length tuples to a CoNLL format.
 
@@ -426,6 +428,7 @@ def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter):
         delim: The delimiter between attribute-value pairs.
         av_separator: The separator between the attribute and value.
         v_delimiter: The delimiter between values of the same attribute.
+        av_key: The ordering for the attribute-value pairs, on output.
 
     Returns:
         The CoNLL formatted equivalent to the provided value as a tupled column.
@@ -434,7 +437,8 @@ def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter):
         FormatError: If there was an error converting a tuple to a CoNLL format.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_tupled_conll_formatter)
+                                  v_delimiter, _dict_tupled_conll_formatter,
+                                  av_key)
 
 
 def _dict_mixed_conll_formatter(v, v_delimiter):
@@ -457,7 +461,8 @@ def _dict_mixed_conll_formatter(v, v_delimiter):
     return str_vs
 
 
-def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
+def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter,
+                          av_key):
     """
     Map a dict whose components can be mixed to a CoNLL-U format.
 
@@ -468,16 +473,18 @@ def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter):
         av_separator: The separator between attribute and value.
         v_delimiter: The delimiter between values of the same attribute if
             necessary.
+        av_key: The ordering for the attribute-value pairs, on output.
 
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
     return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_mixed_conll_formatter)
+                                  v_delimiter, _dict_mixed_conll_formatter,
+                                  av_key)
 
 
 def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           formatter):
+                           formatter, av_key):
     """
     Helper to map dicts to CoNLL-U format equivalents.
 
@@ -493,6 +500,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
             representation, and a value delimiter, and output a string
             representation. It should also output None to mean there is no
             string representation.
+        av_key: The sorting key for the attribute-value pairs on output.
 
     Returns:
         The CoNLL-U formatted equivalent to the value.
@@ -508,7 +516,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     if values == {}:
         return empty
 
-    sorted_av_pairs = sorted(values.items(), key=operator.itemgetter(0))
+    sorted_av_pairs = sorted(values.items(), key=av_key)
     formatted = map(paramed, sorted_av_pairs)
     output = delim.join([av_separator.join(form) for form in formatted])
 
@@ -546,6 +554,12 @@ class Token(Conllable):
     V_DELIMITER = ','
     V_DEPS_DELIMITER = ':'
     EMPTY = '_'
+
+    # Keys for sorting attribute-value columns. BY_ID converts the attribute
+    # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
+    # converts the pair to the lowercase version of the atribute.
+    BY_ID = lambda pair: int(pair[0])
+    BY_CASE_INSENSITIVE = lambda pair: pair[0].lower()
 
     def __init__(self, source, empty=False, _line_number=None):
         """
@@ -657,15 +671,15 @@ class Token(Conllable):
         xpos = _unit_conll_map(self.xpos, Token.EMPTY)
         feats = _dict_conll_map(self.feats, Token.EMPTY,
                                 Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
-                                Token.V_DELIMITER)
+                                Token.V_DELIMITER, Token.BY_CASE_INSENSITIVE)
         head = _unit_conll_map(self.head, Token.EMPTY)
         deprel = _unit_conll_map(self.deprel, Token.EMPTY)
         deps = _dict_tupled_conll_map(
             self.deps, Token.EMPTY, Token.COMPONENT_DELIMITER,
-            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER)
-        misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
-                                     Token.COMPONENT_DELIMITER,
-                                     Token.AV_SEPARATOR, Token.V_DELIMITER)
+            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, Token.BY_ID)
+        misc = _dict_mixed_conll_map(
+            self.misc, Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR, Token.V_DELIMITER, Token.BY_CASE_INSENSITIVE)
 
         items = [
             token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc
