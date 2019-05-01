@@ -3,6 +3,8 @@ import pytest
 from pyconll.tree.tree import Tree
 from pyconll.tree._treebuilder import TreeBuilder
 
+from tests.tree.util import assert_tree_structure
+
 
 def test_minimal_tree_creation():
     """
@@ -197,3 +199,24 @@ def test_cannot_remove_out_of_range():
 
     with pytest.raises(IndexError):
         builder.remove_child(5)
+
+
+def test_on_copy_not_on_root():
+    """
+    Test that the current pointer is relatively correct after a copy operation.
+    """
+    builder = TreeBuilder()
+    builder.create_root(0)
+    builder.add_child(5)
+    builder.add_child(6, move=True)
+
+    _ = builder.build()
+    builder.add_child(7)
+
+    t = builder.build()
+    assert_tree_structure(t, {
+        (): 0,
+        (0, ): 5,
+        (1, ): 6,
+        (1, 0): 7
+    })
