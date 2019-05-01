@@ -11,10 +11,10 @@ from pyconll.conllable import Conllable
 class Conll(MutableSequence, Conllable):
     """
     The abstraction for a CoNLL-U file. A CoNLL-U file is more or less just a
-    collection of sentences in order. These sentences can be accessed by
-    sentence id or by numeric index. Note that sentences must be separated by
-    whitespace. CoNLL-U also specifies that the file must end in a new line but
-    that requirement is relaxed here in parsing.
+    collection of sentences in order. These sentences are accessed by numeric
+    index. Note that sentences must be separated by whitespace. CoNLL-U also
+    specifies that the file must end in a new line but that requirement is
+    relaxed here in parsing.
     """
 
     def __init__(self, it):
@@ -42,9 +42,7 @@ class Conll(MutableSequence, Conllable):
         """
         # Add newlines along with sentence strings so that there is no need to
         # slice potentially long lists or modify strings.
-        components = []
-        for sentence in self._sentences:
-            components.append(sentence.conll())
+        components = list(map(lambda sent: sent.conll(), self._sentences))
         components.append('')
 
         return '\n\n'.join(components)
@@ -54,7 +52,7 @@ class Conll(MutableSequence, Conllable):
         Write the Conll object to something that is writable.
 
         For simply writing, this method is more efficient than calling conll
-        then writing since no string of the entire Conll object is created. The
+        than writing since no string of the entire Conll object is created. The
         final output will include a final newline.
 
         Args:
@@ -128,7 +126,7 @@ class Conll(MutableSequence, Conllable):
 
             return sliced_conll
 
-        raise TypeError('Conll indices must be ints or slices, not str')
+        raise TypeError('Conll indices must be ints or slices.')
 
     def __setitem__(self, key, sent):
         """
