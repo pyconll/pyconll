@@ -40,10 +40,6 @@ class Sentence(Conllable):
 
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
-    NEWPAR_ID_KEY = 'newpar id'
-    NEWDOC_ID_KEY = 'newdoc id'
-    NEWPAR_KEY = 'newpar'
-    NEWDOC_KEY = 'newdoc'
 
     def __init__(self, source, _start_line_number=None):
         """
@@ -100,9 +96,6 @@ class Sentence(Conllable):
                     if token.id is not None:
                         self._ids_to_indexes[token.id] = len(self._tokens) - 1
 
-        self._doc_id = self._meta.get(Sentence.NEWDOC_ID_KEY, None)
-        self._par_id = self._meta.get(Sentence.NEWPAR_ID_KEY, None)
-
     @property
     def id(self):
         """
@@ -139,26 +132,6 @@ class Sentence(Conllable):
             return self._meta[Sentence.TEXT_KEY]
         except KeyError:
             return None
-
-    @property
-    def par_id(self):
-        """
-        Get the paragraph id associated with this Sentence. Read-only.
-
-        Returns:
-            The paragraph id or None if no id is associated.
-        """
-        return self._par_id
-
-    @property
-    def doc_id(self):
-        """
-        Get the document id associated with this Sentence. Read-only.
-
-        Returns:
-            The document id or None if no id is associated.
-        """
-        return self._doc_id
 
     def meta_value(self, key):
         """
@@ -338,21 +311,3 @@ class Sentence(Conllable):
             includes both all the multiword tokens and their decompositions.
         """
         return len(self._tokens)
-
-    def _set_par_id(self, new_par_id):
-        """
-        Set the sentence's paragraph id. For internal use.
-
-        Args:
-            new_par_id: The new paragraph id of this sentence.
-        """
-        self._par_id = new_par_id
-
-    def _set_doc_id(self, new_doc_id):
-        """
-        Set the sentence's document id. For internal use.
-
-        Args:
-            new_doc_id: The new document id of this sentence.
-        """
-        self._doc_id = new_doc_id
