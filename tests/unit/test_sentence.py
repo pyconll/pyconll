@@ -991,12 +991,13 @@ def test_to_tree_standard_sentence():
     sentence = Sentence(source)
     st = sentence.to_tree()
 
-    assert_tree_structure(st, {
-        (): sentence[2],
-        (0, ): sentence[0],
-        (1, ): sentence[1],
-        (2, ): sentence[3]
-    })
+    assert_tree_structure(
+        st, {
+            (): sentence[2],
+            (0, ): sentence[0],
+            (1, ): sentence[1],
+            (2, ): sentence[3]
+        })
 
 
 def test_to_tree_multi_level():

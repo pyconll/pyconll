@@ -2,6 +2,7 @@
 Module for helping test Token related functionality.
 """
 
+
 def assert_token_members(token, id, form, lemma, upos, xpos, feats, head,
                          deprel, deps, misc):
     """
