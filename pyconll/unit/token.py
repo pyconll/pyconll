@@ -67,53 +67,6 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
                                   v_delimiter, _dict_empty_map_parser)
 
 
-def _dict_singleton_empty_parser(v, _):
-    """
-    Map a value into the appropriate form, for a singleton based column.
-
-    Args:
-        v: The raw string value parsed from a column.
-        _: The delimiter between components of the value. Not used.
-
-    Returns:
-        The parsed value.
-
-    Raises:
-        ParseError: If there was an error parsing the value. This happens when
-            the value is None.
-    """
-    if v is not None:
-        return v
-
-    error_msg = ('Error parsing "{}" as singleton properly. Please check'
-                 'against CoNLL format spec.').format(v)
-    raise ParseError(error_msg)
-
-
-def _dict_singleton_empty_map(values, empty, delim, av_separator):
-    """
-    Map dict based values for CoNLL-U columns to dict with singleton values.
-
-    Args:
-        values: The value to parse.
-        empty: The empty representation for this value in CoNLL-U format.
-        delim: The delimiter between components in the value.
-        av_separator: The separator between attribute and value in each
-            component.
-
-    Returns:
-        An empty dict if values is empty. Otherwise, a dict of key-value pairs
-        where the values are singletons. Singletons are defined as length capped
-        tuples or as strings.
-
-    Raises:
-        ParseError: If the dict format was unable to parsed because there is an
-            item with no corresponding value.
-    """
-    return _dict_empty_map_helper(values, empty, delim, av_separator, None,
-                                  _dict_singleton_empty_parser)
-
-
 def _create_dict_tupled_empty_parse(size, strict):
     """
     Parameterized creation of a parser for tupled values.
@@ -350,48 +303,6 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter, av_key):
     return _dict_conll_map_helper(values, empty, delim, av_separator,
                                   v_delimiter, _dict_conll_map_formatter,
                                   av_key)
-
-
-def _dict_singleton_conll_formatter(v, _):
-    """
-    Identity function to realize a string representation from a singleton value.
-
-    Args:
-        v: The value.
-        _: The delimiter between the values in a string representation.
-
-    Returns:
-        The value passed in as a singleton.
-
-    Raises:
-        FormatError: If the value is None, since singleton keys must have a value.
-    """
-    if v is not None:
-        return v
-
-    error_msg = 'Singleton value cannot be None'
-    raise FormatError(error_msg)
-
-
-def _dict_singleton_conll_map(values, empty, delim, av_separator):
-    """
-    Map a dict whose attributes can only have one value to CoNLL-U format.
-
-    Args:
-        values: The dict to convert to CoNLL-U format.
-        empty: The empty CoNLL-U representation for this value.
-        delim: The delimiter between attribute-value pairs.
-        av_separator: The separator between attribute and value.
-
-    Returns:
-        The CoNLL-U formatted equivalent to the value.
-
-    Raises:
-        FormatError: If there is an error formatting the values as singletons.
-    """
-    return _dict_conll_map_helper(values, empty, delim, av_separator, None,
-                                  _dict_singleton_conll_formatter,
-                                  lambda attr: attr)
 
 
 def _dict_tupled_conll_formatter(v, v_delimiter):
