@@ -51,19 +51,19 @@ Code Snippet
 
 .. code:: python
 
+    # This snippet finds what lemmas are marked as AUX which is closed class in UD
     import pyconll
 
     UD_ENGLISH_TRAIN = './ud/train.conll'
 
     train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
 
+    aux_lemmas = set()
     for sentence in train:
         for token in sentence:
-            # Do work here.
-            if token.form == 'Spain':
-                token.upos = 'PROPN'
+            aux_lemmas.add(token.lemma)
 
-More examples can be found in the ``examples`` folder.
+More advanced examples can be found in the ``examples`` folder.
 
 Uses and Limitations
 ~~~~~~~~~~~~~~~~~~~~
