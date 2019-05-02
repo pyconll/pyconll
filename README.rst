@@ -99,14 +99,16 @@ https://pyconll.readthedocs.io/. Examples can be found in the
 Contributing
 ~~~~~~~~~~~~
 
-If you would like to contribute to this project you know the drill.
-Either create an issue and wait for me to repond and fix it or ignore
-it, or create a pull request or both. When cloning this repo, please run
-``make hooks`` and ``pip install -r requirements.txt`` to properly setup
-the repo. ``make hooks`` setups up the pre-push hook, which ensures the
-code you push is formatted according to the default YAPF style.
-``pip install -r requirements.txt`` simply sets up the environment with
-dependencies like ``yapf``, ``twine``, ``sphinx``, and so on.
+Contributions to this project are welcome and encouraged! If you are
+unsure how to contribute,
+`here <https://help.github.com/en/articles/creating-a-pull-request-from-a-fork>`__
+is a guide from Github explaining the basic workflow. After cloning this
+repo, please run ``make hooks`` and ``pip install -r requirements.txt``
+to properly setup. ``make hooks`` setups up a pre-push hook to validate
+that code matches the default YAPF style. While this is technically
+optional, it is highly encouraged. ``pip install -r requirements.txt``
+simply sets up the environment with dependencies like ``yapf``,
+``twine``, ``sphinx``, and so on.
 
 README and CHANGELOG
 ^^^^^^^^^^^^^^^^^^^^
