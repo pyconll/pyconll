@@ -17,30 +17,30 @@ The current version is 2.0. This version is fully functional, stable, tested, do
 
 This tool is intended to be **minimal**, **low level**, and **functional** library in a widely used programming language.
 
-There is a dissapointing lack of low level APIs for working with the  Universal Dependencies project. Current tooling focuses on graph transformations and DSLs for automated manipulation of CoNLL-U files. [Grew](http://grew.fr/) is a very powerful and productive tool, but there are limits to what its DSL can represent. [Treex](http://ufal.mff.cuni.cz/treex) is similar to Grew in this regard. On the other hand, [CL-CoNLLU](https://github.com/own-pt/cl-conllu/) is simple and low level, but its Common Lisp implementation reduces some of its functionality with other NLP projects. [UDAPI](http://udapi.github.io/)'s python API may fit the bill, but it is very large and difficult to get started with. So, ``pyconll`` creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular language that can be used as building block in a complex system or the engine in small one off scripts.
+There is a dissapointing lack of low level APIs for working with the  Universal Dependencies project. Current tooling focuses on graph transformations and DSLs for automated manipulation of CoNLL-U files. [Grew](http://grew.fr/) is a very powerful and productive tool, but there are limits to what its DSL can represent. [Treex](http://ufal.mff.cuni.cz/treex) is similar to Grew in this regard. On the other hand, [CL-CoNLLU](https://github.com/own-pt/cl-conllu/) is simple and low level, but its Common Lisp implementation reduces some of its functionality with other NLP projects. [UDAPI](http://udapi.github.io/)'s python API may fit the bill, but it is very large and difficult to get started with. So, `pyconll` creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular language that can be used as building block in a complex system or the engine in small one off scripts.
 
 Other useful tools can be found on the Universal Dependencies [website](https://universaldependencies.org/tools.html).
 
-Hopefully, individual researchers will find use in this project, and will use it as a building block for more popular tools. By using ``pyconll``, researchers gain a standardized and feature rich base on which they can build larger projects and without worrying about CoNLL annotation and output.
+Hopefully, individual researchers will find use in this project, and will use it as a building block for more popular tools. By using `pyconll`, researchers gain a standardized and feature rich base on which they can build larger projects and without worrying about CoNLL annotation and output.
 
 
 ### Code Snippet
 
 ```python
+# This snippet finds what lemmas are marked as AUX which is closed class in UD
 import pyconll
 
 UD_ENGLISH_TRAIN = './ud/train.conll'
 
 train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
 
+aux_lemmas = set()
 for sentence in train:
     for token in sentence:
-        # Do work here.
-        if token.form == 'Spain':
-            token.upos = 'PROPN'
+        aux_lemmas.add(token.lemma)
 ```
 
-More examples can be found in the `examples` folder.
+More advanced examples can be found in the `examples` folder.
 
 
 ### Uses and Limitations
