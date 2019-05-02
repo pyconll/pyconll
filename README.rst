@@ -4,9 +4,9 @@ pyconll
 -------
 
 *Easily work with **CoNLL** files using the familiar syntax of
-**python**.*
+**python**. *
 
-The current version is 2.0. This version is fully functional, stable,
+The current version is 2.0.0. This version is fully functional, stable,
 tested, documented, and actively developed.
 
 Links

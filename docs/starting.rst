@@ -4,14 +4,14 @@ Getting Started
 Overview
 ----------------------------------
 
-``pyconll`` is a low level wrapper around the CoNLL-U format. Getting started should be straight forward using a python 3 environment. This document will explain how to quickly get started loading and manipulating CoNLL-U files using this format. This document will go through a typical end-to-end example.
+``pyconll`` is a low level wrapper around the CoNLL-U format. This document explains how to quickly get started loading and manipulating CoNLL-U files within ``pyconll``, and will go through a typical end-to-end scenario.
 
 To install the library simply run, ``pip install pyconll``. This is all you need to start using the library on your local python enlistment.
 
 Loading CoNLL-U
 ----------------------------------
 
-The first thing that needs to be done is load a CoNLL-U resource. ``pyconll`` allows for loading of resources of different kinds, such as files, network files, strings, and ``Sentence`` iterables. More specific information can be found in the load module documentation. Below is the typical example of loading a file on the local computer
+To start, a CoNLL-U resource must be loaded, and ``pyconll`` can load from files, urls, and strings. Specific API information can be found in the # TODO:LINK load module documentation. Below is a typical example of loading a file on the local computer.
 
 
 .. code:: python
@@ -21,12 +21,12 @@ The first thing that needs to be done is load a CoNLL-U resource. ``pyconll`` al
     my_conll_file_location = './ud/train.conll'
     train = pyconll.load_from_file(my_conll_file_location)
 
-All loading methods provide back a ``Conll`` object, except for the methods that return a ``Sentence`` iterator.
+Loading methods usually return a ``Conll`` object, but some methods return an iterator over ``Sentences`` and do not load the entire ``Conll`` object into memory at once.
 
 Traversing CoNLL-U
 ----------------------------------
 
-After loading a CoNLL-U file the next step would be to traverse through the contents of the CoNLL-U object. This can be done at the ``Sentence`` level, and from there, at the ``Token`` level. During traversal, statistics may be computed, sentences transformed, etc. Here is what traversal looks like.
+After loading a CoNLL-U file, we can traverse the CoNLL-U structure; ``Conll`` objects wrap ``Sentences`` and ``Sentences`` wrap ``Token``. Here is what traversal normally looks like.
 
 .. code:: python
 
@@ -35,7 +35,7 @@ After loading a CoNLL-U file the next step would be to traverse through the cont
             # Do work within loops
             pass
 
-Statistics that may be computed include lemma occurrences for a certain POS, especially for closed class POS, or checking for the presence of sentence end punctuation that does not attach to the sentence root. As an abstract example, we have defined some predicate, ``sentence_pred``, and some transformation of noun tokens, ``noun_token_transformation``. If we wish to transform all nouns in sentences that match our predicate, we can write the following.
+Statistics such as lemmas for a certain closed class POS or number of non-projective punctuation dependencies can be computed through these loops. As an abstract example, we have defined some predicate, ``sentence_pred``, and some transformation of noun tokens, ``noun_token_transformation``, and  we wish to transform all nouns in sentences that match our predicate, we can write the following.
 
 .. code:: python
 
@@ -45,15 +45,15 @@ Statistics that may be computed include lemma occurrences for a certain POS, esp
                 if token.pos == 'NOUN':
                     noun_token_transformation(token)
 
-Note that Conll objects in general in ``pyconll`` are mutable, except for a select few fields, and so the ``Token`` objects seen while traversing are the same ``Token`` objects that are in the ``Sentence``, and any changes will be reflected in both code paths.
+Note that most objects in ``pyconll`` are mutable, except for a select few fields, so changing the ``Token`` object remains with the ``Sentence``.
 
 Outputting CoNLL-U
 ----------------------------------
 
-Finally, once you are done transforming a ``Conll`` object, the object can be serialized back into the CoNLL-U format. Following our example, this is done through, ``train.conll()``. ``Conll``, ``Sentence``, and ``Token`` objects are all ``Conllable`` which means they have a corresponding ``conll`` method which serializes the objects contents appropriately according to the CoNLL-U format.
+Once you are done working with a ``Conll`` object, you may need to output your results. The object can be serialized back into the CoNLL-U format, through the ``conll`` method. ``Conll``, ``Sentence``, and ``Token`` objects are all ``Conllable`` which means they have a corresponding ``conll`` method which serializes the objects into the appropriate string representation.
 
 
 Conclusion
 ----------------------------------
 
-``pyconll`` allows for easy CoNLL-U loading, traversal, and serialization. Developers still need to define their own logic for linguistic interpretation of the data in the CoNLL-U format, but working with the format is much more pleasing if you can worry about less. There are still some parts of the library that are not covered here such as ``SentenceTree``, loading files from network, and error handling, but this information get developers through the most important use cases.
+``pyconll`` allows for easy CoNLL-U loading, traversal, and serialization. Developers can define their own transformation or analysis of the loaded CoNLL-U data, and pyconll handles all the parsing and serialization logic. There are still some parts of the library that are not covered here such as the ``Tree`` data structure, loading files from network, and error handling, but the information on this page will get developers through the most important use cases.
