@@ -1,5 +1,7 @@
 """
-Defines the Token type and the associated parsing and output logic.
+Defines the Token type and parsing and output logic. A Token is the based unit
+in CoNLL-U and so the data and parsing in this module is central to the CoNLL-U
+format.
 """
 
 from pyconll.conllable import Conllable
@@ -474,34 +476,34 @@ class Token(Conllable):
 
     def __init__(self, source, empty=False, _line_number=None):
         """
-        Construct the token from the given source.
+        Construct a Token from the given source line.
 
-        A Token line must end in an an LF line break according to the
-        specification. However, this method will accept a line with or without
-        this ending line break.
+        A Token line ends in an an LF line break according to the CoNLL-U
+        specification. However, this method accepts a line with or without the
+        LF line break.
 
-        Further, a '_' that appears in the form and lemma is ambiguous and can
-        either refer to an empty value or an actual underscore. So the flag
-        empty_form allows for control over this if it is known from outside
-        information. If, the token is a multiword token, all fields except for
-        form should be empty.
+        On parsing, a '_' in the form and lemma is ambiguous and either refers
+        to an empty value or to an actual underscore. The empty parameter flag
+        controls how this situation should be handled.
 
-        Note that no validation is done on input. Valid input will be processed
-        properly, but there is no guarantee as to invalid input that does not
-        follow the CoNLL-U specifications.
+        This method also guarantees properly processing valid input, but invalid
+        input may not be parsed properly. Some inputs that do not follow the
+        CoNLL-U specification may still be parsed properly and as expected. So
+        proper parsing is not an indication of validity.
 
         Args:
             line: The line that represents the Token in CoNLL-U format.
-            empty: A flag to signify if the word form and lemma can be assumed
-                to be empty and not the token signifying empty. Only if both the
-                form and lemma are both the same token as empty and there is no
-                empty assumption, will they not be assigned to None.
-            _line_number: The line number for this Token in a CoNLL-U file. For
-                internal use mostly.
+            empty: A flag to control if the word form and lemma can be assumed
+                to be empty and not the token signifying empty. If both the form
+                and lemma are underscores and empty is set to False (there is no
+                empty assumption), then the form and lemma will be underscores
+                rather than None.
+            _line_number: The Token's line number within a loaded CoNLL-U file.
+                For internal use only.
 
         Raises:
-            ParseError: If the provided source is not composed of 10 tab
-                separated columns.
+            ParseError: On various parsing errors, such as not enough columns or
+                improper column values.
         """
         if source[-1] == '\n':
             source = source[:-1]
@@ -548,16 +550,16 @@ class Token(Conllable):
     @property
     def form(self):
         """
-        Provide the word form of this Token. This property makes it readonly.
+        Provide the word form of this Token. This property is read only.
 
         Returns:
-            The Token wordform.
+            The Token form.
         """
         return self._form
 
     def is_multiword(self):
         """
-        Checks if this token is a multiword token.
+        Checks if this Token is a multiword token.
 
         Returns:
             True if this token is a multiword token, and False otherwise.
@@ -566,12 +568,13 @@ class Token(Conllable):
 
     def conll(self):
         """
-        Convert Token to the CoNLL-U representation.
+        Convert this Token to its CoNLL-U representation.
 
-        Note that this does not include a newline at the end.
+        A Token's CoNLL-U representation is a line. Note that this method does
+        not include a newline at the end.
 
         Returns:
-            A string representing the token as a line in a CoNLL-U file.
+            A string representing the Token in CoNLL-U format.
         """
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.
