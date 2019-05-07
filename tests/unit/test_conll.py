@@ -294,37 +294,6 @@ def test_contains_non_existent_id():
     assert sentence not in conll
 
 
-def test_sentence_line_numbers():
-    """
-    Test that the CoNLL files properly associate line numbers.
-    """
-    sentence_bounds = [(1, 12), (14, 29), (31, 41), (43, 96)]
-
-    with open(fixture_location('basic.conll')) as f:
-        c = Conll(f)
-
-    for i, sent in enumerate(c):
-        cur_bounds = sentence_bounds[i]
-        assert sent.start_line_number == cur_bounds[0]
-        assert sent.end_line_number == cur_bounds[1]
-
-
-def test_sentence_line_numbers_extra_newlines():
-    """
-    Test that the CoNLL files properly read in the sentence lines when there
-    are extra newlines.
-    """
-    sentence_bounds = [(3, 14), (16, 31), (34, 44), (46, 99)]
-
-    with open(fixture_location('many_newlines.conll')) as f:
-        c = Conll(f)
-
-    for i, sent in enumerate(c):
-        cur_bounds = sentence_bounds[i]
-        assert sent.start_line_number == cur_bounds[0]
-        assert sent.end_line_number == cur_bounds[1]
-
-
 def test_setitem():
     """
     Test that Sentences are properly assigned when using setitem.

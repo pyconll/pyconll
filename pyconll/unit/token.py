@@ -474,7 +474,7 @@ class Token(Conllable):
     BY_ID = lambda pair: int(pair[0])
     BY_CASE_INSENSITIVE = lambda pair: pair[0].lower()
 
-    def __init__(self, source, empty=False, _line_number=None):
+    def __init__(self, source, empty=False):
         """
         Construct a Token from the given source line.
 
@@ -498,8 +498,6 @@ class Token(Conllable):
                 and lemma are underscores and empty is set to False (there is no
                 empty assumption), then the form and lemma will be underscores
                 rather than None.
-            _line_number: The Token's line number within a loaded CoNLL-U file.
-                For internal use only.
 
         Raises:
             ParseError: On various parsing errors, such as not enough columns or
@@ -508,8 +506,6 @@ class Token(Conllable):
         if source[-1] == '\n':
             source = source[:-1]
         self._source = source
-
-        self.line_number = _line_number
 
         fields = source.split(Token.FIELD_DELIMITER)
         self._fields = fields
