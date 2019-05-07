@@ -4,7 +4,7 @@ pyconll
 -------
 
 *Easily work with **CoNLL** files using the familiar syntax of
-**python**. *
+**python**.*
 
 The current version is 2.0.0. This version is fully functional, stable,
 tested, documented, and actively developed.
@@ -15,27 +15,39 @@ Links
 -  `Homepage <https://pyconll.github.io>`__
 -  `Documentation <https://pyconll.readthedocs.io/>`__
 
+Installation
+~~~~~~~~~~~~
+
+As with most python packages, simply use ``pip`` to install from PyPi.
+
+::
+
+    pip install pyconll
+
+This package is designed for, and only tested with python 3.4 and up and
+will not be backported to python 2.x.
+
 Motivation
 ~~~~~~~~~~
 
-This tool is intended to be **minimal**, **low level**, and
+This tool is intended to be a **minimal**, **low level**, and
 **functional** library in a widely used programming language.
+``pyconll`` creates a thin API on top of raw CoNLL annotations that is
+simple and intuitive in a popular language that can be used as building
+block in a complex system or the engine in small one off scripts.
 
-There is a dissapointing lack of low level APIs for working with the
-Universal Dependencies project. Current tooling focuses on graph
-transformations and DSLs for automated manipulation of CoNLL-U files.
-`Grew <http://grew.fr/>`__ is a very powerful and productive tool, but
-there are limits to what its DSL can represent.
-`Treex <http://ufal.mff.cuni.cz/treex>`__ is similar to Grew in this
-regard. On the other hand,
+After working with the UD project, I realized there is a dissapointing
+lack of low level APIs for working with the Universal Dependencies
+project. Current tooling focuses on graph transformations and DSLs for
+automated manipulation of CoNLL-U files. Tools such as
+`Grew <http://grew.fr/>`__ and `Treex <http://ufal.mff.cuni.cz/treex>`__
+are very powerful and productive, but have a learning curve and are
+limited in what their DSL's can represent. On the other hand,
 `CL-CoNLLU <https://github.com/own-pt/cl-conllu/>`__ is simple and low
-level, but its Common Lisp implementation reduces some of its
-functionality with other NLP projects.
-`UDAPI <http://udapi.github.io/>`__'s python API may fit the bill, but
-it is very large and difficult to get started with. So, ``pyconll``
-creates a thin API on top of raw CoNLL annotations that is simple and
-intuitive in a popular language that can be used as building block in a
-complex system or the engine in small one off scripts.
+level, but Common Lisp is not widely used in NLP.
+`UDAPI <http://udapi.github.io/>`__ is in python but it is very large
+and how little guidance on usage. ``pyconll`` attempts to fill in the
+gap between what these other projects have accomplished.
 
 Other useful tools can be found on the Universal Dependencies
 `website <https://universaldependencies.org/tools.html>`__.
@@ -44,14 +56,14 @@ Hopefully, individual researchers will find use in this project, and
 will use it as a building block for more popular tools. By using
 ``pyconll``, researchers gain a standardized and feature rich base on
 which they can build larger projects and without worrying about CoNLL
-annotation and output.
+annotation and output. ``pyconll``
 
 Code Snippet
 ~~~~~~~~~~~~
 
 .. code:: python
 
-    # This snippet finds what lemmas are marked as AUX which is closed class in UD
+    # This snippet finds what lemmas are marked as AUX which is a closed class POS in UD
     import pyconll
 
     UD_ENGLISH_TRAIN = './ud/train.conll'
@@ -63,61 +75,38 @@ Code Snippet
         for token in sentence:
             aux_lemmas.add(token.lemma)
 
-More advanced examples can be found in the ``examples`` folder.
-
 Uses and Limitations
 ~~~~~~~~~~~~~~~~~~~~
 
-This package can edit CoNLL-U file annotations. Note that this does not
-include the actual text that is annotated. For this reason, word forms
-for Tokens are not editable and Sentence Tokens cannot be reassigned.
-Right now, this package allows for straight forward editing of
-annotation in the CoNLL-U format but does not include changing
-tokenization or creating completely new Sentences from scratch. If there
-is interest in this feature, please create a github issue for more
-visibility.
-
-Installation
-~~~~~~~~~~~~
-
-As with most python packages, simply use ``pip`` to install from PyPi.
-
-::
-
-    pip install pyconll
-
-This package is designed for, and only tested with python 3.4 and will
-not be backported to python 2.x.
-
-Documentation
-~~~~~~~~~~~~~
-
-The full API documentation can be found online at
-https://pyconll.readthedocs.io/. Examples can be found in the
-``examples`` folder and also in the ``tests`` folder.
+This package edits CoNLL-U annotations. This does not include the
+annotated text itself. Word forms on Tokens are not editable and
+Sentence Tokens cannot be reassigned or reordered. ``pyconll`` focuses
+on editing CoNLL-U annotation rather than creating it or changing the
+underlying text that is annotated. If there is interest in this
+functionality area, please create a github issue for more visibility.
 
 Contributing
 ~~~~~~~~~~~~
 
 Contributions to this project are welcome and encouraged! If you are
-unsure how to contribute,
-`here <https://help.github.com/en/articles/creating-a-pull-request-from-a-fork>`__
-is a guide from Github explaining the basic workflow. After cloning this
-repo, please run ``make hooks`` and ``pip install -r requirements.txt``
-to properly setup. ``make hooks`` setups up a pre-push hook to validate
-that code matches the default YAPF style. While this is technically
-optional, it is highly encouraged. ``pip install -r requirements.txt``
-simply sets up the environment with dependencies like ``yapf``,
-``twine``, ``sphinx``, and so on.
+unsure how to contribute, here is a
+`guide <https://help.github.com/en/articles/creating-a-pull-request-from-a-fork>`__
+from Github explaining the basic workflow. After cloning this repo,
+please run ``make hooks`` and ``pip install -r requirements.txt`` to
+properly setup locally. ``make hooks`` setups up a pre-push hook to
+validate that code matches the default YAPF style. While this is
+technically optional, it is highly encouraged.
+``pip install -r requirements.txt`` sets up environment dependencies
+like ``yapf``, ``twine``, ``sphinx``, etc.
 
 README and CHANGELOG
-^^^^^^^^^^^^^^^^^^^^
+''''''''''''''''''''
 
 When changing either of these files, please change the Markdown version
 and run ``make docs`` so that the other versions stay in sync.
 
 Code Formatting
-^^^^^^^^^^^^^^^
+'''''''''''''''
 
 Code formatting is done automatically on push if githooks are setup
 properly. The code formatter is
