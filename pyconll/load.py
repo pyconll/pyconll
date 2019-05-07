@@ -1,7 +1,8 @@
 """
-A wrapper around the Conll class that allow for easy loading of treebanks from
-multiple formats. This module also contains logic for iterating over treebank
-data without storing Conll objects in memory.
+A wrapper around the Conll class to easily load treebanks from multiple formats.
+This module can also load resources by iterating over treebank data without
+storing Conll objects in memory. This module is the main entrance to pyconll's
+functionalities.
 """
 
 import requests
@@ -12,7 +13,7 @@ from pyconll.unit import Conll
 
 def load_from_string(source):
     """
-    Load CoNLL-U source in a string into a Conll object.
+    Load the CoNLL-U source in a string into a Conll object.
 
     Args:
         source: The CoNLL-U formatted string.
@@ -31,7 +32,7 @@ def load_from_string(source):
 
 def load_from_file(filename):
     """
-    Load a CoNLL-U file given the filename where it resides.
+    Load a CoNLL-U file given its location.
 
     Args:
         filename: The location of the file.
@@ -51,10 +52,11 @@ def load_from_file(filename):
 
 def load_from_url(url):
     """
-    Load a CoNLL-U file that is pointed to by a given URL.
+    Load a CoNLL-U file at the provided URL.
 
     Args:
-        url: The URL that points to the CoNLL-U file.
+        url: The URL that points to the CoNLL-U file. This URL should be the
+            actual CoNLL file and not an HTML page.
 
     Returns:
         A Conll object equivalent to the provided file.

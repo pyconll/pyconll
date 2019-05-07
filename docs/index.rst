@@ -10,19 +10,24 @@ pyconll
    changelog
    Getting Started <starting>
 
-   pyconll/conllable
-   pyconll/exception
    pyconll/load
+   pyconll/unit/token
+   pyconll/unit/sentence
+   pyconll/unit/conll
    pyconll/tree/tree
    pyconll/util
-   pyconll/unit/conll
-   pyconll/unit/sentence
-   pyconll/unit/token
+   pyconll/conllable
+   pyconll/exception
 
 
-This is the homepage for ``pyconll`` documentation. Here you can find module interfaces, changelogs, and example code. Look above to the table of contents for more info. If you are not sure where to start, the ``conll``, ``sentence``, and ``token`` pages contain the API layer for the CoNLL-U data types. If you are new try to the Getting Started page.
+Welcome to the ``pyconll`` documentation homepage. Module documentation, changelogs, and guidance pages are listed above in the table of contents. Those unsure where to start can see the load_, conll_, sentence_, and token_ pages which contain documentation for the base CoNLL-U data types. There is also the `Getting Started`__ page which goes through an end-to-end example of using pyconll.
 
-Example code can be found in the ``examples`` directory on github_.
+The github_ homepage has a limited set of examples, tests, and the source. Examples are currently limited. More examples are planned to for creation in June 2019.
 
 
 .. _github: https://github.com/matgrioni/pyconll/
+.. _load: load.html
+.. _conll: conll.html
+.. _sentence: sentence.html
+.. _token: token.html
+__ starting.html
