@@ -42,7 +42,7 @@ def iter_sentences(lines_it):
         ValueError: If there is an error constructing the Sentence.
     """
     sent_lines = []
-    for i, line in enumerate(lines_it):
+    for line in lines_it:
         line = line.strip()
 
         # Collect all lines until there is a blank line. Then all the

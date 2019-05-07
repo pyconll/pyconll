@@ -59,7 +59,7 @@ class Sentence(Conllable):
         self._tokens = []
         self._ids_to_indexes = {}
 
-        for i, line in enumerate(lines):
+        for line in lines:
             if line:
                 if line[0] == Sentence.COMMENT_MARKER:
                     kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN,
