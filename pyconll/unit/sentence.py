@@ -41,27 +41,19 @@ class Sentence(Conllable):
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
 
-    def __init__(self, source, _start_line_number=None):
+    def __init__(self, source):
         """
         Construct a Sentence object from the provided CoNLL-U string.
 
         Args:
             source: The raw CoNLL-U string to parse. Comments must precede token
                 lines.
-            _start_line_number: The starting line of the sentence. For internal
-                use.
 
         Raises:
             ParseError: If there is any token that was not valid.
         """
         self.source = source
         lines = self.source.split('\n')
-
-        self.start_line_number = _start_line_number
-        if self.start_line_number:
-            self.end_line_number = _start_line_number + len(lines) - 1
-        else:
-            self.end_line_number = None
 
         self._meta = {}
         self._tokens = []
@@ -83,14 +75,7 @@ class Sentence(Conllable):
                         k = singleton_match.group(1)
                         self._meta[k] = None
                 else:
-                    # If there is a line number for the sentence, then include
-                    # the line number for the token.
-                    if self.start_line_number:
-                        token = Token(
-                            line, _line_number=self.start_line_number + i)
-                    else:
-                        token = Token(line)
-
+                    token = Token(line)
                     self._tokens.append(token)
 
                     if token.id is not None:
