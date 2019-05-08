@@ -6,13 +6,14 @@ Overview
 
 ``pyconll`` is a low level wrapper around the CoNLL-U format. This document explains how to quickly get started loading and manipulating CoNLL-U files within ``pyconll``, and will go through a typical end-to-end scenario.
 
-To install the library simply run, ``pip install pyconll``. This is all you need to start using the library on your local python enlistment.
+To install the library, run ``pip install pyconll`` from your python enlistment.
 
 Loading CoNLL-U
 ----------------------------------
 
-To start, a CoNLL-U resource must be loaded, and ``pyconll`` can load from files, urls, and strings. Specific API information can be found in the # TODO:LINK load module documentation. Below is a typical example of loading a file on the local computer.
+To start, a CoNLL-U resource must be loaded, and ``pyconll`` can load from files, urls, and strings. Specific API information can be found in the load_ module documentation. Below is a typical example of loading a file on the local computer.
 
+.. _load: unit/load.html
 
 .. code:: python
 
