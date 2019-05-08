@@ -26,7 +26,7 @@ This package is designed for, and only tested with python 3.4 and up and will no
 
 ### Motivation
 
-This tool is intended to be a **minimal**, **low level**, and **functional** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular language.
+This tool is intended to be a **minimal**, **low level**, and **functional** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular programming language.
 
 In my work with the Universal Dependencies project, I saw a dissapointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but have a learning curve and are limited the scope of their DSLs. [CL-CoNLLU](https://github.com/own-pt/cl-conllu/) is simple and low level, but Common Lisp is not widely used in NLP, and difficult to pickup for beginners. [UDAPI](http://udapi.github.io/) is in python but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
 
@@ -48,13 +48,16 @@ train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
 aux_lemmas = set()
 for sentence in train:
     for token in sentence:
-        aux_lemmas.add(token.lemma)
+        if token.upos == 'AUX':
+          aux_lemmas.add(token.lemma)
 ```
 
 
 ### Uses and Limitations
 
 This package edits CoNLL-U annotations. This does not include the annotated text itself. Word forms on Tokens are not editable and Sentence Tokens cannot be reassigned or reordered. `pyconll` focuses on editing CoNLL-U annotation rather than creating it or changing the underlying text that is annotated. If there is interest in this functionality area, please create a github issue for more visibility.
+
+This package also is only validated against the CoNLL-U format. The CoNLL and CoNLL-X format are not supported, but are very similar. I originally intended to support these formats as well, but their format is not as well defined as CoNLL-U so they are not included. Please create an issue for visibility if this feature interests you.
 
 
 ### Contributing

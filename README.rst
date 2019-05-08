@@ -33,7 +33,7 @@ Motivation
 This tool is intended to be a **minimal**, **low level**, and
 **functional** library in a widely used programming language. pyconll
 creates a thin API on top of raw CoNLL annotations that is simple and
-intuitive in a popular language.
+intuitive in a popular programming language.
 
 In my work with the Universal Dependencies project, I saw a
 dissapointing lack of low level APIs for working with the CoNLL-U
@@ -70,7 +70,8 @@ Code Snippet
     aux_lemmas = set()
     for sentence in train:
         for token in sentence:
-            aux_lemmas.add(token.lemma)
+            if token.upos == 'AUX':
+              aux_lemmas.add(token.lemma)
 
 Uses and Limitations
 ~~~~~~~~~~~~~~~~~~~~
@@ -81,6 +82,12 @@ Sentence Tokens cannot be reassigned or reordered. ``pyconll`` focuses
 on editing CoNLL-U annotation rather than creating it or changing the
 underlying text that is annotated. If there is interest in this
 functionality area, please create a github issue for more visibility.
+
+This package also is only validated against the CoNLL-U format. The
+CoNLL and CoNLL-X format are not supported, but are very similar. I
+originally intended to support these formats as well, but their format
+is not as well defined as CoNLL-U so they are not included. Please
+create an issue for visibility if this feature interests you.
 
 Contributing
 ~~~~~~~~~~~~
