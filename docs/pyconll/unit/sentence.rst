@@ -1,21 +1,21 @@
 sentence
 ===================================
 
-The ``Sentence`` module represents an entire CoNLL sentence, which is composed of two main parts: the comments and the tokens.
+The ``Sentence`` module represents an entire CoNLL sentence, which is composed of comments and tokens.
 
 Comments
 ----------------------------------
-Comments are treated as key-value pairs, where the separating character between key and value is ``=``. If there is no ``=`` present then then the comment is treated as a singleton, where the key is the comment string and the corresponding value is ``None``. Read and write methods on this data can be found on methods prefixed with ``meta_``.
+Comments are treated as key-value pairs, separated by the ``=`` character. A singleton comment has no ``=`` present. In this situation the key is the comment string, and the value is ``None``. Methods for reading and writing cmoments on Sentences are prefixed with ``meta_``, and are found below.
 
-For convenience, the id and text of a sentence can be accessed through member properties directly rather than through metadata methods. So ``sentence.id``, rather than ``sentence.meta_value('id')``. Since this API does not support changing a token's form, the ``text`` comment cannot be changed.
+For convenience, the id and text comments are accessible through member properties on the Sentence in addition to metadata methods. So ``sentence.id`` and ``sentence.meta_value('id')`` are equivalent but the former is more concise and readable. Since this API does not support changing a token's form, the ``text`` comment cannot be changed. Text translations or transliterations can still be added just like any other comment.
 
 Document and Paragraph ID
-----------------------------------
-The document and paragraph id of a sentence are automatically inferred from a CoNLL treebank given sentence comments. Reassigning ids must be done through comments on the sentence level, and there is no API for simplifying this reassignment.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In previous versions of pyconll, the document and paragraph id of a Sentence were extracted similar to text and id information. This causes strange results and semantics when adding Sentences to a Conll object since the added sentence may have a ``newpar`` or ``newdoc`` comment which affects all subsequent Sentence ids. For simplicity's sake, this information is now only directly available as normal metadata information.
 
 Tokens
 ----------------------------------
-These are the meat of the sentence. Tokens can be accessed through their id defined in the CoNLL annotation as a string or as a numeric index. So the same indexing syntax understands, ``sentence['5']``, ``sentence['2-3']`` and ``sentence[2]``.
+This is the heart of the sentence. Tokens can be indexed on Sentences through their id value, as a string, or as a numeric index. So all of the following calls are valid, ``sentence['5']``, ``sentence['2-3']``, ``sentence['2.1']``, and ``sentence[2]``. Note that ``sentence[x]`` and ``sentence[str(x)]`` are not interchangeable. These calls are both valid but have different meanings.
 
 
 API
