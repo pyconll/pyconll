@@ -4,15 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - ...
+## [2.0.0] - Coming soon
 ### Fixed
+- ``find_ngrams`` in the ``util`` module did not properly match case insensitivity.
+- ``exception`` is now properly included in wildcard imports from ``pyconll``.
+- Issue when loading a CoNLL file over a network if the file contained UTF-8 characters. requests default assumes ASCII enconding on HTTP responses.
+- The Token columns deps and feats were not properly sorted by attribute (either numeric index or case invariant lexicographic sort) on serialization
 
 ### Changed
-- Documentation updates to be more clear and concise
+- Clearer and more consise documentation
+- ``find_ngrams`` now returns the matched tokens as the last element of the yielded tuple.
 
 ### Removed
+- Document and paragraph ids on Sentences
+- Line numbers on Tokens and Sentences
+- Equality comparison on Tokens and Sentences. These types are mutable and implementing equality (with no hash overriding) causes issues for API clients.
+- ``SentenceTree`` module. This functionaliy was moved to the Sentence class method ``to_tree``.
 
 ### Added
+- ``to_tree`` method on ``Sentence`` that returns the a Tree representing the Sentence dependency structure
+
+### Security
+- Updates to ``requirements.txt`` to patch Jinja2 and requests
 
 ## [1.1.4] - 2019-04-15
 ### Fixed
