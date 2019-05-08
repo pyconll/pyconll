@@ -59,7 +59,7 @@ Code Snippet
     for sentence in train:
         for token in sentence:
             if token.upos == 'AUX':
-              aux_lemmas.add(token.lemma)
+                aux_lemmas.add(token.lemma)
 
 Uses and Limitations
 

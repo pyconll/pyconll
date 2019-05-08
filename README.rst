@@ -71,7 +71,7 @@ Code Snippet
     for sentence in train:
         for token in sentence:
             if token.upos == 'AUX':
-              aux_lemmas.add(token.lemma)
+                aux_lemmas.add(token.lemma)
 
 Uses and Limitations
 ~~~~~~~~~~~~~~~~~~~~
@@ -104,13 +104,13 @@ technically optional, it is highly encouraged.
 like ``yapf``, ``twine``, ``sphinx``, etc.
 
 README and CHANGELOG
-''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^
 
 When changing either of these files, please change the Markdown version
 and run ``make docs`` so that the other versions stay in sync.
 
 Code Formatting
-'''''''''''''''
+^^^^^^^^^^^^^^^
 
 Code formatting is done automatically on push if githooks are setup
 properly. The code formatter is

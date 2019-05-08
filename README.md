@@ -49,7 +49,7 @@ aux_lemmas = set()
 for sentence in train:
     for token in sentence:
         if token.upos == 'AUX':
-          aux_lemmas.add(token.lemma)
+            aux_lemmas.add(token.lemma)
 ```
 
 
@@ -65,11 +65,11 @@ This package also is only validated against the CoNLL-U format. The CoNLL and Co
 Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `make hooks` and `pip install -r requirements.txt` to properly setup locally. `make hooks` setups up a pre-push hook to validate that code matches the default YAPF style. While this is technically optional, it is highly encouraged. `pip install -r requirements.txt` sets up environment dependencies like `yapf`, `twine`, `sphinx`, etc.
 
 
-##### README and CHANGELOG
+#### README and CHANGELOG
 
 When changing either of these files, please change the Markdown version and run ``make docs`` so that the other versions stay in sync.
 
 
-##### Code Formatting
+#### Code Formatting
 
 Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors.

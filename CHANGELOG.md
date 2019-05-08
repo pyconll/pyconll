@@ -22,7 +22,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - ``SentenceTree`` module. This functionaliy was moved to the Sentence class method ``to_tree``.
 
 ### Added
-- ``to_tree`` method on ``Sentence`` that returns the a Tree representing the Sentence dependency structure
+- ``to_tree`` method on ``Sentence`` that returns the Tree representing the Sentence dependency structure
 
 ### Security
 - Updates to ``requirements.txt`` to patch Jinja2 and requests
