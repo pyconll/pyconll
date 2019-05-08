@@ -26,13 +26,13 @@ This package is designed for, and only tested with python 3.4 and up and will no
 
 ### Motivation
 
-This tool is intended to be a **minimal**, **low level**, and **functional** library in a widely used programming language. `pyconll` creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular language that can be used as building block in a complex system or the engine in small one off scripts.
+This tool is intended to be a **minimal**, **low level**, and **functional** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular language.
 
-After working with the UD project, I realized there is a dissapointing lack of low level APIs for working with the  Universal Dependencies project. Current tooling focuses on graph transformations and DSLs for automated manipulation of CoNLL-U files. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but have a learning curve and are limited in what their DSL's can represent. On the other hand, [CL-CoNLLU](https://github.com/own-pt/cl-conllu/) is simple and low level, but Common Lisp is not widely used in NLP. [UDAPI](http://udapi.github.io/) is in python but it is very large and how little guidance on usage. `pyconll` attempts to fill in the gap between what these other projects have accomplished.
+In my work with the Universal Dependencies project, I saw a dissapointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but have a learning curve and are limited the scope of their DSLs. [CL-CoNLLU](https://github.com/own-pt/cl-conllu/) is simple and low level, but Common Lisp is not widely used in NLP, and difficult to pickup for beginners. [UDAPI](http://udapi.github.io/) is in python but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
 
 Other useful tools can be found on the Universal Dependencies [website](https://universaldependencies.org/tools.html).
 
-Hopefully, individual researchers will find use in this project, and will use it as a building block for more popular tools. By using `pyconll`, researchers gain a standardized and feature rich base on which they can build larger projects and without worrying about CoNLL annotation and output. `pyconll`
+Hopefully, individual researchers find pyconll useful, and will use it as a building block for their tools and projects. pyconll affords a standardized and complete base for building larger projects without worrying about CoNLL annotation and output.
 
 
 ### Code Snippet
