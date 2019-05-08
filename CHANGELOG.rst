@@ -45,8 +45,8 @@ Removed
 Added
 ~~~~~
 
--  ``to_tree`` method on ``Sentence`` that returns the a Tree
-   representing the Sentence dependency structure
+-  ``to_tree`` method on ``Sentence`` that returns the Tree representing
+   the Sentence dependency structure
 
 Security
 ~~~~~~~~
