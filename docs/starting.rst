@@ -13,7 +13,7 @@ Loading CoNLL-U
 
 To start, a CoNLL-U resource must be loaded, and ``pyconll`` can load from files, urls, and strings. Specific API information can be found in the load_ module documentation. Below is a typical example of loading a file on the local computer.
 
-.. _load: unit/load.html
+.. _load: pyconll/load.html
 
 .. code:: python
 
