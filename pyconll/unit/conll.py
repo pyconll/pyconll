@@ -2,7 +2,7 @@
 Defines the Conll type and the associated parsing and output logic.
 """
 
-from collections import MutableSequence
+from collections.abc import MutableSequence
 
 import pyconll._parser
 from pyconll.conllable import Conllable
