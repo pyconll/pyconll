@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [2.0.0] - 2019-05-09
 ### Fixed
 - ``find_ngrams`` in the ``util`` module did not properly match case insensitivity.
-- ``exception`` is now properly included in wildcard imports from ``pyconll``.
+- ``conllable`` is now properly included in wildcard imports from ``pyconll``.
 - Issue when loading a CoNLL file over a network if the file contained UTF-8 characters. requests default assumes ASCII enconding on HTTP responses.
 - The Token columns deps and feats were not properly sorted by attribute (either numeric index or case invariant lexicographic sort) on serialization
 
