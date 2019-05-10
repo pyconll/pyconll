@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Coming soon
+## [2.0.0] - 2019-05-09
 ### Fixed
 - ``find_ngrams`` in the ``util`` module did not properly match case insensitivity.
 - ``exception`` is now properly included in wildcard imports from ``pyconll``.
