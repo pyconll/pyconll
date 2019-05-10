@@ -15,7 +15,7 @@ Fixed
 
 -  ``find_ngrams`` in the ``util`` module did not properly match case
    insensitivity.
--  ``exception`` is now properly included in wildcard imports from
+-  ``conllable`` is now properly included in wildcard imports from
    ``pyconll``.
 -  Issue when loading a CoNLL file over a network if the file contained
    UTF-8 characters. requests default assumes ASCII enconding on HTTP

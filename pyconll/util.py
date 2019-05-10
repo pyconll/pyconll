@@ -20,7 +20,7 @@ def find_ngrams(conll, ngram, case_sensitive=True):
         ngram: The ngram to search for. A random access iterator.
         case_sensitive: Flag to indicate if the ngram search should be case
             sensitive. The case insensitive comparison currently is locale
-            insensitive as the default behavior of python.
+            insensitive lowercase comparison.
 
     Returns:
         An iterator of tuples over the ngrams in the Conll object. The first
