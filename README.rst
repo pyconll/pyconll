@@ -121,5 +121,5 @@ coding style stays consistent over time and between authors.
    :target: https://travis-ci.org/pyconll/pyconll
 .. |Coverage Status| image:: https://coveralls.io/repos/github/pyconll/pyconll/badge.svg?branch=master
    :target: https://coveralls.io/github/pyconll/pyconll?branch=master
-.. |Documentation Status| image:: https://readthedocs.org/projects/pyconll/badge/?version=latest
+.. |Documentation Status| image:: https://readthedocs.org/projects/pyconll/badge/?version=stable
    :target: https://pyconll.readthedocs.io/en/latest/?badge=latest
