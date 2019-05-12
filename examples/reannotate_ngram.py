@@ -21,14 +21,13 @@ parser.add_argument('filename', help='The name of the file to transform')
 args = parser.parse_args()
 
 corpus = pyconll.load_from_filename(args.filename)
-for sentence, i in pyconll.util.find_ngrams(corpus, NGRAM)
-    ngram = sentence[i:i + len(NGRAM)]
+for sentence, i, tokens in pyconll.util.find_ngrams(corpus, NGRAM)
+    # Deconstruct the tokens list into the separate tokens.
+    de_token, plus_token = tokens 
 
-    # For each ngram check if the were related before. As a heuristic for
-    # false positives, do not want to include ngrams that were not already
-    # related.
-    de_token, plus_token = ngram
-
+    # If the two tokens have a direct dependency between them, then assign "de"
+    # as the governer, and "plus" as the child, with "fixed" as the dependency
+    # between them.
     if de_token.head == plus_token.id:
         parent_index = plus_token.head
         parent_deprel = plus_token.deprel
