@@ -3,7 +3,9 @@ A set of utilities for dealing with pyconll defined types. This is simply a
 collection of functions.
 """
 
+import functools
 import itertools
+import math
 
 
 def find_ngrams(conll, ngram, case_sensitive=True):
@@ -68,6 +70,102 @@ def find_ngrams(conll, ngram, case_sensitive=True):
 
             i += 1
 
+
+def find_nonprojective_deps(sentence):
+    """
+    Find the nonprojective dependency pairs in the provided sentence.
+
+    Args:
+        sentence: The sentence to check for nonprojective dependency pairs.
+
+    Returns:
+        An iterable of pairs which represent the children of a nonprojective
+        dependency pair.
+    """
+    non_root_tokens = filter(lambda token: token.head != '0', sentence)
+    deps = list(map(_token_to_dep_tuple, non_root_tokens))
+
+    sorted_deps = sorted(deps, key=_DependencyComparer)
+    non_projective_deps = []
+
+    openings = [-math.inf]
+    closings = [math.inf]
+    direcs = ['']
+
+    for dep in sorted_deps:
+        cur_opening = openings[-1]
+        cur_closing = closings[-1]
+        cur_direc = direcs[-1]
+
+        left_index, right_index, direc = dep
+
+        if left_index == cur_closing:
+            openings.pop()
+            closings.pop()
+            direcs.pop()
+        elif cur_opening < right_index <= cur_closing:
+            openings.append(left_index)
+            closings.append(right_index)
+            direcs.append(direc)
+        else:
+            for i in range(len(openings) - 1, -1, -1):
+                o = openings[i]
+                c = closings[i]
+                d = direcs[i]
+                if right_index > cur_closing:
+                    non_projective_deps.append((dep, (o, c)))
+                else:
+                    break
+
+    return non_projective_deps
+
+
+@functools.total_ordering
+class _DependencyComparer:
+    """
+    """
+
+    def __init__(self, dep):
+        """
+        """
+        self._l, self._r, _ = dep
+
+    def __eq__(self, other):
+        """
+        """
+        return self._l == other._l and self._r == other._r
+
+    def __ne__(self, other):
+        """
+        """
+        return not (self == other)
+
+    def __lt__(self, other):
+        """
+        """
+        return self._l < other._l or (self._l == other._l and self._r < other._r)
+
+
+
+def _token_to_dep_tuple(token):
+    """
+    Creates a tuple of primitives to represent the dependency on a token.
+
+    Args:
+        token: The token to convert to a tupled dependency representation.
+
+    Returns:
+        A triplet where the first element is the minimum of the token id and
+        governor id, the second is the maximum, and the third is the direction
+        of the dependency.
+    """
+    id_i = int(token.id)
+    head_i = int(token.head)
+    if id_i < head_i:
+        return (id_i, head_i, 'r')
+    else:
+        return (head_i, id_i, 'l')
+    
 
 def _get_cased(case_sensitive, *args):
     """
