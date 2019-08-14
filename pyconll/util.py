@@ -93,33 +93,52 @@ def find_nonprojective_deps(sentence):
     direcs = ['']
 
     for dep in sorted_deps:
+
         cur_opening = openings[-1]
         cur_closing = closings[-1]
         cur_direc = direcs[-1]
 
         left_index, right_index, direc = dep
 
-        if left_index == cur_closing:
-            openings.pop()
-            closings.pop()
-            direcs.pop()
-        elif cur_opening < right_index <= cur_closing:
-            openings.append(left_index)
-            closings.append(right_index)
-            direcs.append(direc)
-        else:
+        starts_outside = left_index >= cur_closing
+        if starts_outside:
+            while left_index >= closings[-1]:
+                openings.pop()
+                closings.pop()
+                direcs.pop()
+
+        within_range = cur_opening < right_index <= cur_closing
+        if not within_range:
             for i in range(len(openings) - 1, -1, -1):
                 o = openings[i]
                 c = closings[i]
                 d = direcs[i]
-                if right_index > cur_closing:
-                    non_projective_deps.append((dep, (o, c)))
+                if right_index > c:
+                    dep_child_idx = dep[1] if dep[2] == 'l' else dep[0]
+                    base_child_idx = c if d == 'l' else o
+                    non_projective_deps.append((dep_child_idx, base_child_idx))
                 else:
                     break
 
-    return non_projective_deps
+        if starts_outside or within_range:
+            openings.append(left_index)
+            closings.append(right_index)
+            direcs.append(direc)
+
+    child_tokens = list(map(lambda dep: tuple(map(lambda idx: sentence[str(idx)], dep)), non_projective_deps))
+    return child_tokens
 
 
+def _dep_to_token_pair(sentence, dep):
+    """
+    """
+    head_idx = dep[0] if dep[2] == 'l' else dep[1]
+    child_idx = dep[1] if dep[2] == 'l' else dep[0]
+
+    return (sentence[head_idx], sentence[child_idx])
+
+
+# TODO
 @functools.total_ordering
 class _DependencyComparer:
     """
@@ -143,8 +162,8 @@ class _DependencyComparer:
     def __lt__(self, other):
         """
         """
-        return self._l < other._l or (self._l == other._l and self._r < other._r)
-
+        return self._l < other._l or (self._l == other._l
+                                      and self._r > other._r)
 
 
 def _token_to_dep_tuple(token):
@@ -165,7 +184,7 @@ def _token_to_dep_tuple(token):
         return (id_i, head_i, 'r')
     else:
         return (head_i, id_i, 'l')
-    
+
 
 def _get_cased(case_sensitive, *args):
     """
