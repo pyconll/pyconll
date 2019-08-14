@@ -2,7 +2,7 @@ import operator
 
 import pytest
 
-from pyconll.util import find_ngrams
+from pyconll.util import find_ngrams, find_nonprojective_deps
 from pyconll import load_from_file
 from tests.util import fixture_location
 
@@ -133,3 +133,29 @@ def test_ngram_case_insensitive_n_token():
     assert s.id == 'fr-ud-test_00004'
     assert i == 8
     assert actual_token_ids == expected_token_ids
+
+
+def test_no_nonprojectivities():
+    """
+    Test with a sentence with no non-projective dependencies.
+    """
+    c = load_from_file(fixture_location('projectivities.conll'))
+    sent = c[0]
+    deps = find_nonprojective_deps(sent)
+
+    assert not deps
+
+
+def test_simple_nonprojectivities():
+    """
+    Test logic with a sentence with one single non-projectivity.
+    """
+    c = load_from_file(fixture_location('projectivities.conll'))
+    sent1 = c[1]
+    deps1 = find_nonprojective_deps(sent1)
+
+    sent2 = c[2]
+    deps2 = find_nonprojective_deps(sent2)
+
+    assert deps1 == [(sent1['16'], sent1['4'])]
+    assert deps2 == [(sent2['8'], sent2['5'])]
