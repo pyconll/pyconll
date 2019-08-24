@@ -159,3 +159,51 @@ def test_simple_nonprojectivities():
 
     assert deps1 == [(sent1['16'], sent1['4'])]
     assert deps2 == [(sent2['8'], sent2['5'])]
+
+
+def test_multiword_ignore():
+    """
+    Test that multiword tokens are ignored and do not cause errors.
+    """
+    c = load_from_file(fixture_location('projectivities.conll'))
+
+    sent = c[3]
+    deps = find_nonprojective_deps(sent)
+
+    assert deps == [(sent['16'], sent['4'])]
+
+
+def test_overlapping_nonprojectivities():
+    """
+    Test that multiple non-projectivities can overlap.
+    """
+    c = load_from_file(fixture_location('projectivities.conll'))
+
+    sent = c[4]
+    deps = find_nonprojective_deps(sent)
+
+    assert set(deps) == set([(sent['16'], sent['4']), (sent['16'],
+                                                       sent['11'])])
+
+
+def test_multiple_nonprojectivities():
+    pass
+
+
+def test_splitting_from_same_orgigin_nonprojectivity():
+    pass
+
+
+def test_simple_nonprojectivities():
+    """
+    Test logic with a sentence with one single non-projectivity.
+    """
+    c = load_from_file(fixture_location('projectivities.conll'))
+    sent1 = c[3]
+    deps1 = find_nonprojective_deps(sent1)
+
+    sent2 = c[2]
+    deps2 = find_nonprojective_deps(sent2)
+
+    assert deps1 == [(sent1['16'], sent1['4'])]
+    assert deps2 == [(sent2['8'], sent2['5'])]

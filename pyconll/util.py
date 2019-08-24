@@ -82,20 +82,16 @@ def find_nonprojective_deps(sentence):
         An iterable of pairs which represent the children of a nonprojective
         dependency pair.
     """
-    non_root_tokens = filter(lambda token: token.head != '0', sentence)
-    deps = list(map(_token_to_dep_tuple, non_root_tokens))
-    sorted_deps = sorted(deps, key=_DependencyComparer)
-
+    deps = _transform_tokens_to_sorted_dependency_arcs(sentence)
     non_projective_deps = []
 
-    openings = [_IndexComparer('0')]
-    closings = [_IndexComparer(str(len(sentence)))]
+    openings = [-math.inf]
+    closings = [math.inf]
     direcs = ['']
 
-    for dep in sorted_deps:
+    for dep in deps:
         cur_opening = openings[-1]
         cur_closing = closings[-1]
-        cur_direc = direcs[-1]
 
         left_index, right_index, direc = dep
 
@@ -124,128 +120,106 @@ def find_nonprojective_deps(sentence):
             closings.append(right_index)
             direcs.append(direc)
 
-    child_tokens = list(map(lambda dep: tuple(map(lambda wrp: sentence[wrp.index], dep)), non_projective_deps))
+    child_tokens = list(
+        map(lambda dep: tuple(map(lambda idx: sentence[idx], dep)),
+            non_projective_deps))
     return child_tokens
 
 
-def _dep_to_token_pair(sentence, dep):
+def _transform_tokens_to_sorted_dependency_arcs(sentence):
     """
-    """
-    head_idx = dep[0] if dep[2] == 'l' else dep[1]
-    child_idx = dep[1] if dep[2] == 'l' else dep[0]
+    Transforms a given sentence or set of tokens into dependency arcs.
 
-    return (sentence[head_idx], sentence[child_idx])
+    These dependency arcs are tuples which consist of a head id, a token id and
+    head direction. These dependencies are sorted to facilitate non-projectivity
+    detection.
+
+    Args:
+        sentence: The tokens to transform to dependency arcs.
+
+    Returns:
+        The sorted list of dependency arcs extracted from the sentence.
+    """
+    # Create a string token id to numeric index map for the sentence.
+    ids_to_idxs = {token.id: i for i, token in enumerate(sentence)}
+
+    dependency_tokens = filter(
+        lambda token: token.head != '0' and not token.is_multiword(), sentence)
+    deps = sorted(
+        map(lambda token: _token_to_dep_tuple(token, ids_to_idxs),
+            dependency_tokens),
+        key=_DependencyComparer)
+
+    return deps
 
 
 @functools.total_ordering
 class _DependencyComparer:
     """
+    Wrapper to compare dependency arcs.
     """
 
     def __init__(self, dep):
         """
+        Creates the wrapper for this dependency.
+
+        Args:
+            dep: The dependency to wrap.
         """
         self._l, self._r, _ = dep
 
     def __eq__(self, other):
         """
+        Checks that this dependency has the same indices as another.
+
+        Args:
+            other: The other wrapped dependency to compare against.
         """
         return self._l == other._l and self._r == other._r
 
     def __ne__(self, other):
         """
+        Checks that this dependency has different indices as another.
+
+        Args:
+            other: Another wrapped dependency to compare against.
         """
-        return not (self == other)
+        return not self == other
 
     def __lt__(self, other):
         """
+        Checks that this dependency is less than another.
+
+        This comparison is done by first checking the smaller of the two
+        indices. The second indices are compared if the first are equal and this
+        dependency will be smaller if its second index is larger.
+
+        Args:
+            other: Another wrapped dependency to compare against.
         """
         return self._l < other._l or (self._l == other._l
                                       and self._r > other._r)
 
 
-@functools.total_ordering
-class _IndexComparer:
-    """
-    """
-
-    def __init__(self, index):
-        """
-        """
-        self.index = index
-
-    def __eq__(self, other):
-        """
-        """
-        return self.index == other.index
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __lt__(self, other):
-        """
-        """
-        ((self_fh, self_fp), (self_sh, self_sp)) = _IndexComparer._separate_index(self.index)
-        ((other_fh, other_fp), (other_sh, other_sp)) = _IndexComparer._separate_index(other.index)
-
-        f = self_fh < other_fh or (self_fh == other_fh and self_fp < other_fp)
-        fe = self_fh == other_fh and self_fp == other_fp
-        s = self_sh < other_sh or (self_sh == other_sh and self_sp < other_sp)
-
-        # Either the first element is less or they are equal and the second is less.
-        return f or (fe and s)
-
-    @staticmethod
-    def _separate_index(index):
-        """
-        """
-        if '-' in index:
-            sep_idx = index.index('-')
-            first = index[:sep_idx]
-            second = index[sep_idx + 1:]
-
-            if '.' in first:
-                dot_idx = first.index('.')
-                fh = int(first[:dot_idx])
-                fp = int(first[dot_idx + 1:])
-            else:
-                fh = int(first)
-                fp = -math.inf
-
-            if '.' in second:
-                dot_idx = second.index('.')
-                sh = int(second[:dot_idx])
-                sp = int(second[dot_idx + 1:])
-            else:
-                sh = int(second)
-                sp = -math.inf
-        else:
-            fh = int(index)
-            fp = -math.inf
-            sh = -math.inf
-            sp = -math.inf
-
-        return ((fh, fp), (sh, sp))
-
-
-def _token_to_dep_tuple(token):
+def _token_to_dep_tuple(token, id_map):
     """
     Creates a tuple of primitives to represent the dependency on a token.
 
     Args:
         token: The token to convert to a tupled dependency representation.
+        id_map: A mapping from string token ids to indices.
 
     Returns:
         A triplet where the first element is the minimum of the token id and
         governor id, the second is the maximum, and the third is the direction
         of the dependency.
     """
-    id_i = _IndexComparer(token.id)
-    head_i = _IndexComparer(token.head)
-    if id_i < head_i:
-        return (id_i, head_i, 'r')
-    else:
-        return (head_i, id_i, 'l')
+    token_idx = id_map[token.id]
+    head_idx = id_map[token.head]
+    if token_idx < head_idx:
+        return (token_idx, head_idx, 'r')
+
+    return (head_idx, token_idx, 'l')
 
 
 def _get_cased(case_sensitive, *args):
@@ -258,7 +232,7 @@ def _get_cased(case_sensitive, *args):
         args: The strings to get appropriately cased versions of.
 
     Returns:
-        An iterable  of case converted strings as necessary.
+        An iterable of case converted strings as necessary.
     """
     if not case_sensitive:
         args = list(map(str.lower, args))
