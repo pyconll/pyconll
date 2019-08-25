@@ -187,11 +187,16 @@ def test_overlapping_nonprojectivities():
 
 
 def test_multiple_nonprojectivities():
-    pass
+    """
+    Test that multiple disjoint projectivities are properly identified.
+    """
+    c = load_from_file(fixture_location('projectivities.conll'))
 
+    sent = c[5]
+    deps = find_nonprojective_deps(sent)
 
-def test_splitting_from_same_orgigin_nonprojectivity():
-    pass
+    assert set(deps) == set([(sent['22'], sent['3']), (sent['22'], sent['21']),
+                             (sent['28'], sent['25'])])
 
 
 def test_simple_nonprojectivities():
