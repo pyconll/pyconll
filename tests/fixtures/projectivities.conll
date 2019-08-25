@@ -99,3 +99,35 @@
 14	Sujet	sujet	NOUN	_	Gender=Masc|Number=Sing	11	nmod	_	SpaceAfter=No
 15	"	"	PUNCT	_	_	11	punct	_	SpaceAfter=No
 16	.	.	PUNCT	_	_	3	punct	_	_
+
+# sent_id = fr-ud-test_00006
+# text = Je sens qu'entre ça et les films de médecins et scientifiques fous que nous avons déjà vus, nous pourrions emprunter un autre chemin pour l'origine.
+1	Je	il	PRON	_	Number=Sing|Person=1|PronType=Prs	2	nsubj	_	_
+2	sens	sentir	VERB	_	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	0	root	_	_
+3	qu'	que	SCONJ	_	_	21	mark	_	SpaceAfter=No
+4	entre	entre	ADP	_	_	5	case	_	_
+5	ça	ça	PRON	_	Gender=Masc|Number=Sing|Person=3|PronType=Dem	21	obl:mod	_	_
+6	et	et	CCONJ	_	_	8	cc	_	_
+7	les	le	DET	_	Definite=Def|Gender=Masc|Number=Plur|PronType=Art	8	det	_	_
+8	films	film	NOUN	_	Gender=Masc|Number=Plur	5	conj	_	_
+9	de	de	ADP	_	_	10	case	_	_
+10	médecins	médecin	NOUN	_	Gender=Masc|Number=Plur	8	nmod	_	_
+11	et	et	CCONJ	_	_	12	cc	_	_
+12	scientifiques	scientifique	NOUN	_	Gender=Masc|Number=Plur	10	conj	_	_
+13	fous	fou	ADJ	_	Gender=Masc|Number=Plur	12	amod	_	_
+14	que	que	PRON	_	PronType=Rel	18	obj	_	_
+15	nous	nous	PRON	_	Number=Plur|Person=1|PronType=Prs	18	nsubj	_	_
+16	avons	avoir	AUX	_	Mood=Ind|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin	18	aux	_	_
+17	déjà	déjà	ADV	_	_	18	advmod	_	_
+18	vus	voir	VERB	_	Gender=Masc|Number=Plur|Tense=Past|VerbForm=Part	8	acl:relcl	_	SpaceAfter=No
+19	,	,	PUNCT	_	_	5	punct	_	_
+20	nous	nous	PRON	_	Number=Plur|Person=1|PronType=Prs	21	nsubj	_	_
+21	pourrions	pouvoir	VERB	_	Mood=Cnd|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin	2	ccomp	_	_
+22	emprunter	emprunter	VERB	_	VerbForm=Inf	5	xcomp	_	_
+23	un	un	DET	_	Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	25	det	_	_
+24	autre	autre	ADJ	_	Gender=Masc|Number=Sing	25	amod	_	_
+25	chemin	chemin	NOUN	_	Gender=Masc|Number=Sing	22	obj	_	_
+26	pour	pour	ADP	_	_	28	case	_	_
+27	l'	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	28	det	_	SpaceAfter=No
+28	origine	origine	NOUN	_	Gender=Fem|Number=Sing	23	obl	_	SpaceAfter=No
+29	.	.	PUNCT	_	_	2	punct	_	_
