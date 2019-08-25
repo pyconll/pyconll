@@ -75,6 +75,12 @@ def find_nonprojective_deps(sentence):
     """
     Find the nonprojective dependency pairs in the provided sentence.
 
+    Dependencies are provided as a list of ordered pairs. Each ordered pair
+    represents a non-projective dependency pair. Each element in the ordered
+    pair is a token, that makes a dependency with its governor. So each token
+    is the base of its dependency, and the two tokens' dependencies cross in
+    a non projective way.
+
     Args:
         sentence: The sentence to check for nonprojective dependency pairs.
 
