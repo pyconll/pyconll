@@ -6,7 +6,7 @@
 
 *Easily work with **CoNLL** files using the familiar syntax of **python**.*
 
-The current version is 2.0.0. This version is fully functional, stable, tested, documented, and actively developed.
+The current version is 2.1.0. This version is fully functional, stable, tested, documented, and actively developed.
 
 ##### Links
 - [Homepage](https://pyconll.github.io)
@@ -58,6 +58,8 @@ for sentence in train:
 This package edits CoNLL-U annotations. This does not include the annotated text itself. Word forms on Tokens are not editable and Sentence Tokens cannot be reassigned or reordered. `pyconll` focuses on editing CoNLL-U annotation rather than creating it or changing the underlying text that is annotated. If there is interest in this functionality area, please create a github issue for more visibility.
 
 This package also is only validated against the CoNLL-U format. The CoNLL and CoNLL-X format are not supported, but are very similar. I originally intended to support these formats as well, but their format is not as well defined as CoNLL-U so they are not included. Please create an issue for visibility if this feature interests you.
+
+Lastly, linguistic data can often be very large and this package attempts to keep that in mind. pyconll provides methods for creating in memory conll objects along with an iterate only version in case a corpus is too large to store in memory (the size of the memory structure is a little bit larger than the actual corpus file). The iterate only version can parse upwards of 100,000 words per second on a 16gb ram machine, so for most datasets to be used on a dev machine, this package will perform well.
 
 
 ### Contributing
