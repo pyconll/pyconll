@@ -7,6 +7,21 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[2.1.0] - 2019-08-30
+--------------------
+
+Fixed
+~~~~~
+
+-  The example ``reannotate\_ngrams.py`` was out of sync with the
+   function return type
+
+Added
+~~~~~
+
+-  \`find\_nonprojective\_deps\`\` was added to look for non-projective
+   dependencies within a sentence
+
 [2.0.0] - 2019-05-09
 --------------------
 

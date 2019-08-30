@@ -23,7 +23,7 @@ args = parser.parse_args()
 corpus = pyconll.load_from_filename(args.filename)
 for sentence, i, tokens in pyconll.util.find_ngrams(corpus, NGRAM)
     # Deconstruct the tokens list into the separate tokens.
-    de_token, plus_token = tokens 
+    de_token, plus_token = tokens
 
     # If the two tokens have a direct dependency between them, then assign "de"
     # as the governer, and "plus" as the child, with "fixed" as the dependency
