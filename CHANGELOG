@@ -9,6 +9,13 @@ The format is based on Keep a Changelog and this project adheres to
 Semantic Versioning.
 
 
+[2.1.1] - 2019-09-04
+
+Fixed
+
+-   Solved math.inf issue with python 3.4 where it does not exist
+
+
 [2.1.0] - 2019-08-30
 
 Fixed
