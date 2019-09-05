@@ -5,7 +5,6 @@ collection of functions.
 
 import functools
 import itertools
-import math
 
 
 def find_ngrams(conll, ngram, case_sensitive=True):
@@ -91,8 +90,8 @@ def find_nonprojective_deps(sentence):
     deps = _transform_tokens_to_sorted_dependency_arcs(sentence)
     non_projective_deps = []
 
-    openings = [-math.inf]
-    closings = [math.inf]
+    openings = [-1]
+    closings = [len(sentence)]
     direcs = ['']
 
     for dep in deps:
