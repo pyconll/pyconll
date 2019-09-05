@@ -7,6 +7,14 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[2.1.1] - 2019-09-04
+--------------------
+
+Fixed
+~~~~~
+
+-  Solved ``math.inf`` issue with python 3.4 where it does not exist
+
 [2.1.0] - 2019-08-30
 --------------------
 
