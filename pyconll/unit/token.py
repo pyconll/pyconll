@@ -455,7 +455,10 @@ class Token(Conllable):
     sentences.
     """
 
-    __slots__ = ['id', '_form', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel', 'deps', 'misc']
+    __slots__ = [
+        'id', '_form', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel',
+        'deps', 'misc'
+    ]
 
     # The different delimiters and separators for the CoNLL-U format.
     # FIELD_DELIMITER separates columns on the token line.
