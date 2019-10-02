@@ -7,6 +7,18 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[2.2.0] - 2019-10-01
+--------------------
+
+Changed
+~~~~~~~
+
+-  Use slots on Token and Sentence class for more efficient memory usage
+   with large amounts of objects
+-  Remove source fields on Token and Sentence. These were not an
+   explicit part of the public API so this is not considered a breaking
+   change.
+
 [2.1.1] - 2019-09-04
 --------------------
 

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2019-10-01
+### Changed
+- Use slots on Token and Sentence class for more efficient memory usage with large amounts of objects
+- Remove source fields on Token and Sentence. These were not an explicit part of the public API so this is not considered a breaking change.
+
 ## [2.1.1] - 2019-09-04
 ### Fixed
 - Solved ``math.inf`` issue with python 3.4 where it does not exist

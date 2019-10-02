@@ -6,7 +6,7 @@ pyconll
 *Easily work with **CoNLL** files using the familiar syntax of
 **python**.*
 
-The current version is 2.1.1. This version is fully functional, stable,
+The current version is 2.2.0. This version is fully functional, stable,
 tested, documented, and actively developed.
 
 Links
@@ -92,11 +92,12 @@ create an issue for visibility if this feature interests you.
 Lastly, linguistic data can often be very large and this package
 attempts to keep that in mind. pyconll provides methods for creating in
 memory conll objects along with an iterate only version in case a corpus
-is too large to store in memory (the size of the memory structure is a
-little bit larger than the actual corpus file). The iterate only version
-can parse upwards of 100,000 words per second on a 16gb ram machine, so
-for most datasets to be used on a dev machine, this package will perform
-well.
+is too large to store in memory (the size of the memory structure is
+several times larger than the actual corpus file). The iterate only
+version can parse upwards of 100,000 words per second on a 16gb ram
+machine, so for most datasets to be used on a dev machine, this package
+will perform well. The 2.2.0 release also improves parse time and memory
+footprint by about 25%!
 
 Contributing
 ~~~~~~~~~~~~
