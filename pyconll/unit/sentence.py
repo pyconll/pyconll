@@ -34,6 +34,8 @@ class Sentence(Conllable):
     the associated annotations can be changed.
     """
 
+    __slots__ = ['_meta', '_tokens', '_ids_to_indexes']
+
     COMMENT_MARKER = '#'
     KEY_VALUE_COMMENT_PATTERN = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
     SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
@@ -52,8 +54,7 @@ class Sentence(Conllable):
         Raises:
             ParseError: If there is any token that was not valid.
         """
-        self.source = source
-        lines = self.source.split('\n')
+        lines = source.split('\n')
 
         self._meta = {}
         self._tokens = []
