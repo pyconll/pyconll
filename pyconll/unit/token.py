@@ -455,6 +455,8 @@ class Token(Conllable):
     sentences.
     """
 
+    __slots__ = ['id', '_form', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel', 'deps', 'misc']
+
     # The different delimiters and separators for the CoNLL-U format.
     # FIELD_DELIMITER separates columns on the token line.
     # COMPONENT_DELIMITER separates a field with multiple components.
@@ -505,12 +507,10 @@ class Token(Conllable):
         """
         if source[-1] == '\n':
             source = source[:-1]
-        self._source = source
 
         fields = source.split(Token.FIELD_DELIMITER)
-        self._fields = fields
 
-        if len(self._fields) != 10:
+        if len(fields) != 10:
             error_msg = 'The number of columns per token line must be 10. Invalid token: {}'.format(
                 source)
             raise ParseError(error_msg)
