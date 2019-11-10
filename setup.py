@@ -29,7 +29,8 @@ setup(
     url = 'https://github.com/pyconll/pyconll',
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
-    install_requires =[
+    python_requires = '~=3.4',
+    install_requires = [
         'requests >= 2.21'
     ],
     classifiers = [
