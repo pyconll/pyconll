@@ -7,6 +7,7 @@ certifi==2019.3.9
 chardet==3.0.4
 cookies==2.2.1
 docutils==0.14
+guppy3==3.0.3
 idna==2.8
 imagesize==1.0.0
 isort==4.3.4
