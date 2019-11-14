@@ -1,3 +1,8 @@
+
+
+TODO: ALSO INCLUDE PART ABOUT SETUPTOOLS VERSION FOR PROPER PACKAGING THIS SHOULD BE FOR CONTRIBUTORS ABLE TO PUSH NEW VERSIONS.
+
+
 [Build Status] [Coverage Status] [Documentation Status]
 
 
@@ -96,6 +101,10 @@ setups up a pre-push hook to validate that code matches the default YAPF
 style. While this is technically optional, it is highly encouraged.
 pip install -r requirements.txt sets up environment dependencies like
 yapf, twine, sphinx, etc.
+
+For packaging new versions, please use setuptools version 24.2.0 or
+greater for creating the appropriate packaging that recognizes the
+python_requires metadata.
 
 README and CHANGELOG
 

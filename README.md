@@ -1,3 +1,5 @@
+# TODO: Also include part about setuptools version for proper packaging this should be for contributors able to push new versions.
+
 [![Build Status](https://travis-ci.org/pyconll/pyconll.svg?branch=master)](https://travis-ci.org/pyconll/pyconll)
 [![Coverage Status](https://coveralls.io/repos/github/pyconll/pyconll/badge.svg?branch=master)](https://coveralls.io/github/pyconll/pyconll?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/pyconll/badge/?version=stable)](https://pyconll.readthedocs.io/en/latest/?badge=latest)
@@ -65,6 +67,8 @@ Lastly, linguistic data can often be very large and this package attempts to kee
 ### Contributing
 
 Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `make hooks` and `pip install -r requirements.txt` to properly setup locally. `make hooks` setups up a pre-push hook to validate that code matches the default YAPF style. While this is technically optional, it is highly encouraged. `pip install -r requirements.txt` sets up environment dependencies like `yapf`, `twine`, `sphinx`, etc.
+
+For packaging new versions, please use setuptools version 24.2.0 or greater for creating the appropriate packaging that recognizes the `python_requires` metadata.
 
 
 #### README and CHANGELOG

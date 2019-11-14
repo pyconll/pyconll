@@ -1,3 +1,6 @@
+TODO: Also include part about setuptools version for proper packaging this should be for contributors able to push new versions.
+================================================================================================================================
+
 |Build Status| |Coverage Status| |Documentation Status|
 
 pyconll
@@ -112,6 +115,10 @@ validate that code matches the default YAPF style. While this is
 technically optional, it is highly encouraged.
 ``pip install -r requirements.txt`` sets up environment dependencies
 like ``yapf``, ``twine``, ``sphinx``, etc.
+
+For packaging new versions, please use setuptools version 24.2.0 or
+greater for creating the appropriate packaging that recognizes the
+``python_requires`` metadata.
 
 README and CHANGELOG
 ^^^^^^^^^^^^^^^^^^^^
