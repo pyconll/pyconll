@@ -22,7 +22,7 @@ setup(
     name = 'pyconll',
     packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
     version = '2.2.0',
-    description = 'Read and maniuplate CoNLL files',
+    description = 'Read and manipulate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
     author_email = 'matgrioni@gmail.com',

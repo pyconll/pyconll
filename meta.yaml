@@ -1,0 +1,44 @@
+{% set name = "pyconll" %}
+{% set version = "2.2.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: "99a4871c2c7065e58f8d9792c493da63168a95db91b5f7cae624e79040380dbb"
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
+
+requirements:
+  host:
+    - pip
+    - python >=3.4
+    - requests >=2.21
+  run:
+    - python >=3.4
+    - requests >=2.21
+
+test:
+  imports:
+    - pyconll
+    - pyconll.tree
+    - pyconll.unit
+
+about:
+  home: "https://github.com/pyconll/pyconll"
+  license: "MIT"
+  license_family: "MIT"
+  license_file: "{{ environ['RECIPE_DIR'] }}/LICENSE"
+  summary: "Read and manipulate CoNLL files"
+  description: "Read and manipulate CoNLL files"
+  doc_url: "https://pyconll.readthedocs.io/en/stable/"
+  dev_url: "https://github.com/pyconll/pyconll"
+
+extra:
+  recipe-maintainers:
+    - matgrioni
