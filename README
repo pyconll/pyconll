@@ -24,6 +24,11 @@ As with most python packages, simply use pip to install from PyPi.
 
     pip install pyconll
 
+pyconll is also available as a conda package on the pyconll channel.
+Only package 2.2.0 and newer are available for conda at the moment.
+
+    conda install -c pyconll pyconll
+
 This package is designed for, and only tested with python 3.4 and up and
 will not be backported to python 2.x.
 
