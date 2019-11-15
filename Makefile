@@ -13,7 +13,6 @@ coveragetest:
 	coverage run --source pyconll -m pytest
 
 build:
-	python setup.py build
 	python setup.py sdist bdist_wheel
 
 publish:
