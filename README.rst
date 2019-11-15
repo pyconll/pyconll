@@ -1,6 +1,3 @@
-TODO: Also include part about setuptools version for proper packaging this should be for contributors able to push new versions.
-================================================================================================================================
-
 |Build Status| |Coverage Status| |Documentation Status|
 
 pyconll
