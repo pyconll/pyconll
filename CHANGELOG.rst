@@ -7,6 +7,26 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[2.2.1] - 2019-11-15
+--------------------
+
+Fixed
+~~~~~
+
+-  Branding information typo within setup.py
+-  Spurious command in Makefile recipe
+-  Missing dev dependency in requirements.txt
+
+Added
+~~~~~
+
+-  Added ``python_requires`` clause to setup.py to prevent installation
+   on unsupported platforms
+-  Include information in README about ``setuptools`` version needed to
+   properly package within ``python_requires`` information
+-  Conda packaging support along with information in README about new
+   installation method
+
 [2.2.0] - 2019-10-01
 --------------------
 
