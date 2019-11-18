@@ -5,6 +5,8 @@ def read(fn):
     """
     Read the contents of the provided filename.
 
+    The filename is relative to the contents of the current file location.
+
     Args:
     fn: The filename to read in.
 
@@ -21,7 +23,7 @@ def read(fn):
 setup(
     name = 'pyconll',
     packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
-    version = '2.2.0',
+    version = read('.version').strip(),
     description = 'Read and manipulate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',

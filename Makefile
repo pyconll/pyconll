@@ -18,6 +18,10 @@ build:
 publish:
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
+	sleep 30s
+	conda config --set anaconda_upload yes
+	conda build meta.yaml
+	conda config --set anaconda_upload no
 
 publishtest:
 	python setup.py sdist bdist_wheel

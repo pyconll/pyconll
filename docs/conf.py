@@ -16,22 +16,45 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import datetime
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
+
+def read(fn):
+    """
+    Read the contents of the provided filename.
+
+    The filename is relative to the contents of the current file location.
+
+    Args:
+    fn: The filename to read in.
+
+    Returns:
+    The contents of the file.
+    """
+    abs_fn = os.path.join(os.path.dirname(__file__), fn)
+    f = open(abs_fn)
+    contents = f.read()
+    f.close()
+
+    return contents
 
 
 
 # -- Project information -----------------------------------------------------
 
+_year = datetime.datetime.now().year
+
 project = 'pyconll'
-copyright = '2019, Matias Grioni'
 author = 'Matias Grioni'
+copyright = '{}, {}'.format(_year, _author)
 
 # The short X.Y version
-version = '2.2'
+_v = read('../.version').strip()
+version = _v
 # The full version, including alpha/beta/rc tags
-release = '2.2.0'
+release = _v
 
 
 # -- General configuration ---------------------------------------------------

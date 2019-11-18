@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.2.1] - 2019-11-15
+## [2.2.1] - 2019-11-17
 ### Fixed
 - Branding information typo within setup.py 
 - Spurious command in Makefile recipe
@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Added `python_requires` clause to setup.py to prevent installation on unsupported platforms
 - Include information in README about `setuptools` version needed to properly package within `python_requires` information
 - Conda packaging support along with information in README about new installation method
+
+### Changed
+- `pyconll` version is now housed in .version file so that this version only needs to be changed in one place before release.
 
 ## [2.2.0] - 2019-10-01
 ### Changed

@@ -1,5 +1,5 @@
-{% set name = "pyconll" %}
-{% set version = "2.2.0" %}
+{% set name = load_setup_py_data(setup_file='setup.py', from_recipe_dir=True).name %}
+{% set version = load_setup_py_data(setup_file='setup.py', from_recipe_dir=True).version %}
 
 package:
   name: "{{ name|lower }}"
