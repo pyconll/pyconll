@@ -7,7 +7,7 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
-[2.2.1] - 2019-11-15
+[2.2.1] - 2019-11-17
 --------------------
 
 Fixed
@@ -26,6 +26,12 @@ Added
    properly package within ``python_requires`` information
 -  Conda packaging support along with information in README about new
    installation method
+
+Changed
+~~~~~~~
+
+-  ``pyconll`` version is now housed in .version file so that this
+   version only needs to be changed in one place before release.
 
 [2.2.0] - 2019-10-01
 --------------------
