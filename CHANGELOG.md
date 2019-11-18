@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Fixed
 - Branding information typo within setup.py 
 - Spurious command in Makefile recipe
-- Missing dev dependency in requirements.txt
 
 ### Added
 - Added `python_requires` clause to setup.py to prevent installation on unsupported platforms
