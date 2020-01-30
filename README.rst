@@ -1,4 +1,4 @@
-|Build Status| |Coverage Status| |Documentation Status|
+|Build Status| |Coverage Status| |Documentation Status| |gitter|
 
 pyconll
 -------
@@ -142,3 +142,5 @@ coding style stays consistent over time and between authors.
    :target: https://coveralls.io/github/pyconll/pyconll?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/pyconll/badge/?version=stable
    :target: https://pyconll.readthedocs.io/en/latest/?badge=latest
+.. |gitter| image:: https://badges.gitter.im/pyconll/pyconll.svg
+   :target: https://gitter.im/pyconll/pyconll?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
