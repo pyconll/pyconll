@@ -150,7 +150,7 @@ class Sentence(Conllable):
 
     def set_meta(self, key, value=None):
         """
-        Set the metadata or comments associated with this Sentence. If key
+        Set the metadata or comments associated with this Sentence. If key is
         present raises ValueError.
 
         Args:
