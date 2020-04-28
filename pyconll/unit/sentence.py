@@ -159,9 +159,16 @@ class Sentence(Conllable):
                 singleton, this field can be ignored or set to None.
         """
         if self.meta_present(key):
-            raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
+            raise ValueError('This key is already present.')
 
         self._meta[key] = value
+
+    def remove_meta(self, key):
+        """
+        Remove an element from metadata.
+        """
+
+        del self._meta[key]
 
     def to_tree(self):
         """
@@ -298,10 +305,3 @@ class Sentence(Conllable):
             includes both all the multiword tokens and their decompositions.
         """
         return len(self._tokens)
-
-    def remove_key(self, key):
-        """
-        Remove a key from metadata.
-        """
-
-        del self._meta[key]
