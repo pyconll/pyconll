@@ -167,7 +167,6 @@ class Sentence(Conllable):
         """
         Remove an element from metadata.
         """
-
         del self._meta[key]
 
     def to_tree(self):
