@@ -150,14 +150,15 @@ class Sentence(Conllable):
 
     def set_meta(self, key, value=None):
         """
-        Set the metadata or comments associated with this Sentence.
+        Set the metadata or comments associated with this Sentence. If key
+        present raises ValueError.
 
         Args:
             key: The key for the comment.
             value: The value to associate with the key. If the comment is a
                 singleton, this field can be ignored or set to None.
         """
-        if key == Sentence.TEXT_KEY:
+        if self.meta_present(key):
             raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
 
         self._meta[key] = value
@@ -297,3 +298,10 @@ class Sentence(Conllable):
             includes both all the multiword tokens and their decompositions.
         """
         return len(self._tokens)
+
+    def remove_key(self, key):
+        """
+        Remove a key from metadata.
+        """
+
+        del self._meta[key]
