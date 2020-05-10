@@ -150,7 +150,7 @@ class Sentence(Conllable):
 
     def set_meta(self, key, value=None):
         """
-        Set the metadata or comments associated with this Sentence.
+        Set or add the metadata or comments associated with this Sentence.
 
         Args:
             key: The key for the comment.
