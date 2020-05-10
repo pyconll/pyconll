@@ -165,8 +165,17 @@ class Sentence(Conllable):
 
     def remove_meta(self, key):
         """
-        Remove an element from metadata.
+        Remove a metadata element associated with the Sentence.
+
+        Args:
+            key: The name of the metadata / comment.
+
+        Raises:
+            KeyError: If the key is not present in the Sentence metadata.
         """
+        if key == Sentence.TEXT_KEY:
+            raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
+
         del self._meta[key]
 
     def to_tree(self):
