@@ -157,8 +157,8 @@ class Sentence(Conllable):
             value: The value to associate with the key. If the comment is a
                 singleton, this field can be ignored or set to None.
         """
-        if self.meta_present(key):
-            raise ValueError('This key is already present.')
+        if key == Sentence.TEXT_KEY:
+            raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
 
         self._meta[key] = value
 
