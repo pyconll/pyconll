@@ -48,7 +48,7 @@ _year = datetime.datetime.now().year
 
 project = 'pyconll'
 author = 'Matias Grioni'
-copyright = '{}, {}'.format(_year, _author)
+copyright = '{}, {}'.format(_year, author)
 
 # The short X.Y version
 _v = read('../.version').strip()
