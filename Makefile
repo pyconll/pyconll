@@ -1,4 +1,4 @@
-.PHONY: docs clean
+.PHONY: format lint test coveragetest build publish publishtest gendocs docs clean hooks
 
 format:
 	yapf -p -r -i pyconll/ tests/
@@ -27,7 +27,7 @@ publishtest:
 	python setup.py sdist bdist_wheel
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-docs:
+gendocs:
 	pandoc --from=markdown --to=rst --output=README.rst README.md
 	pandoc --from=markdown --to=plain --output=README README.md
 	pandoc --from=markdown --to=rst --output=CHANGELOG.rst CHANGELOG.md
