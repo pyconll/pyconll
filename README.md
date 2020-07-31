@@ -3,6 +3,9 @@
 [![Documentation Status](https://readthedocs.org/projects/pyconll/badge/?version=stable)](https://pyconll.readthedocs.io/en/latest/?badge=latest)
 [![gitter](https://badges.gitter.im/pyconll/pyconll.svg)](https://gitter.im/pyconll/pyconll?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+
+RANDOM TEXT DO NOT SUBMIT.
+
 ## pyconll
 
 *Easily work with **CoNLL** files using the familiar syntax of **python**.*
