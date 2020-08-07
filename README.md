@@ -26,7 +26,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x.
+This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x. File an issue if support is desired for a python version less than 3.4.
 
 
 ### Motivation
