@@ -1,7 +1,6 @@
 name: Release pyconll to PyPi (Test to start with...)
 on:
-  release:
-    types: [published]
+  push
 
 jobs:
   build:
