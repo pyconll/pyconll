@@ -1,0 +1,15 @@
+name: Release pyconll to PyPi (Test to start with...)
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build release package for pyconll
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup Python 3.5.2
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.5.2
