@@ -1,8 +1,6 @@
 name: PyPi Release
 on:
-  release:
-    types:
-      - released
+  push
 
 jobs:
   release:
