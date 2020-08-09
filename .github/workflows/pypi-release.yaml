@@ -15,8 +15,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -v setuptools 41.6.0
-          pip install -v wheel 0.31.1
+          pip install setuptools==41.6.0
+          pip install wheel==0.31.1
       - name: Build pyconll distributables
         run: |
           python setup.py sdist bdist_wheel
