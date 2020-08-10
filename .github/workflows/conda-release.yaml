@@ -21,4 +21,4 @@ jobs:
           conda install conda-build
       - name: Build and upload conda package
         run: |
-          conda build --token ${{ secrets.CONDA_API_TOKEN}} -u matgrioni meta.yaml
+          conda build --token ${{ secrets.CONDA_API_TOKEN}} --user matgrioni meta.yaml
