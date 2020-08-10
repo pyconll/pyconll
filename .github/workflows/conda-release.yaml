@@ -1,6 +1,8 @@
 name: Pyconll Release to Conda
 on:
-  push
+  release:
+    types:
+      - released
 
 jobs:
   release:
