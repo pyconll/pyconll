@@ -23,4 +23,4 @@ jobs:
           conda install anaconda-client
       - name: Build and upload conda package
         run: |
-          conda build --token ${{ secrets.CONDA_API_TOKEN}} --user matgrioni meta.yaml
+          conda build --token ${{ secrets.CONDA_API_TOKEN }} --user pyconll meta.yaml
