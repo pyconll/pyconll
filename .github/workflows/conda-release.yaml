@@ -16,6 +16,9 @@ jobs:
         uses: s-weigand/setup-conda@v1
         with:
           activate-conda: true
+      - name: Install conda-build
+        run: |
+          conda install conda-build
       - name: Build and upload conda package
         run: |
           conda build --token ${{ secrets.CONDA_API_TOKEN}} -u matgrioni meta.yaml
