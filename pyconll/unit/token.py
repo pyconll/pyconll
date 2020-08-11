@@ -4,6 +4,8 @@ in CoNLL-U and so the data and parsing in this module is central to the CoNLL-U
 format.
 """
 
+import functools
+
 from pyconll.conllable import Conllable
 from pyconll.exception import ParseError, FormatError
 
@@ -436,6 +438,49 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     return output if output else empty
 
 
+@functools.total_ordering
+class _TokenIdComparer:
+    def __init__(self, token_id):
+        self.token_id = token_id
+
+    def __eq__(self, other):
+        return self.token_id == other.token_id
+
+    def __ne__(self, other):
+        return not self == other
+
+    @staticmethod
+    def _find_comparable_section(token_id):
+        idx = token_id.find('-')
+        if idx < 0:
+            return token_id
+
+        return token_id[:idx]
+
+    @staticmethod
+    def _split_by_radix(token_id):
+        idx = token_id.find('.')
+        if idx < 0:
+            return [int(token_id), 0]
+
+        first = int(token_id[:idx])
+        second = int(token_id[idx + 1:])
+        return [first, second]
+
+    def __lt__(self, other):
+        # There are 3 types of ids. A plain number, a decimal number, and a range.
+        # Each number is compared as normal except that for a range, only the first
+        # element is used in the comparison. So 3.3-4 is less than anything with token
+        # id 3.4 or greater (ranges are compared by their starting index).
+        self_compare = _TokenIdComparer._find_comparable_section(self.token_id)
+        other_compare = _TokenIdComparer._find_comparable_section(other.token_id)
+
+        self_l, self_r = _TokenIdComparer._split_by_radix(self_compare)
+        other_l, other_r = _TokenIdComparer._split_by_radix(other_compare)
+
+        return self_l < other_l or (self_l == other_l and self_r < other_r)
+
+
 class Token(Conllable):
     """
     A token in a CoNLL-U file. This consists of 10 columns, each separated by
@@ -476,7 +521,7 @@ class Token(Conllable):
     # Keys for sorting attribute-value columns. BY_ID converts the attribute
     # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
     # converts the pair to the lowercase version of the atribute.
-    BY_ID = lambda pair: int(pair[0])
+    BY_ID = lambda pair: _TokenIdComparer(pair[0])
     BY_CASE_INSENSITIVE = lambda pair: pair[0].lower()
 
     def __init__(self, source, empty=False):
