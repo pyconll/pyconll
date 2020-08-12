@@ -557,7 +557,8 @@ class _TokenIdComparer:
         other_split_1, other_split_2 = _TokenIdComparer._split_token_id_as_range(
             other.token_id)
 
-        first_cmp = _TokenIdComparer._cmp_individual_ids(self_split_1, other_split_1)
+        first_cmp = _TokenIdComparer._cmp_individual_ids(
+            self_split_1, other_split_1)
 
         return first_cmp < 0 or (first_cmp == 0
                                  and _TokenIdComparer._cmp_individual_ids(
