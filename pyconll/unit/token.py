@@ -5,6 +5,7 @@ format.
 """
 
 import functools
+import math
 
 from pyconll.conllable import Conllable
 from pyconll.exception import ParseError, FormatError
@@ -440,25 +441,82 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
 
 @functools.total_ordering
 class _TokenIdComparer:
+    """
+    Implementation class for comparing token ids to be sorted, using the
+    standard python sorting routines. Two ids are equal if the id text is
+    exactly the same. Otherwise, ids are compared by parts, with a range id
+    being compared by the start index and then by the end index, and decimal
+    ids having the radix separated parts compared separately.
+    """
+
     def __init__(self, token_id):
+        """
+        Create the comparer wrapping the given, assumed valid format, id.
+
+        Args:
+            token_id: The token id to wrap.
+        """
         self.token_id = token_id
 
     def __eq__(self, other):
+        """
+        Compares if the current id is equal to the provided id.
+
+        Args:
+            other: The other id wrapper to compare against.
+
+        Returns:
+            True if the two underlying ids are exactly the same.
+        """
         return self.token_id == other.token_id
 
     def __ne__(self, other):
+        """
+        Compares if the current id is not equal to the provided id.
+
+        Args:
+            other: The other id wrapper to compare against.
+
+        Returns:
+            True if the two underlying ids are not the same.
+        """
         return not self == other
 
     @staticmethod
-    def _find_comparable_section(token_id):
+    def _split_token_id_as_range(token_id):
+        """
+        Splits a token into its individual parts as a range.
+
+        If the token does not represent a range, the beginning and end are the
+        same token id.
+
+        Args:
+            token_id: The id to split into its range parts.
+
+        Returns:
+            A tuple of size two with the token id representing the range.
+        """
         idx = token_id.find('-')
         if idx < 0:
-            return token_id
+            ranges = (token_id, token_id)
+        else:
+            ranges = (token_id[:idx], token_id[idx + 1:])
 
-        return token_id[:idx]
+        return ranges
 
     @staticmethod
     def _split_by_radix(token_id):
+        """
+        Split a non-range token id by the radix point.
+
+        Any id without a radix point will assume it is 0.
+
+        Args:
+            token_id: The id to decompose into its two parts based on the radix.
+
+        Returns:
+            A tuple of size 2 with the id parts decomposed as integers.
+        """
         idx = token_id.find('.')
         if idx < 0:
             return [int(token_id), 0]
@@ -467,18 +525,43 @@ class _TokenIdComparer:
         second = int(token_id[idx + 1:])
         return [first, second]
 
+    @staticmethod
+    def _cmp_individual_ids(a, b):
+        """
+        Compare two non-range token ids using a traditional compare function.
+
+        Args:
+            a: The first argument to compare and the basis of the comparison.
+            b: The second argument to compare against.
+
+        Returns:
+            The results of a traditional compare function in basis of a to b.
+        """
+        a_l, a_r = _TokenIdComparer._split_by_radix(a)
+        b_l, b_r = _TokenIdComparer._split_by_radix(b)
+
+        return math.copysign(2, a_l - b_l) + math.copysign(1, a_r - b_r)
+
     def __lt__(self, other):
-        # There are 3 types of ids. A plain number, a decimal number, and a range.
-        # Each number is compared as normal except that for a range, only the first
-        # element is used in the comparison. So 3.3-4 is less than anything with token
-        # id 3.4 or greater (ranges are compared by their starting index).
-        self_compare = _TokenIdComparer._find_comparable_section(self.token_id)
-        other_compare = _TokenIdComparer._find_comparable_section(other.token_id)
+        """
+        Compares if other is less than the currently wrapped id.
 
-        self_l, self_r = _TokenIdComparer._split_by_radix(self_compare)
-        other_l, other_r = _TokenIdComparer._split_by_radix(other_compare)
+        Args:
+            other: The wrapped id to compare against.
 
-        return self_l < other_l or (self_l == other_l and self_r < other_r)
+        Returns:
+            True if the current id is less than the id wrapped by other.
+        """
+        self_split_1, self_split_2 = _TokenIdComparer._split_token_id_as_range(
+            self.token_id)
+        other_split_1, other_split_2 = _TokenIdComparer._split_token_id_as_range(
+            other.token_id)
+
+        first_cmp = _TokenIdComparer._cmp_individual_ids(self_split_1, other_split_1)
+
+        return first_cmp < 0 or (first_cmp == 0
+                                 and _TokenIdComparer._cmp_individual_ids(
+                                     self_split_2, other_split_2))
 
 
 class Token(Conllable):
