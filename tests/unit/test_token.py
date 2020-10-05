@@ -475,3 +475,19 @@ def test_deps_sort_order_double_digits():
             '0	root	2:nmod|10:nsubj	SpaceAfter=No'
 
     assert conll == formatted_line
+
+
+def test_deps_sort_order_decimal():
+    """
+    Test that enhanced dependencies are sorted properly for ranges.
+    """
+    token_line = '10	gave	give	VERB	_	Number=Sing|Gender=Fem	' \
+            '0	root	10.2:nsubj|2:nmod|10.1:nsubj	SpaceAfter=No'
+
+    token = Token(token_line)
+    conll = token.conll()
+
+    formatted_line = '10	gave	give	VERB	_	Gender=Fem|Number=Sing	' \
+            '0	root	2:nmod|10.1:nsubj|10.2:nsubj	SpaceAfter=No'
+
+    assert conll == formatted_line
