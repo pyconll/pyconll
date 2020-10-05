@@ -20,7 +20,6 @@ jobs:
     dist: xenial
     language: python
     python: 3.8
-    if: branch IN (master, dev)
     install:
       - pip install -r requirements.txt
     script:
