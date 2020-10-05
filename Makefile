@@ -5,7 +5,7 @@ format:
 
 lint:
 	pylint --rcfile .pylintrc pyconll/ &&
-	yapf -prd -e *.conllu pyconll/ tests/ > /dev/null 2>&1
+	yapf -prq -e *.conllu pyconll/ tests/
 
 test:
 	python -m pytest -vv --ignore tests/int
