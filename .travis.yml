@@ -8,7 +8,7 @@ python:
     - 3.8
 jobs:
     include:
-        - stage: test
+        - stage: unittest
           install:
             - pip install -r requirements.txt
             - pip install coveralls
@@ -17,7 +17,7 @@ jobs:
             - make lint
           after_success:
             - coveralls
-        - stage: test
+        - stage: inttest
           if: branch IN (master, dev)
           install:
             - pip install -r requirements.txt
