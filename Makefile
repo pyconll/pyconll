@@ -4,7 +4,7 @@ format:
 	yapf -pri -e *.conllu pyconll/ tests/
 
 lint:
-	pylint --rcfile .pylintrc pyconll/ &&
+	pylint --rcfile .pylintrc pyconll/ && \
 	yapf -prq -e *.conllu pyconll/ tests/
 
 test:
