@@ -1,20 +1,21 @@
+- stage: unittest
+  dist: xenial
+  language: python
+  python:
+      - 3.4
+      - 3.5
+      - 3.6
+      - 3.7
+      - 3.8
+  install:
+    - pip install -r requirements.txt
+    - pip install coveralls
+  script:
+    - make coveragetest
+  after_success:
+    - coveralls
+
 jobs:
-  - stage: unittest
-    dist: xenial
-    language: python
-    python:
-        - 3.4
-        - 3.5
-        - 3.6
-        - 3.7
-        - 3.8
-    install:
-      - pip install -r requirements.txt
-      - pip install coveralls
-    script:
-      - make coveragetest
-    after_success:
-      - coveralls
   - stage: inttest
     dist: xenial
     language: python
