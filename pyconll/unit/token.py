@@ -540,7 +540,14 @@ class _TokenIdComparer:
         a_l, a_r = _TokenIdComparer._split_by_radix(a)
         b_l, b_r = _TokenIdComparer._split_by_radix(b)
 
-        return math.copysign(2, a_l - b_l) + math.copysign(1, a_r - b_r)
+        return _TokenIdComparer._zcopysign(2, a_l - b_l) + _TokenIdComparer._zcopysign(1, a_r - b_r)
+
+    @staticmethod
+    def _zcopysign(a, b):
+        if not b:
+            return b
+
+        return math.copysign(a, b)
 
     def __lt__(self, other):
         """
