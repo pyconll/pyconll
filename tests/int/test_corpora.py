@@ -63,7 +63,10 @@ def download_file(url, dest, chunk_size, attempts):
     with open(dest_loc, 'wb') as f:
         while attempt < attempts:
             try:
-                with requests.get(url, headers={'Range': 'bytes={}-'.format(byte_loc)}, stream=True) as r:
+                with requests.get(
+                        url,
+                        headers={'Range': 'bytes={}-'.format(byte_loc)},
+                        stream=True) as r:
                     for chunk in r.iter_content(chunk_size=chunk_size):
                         f.write(chunk)
                 break
@@ -105,7 +108,8 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
     fixture_cache.mkdir(exist_ok=True)
 
     fixture_path = fixture_cache / entry_id
-    if not fixture_path.exists() or hash_path(hashlib.sha256(), fixture_path, 4096) != contents_hash:
+    if not fixture_path.exists() or hash_path(hashlib.sha256(), fixture_path,
+                                              4096) != contents_hash:
         if not fixture_path.exists():
             fixture_path.mkdir()
         else:
@@ -145,12 +149,15 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
     Returns:
         The path where the fixture is located.
     """
-    return pytest.fixture(lambda: url_zip_fixture(fixture_cache, entry_id, contents_hash, url))
+    return pytest.fixture(
+        lambda: url_zip_fixture(fixture_cache, entry_id, contents_hash, url))
+
 
 ud_v2_6_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_6',
     '410224894b968f1dc35110fe9f74264a8a1ffe397bbed8442e64200201a1a550',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz')
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
+)
 
 
 def test_ud_v2_6_data(ud_v2_6_corpus_root):
