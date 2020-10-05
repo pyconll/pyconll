@@ -13,7 +13,6 @@ jobs:
       - pip install coveralls
     script:
       - make coveragetest
-      - make lint
     after_success:
       - coveralls
   - stage: inttest
@@ -24,3 +23,11 @@ jobs:
       - pip install -r requirements.txt
     script:
       - make inttest
+  - stage: lint
+    dist: xenial
+    language: python
+    python: 3.8
+    install:
+      - pip install -r requirements.txt
+    script:
+      - make lint

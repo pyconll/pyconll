@@ -540,11 +540,21 @@ class _TokenIdComparer:
         a_l, a_r = _TokenIdComparer._split_by_radix(a)
         b_l, b_r = _TokenIdComparer._split_by_radix(b)
 
-        return _TokenIdComparer._zcopysign( 2, a_l - b_l) + \
+        return _TokenIdComparer._zcopysign(2, a_l - b_l) + \
                _TokenIdComparer._zcopysign(1, a_r - b_r)
 
     @staticmethod
     def _zcopysign(a, b):
+        """
+        copysign that returns the sign indicator if it is 0 or -0.
+
+        Args:
+            a: The magnitude.
+            b: The sign indicator.
+
+        Returns:
+            Usual copysign result unless sign indicator is 0.
+        """
         if not b:
             return b
 

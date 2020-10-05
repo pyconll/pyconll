@@ -4,7 +4,8 @@ format:
 	yapf -p -r -i pyconll/ tests/
 
 lint:
-	pylint --rcfile .pylintrc pyconll/
+	pylint --rcfile .pylintrc pyconll/ &&
+	yapf -p -r -i --diff pyconll/ tests/
 
 test:
 	python -m pytest -vv --ignore tests/int
