@@ -1,4 +1,4 @@
-.PHONY: format lint test coveragetest build gendocs docs clean hooks
+.PHONY: format lint test coveragetest inttest build gendocs docs clean hooks
 
 format:
 	yapf -p -r -i pyconll/ tests/
@@ -7,10 +7,13 @@ lint:
 	pylint --rcfile .pylintrc pyconll/
 
 test:
-	python -m pytest -vv
+	python -m pytest -vv --ignore tests/int
 
 coveragetest:
-	coverage run --source pyconll -m pytest
+	coverage run --source pyconll -m pytest --ignore tests/int
+
+inttest:
+	python -m pytest tests/int
 
 build:
 	python setup.py sdist bdist_wheel
