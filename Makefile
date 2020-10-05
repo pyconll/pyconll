@@ -1,11 +1,11 @@
 .PHONY: format lint test coveragetest inttest build gendocs docs clean hooks
 
 format:
-	yapf -p -r -i pyconll/ tests/
+	yapf -pri -e *.conllu pyconll/ tests/
 
 lint:
 	pylint --rcfile .pylintrc pyconll/ &&
-	yapf -p -r -i --diff pyconll/ tests/
+	yapf -prd -e *.conllu pyconll/ tests/ > /dev/null 2>&1
 
 test:
 	python -m pytest -vv --ignore tests/int

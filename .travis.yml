@@ -23,7 +23,7 @@ jobs:
     install:
       - pip install -r requirements.txt
     script:
-      - make inttest
+      - travis_wait 30 make inttest
   - stage: lint
     dist: xenial
     language: python
