@@ -89,7 +89,6 @@ def _create_dict_tupled_empty_parse(size, strict):
         ParseError: If the parsing is strict and there is a component size
             mismatch, or if there are too many components in general.
     """
-
     def _dict_tupled_empty_parser(v, v_delimiter):
         """
         Map a value into the appropriate form, for a tupled based column.
@@ -421,7 +420,6 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
-
     def paramed(pair):
         f = formatter(pair[1], v_delimiter)
         if f is None:
@@ -448,7 +446,6 @@ class _TokenIdComparer:
     being compared by the start index and then by the end index, and decimal
     ids having the radix separated parts compared separately.
     """
-
     def __init__(self, token_id):
         """
         Create the comparer wrapping the given, assumed valid format, id.
@@ -686,12 +683,14 @@ class Token(Conllable):
                                      Token.AV_SEPARATOR, Token.V_DELIMITER)
         self.head = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps = _dict_tupled_empty_map(
-            fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
-            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
-        self.misc = _dict_mixed_empty_map(
-            fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER)
+        self.deps = _dict_tupled_empty_map(fields[8], Token.EMPTY,
+                                           Token.COMPONENT_DELIMITER,
+                                           Token.AV_DEPS_SEPARATOR,
+                                           Token.V_DEPS_DELIMITER, 4)
+        self.misc = _dict_mixed_empty_map(fields[9], Token.EMPTY,
+                                          Token.COMPONENT_DELIMITER,
+                                          Token.AV_SEPARATOR,
+                                          Token.V_DELIMITER)
 
     @property
     def form(self):
@@ -734,12 +733,14 @@ class Token(Conllable):
                                 Token.V_DELIMITER, Token.BY_CASE_INSENSITIVE)
         head = _unit_conll_map(self.head, Token.EMPTY)
         deprel = _unit_conll_map(self.deprel, Token.EMPTY)
-        deps = _dict_tupled_conll_map(
-            self.deps, Token.EMPTY, Token.COMPONENT_DELIMITER,
-            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, Token.BY_ID)
-        misc = _dict_mixed_conll_map(
-            self.misc, Token.EMPTY, Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER, Token.BY_CASE_INSENSITIVE)
+        deps = _dict_tupled_conll_map(self.deps, Token.EMPTY,
+                                      Token.COMPONENT_DELIMITER,
+                                      Token.AV_DEPS_SEPARATOR,
+                                      Token.V_DEPS_DELIMITER, Token.BY_ID)
+        misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
+                                     Token.COMPONENT_DELIMITER,
+                                     Token.AV_SEPARATOR, Token.V_DELIMITER,
+                                     Token.BY_CASE_INSENSITIVE)
 
         items = [
             token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc

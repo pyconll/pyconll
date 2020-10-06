@@ -19,7 +19,6 @@ class TreeBuilder:
     created from the same TreeBuilder, Tree nodes will be unique, but data on
     the nodes will be shallow copies.
     """
-
     def __init__(self):
         """
         Creates a new empty TreeBuilder, with no internal data.
@@ -72,8 +71,8 @@ class TreeBuilder:
             self.current = self.current[i]
         except IndexError as e:
             raise IndexError(
-                '{}-th child is out of range. There are {} children on this node'.
-                format(i, len(self.current))) from e
+                '{}-th child is out of range. There are {} children on this node'
+                .format(i, len(self.current))) from e
 
     def move_to_root(self):
         """
@@ -117,8 +116,8 @@ class TreeBuilder:
             del self.current._children[i]
         except IndexError as e:
             raise IndexError(
-                '{}-th child is out of range. There are {} children on this node'.
-                format(i, len(self.current))) from e
+                '{}-th child is out of range. There are {} children on this node'
+                .format(i, len(self.current))) from e
 
     def add_child(self, data, move=False):
         """

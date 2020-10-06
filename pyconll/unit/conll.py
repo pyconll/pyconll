@@ -16,7 +16,6 @@ class Conll(MutableSequence, Conllable):
     specifies that the file must end in a new line but that requirement is
     relaxed here in parsing.
     """
-
     def __init__(self, it):
         """
         Create a CoNLL-U file collection of sentences.

@@ -122,10 +122,9 @@ def test_ngram_case_insensitive_n_token():
     """
     c = load_from_file(fixture_location('long.conll'))
     s, i, tokens = next(
-        find_ngrams(
-            c,
-            'l\' orgaNisaTion pour La sécurité et la'.split(),
-            case_sensitive=False))
+        find_ngrams(c,
+                    'l\' orgaNisaTion pour La sécurité et la'.split(),
+                    case_sensitive=False))
 
     actual_token_ids = list(map(lambda token: token.id, tokens))
     expected_token_ids = ['9', '10', '11', '12', '13', '14', '15']
@@ -182,8 +181,8 @@ def test_overlapping_nonprojectivities():
     sent = c[4]
     deps = find_nonprojective_deps(sent)
 
-    assert set(deps) == set([(sent['16'], sent['4']), (sent['16'],
-                                                       sent['11'])])
+    assert set(deps) == set([(sent['16'], sent['4']),
+                             (sent['16'], sent['11'])])
 
 
 def test_multiple_nonprojectivities():
