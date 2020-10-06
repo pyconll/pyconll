@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.3] - 2020-10-06
+### Fixed
+- Bug in outputting enhanced dependencies when index had a range or was for an empty node
+- Typo in variable reference in documentation generation code
+- Corrected docstring for `set_meta` for the Sentence API
+
+### Added
+- `remove_meta` was added to the Sentence API thanks to alexeykosh
+
+### Changed
+- Miscellaneous testing improvements and investments, Makefile improvements, release script improvements, and community improvements
+
 ## [2.2.1] - 2019-11-17
 ### Fixed
 - Branding information typo within setup.py 

@@ -22,8 +22,8 @@ Only package 2.2.0 and newer are available for conda at the moment.
     conda install -c pyconll pyconll
 
 This package is designed for, and only tested with python 3.4 and up and
-will not be backported to python 2.x. File an issue if support is
-desired for a python version less than 3.4.
+will not be backported to python 2.x or to any versions older than
+python 3.4 as this release has reached end of support in 2019.
 
 Motivation
 

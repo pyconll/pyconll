@@ -171,6 +171,7 @@ class Sentence(Conllable):
 
         Raises:
             KeyError: If the key is not present in the Sentence metadata.
+            ValueError: If the text key is provided, regardless of presence.
         """
         if key == Sentence.TEXT_KEY:
             raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
