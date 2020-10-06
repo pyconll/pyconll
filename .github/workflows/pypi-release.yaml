@@ -28,4 +28,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
-          repository_url: https://pypi.org/
+          repository_url: https://upload.pypi.org/legacy/
