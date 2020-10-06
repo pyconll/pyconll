@@ -9,6 +9,13 @@ The format is based on Keep a Changelog and this project adheres to
 Semantic Versioning.
 
 
+[2.3.1] - 2020-10-06
+
+Fixed
+
+-   PyPi workflow on release had improper repository url
+
+
 [2.3] - 2020-10-06
 
 Fixed
