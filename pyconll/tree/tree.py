@@ -14,7 +14,6 @@ class Tree:
     module which is a sort of friend class of Tree to maintain its immutable
     public contract.
     """
-
     def __init__(self):
         """
         Create a new empty tree. To create a useful Tree, use TreeBuilder.

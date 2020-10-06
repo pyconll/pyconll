@@ -150,10 +150,9 @@ def _transform_tokens_to_sorted_dependency_arcs(sentence):
 
     dependency_tokens = filter(
         lambda token: token.head != '0' and not token.is_multiword(), sentence)
-    deps = sorted(
-        map(lambda token: _token_to_dep_tuple(token, ids_to_idxs),
-            dependency_tokens),
-        key=_DependencyComparer)
+    deps = sorted(map(lambda token: _token_to_dep_tuple(token, ids_to_idxs),
+                      dependency_tokens),
+                  key=_DependencyComparer)
 
     return deps
 
@@ -163,7 +162,6 @@ class _DependencyComparer:
     """
     Wrapper to compare dependency arcs.
     """
-
     def __init__(self, dep):
         """
         Creates the wrapper for this dependency.
