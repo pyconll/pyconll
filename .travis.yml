@@ -17,6 +17,7 @@ after_success:
 
 jobs:
   - stage: inttest
+    if: branch = master
     dist: xenial
     language: python
     python: 3.5
