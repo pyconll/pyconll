@@ -27,7 +27,7 @@ jobs:
   - stage: lint
     dist: xenial
     language: python
-    python: 3.8
+    python: 3.5
     install:
       - pip install -r requirements.txt
     script:
