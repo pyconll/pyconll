@@ -22,7 +22,7 @@ To start, a CoNLL-U resource must be loaded, and ``pyconll`` can load from files
     my_conll_file_location = './ud/train.conll'
     train = pyconll.load_from_file(my_conll_file_location)
 
-Loading methods usually return a ``Conll`` object, but some methods return an iterator over ``Sentences`` and do not load the entire ``Conll`` object into memory at once.
+Loading methods usually return a ``Conll`` object, but some methods return an iterator over ``Sentences`` and do not load the entire ``Conll`` object into memory at once. The ``Conll`` object satisfies the MutableSequence_ contract in python, which means it functions nearly the same as a `list`.
 
 Traversing CoNLL-U
 ----------------------------------
@@ -58,3 +58,5 @@ Conclusion
 ----------------------------------
 
 ``pyconll`` allows for easy CoNLL-U loading, traversal, and serialization. Developers can define their own transformation or analysis of the loaded CoNLL-U data, and pyconll handles all the parsing and serialization logic. There are still some parts of the library that are not covered here such as the ``Tree`` data structure, loading files from network, and error handling, but the information on this page will get developers through the most important use cases.
+
+.. _MutableSequence: https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSequence

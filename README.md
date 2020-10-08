@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/pyconll/pyconll.svg?branch=master)](https://travis-ci.org/pyconll/pyconll)
 [![Coverage Status](https://coveralls.io/repos/github/pyconll/pyconll/badge.svg?branch=master)](https://coveralls.io/github/pyconll/pyconll?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/pyconll/badge/?version=stable)](https://pyconll.readthedocs.io/en/latest/?badge=latest)
+[![Version](https://img.shields.io/github/v/release/pyconll/pyconll)](https://github.com/pyconll/pyconll/releases)
 [![gitter](https://badges.gitter.im/pyconll/pyconll.svg)](https://gitter.im/pyconll/pyconll?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## pyconll
@@ -26,7 +27,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support in 2019.
+This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support starting in 2020.
 
 
 ### Motivation
@@ -64,7 +65,7 @@ This package edits CoNLL-U annotations. This does not include the annotated text
 
 This package also is only validated against the CoNLL-U format. The CoNLL and CoNLL-X format are not supported, but are very similar. I originally intended to support these formats as well, but their format is not as well defined as CoNLL-U so they are not included. Please create an issue for visibility if this feature interests you.
 
-Lastly, linguistic data can often be very large and this package attempts to keep that in mind. pyconll provides methods for creating in memory conll objects along with an iterate only version in case a corpus is too large to store in memory (the size of the memory structure is several times larger than the actual corpus file). The iterate only version can parse upwards of 100,000 words per second on a 16gb ram machine, so for most datasets to be used on a dev machine, this package will perform well. The 2.2.0 release also improves parse time and memory footprint by about 25%!
+Lastly, linguistic data can often be very large and this package attempts to keep that in mind. pyconll provides methods for creating in memory conll objects along with an iterate only version in case a corpus is too large to store in memory (the size of the memory structure is several times larger than the actual corpus file). The iterate only version can parse upwards of 100,000 words per second on a 16gb ram machine, so for most datasets to be used on a local dev machine, this package will perform well. The 2.2.0 release also improves parse time and memory footprint by about 25%!
 
 
 ### Contributing
@@ -76,9 +77,9 @@ For packaging new versions, please use setuptools version 24.2.0 or greater for 
 
 #### README and CHANGELOG
 
-When changing either of these files, please change the Markdown version and run ``make docs`` so that the other versions stay in sync.
+When changing either of these files, please change the Markdown version and run ``make gendocs`` so that the other versions stay in sync.
 
 
 #### Code Formatting
 
-Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors.
+Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors. If the development environment is not properly setup, then the CI build will fail if code is not formatted properly.
