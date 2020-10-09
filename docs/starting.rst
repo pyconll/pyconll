@@ -46,7 +46,7 @@ Statistics such as lemmas for a certain closed class POS or number of non-projec
                 if token.pos == 'NOUN':
                     noun_token_transformation(token)
 
-Note that most objects in ``pyconll`` are mutable, except for a select few fields, so changing the ``Token`` object remains with the ``Sentence``.
+Note that most objects in ``pyconll`` are mutable, except for a select few fields, so changing the ``Token`` object remains with the ``Sentence`` and can be output back into CoNLL format when processing is complete.
 
 Outputting CoNLL-U
 ----------------------------------
