@@ -3,7 +3,7 @@ pyconll
 
 Welcome to the ``pyconll`` documentation homepage.
 
-pyconll is designed as a flexible wrapper around the CoNLL-U format, to allow for easy loading and manipulating of dependency annotations.
+pyconll is designed as a flexible wrapper around the CoNLL-U format, to allow for easy loading and manipulating of dependency annotations. See an example of pyconll's syntax below.
 
 .. code:: python
 
@@ -25,7 +25,7 @@ pyconll is designed as a flexible wrapper around the CoNLL-U format, to allow fo
       print(sentence.id)
 
 
-Module documentation, guidance pages, and more are listed below in the table of contents. Those new to the project should visit the `Getting Started`__ page which goes through an end-to-end example of using pyconll. Other useful pages include the load_, conll_, sentence_, and token_ pages which contain documentation for the base modules.
+Those new to the project should visit the `Getting Started`__ page which goes through an end-to-end example of using pyconll. Other useful pages include the load_, conll_, sentence_, and token_ pages which contain documentation for the base modules. More module documentation, guidance pages, and more are listed below in the table of contents.
 
 For more information, the github_ project page has examples, tests, and source code.
 
