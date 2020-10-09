@@ -50,9 +50,9 @@ class Conll(MutableSequence, Conllable):
         """
         Write the Conll object to something that is writable.
 
-        For simply writing, this method is more efficient than calling conll
-        than writing since no string of the entire Conll object is created. The
-        final output will include a final newline.
+        For file writing, this method is more efficient than calling conll then
+        writing since no string of the entire Conll object is created. The output
+        includes a final newline.
 
         Args:
             writable: The writable object such as a file. Must have a write
