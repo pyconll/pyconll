@@ -21,7 +21,7 @@ As with most python packages, simply use `pip` to install from PyPi.
 pip install pyconll
 ```
 
-`pyconll` is also available as a conda package on the `pyconll` channel. Only package 2.2.0 and newer are available for conda at the moment.
+`pyconll` is also available as a conda package on the `pyconll` channel. Only packages 2.2.0 and newer are available on conda at the moment.
 
 ```
 conda install -c pyconll pyconll
@@ -32,13 +32,11 @@ This package is designed for, and only tested with python 3.4 and up and will no
 
 ### Motivation
 
-This tool is intended to be a **minimal**, **low level**, and **functional** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive in a popular programming language.
+This tool is intended to be a **minimal**, **low level**, **expressive** and **pragmatic** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
-In my work with the Universal Dependencies project, I saw a dissapointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but have a learning curve and are limited the scope of their DSLs. [CL-CoNLLU](https://github.com/own-pt/cl-conllu/) is simple and low level, but Common Lisp is not widely used in NLP, and difficult to pickup for beginners. [UDAPI](http://udapi.github.io/) is in python but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
+In my work with the Universal Dependencies project, I saw a dissapointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but their DSLs have a learning curve and limit their scope. [UDAPI](http://udapi.github.io/) offers a python library but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
 
-Other useful tools can be found on the Universal Dependencies [website](https://universaldependencies.org/tools.html).
-
-Hopefully, individual researchers find pyconll useful, and will use it as a building block for their tools and projects. pyconll affords a standardized and complete base for building larger projects without worrying about CoNLL annotation and output.
+Hopefully, individual researchers find pyconll useful, and will use it as a building block for their tools and projects. pyconll affords an intuitive and complete base for building larger projects without worrying about the details of CoNLL annotation and output.
 
 
 ### Code Snippet
@@ -70,9 +68,9 @@ Lastly, linguistic data can often be very large and this package attempts to kee
 
 ### Contributing
 
-Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `make hooks` and `pip install -r requirements.txt` to properly setup locally. `make hooks` setups up a pre-push hook to validate that code matches the default YAPF style. While this is technically optional, it is highly encouraged. `pip install -r requirements.txt` sets up environment dependencies like `yapf`, `twine`, `sphinx`, etc.
+Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `make hooks` and `pip install -r requirements.txt` to properly setup locally. `make hooks` setups up a pre-push hook to validate that code matches the default YAPF style. While this is technically optional, it is highly encouraged, and CI builds will fail without proper formatting. `pip install -r requirements.txt` sets up environment dependencies like `yapf`, `twine`, `sphinx`, etc.
 
-For packaging new versions, please use setuptools version 24.2.0 or greater for creating the appropriate packaging that recognizes the `python_requires` metadata.
+For packaging new versions, use setuptools version 24.2.0 or greater for creating the appropriate packaging that recognizes the `python_requires` metadata. Packaging is now accomplished with Github actions so this is less of a concern.
 
 
 #### README and CHANGELOG
