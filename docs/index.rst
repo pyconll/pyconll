@@ -25,7 +25,7 @@ pyconll is designed as a flexible wrapper around the CoNLL-U format, to allow fo
       print(sentence.id)
 
 
-Those new to the project should visit the `Getting Started`__ page which goes through an end-to-end example using pyconll. Other useful pages include the load_, conll_, sentence_, and token_ pages which contain documentation for the base modules. Module documentation, guidance pages, and more are listed below in the table of contents.
+Those new to the project should visit the `Getting Started`__ page which goes through an end-to-end example using pyconll. For loading a file visit the load_ page. For API usage, confer with the conll_, sentence_, and token_ module pages which contain documentation for the base data types. Module documentation, guidance pages, and more are listed below in the table of contents.
 
 For more information, the github_ project page has examples, tests, and source code.
 
