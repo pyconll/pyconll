@@ -1,15 +1,19 @@
+# Python, cache, and environment files
 __pycache__/
 .pytest_cache/
 venv/
-
-MANIFEST
 *.pyc
-.*.swp
 
+# Packaging files
+MANIFEST
 build/
 dist/
+pyconll.egg-info/
 tests/int/_corpora_cache
 
+# Documentation files
 docs/_build
 
-pyconll.egg-info/
+# Editor files
+.vscode
+.*.swp
