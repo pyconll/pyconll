@@ -46,7 +46,7 @@ For more information, the github_ project page has examples, tests, and source c
    pyconll/exception
 
    README <readme>
-   CHANGELOG
+   changelog
 
 
 .. _github: https://github.com/matgrioni/pyconll/
