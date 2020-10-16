@@ -27,7 +27,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support starting in 2020.
+This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support starting in 2020. Python 3.4 will remain supported through pyconll version 2.x.
 
 
 ### Motivation
@@ -70,7 +70,7 @@ Lastly, linguistic data can often be very large and this package attempts to kee
 
 Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `make hooks` and `pip install -r requirements.txt` to properly setup locally. `make hooks` setups up a pre-push hook to validate that code matches the default YAPF style. While this is technically optional, it is highly encouraged, and CI builds will fail without proper formatting. `pip install -r requirements.txt` sets up environment dependencies like `yapf`, `twine`, `sphinx`, etc.
 
-For packaging new versions, use setuptools version 24.2.0 or greater for creating the appropriate packaging that recognizes the `python_requires` metadata. Packaging is now accomplished with Github actions so this is less of a concern.
+For packaging new versions, use setuptools version 24.2.0 or greater for creating the appropriate packaging that recognizes the `python_requires` metadata. Final packaging and release is now done with Github actions so this is less of a concern.
 
 
 #### README and CHANGELOG
@@ -80,4 +80,4 @@ When changing either of these files, please change the Markdown version and run 
 
 #### Code Formatting
 
-Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors. If the development environment is not properly setup, then the CI build will fail if code is not formatted properly.
+Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors. The linter can also be setup and run via `make lint`. If the development environment is not properly setup, then the CI build will fail if code is not formatted properly.

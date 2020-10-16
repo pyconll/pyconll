@@ -33,6 +33,7 @@ moment.
 This package is designed for, and only tested with python 3.4 and up and
 will not be backported to python 2.x or to any versions older than
 python 3.4 as this release has reached end of support starting in 2020.
+Python 3.4 will remain supported through pyconll version 2.x.
 
 Motivation
 ~~~~~~~~~~
@@ -117,8 +118,8 @@ environment dependencies like ``yapf``, ``twine``, ``sphinx``, etc.
 
 For packaging new versions, use setuptools version 24.2.0 or greater for
 creating the appropriate packaging that recognizes the
-``python_requires`` metadata. Packaging is now accomplished with Github
-actions so this is less of a concern.
+``python_requires`` metadata. Final packaging and release is now done
+with Github actions so this is less of a concern.
 
 README and CHANGELOG
 ^^^^^^^^^^^^^^^^^^^^
@@ -132,9 +133,10 @@ Code Formatting
 Code formatting is done automatically on push if githooks are setup
 properly. The code formatter is
 `YAPF <https://github.com/google/yapf>`__, and using this ensures that
-coding style stays consistent over time and between authors. If the
-development environment is not properly setup, then the CI build will
-fail if code is not formatted properly.
+coding style stays consistent over time and between authors. The linter
+can also be setup and run via ``make lint``. If the development
+environment is not properly setup, then the CI build will fail if code
+is not formatted properly.
 
 .. |Build Status| image:: https://travis-ci.org/pyconll/pyconll.svg?branch=master
    :target: https://travis-ci.org/pyconll/pyconll
