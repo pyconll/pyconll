@@ -109,7 +109,7 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
 
     fixture_path = fixture_cache / entry_id
     if not fixture_path.exists() or hash_path(hashlib.sha256(), fixture_path,
-                                              4096) != contents_hash:
+                                              8192) != contents_hash:
         if not fixture_path.exists():
             fixture_path.mkdir()
         else:
@@ -153,18 +153,74 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
         lambda: url_zip_fixture(fixture_cache, entry_id, contents_hash, url))
 
 
+# This entire pipeline could be greatly improved with the right structure which would allow more
+# succinct test cases and expressiveness.
+# Basically the use of fixtures means that the test does not know much about how the fixture works,
+# but that is counter to the actual structure of the test I am making. So I will have to just
+# parameterize the test run, and have the fixture type logic in the test. This will be a more useful
+# approach as more conll types and formats become supported.
+
+
 ud_v2_6_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_6',
     '410224894b968f1dc35110fe9f74264a8a1ffe397bbed8442e64200201a1a550',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
 )
 
+ud_v2_5_corpus_root = new_fixture(
+    Path('tests/int/_corpora_cache'), 'ud-v2_5',
+    '83ce32268c2acb0f11d906945fb12597883f293a4885d0316d3aeecece18f262',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
+)
 
-def test_ud_v2_6_data(ud_v2_6_corpus_root):
+ud_v2_4_corpus_root = new_fixture(
+    Path('tests/int/_corpora_cache'), 'ud-v2_4',
+    'd873035329b3f0244fa3660977b06fd0853b9bc38a5e5b4379e39f2a8738bb01',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
+)
+
+ud_v2_3_corpus_root = new_fixture(
+    Path('tests/int/_corpora_cache'), 'ud-v2_3',
+    '57ee83751bb21b1e77a29f3848e06c05e15c357438fed3c5e5dc76f59be1c828',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
+)
+
+ud_v2_2_corpus_root = new_fixture(
+    Path('tests/int/_corpora_cache'), 'ud-v2_2',
+    'f33c6f95e79f209ccfc2081ff66aa7acc21ac988c7ad1264fdd6da25a487a0cb',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
+)
+
+ud_v2_1_corpus_root = new_fixture(
+    Path('tests/int/_corpora_cache'), 'ud-v2_1',
+    'c6ff449281540bf36cc74d12aee3f1ed8e704e4ff632b36ef18013078e23b95a',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
+)
+
+ud_v2_0_corpus_root = new_fixture(
+    Path('tests/int/_corpora_cache'), 'ud-v2_0',
+    '3d4e1795f45803a20794aca11cfb47206d27e1ee001052f416311dcb6be67c17',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
+)
+
+
+def test_ud_v2_data(ud_v2_6_corpus_root, ud_v2_5_corpus_root, ud_v2_4_corpus_root, ud_v2_3_corpus_root,
+                    ud_v2_2_corpus_root, ud_v2_1_corpus_root, ud_v2_0_corpus_root):
     """
-    Test that pyconll is able to parse and output all UD 2.6 data without error.
+    Test that pyconll is able to parse and output all UD 2.0 data without error.
     """
-    _test_corpus(ud_v2_6_corpus_root, '**/*.conllu')
+    corpora = [
+        ud_v2_6_corpus_root,
+        ud_v2_5_corpus_root,
+        ud_v2_4_corpus_root,
+        ud_v2_3_corpus_root,
+        ud_v2_2_corpus_root,
+        ud_v2_1_corpus_root,
+        ud_v2_0_corpus_root,
+    ]
+
+    for corpus in corpora:
+        _test_corpus(corpus, '**/*.conllu')
 
 
 def _test_corpus(fixture, glob):
