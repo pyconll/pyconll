@@ -1,4 +1,4 @@
-.PHONY: format lint test coveragetest inttest build gendocs docs clean hooks
+.PHONY: format lint test coveragetest inttest build gendocs clean hooks
 
 format:
 	yapf -pri -e *.conllu pyconll/ tests/
