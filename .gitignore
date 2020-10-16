@@ -1,15 +1,15 @@
-# Python, cache, and environment files
+# Python, project, cache, and environment files
 __pycache__/
 .pytest_cache/
 venv/
 *.pyc
+tests/int/_corpora_cache
 
 # Packaging files
 MANIFEST
 build/
 dist/
 pyconll.egg-info/
-tests/int/_corpora_cache
 
 # Documentation files
 docs/_build
