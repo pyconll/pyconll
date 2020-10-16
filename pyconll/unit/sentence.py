@@ -189,6 +189,9 @@ class Sentence(Conllable):
         of the tree corresponds with the text produced by concatenating all the
         tokens' forms in order.
 
+        Each Tree node has a data member that references the actual Token
+        represented by the node.
+
         Returns:
             A constructed Tree that represents the dependency graph of the
             sentence.
