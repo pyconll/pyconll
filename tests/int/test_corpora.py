@@ -160,7 +160,6 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
 # parameterize the test run, and have the fixture type logic in the test. This will be a more useful
 # approach as more conll types and formats become supported.
 
-
 ud_v2_6_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_6',
     '410224894b968f1dc35110fe9f74264a8a1ffe397bbed8442e64200201a1a550',
@@ -204,8 +203,10 @@ ud_v2_0_corpus_root = new_fixture(
 )
 
 
-def test_ud_v2_data(ud_v2_6_corpus_root, ud_v2_5_corpus_root, ud_v2_4_corpus_root, ud_v2_3_corpus_root,
-                    ud_v2_2_corpus_root, ud_v2_1_corpus_root, ud_v2_0_corpus_root):
+def test_ud_v2_data(ud_v2_6_corpus_root, ud_v2_5_corpus_root,
+                    ud_v2_4_corpus_root, ud_v2_3_corpus_root,
+                    ud_v2_2_corpus_root, ud_v2_1_corpus_root,
+                    ud_v2_0_corpus_root):
     """
     Test that pyconll is able to parse and output all UD 2.0 data without error.
     """
