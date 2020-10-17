@@ -1,4 +1,6 @@
 import hashlib
+import logging
+import operator
 import os
 from pathlib import Path
 import tarfile
@@ -7,6 +9,33 @@ import pytest
 import requests
 
 import pyconll
+
+def _cross_platform_stable_fs_iter(dir):
+    """
+    Provides a stable ordering across platforms over a directory Path.
+
+    This allows iteration across filesystems in a consistent way such that case
+    sensitivity of the underlying system does not affect how the files are
+    iterated.
+
+    Args:
+        dir: The Path object that points to the directory to iterate over.
+
+    Returns:
+        An iterator that goes over the paths in the directory, defined in such a
+        way that is consistent across platforms.
+    """
+    # As this should work across platforms, paths cannot be compared as is, and
+    # the paths must be compared with another in string format. Paths are
+    # ordered by case insensitivity, and then ordered by case within any paths
+    # that are only different by case. There is a double sort because, a simple
+    # case insensitive sort will provide inconsistent results on linux since
+    # iterdir does not provide consistently ordered results.
+    tupled = map(dir.iterdir(), lambda p: (str(p), p))
+    by_case = sorted(tupled, key=operator.itemgetter(0)))
+    by_case_insensitive = sorted(by_case, key=lambda el: el[0].lower())
+
+    return by_case_insensitive
 
 
 def _add_file_to_hash(hash_obj, path, block_size):
@@ -25,6 +54,26 @@ def _add_file_to_hash(hash_obj, path, block_size):
             buffer = f.read(block_size)
 
 
+def _hash_path_helper(hash_obj, path, block_size):
+    """
+    Helper to wrap the functionality of updating the actual hash object.
+
+    Args:
+        hash_obj: The object that is able to hash the file contents.
+        path: The location of the file.
+        block_size: The size of the blocks to read in, in bytes.
+    """
+    if path.is_dir():
+        fs_iter = _cross_platform_stable_fs_iter(path)
+
+        for child in fs_iter:
+            hash_obj.update(child.name)
+            _hash_path_helper(hash_obj, child, root, block_size)
+            hash_obj.update(child.name)
+    else:
+        _add_file_to_hash(hash_obj, path, block_size)
+
+
 def hash_path(hash_obj, path, block_size):
     """
     Hash a path with a provided hash object with a digest and update function.
@@ -32,16 +81,12 @@ def hash_path(hash_obj, path, block_size):
     Args:
         hash_obj: The object that is able to hash the file contents.
         path: The location of the file.
-        block_size: The size of the blocks to read in.
+        block_size: The size of the blocks to read in, in bytes.
 
     Returns:
         The hash of the file object at the path as a string in hex format.
     """
-    if path.is_dir():
-        for child in sorted(path.iterdir()):
-            hash_path(hash_obj, child, block_size)
-    else:
-        _add_file_to_hash(hash_obj, path, block_size)
+    _hash_path_helper(hash_obj, path, block_size)
     return hash_obj.hexdigest()
 
 
@@ -62,6 +107,7 @@ def download_file(url, dest, chunk_size, attempts):
 
     with open(dest_loc, 'wb') as f:
         while attempt < attempts:
+            logging.info('Attempt %d at downloading %s', attempt + 1, url)
             try:
                 with requests.get(
                         url,
@@ -70,8 +116,13 @@ def download_file(url, dest, chunk_size, attempts):
                     for chunk in r.iter_content(chunk_size=chunk_size):
                         f.write(chunk)
                 break
-            except EOFError:
+            except EOFError as e:
                 byte_loc = os.stat(dest_loc).st_size
+                logging.warning('Received error while downloading %s.', url)
+                logging.warning('Exception information: %s', e.msg)
+
+                if attempt == attempts - 1:
+                    raise
 
             attempt += 1
 
@@ -113,21 +164,27 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         if not fixture_path.exists():
             fixture_path.mkdir()
         else:
+            logging.info("The current contents of %s do not hash to the expected %s.", fixture_path, contents_hash)
             delete_dir(fixture_path)
             fixture_path.mkdir()
 
         tmp = fixture_cache / 'fixture.tgz'
         if tmp.exists():
             tmp.unlink()
+        logging.info("Starting to download %s to %s", url, tmp)
         download_file(url, tmp, 1024, 3)
 
+        logging.info("Download succeeded, extracting tarfile to %s.", fixture_path)
         with tarfile.open(str(tmp)) as tf:
             tf.extractall(str(fixture_path))
 
         tmp.unlink()
 
-    if hash_path(hashlib.sha256(), fixture_path, 4096) != contents_hash:
-        raise RuntimeError("Corpora contents do not match expected contents.")
+    cur_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
+    if cur_hash != contents_hash:
+        raise RuntimeError("Corpora contents do not match expected contents. Expected hash is {} but {} was computed.".format(content_hash, cur_hash))
+
+    logging.info("Hash for %s matched expected.", fixture_path)
 
     return fixture_path
 
@@ -248,6 +305,7 @@ def _test_treebanks(treebank_paths):
     TMP_OUTPUT_FILE = '__tmp__ud.conllu'
 
     for path in treebank_paths:
+        logging.info('Starting to parse %s', path)
         treebank = pyconll.iter_from_file(path)
 
         # For each sentence write back and make sure to include the proper

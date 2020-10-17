@@ -14,7 +14,7 @@ coveragetest:
 	coverage run --source pyconll -m pytest --ignore tests/int
 
 inttest:
-	python -m pytest tests/int
+	python -m pytest tests/int --log-cli-level info
 
 build:
 	python setup.py sdist bdist_wheel
