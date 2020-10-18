@@ -31,11 +31,12 @@ def _cross_platform_stable_fs_iter(dir):
     # that are only different by case. There is a double sort because, a simple
     # case insensitive sort will provide inconsistent results on linux since
     # iterdir does not provide consistently ordered results.
-    tupled = map(dir.iterdir(), lambda p: (str(p), p))
-    by_case = sorted(tupled, key=operator.itemgetter(0)))
+    tupled = map(lambda p: (str(p), p), dir.iterdir())
+    by_case = sorted(tupled, key=operator.itemgetter(0))
     by_case_insensitive = sorted(by_case, key=lambda el: el[0].lower())
+    only_paths = map(operator.itemgetter(1), by_case_insensitive)
 
-    return by_case_insensitive
+    return only_paths
 
 
 def _add_file_to_hash(hash_obj, path, block_size):
@@ -67,9 +68,11 @@ def _hash_path_helper(hash_obj, path, block_size):
         fs_iter = _cross_platform_stable_fs_iter(path)
 
         for child in fs_iter:
-            hash_obj.update(child.name)
-            _hash_path_helper(hash_obj, child, root, block_size)
-            hash_obj.update(child.name)
+            tag = bytes(child)
+
+            hash_obj.update(tag)
+            _hash_path_helper(hash_obj, child, block_size)
+            hash_obj.update(tag)
     else:
         _add_file_to_hash(hash_obj, path, block_size)
 
@@ -108,6 +111,7 @@ def download_file(url, dest, chunk_size, attempts):
     with open(dest_loc, 'wb') as f:
         while attempt < attempts:
             logging.info('Attempt %d at downloading %s', attempt + 1, url)
+
             try:
                 with requests.get(
                         url,
@@ -219,43 +223,43 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
 
 ud_v2_6_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_6',
-    '410224894b968f1dc35110fe9f74264a8a1ffe397bbed8442e64200201a1a550',
+    'bcd23b7d7d7a057a89e133a2b7d71bb823d3fcb905ba582f8098adfa3310512c',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
 )
 
 ud_v2_5_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_5',
-    '83ce32268c2acb0f11d906945fb12597883f293a4885d0316d3aeecece18f262',
+    '8e6fba6c89aee0a8c4f3d0d8e8133ec22e943417e52951bb716243ee561ca54b',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
 )
 
 ud_v2_4_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_4',
-    'd873035329b3f0244fa3660977b06fd0853b9bc38a5e5b4379e39f2a8738bb01',
+    '1e670fa791fd216f87a9a50fdffabf460951ea7cbba594b7284c3f530cdf878a',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
 )
 
 ud_v2_3_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_3',
-    '57ee83751bb21b1e77a29f3848e06c05e15c357438fed3c5e5dc76f59be1c828',
+    '570fc9fb6b2c493b02753c3ce6a04fa8b52bcabeb15a2a31e454c93b2052ee3a',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
 )
 
 ud_v2_2_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_2',
-    'f33c6f95e79f209ccfc2081ff66aa7acc21ac988c7ad1264fdd6da25a487a0cb',
+    'eeb822ac97d18b5f72370722b01b64ce5ba9ae249e80d0aa68c06a4ddce31ad2',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
 )
 
 ud_v2_1_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_1',
-    'c6ff449281540bf36cc74d12aee3f1ed8e704e4ff632b36ef18013078e23b95a',
+    '6ebab4b584547a962551854f9b2083d16ec0edbf59bc1873030dab20f1c8eb96',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
 )
 
 ud_v2_0_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_0',
-    '3d4e1795f45803a20794aca11cfb47206d27e1ee001052f416311dcb6be67c17',
+    '09fab4954d0ad5564e2ada8fd6f7117ed926732816f7f39d16c7211e32a3fabe',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
 )
 
@@ -274,7 +278,7 @@ def test_ud_v2_data(ud_v2_6_corpus_root, ud_v2_5_corpus_root,
         ud_v2_3_corpus_root,
         ud_v2_2_corpus_root,
         ud_v2_1_corpus_root,
-        ud_v2_0_corpus_root,
+        ud_v2_0_corpus_root
     ]
 
     for corpus in corpora:
