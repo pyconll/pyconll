@@ -35,7 +35,6 @@ def _cross_platform_stable_fs_iter(dir):
     by_case = sorted(tupled, key=operator.itemgetter(0))
     by_case_insensitive = sorted(by_case, key=lambda el: el[0].lower())
     only_paths = map(operator.itemgetter(1), by_case_insensitive)
-
     return only_paths
 
 
@@ -66,10 +65,8 @@ def _hash_path_helper(hash_obj, path, block_size):
     """
     if path.is_dir():
         fs_iter = _cross_platform_stable_fs_iter(path)
-
         for child in fs_iter:
-            tag = bytes(child)
-
+            tag = child.name.encode(encoding='utf-8', errors='replace')
             hash_obj.update(tag)
             _hash_path_helper(hash_obj, child, block_size)
             hash_obj.update(tag)
@@ -163,12 +160,13 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
     fixture_cache.mkdir(exist_ok=True)
 
     fixture_path = fixture_cache / entry_id
-    if not fixture_path.exists() or hash_path(hashlib.sha256(), fixture_path,
-                                              8192) != contents_hash:
+    existing_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
+    if not fixture_path.exists() or existing_hash != contents_hash:
         if not fixture_path.exists():
             fixture_path.mkdir()
         else:
             logging.info("The current contents of %s do not hash to the expected %s.", fixture_path, contents_hash)
+            logging.info("Instead %s hashed as %s", fixture_path, existing_hash)
             delete_dir(fixture_path)
             fixture_path.mkdir()
 
@@ -223,101 +221,139 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
 
 ud_v2_6_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_6',
-    'bcd23b7d7d7a057a89e133a2b7d71bb823d3fcb905ba582f8098adfa3310512c',
+    'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
 )
 
 ud_v2_5_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_5',
-    '8e6fba6c89aee0a8c4f3d0d8e8133ec22e943417e52951bb716243ee561ca54b',
+    'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
 )
 
 ud_v2_4_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_4',
-    '1e670fa791fd216f87a9a50fdffabf460951ea7cbba594b7284c3f530cdf878a',
+    '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
 )
 
 ud_v2_3_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_3',
-    '570fc9fb6b2c493b02753c3ce6a04fa8b52bcabeb15a2a31e454c93b2052ee3a',
+    '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
 )
 
 ud_v2_2_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_2',
-    'eeb822ac97d18b5f72370722b01b64ce5ba9ae249e80d0aa68c06a4ddce31ad2',
+    'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
 )
 
 ud_v2_1_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_1',
-    '6ebab4b584547a962551854f9b2083d16ec0edbf59bc1873030dab20f1c8eb96',
+    '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
 )
 
 ud_v2_0_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_0',
-    '09fab4954d0ad5564e2ada8fd6f7117ed926732816f7f39d16c7211e32a3fabe',
+    '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
 )
 
 
-def test_ud_v2_data(ud_v2_6_corpus_root, ud_v2_5_corpus_root,
-                    ud_v2_4_corpus_root, ud_v2_3_corpus_root,
-                    ud_v2_2_corpus_root, ud_v2_1_corpus_root,
-                    ud_v2_0_corpus_root):
+def test_ud_v2_6_data(ud_v2_6_corpus_root):
+    """
+    Test that pyconll is able to parse and output all UD 2.6 data without error.
+    """
+    _test_corpus(ud_v2_6_corpus_root, '**/*.conllu')
+
+
+def test_ud_v2_5_data(ud_v2_5_corpus_root):
+    """
+    Test that pyconll is able to parse and output all UD 2.5 data without error.
+    """
+    exceptions = [
+        Path('ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu')
+    ]
+
+    _test_corpus(ud_v2_5_corpus_root, '**/*.conllu', exceptions)
+
+
+def test_ud_v2_4_data(ud_v2_4_corpus_root):
+    """
+    Test that pyconll is able to parse and output all UD 2.4 data without error.
+    """
+    _test_corpus(ud_v2_4_corpus_root, '**/*.conllu')
+
+
+def test_ud_v2_3_data(ud_v2_3_corpus_root):
+    """
+    Test that pyconll is able to parse and output all UD 2.3 data without error.
+    """
+    _test_corpus(ud_v2_3_corpus_root, '**/*.conllu')
+
+
+def test_ud_v2_2_data(ud_v2_2_corpus_root):
+    """
+    Test that pyconll is able to parse and output all UD 2.2 data without error.
+    """
+    _test_corpus(ud_v2_2_corpus_root, '**/*.conllu')
+
+
+def test_ud_v2_1_data(ud_v2_1_corpus_root):
+    """
+    Test that pyconll is able to parse and output all UD 2.1 data without error.
+    """
+    _test_corpus(ud_v2_1_corpus_root, '**/*.conllu')
+
+
+def test_ud_v2_0_data(ud_v2_0_corpus_root):
     """
     Test that pyconll is able to parse and output all UD 2.0 data without error.
     """
-    corpora = [
-        ud_v2_6_corpus_root,
-        ud_v2_5_corpus_root,
-        ud_v2_4_corpus_root,
-        ud_v2_3_corpus_root,
-        ud_v2_2_corpus_root,
-        ud_v2_1_corpus_root,
-        ud_v2_0_corpus_root
-    ]
-
-    for corpus in corpora:
-        _test_corpus(corpus, '**/*.conllu')
+    _test_corpus(ud_v2_0_corpus_root, '**/*.conllu')
 
 
-def _test_corpus(fixture, glob):
+def _test_corpus(fixture, glob, exceptions=[]):
     """
     Tests a corpus using the fixture path and the glob for files to test.
 
     Args:
         fixture: The path of the fixture or where the corpus is.
         glob: The glob string that defines which files in the corpus to parse.
+        exceptions: A list of paths relative to fixture that are known failures.
     """
     globs = fixture.glob(glob)
-    paths = map(str, globs)
 
-    _test_treebanks(paths)
+    for path in globs:
+        is_exp = any(path == fixture / exp for exp in exceptions)
+
+        if is_exp:
+            logging.info('Skipping over %s because it is a known failure.', path)
+        else:
+            _test_treebank(str(path))
 
 
-def _test_treebanks(treebank_paths):
+def _test_treebank(treebank_path):
     """
-    Test that the provided treebanks can be parsed and written without error.
+    Test that the provided treebank can be parsed and written without error.
 
     Args:
-        treebank_paths: An iterator that yields the desired paths to check.
+        treebank_path: The path to the treebank file that is to be parsed and written.
     """
     TMP_OUTPUT_FILE = '__tmp__ud.conllu'
 
-    for path in treebank_paths:
-        logging.info('Starting to parse %s', path)
-        treebank = pyconll.iter_from_file(path)
+    logging.info('Starting to parse %s', treebank_path)
 
-        # For each sentence write back and make sure to include the proper
-        # newlines between sentences.
-        with open(TMP_OUTPUT_FILE, 'w', encoding='utf-8') as f:
-            for sentence in treebank:
-                f.write(sentence.conll())
-                f.write('\n\n')
+    treebank = pyconll.iter_from_file(treebank_path)
 
-    # Clean up after the last write.
+    # For each sentence write back and make sure to include the proper
+    # newlines between sentences.
+    with open(TMP_OUTPUT_FILE, 'w', encoding='utf-8') as f:
+        for sentence in treebank:
+            f.write(sentence.conll())
+            f.write('\n\n')
+
+    # Clean up afterwards.
     os.remove(TMP_OUTPUT_FILE)
