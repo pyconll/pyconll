@@ -30,6 +30,11 @@ conda install -c pyconll pyconll
 This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support starting in 2020. Python 3.4 will remain supported through pyconll version 2.x.
 
 
+### Support
+
+pyconll fully supports and is regularly tested against all UD v2.x versions to ensure compatibility with the latest versions, and also maintains backwards compatibility with previous releases. Please feel free to direct any questions or to the [gitter channel](https://gitter.im/pyconll/pyconll) or create an issue on GitHub.
+
+
 ### Motivation
 
 This tool is intended to be a **minimal**, **low level**, **expressive** and **pragmatic** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive.
