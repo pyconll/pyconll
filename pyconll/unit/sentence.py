@@ -185,9 +185,7 @@ class Sentence(Conllable):
         An empty sentence will create a Tree with no data and no children. The
         children for a node in the tree are ordered, and are ordered as they
         appear in the sentence. So the earliest child of a token appears first
-        in the token's childrens in the trees. This means an in-order traversal
-        of the tree corresponds with the text produced by concatenating all the
-        tokens' forms in order.
+        in the token's children in the tree.
 
         Each Tree node has a data member that references the actual Token
         represented by the node.
