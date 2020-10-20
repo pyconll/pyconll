@@ -17,11 +17,11 @@ test:
 coveragetest:
 	coverage run --source pyconll -m pytest --ignore tests/int
 
-# Integration test scenario into the development branch.
+# Integration test scenario for releases validation and support.
 inttest:
 	python -m pytest tests/int/test_corpora.py::test_ud_v2_6_data --log-cli-level info
 
-# Data test scenario across all supported data sets; heavy
+# Data test scenario across all supported data sets to be run periodically.
 datatest:
 	python -m pytest tests/int --log-cli-level info
 
