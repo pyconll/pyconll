@@ -174,7 +174,7 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         if tmp.exists():
             tmp.unlink()
         logging.info("Starting to download %s to %s", url, tmp)
-        download_file(url, tmp, 1024, 3)
+        download_file(url, tmp, 1024, 15)
 
         logging.info("Download succeeded, extracting tarfile to %s.",
                      fixture_path)
