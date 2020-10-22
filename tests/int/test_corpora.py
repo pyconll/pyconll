@@ -10,6 +10,7 @@ import requests
 
 import pyconll
 
+
 def _cross_platform_stable_fs_iter(dir):
     """
     Provides a stable ordering across platforms over a directory Path.
@@ -101,29 +102,25 @@ def download_file(url, dest, chunk_size, attempts):
         attempts: The number of failures to be resistant to. Assumes the server
             can accept ranged requests on download.
     """
+    head_r = requests.head(url)
+    content_length = int(head_r.headers['Content-Length'])
+
     attempt = 0
     dest_loc = str(dest)
     byte_loc = 0
 
     with open(dest_loc, 'wb') as f:
         while attempt < attempts:
-            logging.info('Attempt %d at downloading %s', attempt + 1, url)
+            with requests.get(url,
+                              headers={'Range': 'bytes={}-'.format(byte_loc)},
+                              stream=True) as r:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    f.write(chunk)
+                    f.flush()
 
-            try:
-                with requests.get(
-                        url,
-                        headers={'Range': 'bytes={}-'.format(byte_loc)},
-                        stream=True) as r:
-                    for chunk in r.iter_content(chunk_size=chunk_size):
-                        f.write(chunk)
+            byte_loc = os.stat(dest_loc).st_size
+            if byte_loc >= content_length:
                 break
-            except EOFError as e:
-                byte_loc = os.stat(dest_loc).st_size
-                logging.warning('Received error while downloading %s.', url)
-                logging.warning('Exception information: %s', e.msg)
-
-                if attempt == attempts - 1:
-                    raise
 
             attempt += 1
 
@@ -165,8 +162,11 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         if not fixture_path.exists():
             fixture_path.mkdir()
         else:
-            logging.info("The current contents of %s do not hash to the expected %s.", fixture_path, contents_hash)
-            logging.info("Instead %s hashed as %s", fixture_path, existing_hash)
+            logging.info(
+                "The current contents of %s do not hash to the expected %s.",
+                fixture_path, contents_hash)
+            logging.info("Instead %s hashed as %s", fixture_path,
+                         existing_hash)
             delete_dir(fixture_path)
             fixture_path.mkdir()
 
@@ -176,7 +176,8 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         logging.info("Starting to download %s to %s", url, tmp)
         download_file(url, tmp, 1024, 3)
 
-        logging.info("Download succeeded, extracting tarfile to %s.", fixture_path)
+        logging.info("Download succeeded, extracting tarfile to %s.",
+                     fixture_path)
         with tarfile.open(str(tmp)) as tf:
             tf.extractall(str(fixture_path))
 
@@ -184,7 +185,9 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
 
     cur_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
     if cur_hash != contents_hash:
-        raise RuntimeError("Corpora contents do not match expected contents. Expected hash is {} but {} was computed.".format(content_hash, cur_hash))
+        raise RuntimeError(
+            "Corpora contents do not match expected contents. Expected hash is {} but {} was computed."
+            .format(content_hash, cur_hash))
 
     logging.info("Hash for %s matched expected.", fixture_path)
 
@@ -274,7 +277,9 @@ def test_ud_v2_5_data(ud_v2_5_corpus_root):
     Test that pyconll is able to parse and output all UD 2.5 data without error.
     """
     exceptions = [
-        Path('ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu')
+        Path(
+            'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
+        )
     ]
 
     _test_corpus(ud_v2_5_corpus_root, '**/*.conllu', exceptions)
@@ -330,7 +335,8 @@ def _test_corpus(fixture, glob, exceptions=[]):
         is_exp = any(path == fixture / exp for exp in exceptions)
 
         if is_exp:
-            logging.info('Skipping over %s because it is a known failure.', path)
+            logging.info('Skipping over %s because it is a known failure.',
+                         path)
         else:
             _test_treebank(str(path))
 
