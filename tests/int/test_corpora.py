@@ -169,8 +169,8 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         logging.info(
             'The current contents of %s do not hash to the expected %s.',
             fixture_path, contents_hash)
-        logging.info('Instead %s hashed as %s. Recreating fixture', fixture_path,
-                        existing_hash)
+        logging.info('Instead %s hashed as %s. Recreating fixture',
+                     fixture_path, existing_hash)
         delete_dir(fixture_path)
         fixture_path.mkdir()
 
