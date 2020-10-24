@@ -32,7 +32,7 @@ This package is designed for, and only tested with python 3.4 and up and will no
 
 ### Support
 
-pyconll fully supports and is regularly tested against all UD v2.x versions to ensure compatibility with the latest versions, and also maintains backwards compatibility with previous releases. Please feel free to direct any questions or to the [gitter channel](https://gitter.im/pyconll/pyconll) or create an issue on GitHub.
+pyconll fully supports and is regularly tested against all UD v2.x versions to ensure compatibility with the latest releases, and also maintains backwards compatibility. Please feel free to direct any questions to the [gitter channel](https://gitter.im/pyconll/pyconll) or create an issue on GitHub.
 
 
 ### Motivation
