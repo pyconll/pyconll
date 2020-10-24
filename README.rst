@@ -35,6 +35,15 @@ will not be backported to python 2.x or to any versions older than
 python 3.4 as this release has reached end of support starting in 2020.
 Python 3.4 will remain supported through pyconll version 2.x.
 
+Support
+~~~~~~~
+
+pyconll fully supports and is regularly tested against all UD v2.x
+versions to ensure compatibility with the latest releases, and also
+maintains backwards compatibility. Please feel free to direct any
+questions to the `gitter channel <https://gitter.im/pyconll/pyconll>`__
+or create an issue on GitHub.
+
 Motivation
 ~~~~~~~~~~
 
