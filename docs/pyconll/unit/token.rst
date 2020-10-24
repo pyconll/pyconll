@@ -15,7 +15,7 @@ feats
 
 deps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``deps`` is a key-value mapping from ``str`` to ``tuple`` of cardinality 4. This field represents enhanced dependencies. The key is the index of the token head, and the tuple elements define the enhanced dependency. Most Universal Dependencies treebanks, only use 2 of these 4 dimensions: the token index and the relation. See the Universal Dependencies guideline for more information on these 4 components. When adding new ``deps``, the values must also be tuples of cardinality 4.
+``deps`` is a key-value mapping from ``str`` to ``tuple`` of cardinality 4. This field represents enhanced dependencies. The key is the index of the token head, and the tuple elements define the enhanced dependency. Most Universal Dependencies treebanks, only use 2 of these 4 dimensions: the token index and the relation. See the `Universal Dependencies guideline`__ for more information on these 4 components. When adding new ``deps``, the values must also be tuples of cardinality 4.
 
 misc
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,3 +50,6 @@ API
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__
+
+
+__ https://universaldependencies.org/u/overview/enhanced-syntax.html
