@@ -35,7 +35,9 @@ def _cross_platform_stable_fs_iter(dir):
     tupled = map(lambda p: (str(p), p), dir.iterdir())
     by_case = sorted(tupled, key=operator.itemgetter(0))
     by_case_insensitive = sorted(by_case, key=lambda el: el[0].lower())
+
     only_paths = map(operator.itemgetter(1), by_case_insensitive)
+
     return only_paths
 
 
@@ -66,8 +68,10 @@ def _hash_path_helper(hash_obj, path, block_size):
     """
     if path.is_dir():
         fs_iter = _cross_platform_stable_fs_iter(path)
+
         for child in fs_iter:
             tag = child.name.encode(encoding='utf-8', errors='replace')
+
             hash_obj.update(tag)
             _hash_path_helper(hash_obj, child, block_size)
             hash_obj.update(tag)
@@ -174,7 +178,7 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         if tmp.exists():
             tmp.unlink()
         logging.info("Starting to download %s to %s", url, tmp)
-        download_file(url, tmp, 1024, 15)
+        download_file(url, tmp, 16384, 15)
 
         logging.info("Download succeeded, extracting tarfile to %s.",
                      fixture_path)
@@ -187,7 +191,7 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
     if cur_hash != contents_hash:
         raise RuntimeError(
             "Corpora contents do not match expected contents. Expected hash is {} but {} was computed."
-            .format(content_hash, cur_hash))
+            .format(contents_hash, cur_hash))
 
     logging.info("Hash for %s matched expected.", fixture_path)
 
