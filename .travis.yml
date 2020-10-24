@@ -19,7 +19,7 @@ after_success:
 
 jobs:
   - stage: inttest
-    if: branch = master AND env(TRAVIS_EVENT_TYPE) != cron
+    if: branch in (dev, master) AND env(TRAVIS_EVENT_TYPE) != cron
     os: linux
     dist: xenial
     language: python
