@@ -161,26 +161,26 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
     fixture_cache.mkdir(exist_ok=True)
 
     fixture_path = fixture_cache / entry_id
+    if not fixture_path.exists():
+        fixture_path.mkdir()
+
     existing_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
-    if not fixture_path.exists() or existing_hash != contents_hash:
-        if not fixture_path.exists():
-            fixture_path.mkdir()
-        else:
-            logging.info(
-                "The current contents of %s do not hash to the expected %s.",
-                fixture_path, contents_hash)
-            logging.info("Instead %s hashed as %s", fixture_path,
-                         existing_hash)
-            delete_dir(fixture_path)
-            fixture_path.mkdir()
+    if existing_hash != contents_hash:
+        logging.info(
+            'The current contents of %s do not hash to the expected %s.',
+            fixture_path, contents_hash)
+        logging.info('Instead %s hashed as %s. Recreating fixture', fixture_path,
+                        existing_hash)
+        delete_dir(fixture_path)
+        fixture_path.mkdir()
 
         tmp = fixture_cache / 'fixture.tgz'
         if tmp.exists():
             tmp.unlink()
-        logging.info("Starting to download %s to %s", url, tmp)
+        logging.info('Starting to download %s to %s', url, tmp)
         download_file(url, tmp, 16384, 15)
 
-        logging.info("Download succeeded, extracting tarfile to %s.",
+        logging.info('Download succeeded, extracting tarfile to %s.',
                      fixture_path)
         with tarfile.open(str(tmp)) as tf:
             tf.extractall(str(fixture_path))
@@ -190,10 +190,10 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
     cur_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
     if cur_hash != contents_hash:
         raise RuntimeError(
-            "Corpora contents do not match expected contents. Expected hash is {} but {} was computed."
+            'Corpora contents do not match expected contents. Expected hash is {} but {} was computed.'
             .format(contents_hash, cur_hash))
 
-    logging.info("Hash for %s matched expected.", fixture_path)
+    logging.info('Hash for %s matched expected.', fixture_path)
 
     return fixture_path
 
