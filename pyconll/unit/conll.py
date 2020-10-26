@@ -52,7 +52,7 @@ class Conll(MutableSequence, Conllable):
 
         For file writing, this method is more efficient than calling conll then
         writing since no string of the entire Conll object is created. The output
-        includes a final newline.
+        includes a final newline as detailed in the CoNLL-U specification.
 
         Args:
             writable: The writable object such as a file. Must have a write
