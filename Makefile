@@ -4,10 +4,12 @@
 format:
 	yapf -pri -e *.conllu pyconll/ tests/
 
-# Lint check on the files using pylint and yapf, outputs error code if either complains
+# Lint check on the files using pylint, yapf, mypy, etc and outputs error code
+# if any of them have issues.
 lint:
-	pylint --rcfile .pylintrc pyconll/ && \
-	yapf -prq -e *.conllu pyconll/ tests/
+	python -m pylint --rcfile .pylintrc pyconll/ && \
+	python -m yapf -prq -e *.conllu pyconll/ tests/ && \
+	python -m mypy pyconll/
 
 # Unit test scenario for fast CI builds and local testing
 test:

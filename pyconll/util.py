@@ -5,9 +5,12 @@ collection of functions.
 
 import functools
 import itertools
+from typing import Iterable, Iterator, List, Tuple
+
+from pyconll.unit import Conll, Sentence, Token
 
 
-def find_ngrams(conll, ngram, case_sensitive=True):
+def find_ngrams(conll: Iterable[Sentence], ngram: List[str], case_sensitive: bool=True) -> Iterator[Tuple[Sentence, int, List[Token]]]:
     """
     Find the occurences of the ngram in the provided Conll collection.
 
@@ -17,7 +20,7 @@ def find_ngrams(conll, ngram, case_sensitive=True):
     "not" in the input.
 
     Args:
-        sentence: The sentence in which to search for the ngram.
+        conll: The corpus in which to search for the ngram across the sentences.
         ngram: The ngram to search for. A random access iterator.
         case_sensitive: Flag to indicate if the ngram search should be case
             sensitive. The case insensitive comparison currently is locale
@@ -70,7 +73,7 @@ def find_ngrams(conll, ngram, case_sensitive=True):
             i += 1
 
 
-def find_nonprojective_deps(sentence):
+def find_nonprojective_deps(sentence: Sentence) -> List[Tuple[Token, Token]]:
     """
     Find the nonprojective dependency pairs in the provided sentence.
 
@@ -84,11 +87,11 @@ def find_nonprojective_deps(sentence):
         sentence: The sentence to check for nonprojective dependency pairs.
 
     Returns:
-        An iterable of pairs which represent the children of a nonprojective
+        An list of pairs which represent the children of a nonprojective
         dependency pair.
     """
     deps = _transform_tokens_to_sorted_dependency_arcs(sentence)
-    non_projective_deps = []
+    non_projective_deps: List[Tuple[int, int]] = []
 
     openings = [-1]
     closings = [len(sentence)]
@@ -126,7 +129,7 @@ def find_nonprojective_deps(sentence):
             direcs.append(direc)
 
     child_tokens = list(
-        map(lambda dep: tuple(map(lambda idx: sentence[idx], dep)),
+        map(lambda dep: (sentence[dep[0]], sentence[dep[1]]),
             non_projective_deps))
     return child_tokens
 

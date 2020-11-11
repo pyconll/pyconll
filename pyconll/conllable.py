@@ -15,8 +15,10 @@ class Conllable:
 
     __metaclass__ = abc.ABCMeta
 
+    # TODO: How should this be properly type annotated, protocol or abstract base class still
+    # and also specifically how should this method be annotated given it doesn't return.
     @abc.abstractmethod
-    def conll(self):
+    def conll(self) -> str:
         """
         Provides a conll representation of the component.
 

@@ -4,12 +4,16 @@ essentially a friend class of the Tree, so that the API of Tree can remain
 immutable while allowing efficient creation of a new Tree in an easy fluent way.
 """
 
+from typing import Any, Generic, Optional, TypeVar
+
 from pyconll.tree.tree import Tree
 
 
-class TreeBuilder:
+T = TypeVar('T')
+
+class TreeBuilder(Generic[T]):
     """
-    A TreeBuilder is a utility to create arbitary, immutable Trees. TreeBuilder
+    A TreeBuilder is a utility to create arbitrary, immutable Trees. TreeBuilder
     works by traversing and creating a tree structure, and then providing an
     immutable view of the Tree on build. A TreeBuilder has an internal cursor
     on a Tree's node.
@@ -19,15 +23,15 @@ class TreeBuilder:
     created from the same TreeBuilder, Tree nodes will be unique, but data on
     the nodes will be shallow copies.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Creates a new empty TreeBuilder, with no internal data.
         """
-        self.root = None
-        self.current = None
-        self.constructed = False
+        self.root: Any = None
+        self.current: Any = None
+        self.constructed: bool = False
 
-    def create_root(self, data):
+    def create_root(self, data: T) -> None:
         """
         Creates the root of the tree. This is the first step in Tree building.
 
@@ -36,11 +40,10 @@ class TreeBuilder:
         Args:
             data: The optional data to put on the root node.
         """
-        self.root = Tree()
-        self.root._data = data
+        self.root = Tree(data)
         self.current = self.root
 
-    def move_to_parent(self):
+    def move_to_parent(self) -> None:
         """
         Move the internal cursor of the TreeBuilder to cursor location's parent.
 
@@ -54,7 +57,7 @@ class TreeBuilder:
 
         self.current = self.current.parent
 
-    def move_to_child(self, i):
+    def move_to_child(self, i: int) -> None:
         """
         Move the internal cursor to the cursor location's i-th child.
 
@@ -74,7 +77,7 @@ class TreeBuilder:
                 '{}-th child is out of range. There are {} children on this node'
                 .format(i, len(self.current))) from e
 
-    def move_to_root(self):
+    def move_to_root(self) -> None:
         """
         Move the internal cursor to the root of the entire tree.
 
@@ -84,7 +87,7 @@ class TreeBuilder:
         self._assert_initialization_status()
         self.current = self.root
 
-    def set_data(self, data):
+    def set_data(self, data: T) -> None:
         """
         Sets the data for the cursor location's node.
 
@@ -98,7 +101,7 @@ class TreeBuilder:
         self._copy_if_necessary()
         self.current._data = data
 
-    def remove_child(self, i):
+    def remove_child(self, i: int) -> None:
         """
         Remove the i-th child from the cursor location.
 
@@ -119,7 +122,7 @@ class TreeBuilder:
                 '{}-th child is out of range. There are {} children on this node'
                 .format(i, len(self.current))) from e
 
-    def add_child(self, data, move=False):
+    def add_child(self, data: T, move: bool=False) -> None:
         """
         Adds a child to the current cursor location's node.
 
@@ -135,8 +138,7 @@ class TreeBuilder:
         self._assert_initialization_status()
         self._copy_if_necessary()
 
-        child = Tree()
-        child._data = data
+        child: Tree[T] = Tree(data)
         child._parent = self.current
         self.current._children.append(child)
 
@@ -144,7 +146,7 @@ class TreeBuilder:
             l = len(self.current)
             self.move_to_child(l - 1)
 
-    def build(self):
+    def build(self) -> Tree[T]:
         """
         Provides an immutable reference to the constructed tree.
 
@@ -158,7 +160,7 @@ class TreeBuilder:
         self.constructed = True
         return self.root
 
-    def _copy_if_necessary(self):
+    def _copy_if_necessary(self) -> None:
         """
         Checks if a copy is necessary because the Tree has been built.
         """
@@ -166,12 +168,11 @@ class TreeBuilder:
             self._copy()
             self.constructed = False
 
-    def _copy(self):
+    def _copy(self) -> None:
         """
         Internal method to copy the constructed Tree in memory.
         """
-        new_root = Tree()
-        new_root._data = self.root.data
+        new_root: Tree[T] = Tree(self.root.data)
 
         new_current = None
         if self.current is self.root:
@@ -183,8 +184,7 @@ class TreeBuilder:
 
             new_children = []
             for child in children:
-                new_child = Tree()
-                new_child._data = child.data
+                new_child: Tree[T] = Tree(child.data)
                 new_child._parent = new_parent
                 new_children.append(new_child)
 
@@ -198,7 +198,7 @@ class TreeBuilder:
         self.root = new_root
         self.current = new_current
 
-    def _assert_initialization_status(self):
+    def _assert_initialization_status(self) -> None:
         """
         Asserts the initialization invariant on the root of this builder.
 
