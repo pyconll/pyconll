@@ -13,7 +13,8 @@ class Writeable(Protocol):
     """
     A Protocol for type checking that specifies a writable contract. 
     """
-    def write(self, s: str) -> None: pass
+    def write(self, s: str) -> None:
+        pass
 
 
 class Conll(MutableSequence[Sentence], Conllable):
@@ -107,10 +108,12 @@ class Conll(MutableSequence[Sentence], Conllable):
             yield sentence
 
     @overload
-    def __getitem__(self, key: int) -> Sentence: pass
+    def __getitem__(self, key: int) -> Sentence:
+        pass
 
     @overload
-    def __getitem__(self, key: slice) -> 'Conll': pass
+    def __getitem__(self, key: slice) -> 'Conll':
+        pass
 
     def __getitem__(self, key):
         """
@@ -139,10 +142,12 @@ class Conll(MutableSequence[Sentence], Conllable):
         raise TypeError('Conll indices must be ints or slices.')
 
     @overload
-    def __setitem__(self, key: int, sent: Sentence) -> None: pass
+    def __setitem__(self, key: int, sent: Sentence) -> None:
+        pass
 
     @overload
-    def __setitem__(self, key: slice, sents: Iterable[Sentence]) -> None: pass
+    def __setitem__(self, key: slice, sents: Iterable[Sentence]) -> None:
+        pass
 
     def __setitem__(self, key, item) -> None:
         """

@@ -126,7 +126,8 @@ def _create_dict_tupled_empty_parse(size, strict):
     return _dict_tupled_empty_parser
 
 
-TUPLE_PARSER_MEMOIZE: Dict[int, Callable[[str, str], Tuple[Optional[str], ...]]] = {}
+TUPLE_PARSER_MEMOIZE: Dict[int, Callable[[str, str], Tuple[Optional[str],
+                                                           ...]]] = {}
 
 
 def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
@@ -621,8 +622,10 @@ class Token(Conllable):
     # Keys for sorting attribute-value columns. BY_ID converts the attribute
     # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
     # converts the pair to the lowercase version of the atribute.
-    BY_ID: ClassVar[Callable[[Tuple[str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(pair[0])
-    BY_CASE_INSENSITIVE: ClassVar[Callable[[Tuple[str, str]], str]] = lambda pair: pair[0].lower()
+    BY_ID: ClassVar[Callable[[Tuple[
+        str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(pair[0])
+    BY_CASE_INSENSITIVE: ClassVar[Callable[[Tuple[
+        str, str]], str]] = lambda pair: pair[0].lower()
 
     def __init__(self, source: str, empty: bool = False) -> None:
         """
@@ -679,19 +682,20 @@ class Token(Conllable):
 
         self.upos: Optional[str] = _unit_empty_map(fields[3], Token.EMPTY)
         self.xpos: Optional[str] = _unit_empty_map(fields[4], Token.EMPTY)
-        self.feats: Dict[str, Set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
-                                                          Token.COMPONENT_DELIMITER,
-                                                          Token.AV_SEPARATOR, Token.V_DELIMITER)
+        self.feats: Dict[str,
+                         Set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
+                                                     Token.COMPONENT_DELIMITER,
+                                                     Token.AV_SEPARATOR,
+                                                     Token.V_DELIMITER)
         self.head: Optional[str] = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel: Optional[str] = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps: Dict[str, Tuple[str, str, str, str]] = _dict_tupled_empty_map(fields[8], Token.EMPTY,
-                                                                                 Token.COMPONENT_DELIMITER,
-                                                                                 Token.AV_DEPS_SEPARATOR,
-                                                                                 Token.V_DEPS_DELIMITER, 4)
-        self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(fields[9], Token.EMPTY,
-                                                                         Token.COMPONENT_DELIMITER,
-                                                                         Token.AV_SEPARATOR,
-                                                                         Token.V_DELIMITER)
+        self.deps: Dict[str,
+                        Tuple[str, str, str, str]] = _dict_tupled_empty_map(
+                            fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
+                            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
+        self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
+            fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR, Token.V_DELIMITER)
 
     # TODO: This may be annoying to have an optional here, look into how type checkers will handle this.
     # TODO: This also does not capture the empty flag that can be passed in properly and is too loose with types. This can only be improved with a new design.

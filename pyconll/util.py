@@ -10,7 +10,10 @@ from typing import Iterable, Iterator, List, Tuple
 from pyconll.unit import Conll, Sentence, Token
 
 
-def find_ngrams(conll: Iterable[Sentence], ngram: List[str], case_sensitive: bool=True) -> Iterator[Tuple[Sentence, int, List[Token]]]:
+def find_ngrams(conll: Iterable[Sentence],
+                ngram: List[str],
+                case_sensitive: bool = True
+                ) -> Iterator[Tuple[Sentence, int, List[Token]]]:
     """
     Find the occurences of the ngram in the provided Conll collection.
 

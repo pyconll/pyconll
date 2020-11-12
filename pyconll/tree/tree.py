@@ -50,10 +50,12 @@ class Tree(Generic[T]):
         return self._parent
 
     @overload
-    def __getitem__(self, key: int) -> 'Tree[T]': pass
+    def __getitem__(self, key: int) -> 'Tree[T]':
+        pass
 
     @overload
-    def __getitem__(self, key: slice) -> List['Tree[T]']: pass
+    def __getitem__(self, key: slice) -> List['Tree[T]']:
+        pass
 
     def __getitem__(self, key):
         """

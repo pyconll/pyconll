@@ -16,7 +16,7 @@ from pyconll.unit import Token
 
 # TODO: Sequence or collection?
 # TODO: Actually label it?
-# TODO: Actually 
+# TODO: Actually
 class Sentence(Sequence[Token], Conllable):
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
@@ -214,7 +214,9 @@ class Sentence(Sequence[Token], Conllable):
             if token.head is not None:
                 parent_key = token.head
             elif not token.is_multiword():
-                raise ValueError('The current sentence is not fully defined as a tree and has a token with an empty head at {}'.format(token.id))
+                raise ValueError(
+                    'The current sentence is not fully defined as a tree and has a token with an empty head at {}'
+                    .format(token.id))
 
             try:
                 children_tokens[parent_key].append(token)
@@ -225,7 +227,9 @@ class Sentence(Sequence[Token], Conllable):
                 root_token = token
 
         if root_token is None:
-            raise ValueError('The current sentence has not root token and no sentence can be formed.')
+            raise ValueError(
+                'The current sentence has not root token and no sentence can be formed.'
+            )
 
         builder: TreeBuilder[Token] = TreeBuilder()
         builder.create_root(root_token)
@@ -237,7 +241,9 @@ class Sentence(Sequence[Token], Conllable):
         return root
 
     @staticmethod
-    def _create_tree_helper(builder: TreeBuilder, sentence: 'Sentence', root: Token, children_tokens: Dict[str, List[Token]]) -> None:
+    def _create_tree_helper(builder: TreeBuilder, sentence: 'Sentence',
+                            root: Token,
+                            children_tokens: Dict[str, List[Token]]) -> None:
         """
         Method to create a tree from a sentence given the root token.
 
@@ -293,13 +299,16 @@ class Sentence(Sequence[Token], Conllable):
             yield token
 
     @overload
-    def __getitem__(self, key: str) -> Token: pass
+    def __getitem__(self, key: str) -> Token:
+        pass
 
     @overload
-    def __getitem__(self, key: int) -> Token: pass
+    def __getitem__(self, key: int) -> Token:
+        pass
 
     @overload
-    def __getitem__(self, key: slice) -> Sequence[Token]: pass
+    def __getitem__(self, key: slice) -> Sequence[Token]:
+        pass
 
     def __getitem__(self, key):
         """

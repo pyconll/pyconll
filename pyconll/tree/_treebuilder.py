@@ -8,8 +8,8 @@ from typing import Any, Generic, Optional, TypeVar
 
 from pyconll.tree.tree import Tree
 
-
 T = TypeVar('T')
+
 
 class TreeBuilder(Generic[T]):
     """
@@ -124,7 +124,7 @@ class TreeBuilder(Generic[T]):
                 '{}-th child is out of range. There are {} children on this node'
                 .format(i, len(self.current))) from e
 
-    def add_child(self, data: T, move: bool=False) -> None:
+    def add_child(self, data: T, move: bool = False) -> None:
         """
         Adds a child to the current cursor location's node.
 
