@@ -27,6 +27,8 @@ class TreeBuilder(Generic[T]):
         """
         Creates a new empty TreeBuilder, with no internal data.
         """
+        # Unfortunately, these must remain at Any since mypy cannot infer the
+        # None check properly in _assert_initialization_status.
         self.root: Any = None
         self.current: Any = None
         self.constructed: bool = False

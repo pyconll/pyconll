@@ -195,7 +195,9 @@ class Sentence(Sequence[Token], Conllable):
         in the token's children in the tree.
 
         Each Tree node has a data member that references the actual Token
-        represented by the node.
+        represented by the node. Multiword tokens are not included in the tree
+        since they are more like virtual Tokens and do not participate in any
+        dependency relationships or carry much value.
 
         Returns:
             A constructed Tree that represents the dependency graph of the
@@ -211,7 +213,7 @@ class Sentence(Sequence[Token], Conllable):
         for token in self:
             if token.head is not None:
                 parent_key = token.head
-            else:
+            elif not token.is_multiword():
                 raise ValueError('The current sentence is not fully defined as a tree and has a token with an empty head at {}'.format(token.id))
 
             try:
