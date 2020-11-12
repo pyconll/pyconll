@@ -5,6 +5,9 @@ venv/
 *.pyc
 tests/int/_corpora_cache
 
+# Local env files
+.python-version
+
 # Packaging files
 MANIFEST
 build/
