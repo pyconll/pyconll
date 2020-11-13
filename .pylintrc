@@ -291,11 +291,11 @@ class-attribute-naming-style=any
 #class-attribute-rgx=
 
 # Naming style matching correct class names.
-class-naming-style=PascalCase
+#class-naming-style=PascalCase
 
 # Regular expression matching correct class names. Overrides class-naming-
 # style.
-#class-rgx=
+class-rgx=[^\\W\\da-z][^\\W_]*$
 
 # Naming style matching correct constant names.
 const-naming-style=UPPER_CASE

@@ -1,6 +1,7 @@
 # Python, project, cache, and environment files
 __pycache__/
 .pytest_cache/
+.mypy_cache/
 venv/
 *.pyc
 tests/int/_corpora_cache
