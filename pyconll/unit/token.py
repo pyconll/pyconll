@@ -104,24 +104,23 @@ def _create_dict_tupled_empty_parse(size, strict):
         Raises:
             ParseError: If there was an error parsing the value as a tuple.
         """
-        if v is not None:
-            components = v.split(v_delimiter)
-            left = size - len(components)
-
-            if not strict and left >= 0 and left < size:
-                vs = tuple(components + [None] * left)
-            elif len(components) == size:
-                vs = tuple(components)
-            else:
-                error_msg = ('Error parsing "{}" as tuple properly. Please'
-                             'check against CoNLL format spec.').format(v)
-                raise ParseError(error_msg)
-
-            return vs
-        else:
+        if v is None:
             error_msg = ('Error parsing "{}" as tuple properly. Please check'
-                         'against CoNLL format spec').format(v)
+                            'against CoNLL format spec').format(v)
             raise ParseError(error_msg)
+
+        components = v.split(v_delimiter)
+        left = size - len(components)
+
+        if not strict and 0 <= left < size:
+            vs = tuple(components + [None] * left)
+        else:
+            error_msg = ('Error parsing "{}" as tuple properly. Please'
+                            'check against CoNLL format spec.').format(v)
+            raise ParseError(error_msg)
+
+        return vs
+
 
     return _dict_tupled_empty_parser
 
@@ -697,8 +696,6 @@ class Token(Conllable):
             fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_SEPARATOR, Token.V_DELIMITER)
 
-    # TODO: This may be annoying to have an optional here, look into how type checkers will handle this.
-    # TODO: This also does not capture the empty flag that can be passed in properly and is too loose with types. This can only be improved with a new design.
     @property
     def form(self) -> Optional[str]:
         """

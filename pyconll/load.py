@@ -10,7 +10,8 @@ from typing import Iterator
 import requests
 
 from pyconll._parser import iter_sentences
-from pyconll.unit import Conll, Sentence
+from pyconll.unit.conll import Conll
+from pyconll.unit.sentence import Sentence
 
 
 def load_from_string(source: str) -> Conll:

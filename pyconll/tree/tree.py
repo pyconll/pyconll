@@ -3,10 +3,10 @@ A general immutable tree module. This module is used when parsing a serial
 sentence into a Tree structure.
 """
 
-from typing import Any, Generic, Iterator, List, Optional, TypeVar, Union, overload
+from typing import Generic, Iterator, List, Optional, TypeVar, overload
+
 
 T = TypeVar('T')
-
 
 class Tree(Generic[T]):
     """

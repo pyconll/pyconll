@@ -4,19 +4,14 @@ Defines the Sentence type and the associated parsing and output logic.
 
 import operator
 import re
-from typing import Dict, List, Sequence, overload
-
-from typing import Optional, Union, Iterator
+from typing import Dict, Iterator, List, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
-from pyconll.unit import Token
+from pyconll.unit.token import Token
 
 
-# TODO: Sequence or collection?
-# TODO: Actually label it?
-# TODO: Actually
 class Sentence(Sequence[Token], Conllable):
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
@@ -215,8 +210,8 @@ class Sentence(Sequence[Token], Conllable):
                 parent_key = token.head
             elif not token.is_multiword():
                 raise ValueError(
-                    'The current sentence is not fully defined as a tree and has a token with an empty head at {}'
-                    .format(token.id))
+                    'The current sentence is not fully defined as a tree and ' \
+                    'has a token with an empty head at {}'.format(token.id))
 
             try:
                 children_tokens[parent_key].append(token)

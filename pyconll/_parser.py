@@ -6,7 +6,7 @@ can then be used in the Conll class or in pyconll.load.
 
 from typing import Iterable, Iterator
 
-from pyconll.unit import Sentence
+from pyconll.unit.sentence import Sentence
 
 
 def _create_sentence(sent_lines: Iterable[str]) -> Sentence:

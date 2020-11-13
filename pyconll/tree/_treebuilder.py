@@ -4,12 +4,12 @@ essentially a friend class of the Tree, so that the API of Tree can remain
 immutable while allowing efficient creation of a new Tree in an easy fluent way.
 """
 
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pyconll.tree.tree import Tree
 
-T = TypeVar('T')
 
+T = TypeVar('T')
 
 class TreeBuilder(Generic[T]):
     """

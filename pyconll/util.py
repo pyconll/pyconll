@@ -7,7 +7,8 @@ import functools
 import itertools
 from typing import Iterable, Iterator, List, Tuple
 
-from pyconll.unit import Conll, Sentence, Token
+from pyconll.unit.sentence import Sentence
+from pyconll.unit.token import Token
 
 
 def find_ngrams(conll: Iterable[Sentence],
@@ -65,7 +66,6 @@ def find_ngrams(conll: Iterable[Sentence],
                     if cased_new_token_form != cased_ngram_token:
                         matches = False
                         matched_tokens.clear()
-                        break
                     else:
                         matched_tokens.append(new_token)
 

@@ -2,19 +2,11 @@
 Defines the Conll type and the associated parsing and output logic.
 """
 
-from typing import Any, Iterable, Iterator, List, Union, MutableSequence, Protocol, overload
+from typing import Any, Iterable, Iterator, List, Union, MutableSequence, overload
 
 import pyconll._parser
 from pyconll.conllable import Conllable
-from pyconll.unit import Sentence
-
-
-class Writeable(Protocol):
-    """
-    A Protocol for type checking that specifies a writable contract. 
-    """
-    def write(self, s: str) -> None:
-        pass
+from pyconll.unit.sentence import Sentence
 
 
 class Conll(MutableSequence[Sentence], Conllable):
@@ -55,8 +47,7 @@ class Conll(MutableSequence[Sentence], Conllable):
 
         return '\n\n'.join(components)
 
-    # TODO: Need to check that this subclass is actually captured by mypy and return type of write
-    def write(self, writable: Writeable) -> None:
+    def write(self, writable: Any) -> None:
         """
         Write the Conll object to something that is writable.
 
@@ -161,7 +152,6 @@ class Conll(MutableSequence[Sentence], Conllable):
         """
         self._sentences[key] = item
 
-    # TODO: This is the right signature??
     def __delitem__(self, key: Union[int, slice]) -> None:
         """
         Delete the Sentence corresponding with the given key.
