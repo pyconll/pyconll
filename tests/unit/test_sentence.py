@@ -1025,6 +1025,33 @@ def test_to_tree_standard_sentence():
         })
 
 
+def test_to_tree_multiword_present():
+    """
+    Test that a normal sentence can be parsed properly.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	5	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	5	advmod	_	_\n'
+              '3-4	du	_	_	_	_	_	_	_	_\n'
+              '3	de	de	ADP	_	_	4	nmod	_	_\n'
+              '4	le	le	DET	_	_	5	det	_	_\n'
+              '5	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '6	?	?	PUNCT	_	_	5	punct	_	_\n')
+    sentence = Sentence(source)
+    st = sentence.to_tree()
+
+    assert_tree_structure(
+        st, {
+            (): sentence[5],
+            (0, ): sentence[0],
+            (1, ): sentence[1],
+            (2, ): sentence[4],
+            (3, ): sentence[6],
+            (2, 0): sentence[3]
+        })
+
+
 def test_to_tree_multi_level():
     """
     Test a sentence with several levels of dependencies deep is properly parsed.

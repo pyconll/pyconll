@@ -6,8 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [3.0.0] - xxxxxxxxxx
 ### Fixed
+- Handled multi-word tokens better in Tree creation by simply ignoring them.
+- Several linting and style issues on updating tools.
+- Conllable metaclass is now set properly in Python 3 method rather than old Python 2 method.
 
 ### Changed
+- A Sentence with no root will throw a ValueError on Tree creation rather than returning and empty tree.
 
 ### Added
 - Type annotations the public and internal API

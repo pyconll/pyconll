@@ -207,19 +207,17 @@ class Sentence(Sequence[Token], Conllable):
         root_token = None
         for token in self:
             if token.head is not None:
-                parent_key = token.head
+                try:
+                    children_tokens[token.head].append(token)
+                except KeyError:
+                    children_tokens[token.head] = [token]
+
+                if token.head == '0':
+                    root_token = token
             elif not token.is_multiword():
                 raise ValueError(
                     'The current sentence is not fully defined as a tree and ' \
                     'has a token with an empty head at {}'.format(token.id))
-
-            try:
-                children_tokens[parent_key].append(token)
-            except KeyError:
-                children_tokens[parent_key] = [token]
-
-            if parent_key == '0':
-                root_token = token
 
         if self and root_token is None:
             raise ValueError(
