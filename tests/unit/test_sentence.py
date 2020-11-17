@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.unit import Sentence
+from pyconll.unit.sentence import Sentence
 
 from tests.tree.util import assert_tree_structure
 from tests.unit.util import assert_token_members

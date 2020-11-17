@@ -10,7 +10,7 @@ def test_minimal_tree_creation():
     """
     Test creating the minimal tree using the constructor.
     """
-    t = Tree()
+    t = Tree(None)
 
     assert t.data is None
     assert t.parent is None
@@ -21,7 +21,7 @@ def test_data_read_only():
     """
     Test that the data on a Tree cannot be assigned after construction.
     """
-    t = Tree()
+    t = Tree(None)
     with pytest.raises(AttributeError):
         t.data = 0
 
@@ -30,7 +30,7 @@ def test_parent_read_only():
     """
     Test that the parent field cannot be assigned after construction.
     """
-    t = Tree()
+    t = Tree(None)
     with pytest.raises(AttributeError):
         t.parent = None
 

@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.unit import Token
+from pyconll.unit.token import Token
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError

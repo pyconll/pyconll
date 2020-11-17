@@ -221,10 +221,9 @@ class Sentence(Sequence[Token], Conllable):
             if parent_key == '0':
                 root_token = token
 
-        if root_token is None:
+        if self and root_token is None:
             raise ValueError(
-                'The current sentence has not root token and no sentence can be formed.'
-            )
+                'The current sentence is non-empty but has no root token.')
 
         builder: TreeBuilder[Token] = TreeBuilder()
         builder.create_root(root_token)

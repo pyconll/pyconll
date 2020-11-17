@@ -8,8 +8,8 @@ from typing import Any, Generic, TypeVar
 
 from pyconll.tree.tree import Tree
 
-
 T = TypeVar('T')
+
 
 class TreeBuilder(Generic[T]):
     """

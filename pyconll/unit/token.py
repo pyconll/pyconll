@@ -106,7 +106,7 @@ def _create_dict_tupled_empty_parse(size, strict):
         """
         if v is None:
             error_msg = ('Error parsing "{}" as tuple properly. Please check'
-                            'against CoNLL format spec').format(v)
+                         'against CoNLL format spec').format(v)
             raise ParseError(error_msg)
 
         components = v.split(v_delimiter)
@@ -116,11 +116,10 @@ def _create_dict_tupled_empty_parse(size, strict):
             vs = tuple(components + [None] * left)
         else:
             error_msg = ('Error parsing "{}" as tuple properly. Please'
-                            'check against CoNLL format spec.').format(v)
+                         'check against CoNLL format spec.').format(v)
             raise ParseError(error_msg)
 
         return vs
-
 
     return _dict_tupled_empty_parser
 

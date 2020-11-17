@@ -5,8 +5,8 @@ sentence into a Tree structure.
 
 from typing import Generic, Iterator, List, Optional, TypeVar, overload
 
-
 T = TypeVar('T')
+
 
 class Tree(Generic[T]):
     """
