@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - xxxxxxxxxx
+### Fixed
+
+### Changed
+
+### Added
+- Type annotations the public and internal API
+
+### Removed
+- Python 3.5 support was removed as part of supporting type annotations.
+
 ## [2.3.3] - 2020-10-25
 ### Fixed
 - Github action workflows were using old version of python that was no longer supported.

@@ -27,8 +27,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-# TODO: This line needs to be corrected to actually represent its current status.
-This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support starting in 2020. Python 3.4 will remain supported through pyconll version 2.x.
+This package is supported with with all current supported python versions. This is currently 3.6 and newer. Python 3.5 support was removed in pyconll 3.0.0 as end of support was reached in October 2020.
 
 
 ### Support
