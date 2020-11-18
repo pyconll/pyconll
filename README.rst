@@ -30,9 +30,9 @@ moment.
 
     conda install -c pyconll pyconll
 
-This package is supported with with all current supported python
-versions. This is currently 3.6 and newer. Python 3.5 support was
-removed in pyconll 3.0.0 as end of support was reached in October 2020.
+pyconll supports Python 3.5 and greater, starting in version 3.0.0. In
+general pyconll will focus development efforts on officially supported
+python versions. Python 3.5 reached end of support in October 2020.
 
 Support
 ~~~~~~~

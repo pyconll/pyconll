@@ -1,7 +1,7 @@
 """
-Holds the Conllable interface, which is a marker interface to show that a class
-is an object in the Conll domain, such as a treebank, sentence, or token, and
-therefore has a conll method.
+The Conllable interface is a marker interface to show that a class is in the
+Conll object domain, such as a treebank (Conll in this library), sentence, or
+token, and therefore has a conll method.
 """
 
 import abc

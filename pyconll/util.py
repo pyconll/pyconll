@@ -12,7 +12,7 @@ from pyconll.unit.token import Token
 
 
 def find_ngrams(conll: Iterable[Sentence],
-                ngram: List[str],
+                ngram: Iterable[str],
                 case_sensitive: bool = True
                 ) -> Iterator[Tuple[Sentence, int, List[Token]]]:
     """
@@ -25,7 +25,7 @@ def find_ngrams(conll: Iterable[Sentence],
 
     Args:
         conll: The corpus in which to search for the ngram across the sentences.
-        ngram: The ngram to search for. A random access iterator.
+        ngram: The ngram to search for. An iterator of the lemmas.
         case_sensitive: Flag to indicate if the ngram search should be case
             sensitive. The case insensitive comparison currently is locale
             insensitive lowercase comparison.

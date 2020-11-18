@@ -1025,6 +1025,36 @@ def test_to_tree_standard_sentence():
         })
 
 
+def test_to_tree_token_with_no_head():
+    """
+    Test that a sentence with a token with no head results in error.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	_	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+    with pytest.raises(ValueError):
+        st = sentence.to_tree()
+
+
+def test_to_tree_no_root_token():
+    """
+    Test that a sentence with no root token results in error.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	_	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	1	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+    with pytest.raises(ValueError):
+        st = sentence.to_tree()
+
+
 def test_to_tree_multiword_present():
     """
     Test that a normal sentence can be parsed properly.

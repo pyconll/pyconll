@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Type annotations the public and internal API
 
 ### Removed
-- Python 3.5 support was removed as part of supporting type annotations.
+- Python 3.4 and 3.5 support was removed as part of supporting type annotations.
 
 ## [2.3.3] - 2020-10-25
 ### Fixed

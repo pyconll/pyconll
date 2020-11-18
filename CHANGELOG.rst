@@ -33,7 +33,7 @@ Added
 Removed
 ~~~~~~~
 
--  Python 3.5 support was removed as part of supporting type
+-  Python 3.4 and 3.5 support was removed as part of supporting type
    annotations.
 
 [2.3.3] - 2020-10-25
