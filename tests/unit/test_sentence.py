@@ -1097,15 +1097,13 @@ def test_to_tree_multi_level():
 
 def test_tree_empty_sentence():
     """
-    Test that an empty sentence is properly parsed.
+    Test that an empty sentence throws an error on Tree creation.
     """
     source = ''
     sentence = Sentence(source)
-    st = sentence.to_tree()
 
-    assert st.data == None
-    assert st.parent == None
-    assert len(st) == 0
+    with pytest.raises(ValueError):
+        st = sentence.to_tree()
 
 
 def test_tree_no_extra_nodes():

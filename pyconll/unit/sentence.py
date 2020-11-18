@@ -184,8 +184,8 @@ class Sentence(Sequence[Token], Conllable):
         """
         Creates a Tree data structure from the current sentence.
 
-        An empty sentence will create a Tree with no data and no children. The
-        children for a node in the tree are ordered, and are ordered as they
+        An empty sentence will cannot be converted into a Tree and will throw an
+        exception. The children for a node in the tree are ordered as they
         appear in the sentence. So the earliest child of a token appears first
         in the token's children in the tree.
 
@@ -225,9 +225,8 @@ class Sentence(Sequence[Token], Conllable):
             builder.create_root(root_token)
             Sentence._create_tree_helper(builder, self, root_token,
                                          children_tokens)
-        elif self:
-            raise ValueError(
-                'The current sentence is non-empty but has no root token.')
+        else:
+            raise ValueError('The current sentence has no root token.')
 
         root = builder.build()
         return root
