@@ -192,7 +192,7 @@ class Sentence(Sequence[Token], Conllable):
         Each Tree node has a data member that references the actual Token
         represented by the node. Multiword tokens are not included in the tree
         since they are more like virtual Tokens and do not participate in any
-        dependency relationships or carry much value.
+        dependency relationships or carry much value in dependency relations.
 
         Returns:
             A constructed Tree that represents the dependency graph of the
@@ -200,36 +200,36 @@ class Sentence(Sequence[Token], Conllable):
 
         Raises:
             ValueError: If the sentence can not be made into a tree because a
-                token has an empty head value.
+                token has an empty head value or if there is no root token.
         """
         children_tokens: Dict[str, List[Token]] = {}
 
-        root_token = None
         for token in self:
             if token.head is not None:
                 try:
                     children_tokens[token.head].append(token)
                 except KeyError:
                     children_tokens[token.head] = [token]
-
-                if token.head == '0':
-                    root_token = token
             elif not token.is_multiword():
                 raise ValueError(
                     'The current sentence is not fully defined as a tree and ' \
                     'has a token with an empty head at {}'.format(token.id))
 
-        if self and root_token is None:
+        builder: TreeBuilder[Token] = TreeBuilder()
+        if '0' in children_tokens:
+            if len(children_tokens['0']) != 1:
+                raise ValueError(
+                    'There should be exactly one root token in a sentence.')
+
+            root_token = children_tokens['0'][0]
+            builder.create_root(root_token)
+            Sentence._create_tree_helper(builder, self, root_token,
+                                         children_tokens)
+        elif self:
             raise ValueError(
                 'The current sentence is non-empty but has no root token.')
 
-        builder: TreeBuilder[Token] = TreeBuilder()
-        builder.create_root(root_token)
-        if root_token:
-            Sentence._create_tree_helper(builder, self, root_token,
-                                         children_tokens)
         root = builder.build()
-
         return root
 
     @staticmethod
