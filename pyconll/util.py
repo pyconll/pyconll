@@ -5,7 +5,7 @@ collection of functions.
 
 import functools
 import itertools
-from typing import Iterable, Iterator, List, Tuple
+from typing import Iterable, Iterator, Sequence, List, Tuple
 
 from pyconll.unit.sentence import Sentence
 from pyconll.unit.token import Token
@@ -13,7 +13,7 @@ from pyconll.unit.token import Token
 
 def find_ngrams(
     conll: Iterable[Sentence],
-    ngram: Iterable[str],
+    ngram: Sequence[str],
     case_sensitive: bool = True
 ) -> Iterator[Tuple[Sentence, int, List[Token]]]:
     """
