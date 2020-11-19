@@ -4,13 +4,15 @@ Defines the Sentence type and the associated parsing and output logic.
 
 import operator
 import re
+from typing import Dict, Iterator, List, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.tree._treebuilder import TreeBuilder
-from pyconll.unit import Token
+from pyconll.tree.tree import Tree
+from pyconll.unit.token import Token
 
 
-class Sentence(Conllable):
+class Sentence(Sequence[Token], Conllable):
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
 
@@ -43,7 +45,7 @@ class Sentence(Conllable):
     SENTENCE_ID_KEY = 'sent_id'
     TEXT_KEY = 'text'
 
-    def __init__(self, source):
+    def __init__(self, source: str) -> None:
         """
         Construct a Sentence object from the provided CoNLL-U string.
 
@@ -56,9 +58,9 @@ class Sentence(Conllable):
         """
         lines = source.split('\n')
 
-        self._meta = {}
-        self._tokens = []
-        self._ids_to_indexes = {}
+        self._meta: Dict[str, Optional[str]] = {}
+        self._tokens: List[Token] = []
+        self._ids_to_indexes: Dict[str, int] = {}
 
         for line in lines:
             if line:
@@ -83,7 +85,7 @@ class Sentence(Conllable):
                         self._ids_to_indexes[token.id] = len(self._tokens) - 1
 
     @property
-    def id(self):
+    def id(self) -> Optional[str]:
         """
         Get the sentence id.
 
@@ -96,7 +98,7 @@ class Sentence(Conllable):
             return None
 
     @id.setter
-    def id(self, new_id):
+    def id(self, new_id: str) -> None:
         """
         Set the sentence id.
 
@@ -106,7 +108,7 @@ class Sentence(Conllable):
         self._meta[Sentence.SENTENCE_ID_KEY] = new_id
 
     @property
-    def text(self):
+    def text(self) -> Optional[str]:
         """
         Get the continuous text for this sentence. Read-only.
 
@@ -119,7 +121,7 @@ class Sentence(Conllable):
         except KeyError:
             return None
 
-    def meta_value(self, key):
+    def meta_value(self, key: str) -> Optional[str]:
         """
         Returns the value associated with the key in the metadata (comments).
 
@@ -135,7 +137,7 @@ class Sentence(Conllable):
         """
         return self._meta[key]
 
-    def meta_present(self, key):
+    def meta_present(self, key: str) -> bool:
         """
         Check if the key is present as a singleton or as a pair.
 
@@ -148,7 +150,7 @@ class Sentence(Conllable):
         """
         return key in self._meta
 
-    def set_meta(self, key, value=None):
+    def set_meta(self, key: str, value: Optional[str] = None) -> None:
         """
         Set or add the metadata or comments associated with this Sentence.
 
@@ -162,7 +164,7 @@ class Sentence(Conllable):
 
         self._meta[key] = value
 
-    def remove_meta(self, key):
+    def remove_meta(self, key: str) -> None:
         """
         Remove a metadata element associated with the Sentence.
 
@@ -178,47 +180,61 @@ class Sentence(Conllable):
 
         del self._meta[key]
 
-    def to_tree(self):
+    def to_tree(self) -> Tree[Token]:
         """
         Creates a Tree data structure from the current sentence.
 
-        An empty sentence will create a Tree with no data and no children. The
-        children for a node in the tree are ordered, and are ordered as they
+        An empty sentence will cannot be converted into a Tree and will throw an
+        exception. The children for a node in the tree are ordered as they
         appear in the sentence. So the earliest child of a token appears first
         in the token's children in the tree.
 
         Each Tree node has a data member that references the actual Token
-        represented by the node.
+        represented by the node. Multiword tokens are not included in the tree
+        since they are more like virtual Tokens and do not participate in any
+        dependency relationships or carry much value in dependency relations.
 
         Returns:
             A constructed Tree that represents the dependency graph of the
             sentence.
+
+        Raises:
+            ValueError: If the sentence can not be made into a tree because a
+                token has an empty head value or if there is no root token.
         """
-        children_tokens = {}
+        children_tokens: Dict[str, List[Token]] = {}
 
-        root_token = None
         for token in self:
-            parent_key = token.head
+            if token.head is not None:
+                try:
+                    children_tokens[token.head].append(token)
+                except KeyError:
+                    children_tokens[token.head] = [token]
+            elif not token.is_multiword():
+                raise ValueError(
+                    'The current sentence is not fully defined as a tree and ' \
+                    'has a token with an empty head at {}'.format(token.id))
 
-            try:
-                children_tokens[parent_key].append(token)
-            except KeyError:
-                children_tokens[parent_key] = [token]
+        builder: TreeBuilder[Token] = TreeBuilder()
+        if '0' in children_tokens:
+            if len(children_tokens['0']) != 1:
+                raise ValueError(
+                    'There should be exactly one root token in a sentence.')
 
-            if token.head == '0':
-                root_token = token
-
-        builder = TreeBuilder()
-        builder.create_root(root_token)
-        if root_token:
+            root_token = children_tokens['0'][0]
+            builder.create_root(root_token)
             Sentence._create_tree_helper(builder, self, root_token,
                                          children_tokens)
-        root = builder.build()
+        else:
+            raise ValueError('The current sentence has no root token.')
 
+        root = builder.build()
         return root
 
     @staticmethod
-    def _create_tree_helper(builder, sentence, root, children_tokens):
+    def _create_tree_helper(builder: TreeBuilder, sentence: 'Sentence',
+                            root: Token,
+                            children_tokens: Dict[str, List[Token]]) -> None:
         """
         Method to create a tree from a sentence given the root token.
 
@@ -242,7 +258,7 @@ class Sentence(Conllable):
                                          children_tokens)
             builder.move_to_parent()
 
-    def conll(self):
+    def conll(self) -> str:
         """
         Convert the sentence to a CoNLL-U representation.
 
@@ -265,13 +281,25 @@ class Sentence(Conllable):
 
         return '\n'.join(lines)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Token]:
         """
         Iterate through all the tokens in the Sentence including multiword
         tokens.
         """
         for token in self._tokens:
             yield token
+
+    @overload
+    def __getitem__(self, key: str) -> Token:
+        pass
+
+    @overload
+    def __getitem__(self, key: int) -> Token:
+        pass
+
+    @overload
+    def __getitem__(self, key: slice) -> Sequence[Token]:
+        pass
 
     def __getitem__(self, key):
         """
@@ -286,7 +314,7 @@ class Sentence(Conllable):
 
         Returns:
             If the key is a string then the appropriate Token. The key can also
-            be a slice in which case a list of tokens is provided.
+            be a slice in which case a sequence of tokens is provided.
         """
         if isinstance(key, str):
             idx = self._ids_to_indexes[key]
@@ -310,7 +338,7 @@ class Sentence(Conllable):
 
         raise ValueError('The key must be a str, int, or slice.')
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Get the length of this sentence.
 

@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.unit import Sentence
+from pyconll.unit.sentence import Sentence
 
 from tests.tree.util import assert_tree_structure
 from tests.unit.util import assert_token_members
@@ -1025,6 +1025,63 @@ def test_to_tree_standard_sentence():
         })
 
 
+def test_to_tree_token_with_no_head():
+    """
+    Test that a sentence with a token with no head results in error.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	_	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+    with pytest.raises(ValueError):
+        st = sentence.to_tree()
+
+
+def test_to_tree_no_root_token():
+    """
+    Test that a sentence with no root token results in error.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	_	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	1	root	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+    with pytest.raises(ValueError):
+        st = sentence.to_tree()
+
+
+def test_to_tree_multiword_present():
+    """
+    Test that a normal sentence can be parsed properly.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	5	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	5	advmod	_	_\n'
+              '3-4	du	_	_	_	_	_	_	_	_\n'
+              '3	de	de	ADP	_	_	4	nmod	_	_\n'
+              '4	le	le	DET	_	_	5	det	_	_\n'
+              '5	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '6	?	?	PUNCT	_	_	5	punct	_	_\n')
+    sentence = Sentence(source)
+    st = sentence.to_tree()
+
+    assert_tree_structure(
+        st, {
+            (): sentence[5],
+            (0, ): sentence[0],
+            (1, ): sentence[1],
+            (2, ): sentence[4],
+            (3, ): sentence[6],
+            (2, 0): sentence[3]
+        })
+
+
 def test_to_tree_multi_level():
     """
     Test a sentence with several levels of dependencies deep is properly parsed.
@@ -1070,15 +1127,13 @@ def test_to_tree_multi_level():
 
 def test_tree_empty_sentence():
     """
-    Test that an empty sentence is properly parsed.
+    Test that an empty sentence throws an error on Tree creation.
     """
     source = ''
     sentence = Sentence(source)
-    st = sentence.to_tree()
 
-    assert st.data == None
-    assert st.parent == None
-    assert len(st) == 0
+    with pytest.raises(ValueError):
+        st = sentence.to_tree()
 
 
 def test_tree_no_extra_nodes():

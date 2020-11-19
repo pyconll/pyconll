@@ -2,13 +2,14 @@
 Defines the Conll type and the associated parsing and output logic.
 """
 
-from collections.abc import MutableSequence
+from typing import Any, Iterable, Iterator, List, Union, MutableSequence, overload
 
 import pyconll._parser
 from pyconll.conllable import Conllable
+from pyconll.unit.sentence import Sentence
 
 
-class Conll(MutableSequence, Conllable):
+class Conll(MutableSequence[Sentence], Conllable):
     """
     The abstraction for a CoNLL-U file. A CoNLL-U file is more or less just a
     collection of sentences in order. These sentences are accessed by numeric
@@ -16,7 +17,7 @@ class Conll(MutableSequence, Conllable):
     specifies that the file must end in a new line but that requirement is
     relaxed here in parsing.
     """
-    def __init__(self, it):
+    def __init__(self, it: Iterable[str]) -> None:
         """
         Create a CoNLL-U file collection of sentences.
 
@@ -27,12 +28,12 @@ class Conll(MutableSequence, Conllable):
             ParseError: If there is an error constructing the sentences in the
                 iterator.
         """
-        self._sentences = []
+        self._sentences: List[Sentence] = []
 
         for sentence in pyconll._parser.iter_sentences(it):
             self._sentences.append(sentence)
 
-    def conll(self):
+    def conll(self) -> str:
         """
         Output the Conll object to a CoNLL-U formatted string.
 
@@ -46,7 +47,7 @@ class Conll(MutableSequence, Conllable):
 
         return '\n\n'.join(components)
 
-    def write(self, writable):
+    def write(self, writable: Any) -> None:
         """
         Write the Conll object to something that is writable.
 
@@ -62,7 +63,7 @@ class Conll(MutableSequence, Conllable):
             writable.write(sentence.conll())
             writable.write('\n\n')
 
-    def insert(self, index, value):
+    def insert(self, index: int, value: Sentence) -> None:
         """
         Insert the given sentence into the given location.
 
@@ -74,7 +75,7 @@ class Conll(MutableSequence, Conllable):
         """
         self._sentences.insert(index, value)
 
-    def __contains__(self, other):
+    def __contains__(self, other: object) -> bool:
         """
         Check if the Conll object has this sentence.
 
@@ -85,13 +86,9 @@ class Conll(MutableSequence, Conllable):
             True if this Sentence is exactly in the Conll object. False,
             otherwise.
         """
-        for sentence in self._sentences:
-            if other == sentence:
-                return True
+        return other in self._sentences
 
-        return False
-
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Sentence]:
         """
         Allows for iteration over every sentence in the CoNLL-U file.
 
@@ -100,6 +97,14 @@ class Conll(MutableSequence, Conllable):
         """
         for sentence in self._sentences:
             yield sentence
+
+    @overload
+    def __getitem__(self, key: int) -> Sentence:
+        pass
+
+    @overload
+    def __getitem__(self, key: slice) -> 'Conll':
+        pass
 
     def __getitem__(self, key):
         """
@@ -127,17 +132,27 @@ class Conll(MutableSequence, Conllable):
 
         raise TypeError('Conll indices must be ints or slices.')
 
-    def __setitem__(self, key, sent):
+    @overload
+    def __setitem__(self, key: int, sent: Sentence) -> None:
+        pass
+
+    @overload
+    def __setitem__(self, key: slice, sents: Iterable[Sentence]) -> None:
+        pass
+
+    def __setitem__(self, key, item) -> None:
         """
         Set the given location to the Sentence.
 
         Args:
             key: The location in the Conll file to set to the given sentence.
-                This only accepts integer keys and accepts negative indexing.
+                This accepts integer or slice keys and accepts negative indexing.
+            item: The item to insert. This can be an individual sentence, or
+                another Conll object.
         """
-        self._sentences[key] = sent
+        self._sentences[key] = item
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: Union[int, slice]) -> None:
         """
         Delete the Sentence corresponding with the given key.
 
@@ -147,7 +162,7 @@ class Conll(MutableSequence, Conllable):
         """
         del self._sentences[key]
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns the number of sentences in the CoNLL-U file.
 

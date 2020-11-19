@@ -6,6 +6,7 @@ format.
 
 import functools
 import math
+from typing import Callable, ClassVar, Dict, Optional, Set, Tuple
 
 from pyconll.conllable import Conllable
 from pyconll.exception import ParseError, FormatError
@@ -103,29 +104,28 @@ def _create_dict_tupled_empty_parse(size, strict):
         Raises:
             ParseError: If there was an error parsing the value as a tuple.
         """
-        if v is not None:
-            components = v.split(v_delimiter)
-            left = size - len(components)
-
-            if not strict and left >= 0 and left < size:
-                vs = tuple(components + [None] * left)
-            elif len(components) == size:
-                vs = tuple(components)
-            else:
-                error_msg = ('Error parsing "{}" as tuple properly. Please'
-                             'check against CoNLL format spec.').format(v)
-                raise ParseError(error_msg)
-
-            return vs
-        else:
+        if v is None:
             error_msg = ('Error parsing "{}" as tuple properly. Please check'
                          'against CoNLL format spec').format(v)
             raise ParseError(error_msg)
 
+        components = v.split(v_delimiter)
+        left = size - len(components)
+
+        if not strict and 0 <= left < size:
+            vs = tuple(components + [None] * left)
+        else:
+            error_msg = ('Error parsing "{}" as tuple properly. Please'
+                         'check against CoNLL format spec.').format(v)
+            raise ParseError(error_msg)
+
+        return vs
+
     return _dict_tupled_empty_parser
 
 
-TUPLE_PARSER_MEMOIZE = {}
+TUPLE_PARSER_MEMOIZE: Dict[int, Callable[[str, str], Tuple[Optional[str],
+                                                           ...]]] = {}
 
 
 def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
@@ -609,21 +609,23 @@ class Token(Conllable):
     # COMPONENT_DELIMITER separates a field with multiple components.
     # AV_SEPARATOR separates the attribute from the value in a component.
     # V_DELIMITER separates the values in an attribute-value pair.
-    FIELD_DELIMITER = '\t'
-    COMPONENT_DELIMITER = '|'
-    AV_SEPARATOR = '='
-    AV_DEPS_SEPARATOR = ':'
-    V_DELIMITER = ','
-    V_DEPS_DELIMITER = ':'
-    EMPTY = '_'
+    FIELD_DELIMITER: ClassVar[str] = '\t'
+    COMPONENT_DELIMITER: ClassVar[str] = '|'
+    AV_SEPARATOR: ClassVar[str] = '='
+    AV_DEPS_SEPARATOR: ClassVar[str] = ':'
+    V_DELIMITER: ClassVar[str] = ','
+    V_DEPS_DELIMITER: ClassVar[str] = ':'
+    EMPTY: ClassVar[str] = '_'
 
     # Keys for sorting attribute-value columns. BY_ID converts the attribute
     # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
     # converts the pair to the lowercase version of the atribute.
-    BY_ID = lambda pair: _TokenIdComparer(pair[0])
-    BY_CASE_INSENSITIVE = lambda pair: pair[0].lower()
+    BY_ID: ClassVar[Callable[[Tuple[
+        str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(pair[0])
+    BY_CASE_INSENSITIVE: ClassVar[Callable[[Tuple[
+        str, str]], str]] = lambda pair: pair[0].lower()
 
-    def __init__(self, source, empty=False):
+    def __init__(self, source: str, empty: bool = False) -> None:
         """
         Construct a Token from the given source line.
 
@@ -663,37 +665,38 @@ class Token(Conllable):
             raise ParseError(error_msg)
 
         # Assign all the field values from the line to internal equivalents.
-        self.id = fields[0]
+        self.id: str = fields[0]
 
         # If we can assume the form and lemma are empty, or if either of the
         # fields are not the empty token, then we can proceed as usual.
         # Otherwise, these empty tokens might not mean empty, but rather the
         # actual tokens.
         if empty or (fields[1] != Token.EMPTY or fields[2] != Token.EMPTY):
-            self._form = _unit_empty_map(fields[1], Token.EMPTY)
-            self.lemma = _unit_empty_map(fields[2], Token.EMPTY)
+            self._form: Optional[str] = _unit_empty_map(fields[1], Token.EMPTY)
+            self.lemma: Optional[str] = _unit_empty_map(fields[2], Token.EMPTY)
         else:
             self._form = fields[1]
             self.lemma = fields[2]
 
-        self.upos = _unit_empty_map(fields[3], Token.EMPTY)
-        self.xpos = _unit_empty_map(fields[4], Token.EMPTY)
-        self.feats = _dict_empty_map(fields[5], Token.EMPTY,
-                                     Token.COMPONENT_DELIMITER,
-                                     Token.AV_SEPARATOR, Token.V_DELIMITER)
-        self.head = _unit_empty_map(fields[6], Token.EMPTY)
-        self.deprel = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps = _dict_tupled_empty_map(fields[8], Token.EMPTY,
-                                           Token.COMPONENT_DELIMITER,
-                                           Token.AV_DEPS_SEPARATOR,
-                                           Token.V_DEPS_DELIMITER, 4)
-        self.misc = _dict_mixed_empty_map(fields[9], Token.EMPTY,
-                                          Token.COMPONENT_DELIMITER,
-                                          Token.AV_SEPARATOR,
-                                          Token.V_DELIMITER)
+        self.upos: Optional[str] = _unit_empty_map(fields[3], Token.EMPTY)
+        self.xpos: Optional[str] = _unit_empty_map(fields[4], Token.EMPTY)
+        self.feats: Dict[str,
+                         Set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
+                                                     Token.COMPONENT_DELIMITER,
+                                                     Token.AV_SEPARATOR,
+                                                     Token.V_DELIMITER)
+        self.head: Optional[str] = _unit_empty_map(fields[6], Token.EMPTY)
+        self.deprel: Optional[str] = _unit_empty_map(fields[7], Token.EMPTY)
+        self.deps: Dict[str,
+                        Tuple[str, str, str, str]] = _dict_tupled_empty_map(
+                            fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
+                            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
+        self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
+            fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR, Token.V_DELIMITER)
 
     @property
-    def form(self):
+    def form(self) -> Optional[str]:
         """
         Provide the word form of this Token. This property is read only.
 
@@ -702,7 +705,7 @@ class Token(Conllable):
         """
         return self._form
 
-    def is_multiword(self):
+    def is_multiword(self) -> bool:
         """
         Checks if this Token is a multiword token.
 
@@ -711,7 +714,7 @@ class Token(Conllable):
         """
         return '-' in self.id
 
-    def conll(self):
+    def conll(self) -> str:
         """
         Convert this Token to its CoNLL-U representation.
 

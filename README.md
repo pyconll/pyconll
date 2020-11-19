@@ -27,7 +27,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-This package is designed for, and only tested with python 3.4 and up and will not be backported to python 2.x or to any versions older than python 3.4 as this release has reached end of support starting in 2020. Python 3.4 will remain supported through pyconll version 2.x.
+pyconll supports Python 3.5 and greater, starting in version 3.0.0. In general pyconll will focus development efforts on officially supported python versions. Python 3.5 reached end of support in October 2020.
 
 
 ### Support
@@ -39,7 +39,7 @@ pyconll fully supports and is regularly tested against all UD v2.x versions to e
 
 This tool is intended to be a **minimal**, **low level**, **expressive** and **pragmatic** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
-In my work with the Universal Dependencies project, I saw a dissapointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but their DSLs have a learning curve and limit their scope. [UDAPI](http://udapi.github.io/) offers a python library but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
+In my work with the Universal Dependencies project, I saw a disappointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but their DSLs have a learning curve and limit their scope. [UDAPI](http://udapi.github.io/) offers a python library but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
 
 Hopefully, individual researchers find pyconll useful, and will use it as a building block for their tools and projects. pyconll affords an intuitive and complete base for building larger projects without worrying about the details of CoNLL annotation and output.
 

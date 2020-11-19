@@ -4,11 +4,10 @@ os: linux
 dist: xenial
 language: python
 python:
-    - 3.4
-    - 3.5
     - 3.6
     - 3.7
     - 3.8
+    - 3.9
 install:
   - pip install -r requirements.txt
   - pip install coveralls
@@ -23,7 +22,7 @@ jobs:
     os: linux
     dist: xenial
     language: python
-    python: 3.5
+    python: 3.6
     install:
       - pip install -r requirements.txt
     script:
@@ -34,7 +33,7 @@ jobs:
     os: linux
     dist: xenial
     language: python
-    python: 3.5
+    python: 3.6
     install:
       - pip install -r requirements.txt
     script:
@@ -45,7 +44,7 @@ jobs:
     os: linux
     dist: xenial
     language: python
-    python: 3.5
+    python: 3.6
     install:
       - pip install -r requirements.txt
     script:

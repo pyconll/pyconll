@@ -30,10 +30,9 @@ moment.
 
     conda install -c pyconll pyconll
 
-This package is designed for, and only tested with python 3.4 and up and
-will not be backported to python 2.x or to any versions older than
-python 3.4 as this release has reached end of support starting in 2020.
-Python 3.4 will remain supported through pyconll version 2.x.
+pyconll supports Python 3.5 and greater, starting in version 3.0.0. In
+general pyconll will focus development efforts on officially supported
+python versions. Python 3.5 reached end of support in October 2020.
 
 Support
 ~~~~~~~
@@ -53,7 +52,7 @@ creates a thin API on top of raw CoNLL annotations that is simple and
 intuitive.
 
 In my work with the Universal Dependencies project, I saw a
-dissapointing lack of low level APIs for working with the CoNLL-U
+disappointing lack of low level APIs for working with the CoNLL-U
 format. Most tooling focuses on graph transformations and DSLs for
 terse, automated changes. Tools such as `Grew <http://grew.fr/>`__ and
 `Treex <http://ufal.mff.cuni.cz/treex>`__ are very powerful and

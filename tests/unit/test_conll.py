@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from pyconll.unit import Conll
-from pyconll.unit import Sentence
+from pyconll.unit.conll import Conll
+from pyconll.unit.sentence import Sentence
 from tests.util import fixture_location
 
 

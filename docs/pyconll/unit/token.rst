@@ -7,7 +7,7 @@ __ https://universaldependencies.org/format#conll-u-format
 
 Fields
 -----------------------------------
-All fields are strings except for ``feats``, ``deps``, and ``misc``, which are ``dicts``. Each of these fields has specific semantics per the UDv2 guidelines. Since these fields are ``dicts`` these means modifying them uses python's natural syntax for dictionaries.
+All fields are optional strings except for ``feats``, ``deps``, and ``misc``, which are ``dicts``. As optional strings, they can either be None, or a string value. Fields which are dictionaries have specific semantics per the UDv2 guidelines. Since these fields are ``dicts`` this means modifying them uses python's natural syntax for dictionaries.
 
 feats
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

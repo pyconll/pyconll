@@ -5,13 +5,16 @@ storing Conll objects in memory. This module is the main entrance to pyconll's
 functionalities.
 """
 
+from typing import Iterator
+
 import requests
 
 from pyconll._parser import iter_sentences
-from pyconll.unit import Conll
+from pyconll.unit.conll import Conll
+from pyconll.unit.sentence import Sentence
 
 
-def load_from_string(source):
+def load_from_string(source: str) -> Conll:
     """
     Load the CoNLL-U source in a string into a Conll object.
 
@@ -30,7 +33,7 @@ def load_from_string(source):
     return c
 
 
-def load_from_file(filename):
+def load_from_file(filename: str) -> Conll:
     """
     Load a CoNLL-U file given its location.
 
@@ -50,7 +53,7 @@ def load_from_file(filename):
     return c
 
 
-def load_from_url(url):
+def load_from_url(url: str) -> Conll:
     """
     Load a CoNLL-U file at the provided URL.
 
@@ -76,7 +79,7 @@ def load_from_url(url):
     return c
 
 
-def iter_from_string(source):
+def iter_from_string(source: str) -> Iterator[Sentence]:
     """
     Iterate over a CoNLL-U string's sentences.
 
@@ -97,7 +100,7 @@ def iter_from_string(source):
         yield sentence
 
 
-def iter_from_file(filename):
+def iter_from_file(filename: str) -> Iterator[Sentence]:
     """
     Iterate over a CoNLL-U file's sentences.
 
@@ -116,7 +119,7 @@ def iter_from_file(filename):
             yield sentence
 
 
-def iter_from_url(url):
+def iter_from_url(url: str) -> Iterator[Sentence]:
     """
     Iterate over a CoNLL-U file that is pointed to by a given URL.
 
