@@ -22,6 +22,7 @@ def read(fn):
 
     return contents
 
+
 def parse_version(fn):
     """
     Parse the version from specified file, assumed to be a versioner module.
@@ -45,7 +46,8 @@ def parse_version(fn):
     m = re.search('__version__\\s*=\\s*[\'"]((\\d+\\.)+(\\d+))[\'"]', contents)
 
     if not m:
-        raise ValueError('There is no version string identified in the file contents.')
+        raise ValueError(
+            'There is no version string identified in the file contents.')
 
     ver = m.group(1)
     return ver
