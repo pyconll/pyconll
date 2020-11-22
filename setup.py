@@ -1,5 +1,7 @@
-from setuptools import setup
 import os
+import re
+from setuptools import setup
+
 
 def read(fn):
     """
@@ -20,10 +22,39 @@ def read(fn):
 
     return contents
 
+def parse_version(fn):
+    """
+    Parse the version from specified file, assumed to be a versioner module.
+
+    The filename is relative to the contents of the current file location.
+
+    Args:
+        fn: The filename to read in.
+
+    Returns:
+        The parsed version file.
+
+    Raises:
+        ValueError: If the file is deemed not clear enough to determine version
+            information.
+    """
+    contents = read(fn)
+
+    # Note that this regex version check is very simple and is not all encompassing
+    # but works fine for the given use case and internal nature of the logic.
+    m = re.search('__version__\\s*=\\s*[\'"]((\\d+\\.)+(\\d+))[\'"]', contents)
+
+    if not m:
+        raise ValueError('There is no version string identified in the file contents.')
+
+    ver = m.group(1)
+    return ver
+
+
 setup(
     name = 'pyconll',
     packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
-    version = read('.version').strip(),
+    version = parse_version('pyconll/_version.py'),
     description = 'Read and manipulate CoNLL files',
     long_description = read('README.rst'),
     author = 'Matias Grioni',
