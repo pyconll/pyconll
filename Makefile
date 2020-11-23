@@ -2,14 +2,14 @@
 
 # Format python files in place, outputs error code if there are changes
 format:
-	yapf -pri -e *.conllu pyconll/ tests/
+	yapf -pri -e *.conllu pyconll/ util/ tests/
 
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.
 lint:
-	python -m pylint --rcfile .pylintrc pyconll/ && \
-	python -m yapf -prq -e *.conllu pyconll/ tests/ && \
-	python -m mypy pyconll/
+	python -m pylint --rcfile .pylintrc pyconll/ util/ && \
+	python -m yapf -prq -e *.conllu pyconll/ util/ tests/ && \
+	python -m mypy pyconll/ util/
 
 # Unit test scenario for fast CI builds and local testing
 test:
