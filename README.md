@@ -86,3 +86,12 @@ When changing either of these files, please change the Markdown version and run 
 #### Code Formatting
 
 Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors. The linter can also be setup and run via `make lint`. If the development environment is not properly setup, then the CI build will fail if code is not formatted properly.
+
+#### Release Checklist
+
+Below enumerates the general release process explicitly. This section is for internal consumers and most people do not have to worry about this. First note, that the dev branch is always a direct extension of master with the latest changes since the last release that are essentially in staging.
+
+* Merge dev into master **locally**. Github does not offer a fast forward merge and explicitly uses a --no-ff equivalent. So to keep the linear nature of changes, merge locally to keep a fast forward. This is assuming that the dev branch looks good on CI tests which do not automatically run in this situation.
+* Push the master branch. This should start some CI tests specifically for master. After validating these results, create a tag corresponding to the next version number and push the tag.
+* Create a new release from this tag from the [Releases page](https://github.com/pyconll/pyconll/releases). On creating this release, two workflows will start. One to release to pypi, and another to release to conda.
+* Validate these workflows pass, and the package is properly released on these platforms.
