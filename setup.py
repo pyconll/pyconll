@@ -1,64 +1,28 @@
-import os
-import re
+from pathlib import Path
 from setuptools import setup
 
+from util import parse
 
-def read(fn):
+
+def make_relative(fn):
     """
-    Read the contents of the provided filename.
-
-    The filename is relative to the contents of the current file location.
+    Make the filename relative to the current file.
 
     Args:
-    fn: The filename to read in.
+        fn: The filename to convert.
 
     Returns:
-    The contents of the file.
+        The path relative to the current file.
     """
-    abs_fn = os.path.join(os.path.dirname(__file__), fn)
-    f = open(abs_fn)
-    contents = f.read()
-    f.close()
-
-    return contents
-
-
-def parse_version(fn):
-    """
-    Parse the version from specified file, assumed to be a versioner module.
-
-    The filename is relative to the contents of the current file location.
-
-    Args:
-        fn: The filename to read in.
-
-    Returns:
-        The parsed version file.
-
-    Raises:
-        ValueError: If the file is deemed not clear enough to determine version
-            information.
-    """
-    contents = read(fn)
-
-    # Note that this regex version check is very simple and is not all encompassing
-    # but works fine for the given use case and internal nature of the logic.
-    m = re.search('__version__\\s*=\\s*[\'"]((\\d+\\.)+(\\d+))[\'"]', contents)
-
-    if not m:
-        raise ValueError(
-            'There is no version string identified in the file contents.')
-
-    ver = m.group(1)
-    return ver
+    return Path(__file__).parent / fn
 
 
 setup(
     name = 'pyconll',
     packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
-    version = parse_version('pyconll/_version.py'),
+    version = parse.package_version(make_relative('pyconll/_version.py')),
     description = 'Read and manipulate CoNLL files',
-    long_description = read('README.rst'),
+    long_description = make_relative('README.rst').read_text(),
     author = 'Matias Grioni',
     author_email = 'matgrioni@gmail.com',
     url = 'https://github.com/pyconll/pyconll',
