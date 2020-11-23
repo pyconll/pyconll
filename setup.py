@@ -1,31 +1,28 @@
+from pathlib import Path
 from setuptools import setup
-import os
 
-def read(fn):
+from util import parse
+
+
+def make_relative(fn):
     """
-    Read the contents of the provided filename.
-
-    The filename is relative to the contents of the current file location.
+    Make the filename relative to the current file.
 
     Args:
-    fn: The filename to read in.
+        fn: The filename to convert.
 
     Returns:
-    The contents of the file.
+        The path relative to the current file.
     """
-    abs_fn = os.path.join(os.path.dirname(__file__), fn)
-    f = open(abs_fn)
-    contents = f.read()
-    f.close()
+    return Path(__file__).parent / fn
 
-    return contents
 
 setup(
     name = 'pyconll',
     packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
-    version = read('.version').strip(),
+    version = parse.package_version(make_relative('pyconll/_version.py')),
     description = 'Read and manipulate CoNLL files',
-    long_description = read('README.rst'),
+    long_description = make_relative('README.rst').read_text(),
     author = 'Matias Grioni',
     author_email = 'matgrioni@gmail.com',
     url = 'https://github.com/pyconll/pyconll',
