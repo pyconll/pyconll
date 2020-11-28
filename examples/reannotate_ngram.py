@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #
 # Change the annotation of a certain ngram. In this case, change any instances
 # of 'de plus' (FR) to a fixed annotation if they were previously connected.

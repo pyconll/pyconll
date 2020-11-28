@@ -30,41 +30,52 @@ conda install -c pyconll pyconll
 pyconll supports Python 3.5 and greater, starting in version 3.0.0. In general pyconll will focus development efforts on officially supported python versions. Python 3.5 reached end of support in October 2020.
 
 
-### Support
-
-pyconll fully supports and is regularly tested against all UD v2.x versions to ensure compatibility with the latest releases, and also maintains backwards compatibility. Please feel free to direct any questions to the [gitter channel](https://gitter.im/pyconll/pyconll) or create an issue on GitHub.
-
-
-### Motivation
+### Use
 
 This tool is intended to be a **minimal**, **low level**, **expressive** and **pragmatic** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
-In my work with the Universal Dependencies project, I saw a disappointing lack of low level APIs for working with the CoNLL-U format. Most tooling focuses on graph transformations and DSLs for terse, automated changes. Tools such as [Grew](http://grew.fr/) and [Treex](http://ufal.mff.cuni.cz/treex) are very powerful and productive, but their DSLs have a learning curve and limit their scope. [UDAPI](http://udapi.github.io/) offers a python library but it is very large and has little guidance. pyconll attempts to fill the gaps between what other projects have accomplished.
+It offers the following features:
+* Regular testing and validation through CI against all UD v2.x versions.
+* A strong domain model including CoNLL sources, Sentences, Tokens, Trees, etc.
+* A typed API for better development experience and better semantics.
+* A focus on usability and simplicity in design (no dependencies)
+* Performance optimizations to ensure a smooth development workflow no matter the dataset size (performs about 25%-35% faster parsing than other comparable packages)
 
-Hopefully, individual researchers find pyconll useful, and will use it as a building block for their tools and projects. pyconll affords an intuitive and complete base for building larger projects without worrying about the details of CoNLL annotation and output.
-
-
-### Code Snippet
+See the following code example to understand the basics of the API.
 
 ```python
-# This snippet finds what lemmas are marked as AUX which is a closed class POS in UD
+# This snippet finds sentences where a token marked with part of speech 'AUX' are
+# governed by a NOUN. For example, in French this is a less common construction
+# and we may want to validate these examples because we have previously found some
+# problematic examples of this construction.
 import pyconll
 
-UD_ENGLISH_TRAIN = './ud/train.conll'
+train = pyconll.load_from_file('./ud/train.conllu')
 
-train = pyconll.load_from_file(UD_ENGLISH_TRAIN)
+review_sentences = []
 
-aux_lemmas = set()
-for sentence in train:
+# Conll objects are iterable over their sentences, and sentences are iterable
+# over their tokens. Sentences also de/serialize comment information.
+for sentence in train:                  
     for token in sentence:
-        if token.upos == 'AUX':
-            aux_lemmas.add(token.lemma)
+
+        # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
+        # can be indexed by a token's id. We must double check that the token is not
+        # the root token, in which the id '0' cannot be looked up.
+        if (token.upos == 'AUX' and token.head != '0') or sentence[token.head].upos == 'NOUN':
+            review_sentences.append(sentence)
+
+print('Review the following sentences:')
+for sent in review_sentences:
+    print(sent.id)
 ```
+
+A full definition of the API can be found in the [documentation](https://pyconll.readthedocs.io/) or use the [quick start]() guide for a focused introduction.
 
 
 ### Uses and Limitations
 
-This package edits CoNLL-U annotations. This does not include the annotated text itself. Word forms on Tokens are not editable and Sentence Tokens cannot be reassigned or reordered. `pyconll` focuses on editing CoNLL-U annotation rather than creating it or changing the underlying text that is annotated. If there is interest in this functionality area, please create a github issue for more visibility.
+This package edits CoNLL-U annotations. This does not include the annotated text itself. Word forms on Tokens are not editable and Sentence Tokens cannot be reassigned or reordered. `pyconll` focuses on editing CoNLL-U annotation rather than creating it or changing the underlying text that is annotated. If there is interest in this functionality area, please create a GitHub issue for more visibility.
 
 This package also is only validated against the CoNLL-U format. The CoNLL and CoNLL-X format are not supported, but are very similar. I originally intended to support these formats as well, but their format is not as well defined as CoNLL-U so they are not included. Please create an issue for visibility if this feature interests you.
 
@@ -73,7 +84,7 @@ Lastly, linguistic data can often be very large and this package attempts to kee
 
 ### Contributing
 
-Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `make hooks` and `pip install -r requirements.txt` to properly setup locally. `make hooks` setups up a pre-push hook to validate that code matches the default YAPF style. While this is technically optional, it is highly encouraged, and CI builds will fail without proper formatting. `pip install -r requirements.txt` sets up environment dependencies like `yapf`, `twine`, `sphinx`, etc.
+Contributions to this project are welcome and encouraged! If you are unsure how to contribute, here is a [guide](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) from Github explaining the basic workflow. After cloning this repo, please run `pip install -r requirements.txt` to properly setup locally. Some of these tools like yapf, pylint, and mypy do not have to be run locally, but CI builds will fail without their successful running. Some other release dependencies like twine and sphinx are also installed.
 
 For packaging new versions, use setuptools version 24.2.0 or greater for creating the appropriate packaging that recognizes the `python_requires` metadata. Final packaging and release is now done with Github actions so this is less of a concern.
 
@@ -81,8 +92,3 @@ For packaging new versions, use setuptools version 24.2.0 or greater for creatin
 #### README and CHANGELOG
 
 When changing either of these files, please change the Markdown version and run ``make gendocs`` so that the other versions stay in sync.
-
-
-#### Code Formatting
-
-Code formatting is done automatically on push if githooks are setup properly. The code formatter is [YAPF](https://github.com/google/yapf), and using this ensures that coding style stays consistent over time and between authors. The linter can also be setup and run via `make lint`. If the development environment is not properly setup, then the CI build will fail if code is not formatted properly.

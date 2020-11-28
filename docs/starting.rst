@@ -51,6 +51,33 @@ Outputting CoNLL-U
 
 Once you are done working with a ``Conll`` object, you may need to output your results. The object can be serialized back into the CoNLL-U format, through the ``conll`` method. ``Conll``, ``Sentence``, and ``Token`` objects are all Conllable_ which means they have a corresponding ``conll`` method which serializes the objects into the appropriate string representation.
 
+A more efficient way of outputting an entire Conll file would be to use the ``write`` method, which prevents creating the entire Conll file string in memory. Remember that, CoNLL-U is UTF-8 encoded.
+
+Complete example
+----------------------------------
+
+Putting together all the above elements, a complete example from loading, to transformation, to output looks as follows.
+
+.. code:: python
+
+    import pyconll
+
+    # Load file
+    my_conll_file_location = './ud/train.conll'
+    train = pyconll.load_from_file(my_conll_file_location)
+
+    # Process and transform
+    for sentence in train:
+        if sentence_pred(sentence):
+            for token in sentence:
+                if token.pos == 'NOUN':
+                    noun_token_transformation(token)
+
+    # Output changes. This writes directly to file, an alternative is to use
+    # train.conll() which will return the entire output string at once.
+    with open('output.conllu', 'w', encoding='utf-8') as f:
+        train.write(f)
+
 Conclusion
 ----------------------------------
 
