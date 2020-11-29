@@ -11,13 +11,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Conllable metaclass is now set properly in Python 3 method rather than old Python 2 method.
 
 ### Changed
-- A Sentence with no root will throw a ValueError on Tree creation rather than returning and empty tree.
+- A Sentence with no root will throw a ValueError on Tree creation rather than returning an empty tree.
+- TODO: Continued changes and improvements with DevOps moving from TravisCI to GitHub actions, caching build artifacts for faster and more replicable builds, etc.
 
 ### Added
 - Type annotations the public and internal API
+- TODO: Added UD 2.7 to the list of versions validated against.
 
 ### Removed
 - Python 3.4 and 3.5 support was removed as part of supporting type annotations.
+- TODO: Loading or iterating from network url was removed. It introduced a dependency that was better removed, and did not seem to be used often in the wild. It also encourages inefficient design and can be easily replicated for those who need it.
+- TODO: Some dev and build dependencies which are no longer needed with the new GitHub action usage and new CI checks.
 
 ## [2.3.3] - 2020-10-25
 ### Fixed
