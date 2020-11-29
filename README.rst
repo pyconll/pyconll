@@ -42,14 +42,13 @@ and **pragmatic** library in a widely used programming language. pyconll
 creates a thin API on top of raw CoNLL annotations that is simple and
 intuitive.
 
-It offers the following features: \* Regular testing and validation
-through CI against all UD v2.x versions. \* A strong domain model
-including CoNLL sources, Sentences, Tokens, Trees, etc. \* A typed API
-for better development experience and better semantics. \* A focus on
-usability and simplicity in design (no dependencies) \* Performance
-optimizations to ensure a smooth development workflow no matter the
-dataset size (performs about 25%-35% faster parsing than other
-comparable packages)
+It offers the following features: \* Regular CI testing and validation
+against all UD v2.x versions. \* A strong domain model that includes
+CoNLL sources, Sentences, Tokens, Trees, etc. \* A typed API for better
+development experience and better semantics. \* A focus on usability and
+simplicity in design (no dependencies) \* Performance optimizations for
+a smooth development workflow no matter the dataset size (performs about
+25%-35% faster than other comparable packages)
 
 See the following code example to understand the basics of the API.
 
@@ -71,9 +70,9 @@ See the following code example to understand the basics of the API.
         for token in sentence:
 
             # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
-            # can be indexed by a token's id. We must double check that the token is not
-            # the root token, in which the id '0' cannot be looked up.
-            if (token.upos == 'AUX' and token.head != '0') or sentence[token.head].upos == 'NOUN':
+            # can be indexed by a token's id. We must check that the token is not the
+            # root token, whose id, '0', cannot be looked up.
+            if token.upos == 'AUX' and (token.head != '0' and sentence[token.head].upos == 'NOUN'):
                 review_sentences.append(sentence)
 
     print('Review the following sentences:')

@@ -4,7 +4,7 @@
 # the new CoNLL data to stdout.
 #
 # Format:
-#   reassign_pos.py filename > transform.conll
+#   reassign_proper_noun_pos.py filename > transform.conll
 #
 
 import argparse
