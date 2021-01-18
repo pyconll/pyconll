@@ -53,32 +53,6 @@ def load_from_file(filename: str) -> Conll:
     return c
 
 
-def load_from_url(url: str) -> Conll:
-    """
-    Load a CoNLL-U file at the provided URL.
-
-    Args:
-        url: The URL that points to the CoNLL-U file. This URL should be the
-            actual CoNLL file and not an HTML page.
-
-    Returns:
-        A Conll object equivalent to the provided file.
-
-    Raises:
-        requests.exceptions.RequestException: If the url was unable to be properly
-            retrieved and status was 4xx or 5xx.
-        ParseError: If there is an error parsing the input into a Conll object.
-    """
-    resp = requests.get(url)
-    resp.raise_for_status()
-
-    resp.encoding = 'utf-8'
-    lines = resp.text.splitlines()
-    c = Conll(lines)
-
-    return c
-
-
 def iter_from_string(source: str) -> Iterator[Sentence]:
     """
     Iterate over a CoNLL-U string's sentences.
@@ -117,27 +91,3 @@ def iter_from_file(filename: str) -> Iterator[Sentence]:
     with open(filename, encoding='utf-8') as f:
         for sentence in iter_sentences(f):
             yield sentence
-
-
-def iter_from_url(url: str) -> Iterator[Sentence]:
-    """
-    Iterate over a CoNLL-U file that is pointed to by a given URL.
-
-    Args:
-        url: The URL that points to the CoNLL-U file.
-
-    Yields:
-        The sentences that make up the CoNLL-U file.
-
-    Raises:
-        requests.exceptions.RequestException: If the url was unable to be properly
-            retrieved.
-        ParseError: If there is an error parsing the input into a Conll object.
-    """
-    resp = requests.get(url)
-    resp.raise_for_status()
-
-    resp.encoding = 'utf-8'
-    lines = resp.text.splitlines()
-    for sentence in iter_sentences(lines):
-        yield sentence
