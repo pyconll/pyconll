@@ -7,8 +7,6 @@ functionalities.
 
 from typing import Iterator
 
-import requests
-
 from pyconll._parser import iter_sentences
 from pyconll.unit.conll import Conll
 from pyconll.unit.sentence import Sentence
