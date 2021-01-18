@@ -48,6 +48,3 @@ clean:
 	if [ -d 'pyconll.egg-info' ]; then \
 		rm -r pyconll.egg-info; \
 	fi
-
-hooks:
-	find .githooks -type f -exec ln -sf ../../{} .git/hooks/ \;
