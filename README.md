@@ -8,7 +8,7 @@
 
 *Easily work with **CoNLL** files using the familiar syntax of **python**.*
 
-<img src="../branding/bin/logo.svg">
+<img src="logo.svg">
 
 ##### Links
 - [Homepage](https://pyconll.github.io)
