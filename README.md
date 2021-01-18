@@ -6,9 +6,10 @@
 
 ## pyconll
 
+<img src="logo.svg" width="256px" height="256px">
+
 *Easily work with **CoNLL** files using the familiar syntax of **python**.*
 
-<img src="logo.svg">
 
 ##### Links
 - [Homepage](https://pyconll.github.io)
