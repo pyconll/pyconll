@@ -1,9 +1,11 @@
 load
 ===================================
 
-This module defines the main interface to load CoNLL treebank resources. CoNLL treebanks can be loaded through a string, file, or network resource. CoNLL resources can be loaded and held in memory, or simply iterated through a sentence at a time which is useful in the case of very large files.
+This module defines the main interface to load CoNLL treebank resources. CoNLL treebanks can be loaded through a string or a file (or technically anything that can function as a string iterator). CoNLL resources can be loaded and held in memory, or simply iterated through a sentence at a time which is useful for handling very large files.
 
-The fully qualified name of the module is ``pyconll.load``, but these methods are imported at the ``pyconll`` namespace level.
+The fully qualified name of the module is ``pyconll.load``, but these methods are imported at the ``pyconll`` namespace level. This module provides the wrappers for loading from a string or file, but if another string iterator is available, for example, a network resource, this can be passed directly to the Conll_ constructor as well.
+
+.. _Conll: unit/conll.html
 
 
 Example

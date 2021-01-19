@@ -29,9 +29,6 @@ setup(
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
     python_requires = '~=3.4',
-    install_requires = [
-        'requests >= 2.21'
-    ],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

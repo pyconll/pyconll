@@ -81,7 +81,7 @@ Putting together all the above elements, a complete example from loading, to tra
 Conclusion
 ----------------------------------
 
-``pyconll`` allows for easy CoNLL-U loading, traversal, and serialization. Developers can define their own transformation or analysis of the loaded CoNLL-U data, and pyconll handles all the parsing and serialization logic. There are still some parts of the library that are not covered here such as the ``Tree`` data structure, loading files from network, and error handling, but the information on this page will get developers through the most important use cases.
+``pyconll`` allows for easy CoNLL-U loading, traversal, and serialization. Developers can define their own transformation or analysis of the loaded CoNLL-U data, and pyconll handles all the parsing and serialization logic. There are still some parts of the library that are not covered here such as the ``Tree`` data structure, loading files from resources other than files, and error handling, but the information on this page will get developers through the most important use cases.
 
 .. _MutableSequence: https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableSequence
 .. _load: pyconll/load.html
