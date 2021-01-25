@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+      - 'matgrioni/**'
+  pull_request:
+    branches:
+      - master
+      - dev
+
+
+jobs:
+  unittest:
+    name: Unit Test ${{ matrix.py }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        py: ['3.6', '3.7', '3.8', '3.9']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with: ${{ matrix.py }}
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install coveralls
+      - name: Run tests
+        run: |
+          make coveragetest
+      - name: Push coverage analysis
+        run: |
+          coveralls
