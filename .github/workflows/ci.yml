@@ -16,6 +16,8 @@ jobs:
   unittest:
     name: Unit Test ${{ matrix.py }}
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         py: ['3.6', '3.7', '3.8', '3.9']
