@@ -1,11 +1,6 @@
 name: DI
 
 on:
-  push:
-    branches:
-      - master
-      - dev
-      - 'matgrioni/**'
   schedule:
     - cron: 0 0 1 * *
 
