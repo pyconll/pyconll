@@ -16,8 +16,6 @@ jobs:
   unittest:
     name: Unit Test ${{ matrix.py }}
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         py: ['3.6', '3.7', '3.8', '3.9']
@@ -33,6 +31,7 @@ jobs:
       - name: Run tests
         run: |
           make coveragetest
-      - name: Push coverage analysis
-        run: |
-          coveralls
+      - name: Publish to coveralls.io
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
