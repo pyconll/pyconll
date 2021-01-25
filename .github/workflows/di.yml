@@ -1,0 +1,24 @@
+name: DI
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+      - 'matgrioni/**'
+  schedule:
+    - cron: 0 0 1 * *
+
+jobs:
+  datatest:
+    name: Data Integration across UD
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - name: Run
+        run: |
+          pip install -r requirements.txt
+          make datatest
