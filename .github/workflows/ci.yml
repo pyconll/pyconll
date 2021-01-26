@@ -44,6 +44,10 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.6
+      - uses: actions/cache@v2
+        with:
+          path: tests/int/_corpora_cache/*.tgz
+          key: UD-v2.6
       - name: Run
         run: |
           pip install -r requirements.txt

@@ -4,11 +4,20 @@ import operator
 import os
 from pathlib import Path
 import tarfile
+from urllib import parse
 
 import pytest
 import requests
 
 import pyconll
+
+
+def _get_filename_from_url(url):
+    parsed = parse.urlparse(url)
+    name = Path(parsed.path).name
+    unquoted = parse.unquote(name)
+
+    return unquoted
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -174,13 +183,13 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         delete_dir(fixture_path)
         fixture_path.mkdir()
 
-        tmp = fixture_cache / 'fixture.tgz'
+        tmp = fixture_cache / _get_filename_from_url(url)
         if tmp.exists():
             tmp.unlink()
         logging.info('Starting to download %s to %s', url, tmp)
         download_file(url, tmp, 16384, 15)
 
-        logging.info('Download succeeded, extracting tarfile to %s.',
+        logging.info('Download finished, extracting tarfile to %s.',
                      fixture_path)
         with tarfile.open(str(tmp)) as tf:
             tf.extractall(str(fixture_path))
