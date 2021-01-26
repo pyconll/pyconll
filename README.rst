@@ -157,12 +157,12 @@ staging release branch.
 -  Validate these workflows pass, and the package is properly released
    on both platforms.
 
-.. |Build Status| image:: https://travis-ci.org/pyconll/pyconll.svg?branch=master
-   :target: https://travis-ci.org/pyconll/pyconll
+.. |Build Status| image:: https://github.com/pyconll/pyconll/workflows/CI/badge.svg?branch=master
+   :target: https://github.com/pyconll/pyconll
 .. |Coverage Status| image:: https://coveralls.io/repos/github/pyconll/pyconll/badge.svg?branch=master
    :target: https://coveralls.io/github/pyconll/pyconll?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/pyconll/badge/?version=stable
-   :target: https://pyconll.readthedocs.io/en/latest/?badge=latest
+   :target: https://pyconll.readthedocs.io/en/stable
 .. |Version| image:: https://img.shields.io/github/v/release/pyconll/pyconll
    :target: https://github.com/pyconll/pyconll/releases
 .. |gitter| image:: https://badges.gitter.im/pyconll/pyconll.svg

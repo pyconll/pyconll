@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/pyconll/pyconll.svg?branch=master)](https://travis-ci.org/pyconll/pyconll)
+[![Build Status](https://github.com/pyconll/pyconll/workflows/CI/badge.svg?branch=master)](https://github.com/pyconll/pyconll)
 [![Coverage Status](https://coveralls.io/repos/github/pyconll/pyconll/badge.svg?branch=master)](https://coveralls.io/github/pyconll/pyconll?branch=master)
-[![Documentation Status](https://readthedocs.org/projects/pyconll/badge/?version=stable)](https://pyconll.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/pyconll/badge/?version=stable)](https://pyconll.readthedocs.io/en/stable)
 [![Version](https://img.shields.io/github/v/release/pyconll/pyconll)](https://github.com/pyconll/pyconll/releases)
 [![gitter](https://badges.gitter.im/pyconll/pyconll.svg)](https://gitter.im/pyconll/pyconll?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
