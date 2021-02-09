@@ -246,7 +246,7 @@ def new_fixture(fixture_cache, entry_id, zip_hash, contents_hash, url):
 # parameterize the test run, and have the fixture type logic in the test. This will be a more useful
 # approach as more conll types and formats become supported.
 
-ud_v2_7_corpus_root = new_fixure(
+ud_v2_7_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_7',
     'ee61f186ac5701440f9d2889ca26da35f18d433255b5a188b0df30bc1525502b',
     '38e7d484b0125aaf7101a8c447fd2cb3833235cf428cf3c5749128ade73ecee2',
