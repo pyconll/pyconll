@@ -16,7 +16,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: tests/int/_corpora_cache/*.tgz
-          key: UD
+          key: UD-Tmp
       - name: Run
         run: |
           pip install -r requirements.txt

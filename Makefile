@@ -21,7 +21,7 @@ coveragetest:
 
 # Integration test scenario for releases validation and support.
 inttest:
-	python -m pytest tests/int/test_corpora.py::test_ud_v2_6_data --log-cli-level info
+	python -m pytest tests/int/test_corpora.py::test_ud_v2_7_data --log-cli-level info
 
 # Data test scenario across all supported data sets to be run periodically.
 datatest:

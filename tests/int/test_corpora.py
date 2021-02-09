@@ -12,14 +12,6 @@ import requests
 import pyconll
 
 
-def _get_filename_from_url(url):
-    parsed = parse.urlparse(url)
-    name = Path(parsed.path).name
-    unquoted = parse.unquote(name)
-
-    return unquoted
-
-
 def _cross_platform_stable_fs_iter(dir):
     """
     Provides a stable ordering across platforms over a directory Path.
@@ -104,6 +96,16 @@ def hash_path(hash_obj, path, block_size):
     return hash_obj.hexdigest()
 
 
+def _get_filename_from_url(url):
+    """
+    """
+    parsed = parse.urlparse(url)
+    name = Path(parsed.path).name
+    unquoted = parse.unquote(name)
+
+    return unquoted
+
+
 def download_file(url, dest, chunk_size, attempts):
     """
     Downloads a file from a url, resilient to failures and controlling speed.
@@ -154,13 +156,15 @@ def delete_dir(path):
     path.rmdir()
 
 
-def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
+def url_zip_fixture(fixture_cache, entry_id, zip_hash, contents_hash, url):
     """
     Creates a cacheable fixture that is a url download that is a zip.
 
     Args:
         fixture_cache: The cache location for the fixtures.
         entry_id: The unique id of the entry in the cache.
+        zip_hash: The hash of the url zip file, which may still be present and not
+            have to be downloaded again.
         contents_hash: The hexdigest format hash of the fixture's contents.
         url: The url of the zip download.
 
@@ -183,18 +187,23 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
         delete_dir(fixture_path)
         fixture_path.mkdir()
 
+        need_to_download = True
         tmp = fixture_cache / _get_filename_from_url(url)
         if tmp.exists():
-            tmp.unlink()
-        logging.info('Starting to download %s to %s', url, tmp)
-        download_file(url, tmp, 16384, 15)
+            tmp_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
+            if tmp_hash != zip_hash:
+                tmp.unlink()
+            else:
+                need_to_download = False
 
-        logging.info('Download finished, extracting tarfile to %s.',
-                     fixture_path)
+        if need_to_download:
+            logging.info('Starting to download %s to %s', url, tmp)
+            download_file(url, tmp, 16384, 15)
+            logging.info('Download finished, extracting tarfile to %s.',
+                        fixture_path)
+
         with tarfile.open(str(tmp)) as tf:
             tf.extractall(str(fixture_path))
-
-        tmp.unlink()
 
     cur_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
     if cur_hash != contents_hash:
@@ -207,7 +216,7 @@ def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
     return fixture_path
 
 
-def new_fixture(fixture_cache, entry_id, contents_hash, url):
+def new_fixture(fixture_cache, entry_id, zip_hash, contents_hash, url):
     """
     Creates a new fixture for the integration test of corpora.
 
@@ -217,6 +226,8 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
         fixture_cache: The path to the location on disk to cache all entries.
         entry_id: The unique id associated with this fixture, used for tracking
             in the cache.
+        zip_hash: The hash of the url zip file, which may still be present and not
+            have to be downloaded again.
         contents_hash: The hash of the expected fixture contents in hexdigest
             format.
         url: The location of the fixture file to download.
@@ -225,7 +236,7 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
         The path where the fixture is located.
     """
     return pytest.fixture(
-        lambda: url_zip_fixture(fixture_cache, entry_id, contents_hash, url))
+        lambda: url_zip_fixture(fixture_cache, entry_id, zip_hash, contents_hash, url))
 
 
 # This entire pipeline could be greatly improved with the right structure which would allow more
@@ -235,47 +246,67 @@ def new_fixture(fixture_cache, entry_id, contents_hash, url):
 # parameterize the test run, and have the fixture type logic in the test. This will be a more useful
 # approach as more conll types and formats become supported.
 
+ud_v2_7_corpus_root = new_fixure(
+    Path('tests/int/_corpora_cache'), 'ud-v2_7',
+    'ee61f186ac5701440f9d2889ca26da35f18d433255b5a188b0df30bc1525502b',
+    '38e7d484b0125aaf7101a8c447fd2cb3833235cf428cf3c5749128ade73ecee2',
+    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3424/ud-treebanks-v2.7.tgz'
+)
+
 ud_v2_6_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_6',
+    'a462a91606c6b2534a767bbe8e3f154b678ef3cc81b64eedfc9efe9d60ceeb9e',
     'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
 )
 
 ud_v2_5_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_5',
+    '5ff973e44345a5f69b94cc1427158e14e851c967d58773cc2ac5a1d3adaca409',
     'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
 )
 
 ud_v2_4_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_4',
+    '252a937038d88587842f652669cdf922b07d0f1ed98b926f738def662791eb62',
     '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
 )
 
 ud_v2_3_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_3',
+    '122e93ad09684b971fd32b4eb4deeebd9740cd96df5542abc79925d74976efff',
     '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
 )
 
 ud_v2_2_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_2',
+    'a9580ac2d3a6d70d6a9589d3aeb948fbfba76dca813ef7ca7668eb7be2eb4322',
     'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
 )
 
 ud_v2_1_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_1',
+    '446cc70f2194d0141fb079fb22c05b310cae9213920e3036b763899f349fee9b',
     '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
 )
 
 ud_v2_0_corpus_root = new_fixture(
     Path('tests/int/_corpora_cache'), 'ud-v2_0',
+    'c6c6428f709102e64f608e9f251be59d35e4add1dd842d8dc5a417d01415eb29',
     '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
     'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
 )
+
+
+def test_ud_v2_7_data(ud_v2_7_corpus_root):
+    """
+    """
+    _test_corpus(ud_v2_7_corpus_root, '**/*.conllu')
 
 
 def test_ud_v2_6_data(ud_v2_6_corpus_root):
@@ -289,6 +320,7 @@ def test_ud_v2_5_data(ud_v2_5_corpus_root):
     """
     Test that pyconll is able to parse and output all UD 2.5 data without error.
     """
+    # TODO: Comment why this is an exception??
     exceptions = [
         Path(
             'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
@@ -333,7 +365,7 @@ def test_ud_v2_0_data(ud_v2_0_corpus_root):
     _test_corpus(ud_v2_0_corpus_root, '**/*.conllu')
 
 
-def _test_corpus(fixture, glob, exceptions=[]):
+def _test_corpus(fixture, glob, exceptions=None):
     """
     Tests a corpus using the fixture path and the glob for files to test.
 
@@ -345,7 +377,9 @@ def _test_corpus(fixture, glob, exceptions=[]):
     globs = fixture.glob(glob)
 
     for path in globs:
-        is_exp = any(path == fixture / exp for exp in exceptions)
+        is_exp = False \
+            if exceptions is None \
+            else any(path == fixture / exp for exp in exceptions)
 
         if is_exp:
             logging.info('Skipping over %s because it is a known failure.',
