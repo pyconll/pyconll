@@ -9,7 +9,7 @@ format:
 lint:
 	python -m pylint --rcfile .pylintrc pyconll/ util/ && \
 	codespell pyconll/ docs/ && \
-	python -m yapf -prq -e *.conllu pyconll/ util/ tests/ && \
+	python -m yapf -prq pyconll/ util/ tests/ && \
 	python -m mypy pyconll/ util/
 
 # Unit test scenario for fast CI builds and local testing

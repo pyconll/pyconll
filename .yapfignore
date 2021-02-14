@@ -1,0 +1,3 @@
+tests/fixtures/
+tests/int/_corpora_cache/
+__pycache__/
