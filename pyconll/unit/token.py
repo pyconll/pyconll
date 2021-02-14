@@ -405,7 +405,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
 
     Args:
         values: The value, dict, to map.
-        empty: The empty CoNLL-U reprsentation for this value.
+        empty: The empty CoNLL-U representation for this value.
         delim: The delimiter between attribute-value pairs.
         av_separator: The separator between attribute and value.
         v_delimiter: The delimiter between values of the same attribute if
@@ -619,7 +619,7 @@ class Token(Conllable):
 
     # Keys for sorting attribute-value columns. BY_ID converts the attribute
     # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
-    # converts the pair to the lowercase version of the atribute.
+    # converts the pair to the lowercase version of the attribute.
     BY_ID: ClassVar[Callable[[Tuple[
         str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(pair[0])
     BY_CASE_INSENSITIVE: ClassVar[Callable[[Tuple[

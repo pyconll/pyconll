@@ -5,6 +5,7 @@ attrs==20.3.0
 Babel==2.9.0
 certifi==2020.12.5
 chardet==4.0.0
+codespell==2.0.0
 colorama==0.4.4
 docutils==0.16
 guppy3==3.1.0

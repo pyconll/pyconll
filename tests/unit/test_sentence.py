@@ -570,7 +570,7 @@ def test_text_readonly():
 
 def test_output():
     """
-    Test if the sentence output is propertly produced.
+    Test if the sentence output is properly produced.
     """
     source = (
         '# sent_id = fr-ud-dev_00002\n'

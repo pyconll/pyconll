@@ -358,7 +358,7 @@ def test_deps_max_size():
 
 def test_empty_set_format_error():
     """
-    Test that outputing an empty collection for the values of a column errors.
+    Test that outputting an empty collection for the values of a column errors.
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
