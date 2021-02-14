@@ -8,6 +8,7 @@ format:
 # if any of them have issues.
 lint:
 	python -m pylint --rcfile .pylintrc pyconll/ util/ && \
+	codespell pyconll/ docs/ && \
 	python -m yapf -prq -e *.conllu pyconll/ util/ tests/ && \
 	python -m mypy pyconll/ util/
 
