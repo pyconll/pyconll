@@ -209,6 +209,8 @@ def download_file_to_dir(url, direc):
     download_file(url, tmp, 16384, 15)
     logging.info('Download succeeded to %s.', tmp)
 
+    return tmp
+
 
 @partial
 def extract_tgz(p, tgz):
