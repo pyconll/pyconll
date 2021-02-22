@@ -9,6 +9,7 @@ import pytest
 import requests
 
 import pyconll
+from .workflow import conditional as _if, fail, partial, pipe, sequence, value
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -145,198 +146,231 @@ def delete_dir(path):
     path.rmdir()
 
 
-def url_zip_fixture(fixture_cache, entry_id, contents_hash, url):
+@partial
+def validate_hash_sha256(p, hash_s):
+    """
+    Check that a path's SHA256 hash matches the provided string. 
+
+    Args:
+        p: The path to hash.
+        hash_s: The expected hash of the path as a string.
+    """
+    if p.exists():
+        s = hash_path(hashlib.sha256(), p, 8192)
+        r = s == hash_s
+        if r:
+            logging.info('Hash for %s matched expected %s.', p, hash_s)
+        else:
+            logging.info(
+                'The current contents of %s do not hash to the expected %s.',
+                p, hash_s)
+            logging.info('Instead %s hashed as %s. Recreating fixture', p,
+                         hash_s)
+        return r
+    else:
+        logging.info('File, %s, does not exist.', p)
+        return False
+
+
+@partial
+def clean_subdir(direc, subdir):
+    """
+    Create a clean subdirectory in the provided path.
+
+    If the path already exists it is deleted, and then recreated.
+
+    Args:
+        direc: The parent directory.
+        subdir: The path within the parent to be clean.
+    """
+    direc.mkdir(exist_ok=True)
+
+    p = direc / subdir
+    if not p.exists():
+        p.mkdir()
+    else:
+        delete_dir(p)
+        p.mkdir()
+
+
+@partial
+def download_file_to_dir(url, direc):
+    """
+    Download a file (final name matching the URL) to a specified directory.
+
+    Args:
+        url: The url of the file to download
+        direc: The directory to download the file to.
+    """
+    tmp = direc / 'fixture.tgz'
+    if tmp.exists():
+        tmp.unlink()
+    logging.info('Starting to download %s to %s.', url, tmp)
+    download_file(url, tmp, 16384, 15)
+    logging.info('Download succeeded to %s.', tmp)
+
+
+@partial
+def extract_tgz(p, tgz):
+    """
+    Extracts a tarfile to a directory.
+
+    Args:
+        p: The path to extract to.
+        tgz: The tarfile to extract from.
+    """
+    logging.info('Extracting tarfile to %s.', )
+    with tarfile.open(str(tgz)) as tf:
+        tf.extractall(str(p))
+
+
+def url_zip(entry_id, fixture_cache, contents_hash, url):
     """
     Creates a cacheable fixture that is a url download that is a zip.
 
     Args:
-        fixture_cache: The cache location for the fixtures.
         entry_id: The unique id of the entry in the cache.
+        fixture_cache: The cache location for the fixtures.
         contents_hash: The hexdigest format hash of the fixture's contents.
         url: The url of the zip download.
 
     Returns:
         The path of the fixture within the cache as the fixture value.
     """
-    fixture_cache.mkdir(exist_ok=True)
-
-    fixture_path = fixture_cache / entry_id
-    if not fixture_path.exists():
-        fixture_path.mkdir()
-
-    existing_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
-    if existing_hash != contents_hash:
-        logging.info(
-            'The current contents of %s do not hash to the expected %s.',
-            fixture_path, contents_hash)
-        logging.info('Instead %s hashed as %s. Recreating fixture',
-                     fixture_path, existing_hash)
-        delete_dir(fixture_path)
-        fixture_path.mkdir()
-
-        tmp = fixture_cache / 'fixture.tgz'
-        if tmp.exists():
-            tmp.unlink()
-        logging.info('Starting to download %s to %s', url, tmp)
-        download_file(url, tmp, 16384, 15)
-
-        logging.info('Download succeeded, extracting tarfile to %s.',
-                     fixture_path)
-        with tarfile.open(str(tmp)) as tf:
-            tf.extractall(str(fixture_path))
-
-        tmp.unlink()
-
-    cur_hash = hash_path(hashlib.sha256(), fixture_path, 8192)
-    if cur_hash != contents_hash:
-        raise RuntimeError(
-            'Corpora contents do not match expected contents. Expected hash is {} but {} was computed.'
-            .format(contents_hash, cur_hash))
-
-    logging.info('Hash for %s matched expected.', fixture_path)
-
-    return fixture_path
+    final_path = fixture_cache / entry_id
+    w = _if(
+            validate_hash_sha256(final_path, contents_hash),
+            value(final_path),
+            sequence(
+                clean_subdir(fixture_cache, entry_id),
+                pipe(
+                    download_file_to_dir(url, fixture_cache),
+                    extract_tgz(final_path)
+                ),
+                _if(
+                    validate_hash_sha256(final_path, contents_hash),
+                    value(final_path),
+                    fail('Fixture for {} in {} was not able to be properly setup.'.
+                         format(url, final_path))))) # yapf: disable
+    return w
 
 
-def new_fixture(fixture_cache, entry_id, contents_hash, url):
+# This is the registration for the different corpora. It includes an id, and a
+# method of creation as a key-value pair. This registration structure allows
+# for the same corpora to easily be used in different tests which are designed
+# to holistically evaluate pyconll across large scenarios, like correctness or
+# performance. Given the structure of exceptions and marks, I may still need
+# some tweaking of what structure works best, but this is a definite improvement
+# and is on a path toward more flexibility and robustness.
+corpora = {
+    'UD v2.6':
+    url_zip(
+        'UD v2.6', Path('tests/int/_corpora_cache'),
+        'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
+    ),
+    'UD v2.5':
+    url_zip(
+        'UD v2.5', Path('tests/int/_corpora_cache'),
+        'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
+    ),
+    'UD v2.4':
+    url_zip(
+        'UD v2.4', Path('tests/int/_corpora_cache'),
+        '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
+    ),
+    'UD v2.3':
+    url_zip(
+        'UD v2.3', Path('tests/int/_corpora_cache'),
+        '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
+    ),
+    'UD v2.2':
+    url_zip(
+        'UD v2.2', Path('tests/int/_corpora_cache'),
+        'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
+    ),
+    'UD v2.1':
+    url_zip(
+        'UD v2.1', Path('tests/int/_corpora_cache'),
+        '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
+    ),
+    'UD v2.0':
+    url_zip(
+        'UD v2.0', Path('tests/int/_corpora_cache'),
+        '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
+    )
+}
+
+marks = { 'UD v2.6': pytest.mark.latest }
+exceptions = {
+    'UD v2.5': [
+        Path('ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu')
+    ]
+}
+
+
+@pytest.fixture
+def corpus(request):
     """
-    Creates a new fixture for the integration test of corpora.
-
-    Assumes that the fixture is a zip file located at a url.
+    A utility fixture to merely execute the actual fixture logic as necessary.
 
     Args:
-        fixture_cache: The path to the location on disk to cache all entries.
-        entry_id: The unique id associated with this fixture, used for tracking
-            in the cache.
-        contents_hash: The hash of the expected fixture contents in hexdigest
-            format.
-        url: The location of the fixture file to download.
+        request: The pytest indirect request object, which has a param object
+            for the underlying fixture argument.
 
     Returns:
-        The path where the fixture is located.
+        The value of the execution of the corpus fixture.
     """
-    return pytest.fixture(
-        lambda: url_zip_fixture(fixture_cache, entry_id, contents_hash, url))
+    return request.param()
 
 
-# This entire pipeline could be greatly improved with the right structure which would allow more
-# succinct test cases and expressiveness.
-# Basically the use of fixtures means that the test does not know much about how the fixture works,
-# but that is counter to the actual structure of the test I am making. So I will have to just
-# parameterize the test run, and have the fixture type logic in the test. This will be a more useful
-# approach as more conll types and formats become supported.
-
-ud_v2_6_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_6',
-    'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
-)
-
-ud_v2_5_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_5',
-    'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
-)
-
-ud_v2_4_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_4',
-    '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
-)
-
-ud_v2_3_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_3',
-    '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
-)
-
-ud_v2_2_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_2',
-    'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
-)
-
-ud_v2_1_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_1',
-    '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
-)
-
-ud_v2_0_corpus_root = new_fixture(
-    Path('tests/int/_corpora_cache'), 'ud-v2_0',
-    '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
-    'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
-)
-
-
-def test_ud_v2_6_data(ud_v2_6_corpus_root):
+def pytest_generate_tests(metafunc):
     """
-    Test that pyconll is able to parse and output all UD 2.6 data without error.
+    A pytest utility function for generating tests automatically.
+
+    The current policy is for tests that depend on the corpus fixture, they
+    are automatically given tests for all corpora. So any performance,
+    correctness, or other tests which are valid across corpora, should include
+    the 'corpus' fixture. This corpus fixture will be parameterized by the
+    different registered corpora and the data location passed on to the test.
+
+    Args:
+        metafunc: The object to parameterize the tests with.
     """
-    _test_corpus(ud_v2_6_corpus_root, '**/*.conllu')
+    if 'corpus' in metafunc.fixturenames:
+        testdata = []
+        for item in corpora.items():
+            exc = exceptions[item[0]] if item[0] in exceptions else []
+            if item[0] in marks:
+                p = pytest.param(item[1], exc, marks=pytest.mark.latest, id=item[0])
+            else:
+                p = pytest.param(item[1], exc, id=item[0])
+
+            testdata.append(p)
+
+        metafunc.parametrize(argnames=('corpus', 'exceptions'),
+                             argvalues=testdata,
+                             indirect=['corpus'])
 
 
-def test_ud_v2_5_data(ud_v2_5_corpus_root):
-    """
-    Test that pyconll is able to parse and output all UD 2.5 data without error.
-    """
-    exceptions = [
-        Path(
-            'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
-        )
-    ]
-
-    _test_corpus(ud_v2_5_corpus_root, '**/*.conllu', exceptions)
-
-
-def test_ud_v2_4_data(ud_v2_4_corpus_root):
-    """
-    Test that pyconll is able to parse and output all UD 2.4 data without error.
-    """
-    _test_corpus(ud_v2_4_corpus_root, '**/*.conllu')
-
-
-def test_ud_v2_3_data(ud_v2_3_corpus_root):
-    """
-    Test that pyconll is able to parse and output all UD 2.3 data without error.
-    """
-    _test_corpus(ud_v2_3_corpus_root, '**/*.conllu')
-
-
-def test_ud_v2_2_data(ud_v2_2_corpus_root):
-    """
-    Test that pyconll is able to parse and output all UD 2.2 data without error.
-    """
-    _test_corpus(ud_v2_2_corpus_root, '**/*.conllu')
-
-
-def test_ud_v2_1_data(ud_v2_1_corpus_root):
-    """
-    Test that pyconll is able to parse and output all UD 2.1 data without error.
-    """
-    _test_corpus(ud_v2_1_corpus_root, '**/*.conllu')
-
-
-def test_ud_v2_0_data(ud_v2_0_corpus_root):
-    """
-    Test that pyconll is able to parse and output all UD 2.0 data without error.
-    """
-    _test_corpus(ud_v2_0_corpus_root, '**/*.conllu')
-
-
-def _test_corpus(fixture, glob, exceptions=[]):
+def test_corpus(corpus, exceptions):
     """
     Tests a corpus using the fixture path and the glob for files to test.
 
     Args:
-        fixture: The path of the fixture or where the corpus is.
-        glob: The glob string that defines which files in the corpus to parse.
+        corpus: The path where the corpus is.
         exceptions: A list of paths relative to fixture that are known failures.
     """
-    globs = fixture.glob(glob)
+    globs = corpus.glob('**/*.conllu')
 
     for path in globs:
-        is_exp = any(path == fixture / exp for exp in exceptions)
+        is_exp = any(path == corpus / exp for exp in exceptions)
 
         if is_exp:
             logging.info('Skipping over %s because it is a known failure.',
