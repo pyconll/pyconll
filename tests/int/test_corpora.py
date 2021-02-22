@@ -263,53 +263,53 @@ def url_zip(entry_id, fixture_cache, contents_hash, url):
 # some tweaking of what structure works best, but this is a definite improvement
 # and is on a path toward more flexibility and robustness.
 corpora = {
-    'UD v2.6':
+    'UDv2.6':
     url_zip(
-        'UD v2.6', Path('tests/int/_corpora_cache'),
+        'UDv2.6', Path('tests/int/_corpora_cache'),
         'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
     ),
-    'UD v2.5':
+    'UDv2.5':
     url_zip(
-        'UD v2.5', Path('tests/int/_corpora_cache'),
+        'UDv2.5', Path('tests/int/_corpora_cache'),
         'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
     ),
-    'UD v2.4':
+    'UDv2.4':
     url_zip(
-        'UD v2.4', Path('tests/int/_corpora_cache'),
+        'UDv2.4', Path('tests/int/_corpora_cache'),
         '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
     ),
-    'UD v2.3':
+    'UDv2.3':
     url_zip(
-        'UD v2.3', Path('tests/int/_corpora_cache'),
+        'UDv2.3', Path('tests/int/_corpora_cache'),
         '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
     ),
-    'UD v2.2':
+    'UDv2.2':
     url_zip(
-        'UD v2.2', Path('tests/int/_corpora_cache'),
+        'UDv2.2', Path('tests/int/_corpora_cache'),
         'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
     ),
-    'UD v2.1':
+    'UDv2.1':
     url_zip(
-        'UD v2.1', Path('tests/int/_corpora_cache'),
+        'UDv2.1', Path('tests/int/_corpora_cache'),
         '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
     ),
-    'UD v2.0':
+    'UDv2.0':
     url_zip(
-        'UD v2.0', Path('tests/int/_corpora_cache'),
+        'UDv2.0', Path('tests/int/_corpora_cache'),
         '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
     )
 }
 
-marks = {'UD v2.6': pytest.mark.latest}
+marks = {'UDv2.6': pytest.mark.latest}
 exceptions = {
-    'UD v2.5': [
+    'UDv2.5': [
         Path(
             'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
         )
