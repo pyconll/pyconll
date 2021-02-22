@@ -5,6 +5,7 @@ allow easier file and IO process creation from smaller building blocks, and to
 quickly iterate on these.
 """
 
+
 def partial(f):
     """
     Create a function that can be partially applied similar to currying.

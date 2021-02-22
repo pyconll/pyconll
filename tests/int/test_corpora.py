@@ -307,10 +307,12 @@ corpora = {
     )
 }
 
-marks = { 'UD v2.6': pytest.mark.latest }
+marks = {'UD v2.6': pytest.mark.latest}
 exceptions = {
     'UD v2.5': [
-        Path('ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu')
+        Path(
+            'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
+        )
     ]
 }
 
@@ -348,7 +350,10 @@ def pytest_generate_tests(metafunc):
         for item in corpora.items():
             exc = exceptions[item[0]] if item[0] in exceptions else []
             if item[0] in marks:
-                p = pytest.param(item[1], exc, marks=pytest.mark.latest, id=item[0])
+                p = pytest.param(item[1],
+                                 exc,
+                                 marks=pytest.mark.latest,
+                                 id=item[0])
             else:
                 p = pytest.param(item[1], exc, id=item[0])
 
