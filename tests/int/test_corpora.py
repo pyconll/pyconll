@@ -219,7 +219,7 @@ def extract_tgz(p, tgz):
         p: The path to extract to.
         tgz: The tarfile to extract from.
     """
-    logging.info('Extracting tarfile to %s.', )
+    logging.info('Extracting tarfile to %s.', p)
     with tarfile.open(str(tgz)) as tf:
         tf.extractall(str(p))
 
