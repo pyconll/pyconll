@@ -9,7 +9,7 @@ def test_load_from_string():
     """
     Test that a CoNLL file can properly be loaded from a string.
     """
-    with open(fixture_location('basic.conll')) as f:
+    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
         contents = f.read()
 
     c = load_from_string(contents)
@@ -37,7 +37,7 @@ def test_load_from_file_and_string_equivalence():
     Test that the Conll object created from a string and file is the same if
     the underlying source is the same.
     """
-    with open(fixture_location('long.conll')) as f:
+    with open(fixture_location('long.conll'), encoding='utf-8') as f:
         contents = f.read()
     str_c = load_from_string(contents)
     file_c = load_from_file(fixture_location('long.conll'))
@@ -62,7 +62,7 @@ def test_iter_from_string():
     """
     Test that CoNLL files in string form can be iterated over without memory.
     """
-    with open(fixture_location('basic.conll')) as f:
+    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
         contents = f.read()
 
     expected_ids = ['fr-ud-dev_0000{}'.format(i) for i in range(1, 5)]

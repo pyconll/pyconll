@@ -17,7 +17,7 @@ def find_ngrams(
     case_sensitive: bool = True
 ) -> Iterator[Tuple[Sentence, int, List[Token]]]:
     """
-    Find the occurences of the ngram in the provided Conll collection.
+    Find the occurrences of the ngram in the provided Conll collection.
 
     This method returns every sentence along with the token position in the
     sentence that starts the ngram. The matching algorithm does not currently

@@ -2,13 +2,14 @@
 
 # Format python files in place, outputs error code if there are changes
 format:
-	yapf -pri -e *.conllu pyconll/ util/ tests/
+	python -m yapf -pri pyconll/ util/ tests/
 
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.
 lint:
 	python -m pylint --rcfile .pylintrc pyconll/ util/ && \
-	python -m yapf -prq -e *.conllu pyconll/ util/ tests/ && \
+	codespell pyconll/ docs/ && \
+	python -m yapf -prq pyconll/ util/ tests/ && \
 	python -m mypy pyconll/ util/
 
 # Unit test scenario for fast CI builds and local testing
@@ -21,7 +22,7 @@ coveragetest:
 
 # Integration test scenario for releases validation and support.
 inttest:
-	python -m pytest tests/int/test_corpora.py::test_ud_v2_7_data --log-cli-level info
+	python -m pytest tests/int/ -m latest --log-cli-level info
 
 # Data test scenario across all supported data sets to be run periodically.
 datatest:
