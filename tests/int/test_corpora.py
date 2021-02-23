@@ -201,6 +201,8 @@ def url_zip_fixture(fixture_cache, entry_id, zip_hash, contents_hash, url):
             download_file(url, tmp, 16384, 15)
             logging.info('Download finished, extracting tarfile to %s.',
                         fixture_path)
+        else:
+            logging.info('No need to download %s. Existing file in cache directory with same hash contents.', url)
 
         with tarfile.open(str(tmp)) as tf:
             tf.extractall(str(fixture_path))
