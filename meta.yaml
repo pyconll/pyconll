@@ -1,8 +1,6 @@
-{% set version = load_setup_py_data(setup_file='setup.py', from_recipe_dir=True).version %}
-
 package:
   name: "pyconll"
-  version: "{{ version }}"
+  version: "3.0.3"
 
 source:
   path: ./
@@ -24,6 +22,7 @@ test:
     - pyconll
     - pyconll.tree
     - pyconll.unit
+    - util
 
 about:
   home: "https://github.com/pyconll/pyconll"
