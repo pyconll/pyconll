@@ -7,8 +7,21 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
+[3.0.1] - 2021-02-23
+--------------------
+
+Fixed
+~~~~~
+
+-  Fixed issue with conda build where package name cannot be read from
+   external sources anymore.
+
+.. _section-1:
+
 [3.0.0] - 2021-02-23
 --------------------
+
+.. _fixed-1:
 
 Fixed
 ~~~~~
@@ -51,12 +64,12 @@ Removed
    in the wild. It also encourages inefficient design and can be easily
    replicated for those who need it.
 
-.. _section-1:
+.. _section-2:
 
 [2.3.3] - 2020-10-25
 --------------------
 
-.. _fixed-1:
+.. _fixed-2:
 
 Fixed
 ~~~~~
@@ -64,12 +77,12 @@ Fixed
 -  Github action workflows were using old version of python that was no
    longer supported.
 
-.. _section-2:
+.. _section-3:
 
 [2.3.2] - 2020-10-25
 --------------------
 
-.. _fixed-2:
+.. _fixed-3:
 
 Fixed
 ~~~~~
@@ -78,24 +91,24 @@ Fixed
    docstring improvements, better testing strategies, etc.
 -  Clarified supported UD versions in README
 
-.. _section-3:
+.. _section-4:
 
 [2.3.1] - 2020-10-06
 --------------------
 
-.. _fixed-3:
+.. _fixed-4:
 
 Fixed
 ~~~~~
 
 -  PyPi workflow on release had improper repository url
 
-.. _section-4:
+.. _section-5:
 
 [2.3] - 2020-10-06
 ------------------
 
-.. _fixed-4:
+.. _fixed-5:
 
 Fixed
 ~~~~~
@@ -120,12 +133,12 @@ Changed
 -  Miscellaneous testing improvements and investments, Makefile
    improvements, release script improvements, and community improvements
 
-.. _section-5:
+.. _section-6:
 
 [2.2.1] - 2019-11-17
 --------------------
 
-.. _fixed-5:
+.. _fixed-6:
 
 Fixed
 ~~~~~
@@ -153,7 +166,7 @@ Changed
 -  ``pyconll`` version is now housed in .version file so that this
    version only needs to be changed in one place before release.
 
-.. _section-6:
+.. _section-7:
 
 [2.2.0] - 2019-10-01
 --------------------
@@ -169,24 +182,24 @@ Changed
    explicit part of the public API so this is not considered a breaking
    change.
 
-.. _section-7:
+.. _section-8:
 
 [2.1.1] - 2019-09-04
 --------------------
 
-.. _fixed-6:
+.. _fixed-7:
 
 Fixed
 ~~~~~
 
 -  Solved ``math.inf`` issue with python 3.4 where it does not exist
 
-.. _section-8:
+.. _section-9:
 
 [2.1.0] - 2019-08-30
 --------------------
 
-.. _fixed-7:
+.. _fixed-8:
 
 Fixed
 ~~~~~
@@ -202,12 +215,12 @@ Added
 -  \`find_nonprojective_deps`\` was added to look for non-projective
    dependencies within a sentence
 
-.. _section-9:
+.. _section-10:
 
 [2.0.0] - 2019-05-09
 --------------------
 
-.. _fixed-8:
+.. _fixed-9:
 
 Fixed
 ~~~~~
@@ -258,12 +271,12 @@ Security
 
 -  Updates to ``requirements.txt`` to patch Jinja2 and requests
 
-.. _section-10:
+.. _section-11:
 
 [1.1.4] - 2019-04-15
 --------------------
 
-.. _fixed-9:
+.. _fixed-10:
 
 Fixed
 ~~~~~
@@ -271,12 +284,12 @@ Fixed
 -  Parsing of underscore’s for the form and lemma field, would
    automatically default to None, rather than the intended behavior.
 
-.. _section-11:
+.. _section-12:
 
 [1.1.3] - 2019-01-03
 --------------------
 
-.. _fixed-10:
+.. _fixed-11:
 
 Fixed
 ~~~~~
@@ -285,7 +298,7 @@ Fixed
    when loading CoNLL-U files, however, CoNLL-U is UTF-8. This is now
    fixed.
 
-.. _section-12:
+.. _section-13:
 
 [1.1.2] - 2018-12-28
 --------------------
@@ -298,7 +311,7 @@ Added
 -  *Getting Started* page on the documentation to make easier for
    newcomers
 
-.. _fixed-11:
+.. _fixed-12:
 
 Fixed
 ~~~~~
@@ -308,12 +321,12 @@ Fixed
 -  ``requests`` version used in ``requirements.txt`` was insecure and
    updated to newer version
 
-.. _section-13:
+.. _section-14:
 
 [1.1.1] - 2018-12-10
 --------------------
 
-.. _fixed-12:
+.. _fixed-13:
 
 Fixed
 ~~~~~
@@ -321,7 +334,7 @@ Fixed
 -  The ``pyconll.tree`` module was not properly included before in
    ``setup.py``
 
-.. _section-14:
+.. _section-15:
 
 [1.1.0] - 2018-11-11
 --------------------
@@ -348,7 +361,7 @@ Changed
 -  New, improved, and clearer documentation
 -  Update of ``requests`` dependency due to security flaw
 
-.. _section-15:
+.. _section-16:
 
 [1.0.1] - 2018-09-14
 --------------------
@@ -360,7 +373,7 @@ Changed
 
 -  Removed test packages from final shipped package.
 
-.. _section-16:
+.. _section-17:
 
 [1.0] - 2018-09-13
 ------------------
@@ -378,7 +391,7 @@ Added
    FormatError.
 -  Stricter parsing and validation of general CoNLL guidelines.
 
-.. _fixed-13:
+.. _fixed-14:
 
 Fixed
 ~~~~~
@@ -387,19 +400,19 @@ Fixed
    information than is actually possible in the UD format. This means
    that now ``deps`` is a tuple with cardinality 4.
 
-.. _section-17:
+.. _section-18:
 
 [0.3.1] - 2018-08-08
 --------------------
 
-.. _fixed-14:
+.. _fixed-15:
 
 Fixed
 ~~~~~
 
 -  Fixed issue with submodules not being packaged in build
 
-.. _section-18:
+.. _section-19:
 
 [0.3] - 2018-07-28
 ------------------
@@ -418,19 +431,19 @@ Added
 -  Conll is now a ``MutableSequence``, so it handles methods beyond its
    implementation as well as defined by python.
 
-.. _fixed-15:
+.. _fixed-16:
 
 Fixed
 ~~~~~
 
 -  Some small bug fixes with parsing the token dicts.
 
-.. _section-19:
+.. _section-20:
 
 [0.2.3] - 2018-07-23
 --------------------
 
-.. _fixed-16:
+.. _fixed-17:
 
 Fixed
 ~~~~~
@@ -447,21 +460,9 @@ Added
 -  More README info
 -  Better examples
 
-.. _section-20:
-
-[0.2.2] - 2018-07-18
---------------------
-
-.. _fixed-17:
-
-Fixed
-~~~~~
-
--  Installation issues again with wheel when using ``pip``.
-
 .. _section-21:
 
-[0.2.1] - 2018-07-18
+[0.2.2] - 2018-07-18
 --------------------
 
 .. _fixed-18:
@@ -469,9 +470,21 @@ Fixed
 Fixed
 ~~~~~
 
--  Installation issues when using ``pip``
+-  Installation issues again with wheel when using ``pip``.
 
 .. _section-22:
+
+[0.2.1] - 2018-07-18
+--------------------
+
+.. _fixed-19:
+
+Fixed
+~~~~~
+
+-  Installation issues when using ``pip``
+
+.. _section-23:
 
 [0.2] - 2018-07-16
 ------------------
@@ -484,7 +497,7 @@ Added
 -  More documentation
 -  Util package for convenient and common logic
 
-.. _section-23:
+.. _section-24:
 
 [0.1.1] - 2018-07-15
 --------------------
@@ -498,7 +511,7 @@ Added
    `here <https://pyconll.readthedocs.io/en/latest/>`__.
 -  Small documentation changes on methods.
 
-.. _section-24:
+.. _section-25:
 
 [0.1] - 2018-07-04
 ------------------
