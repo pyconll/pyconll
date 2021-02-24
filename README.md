@@ -29,7 +29,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-pyconll supports Python 3.5 and greater, starting in version 3.0.0. In general pyconll will focus development efforts on officially supported python versions. Python 3.5 reached end of support in October 2020.
+pyconll supports Python 3.6 and greater, starting in version 3.0.0. In general pyconll will focus development efforts on officially supported python versions. Python 3.5 reached end of support in October 2020.
 
 
 ### Use
@@ -58,7 +58,7 @@ review_sentences = []
 
 # Conll objects are iterable over their sentences, and sentences are iterable
 # over their tokens. Sentences also de/serialize comment information.
-for sentence in train:                  
+for sentence in train:
     for token in sentence:
 
         # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
@@ -72,7 +72,7 @@ for sent in review_sentences:
     print(sent.id)
 ```
 
-A full definition of the API can be found in the [documentation](https://pyconll.readthedocs.io/) or use the [quick start]() guide for a focused introduction.
+A full definition of the API can be found in the [documentation](https://pyconll.readthedocs.io/) or use the [quick start](https://pyconll.readthedocs.io/en/stable/starting.html) guide for a focused introduction.
 
 
 ### Uses and Limitations
@@ -99,6 +99,7 @@ When changing either of these files, please change the Markdown version and run 
 
 Below enumerates the general release process explicitly. This section is for internal use and most people do not have to worry about this. First note, that the dev branch is always a direct extension of master with the latest changes since the last release. That is, it is essentially a staging release branch.
 
+* Change the version in `pyconll/_version.py` appropriately.
 * Merge dev into master **locally**. Github does not offer a fast forward merge and explicitly uses --no-ff. So to keep the linear nature of changes, merge locally to fast forward. This is assuming that the dev branch looks good on CI tests which do not automatically run in this situation.
 * Push the master branch. This should start some CI tests specifically for master. After validating these results, create a tag corresponding to the next version number and push the tag.
 * Create a new release from this tag from the [Releases page](https://github.com/pyconll/pyconll/releases). On creating this release, two workflows will start. One releases to pypi, and the other releases to conda.
