@@ -1,8 +1,7 @@
-{% set name = load_setup_py_data(setup_file='setup.py', from_recipe_dir=True).name %}
 {% set version = load_setup_py_data(setup_file='setup.py', from_recipe_dir=True).version %}
 
 package:
-  name: "{{ name|lower }}"
+  name: "pyconll"
   version: "{{ version }}"
 
 source:
@@ -16,11 +15,9 @@ build:
 requirements:
   host:
     - pip
-    - python >=3.4
-    - requests >=2.21
+    - python >=3.6
   run:
-    - python >=3.4
-    - requests >=2.21
+    - python >=3.6
 
 test:
   imports:
