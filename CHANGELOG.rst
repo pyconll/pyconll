@@ -7,13 +7,23 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
-[3.0.1] - 2021-02-23
+[3.0.2] - 2021-02-23
 --------------------
 
 Fixed
 ~~~~~
 
--  Fixed issue with conda build where package name cannot be read from
+-  Another attempt to fix the conda release pipeline
+
+[3.0.1] - 2021-02-23 [YANKED]
+-----------------------------
+
+.. _fixed-1:
+
+Fixed
+~~~~~
+
+-  Fix issue with conda build where package name cannot be read from
    external sources anymore.
 
 .. _section-1:
@@ -21,7 +31,7 @@ Fixed
 [3.0.0] - 2021-02-23
 --------------------
 
-.. _fixed-1:
+.. _fixed-2:
 
 Fixed
 ~~~~~
@@ -69,7 +79,7 @@ Removed
 [2.3.3] - 2020-10-25
 --------------------
 
-.. _fixed-2:
+.. _fixed-3:
 
 Fixed
 ~~~~~
@@ -82,7 +92,7 @@ Fixed
 [2.3.2] - 2020-10-25
 --------------------
 
-.. _fixed-3:
+.. _fixed-4:
 
 Fixed
 ~~~~~
@@ -96,7 +106,7 @@ Fixed
 [2.3.1] - 2020-10-06
 --------------------
 
-.. _fixed-4:
+.. _fixed-5:
 
 Fixed
 ~~~~~
@@ -108,7 +118,7 @@ Fixed
 [2.3] - 2020-10-06
 ------------------
 
-.. _fixed-5:
+.. _fixed-6:
 
 Fixed
 ~~~~~
@@ -138,7 +148,7 @@ Changed
 [2.2.1] - 2019-11-17
 --------------------
 
-.. _fixed-6:
+.. _fixed-7:
 
 Fixed
 ~~~~~
@@ -187,7 +197,7 @@ Changed
 [2.1.1] - 2019-09-04
 --------------------
 
-.. _fixed-7:
+.. _fixed-8:
 
 Fixed
 ~~~~~
@@ -199,7 +209,7 @@ Fixed
 [2.1.0] - 2019-08-30
 --------------------
 
-.. _fixed-8:
+.. _fixed-9:
 
 Fixed
 ~~~~~
@@ -220,7 +230,7 @@ Added
 [2.0.0] - 2019-05-09
 --------------------
 
-.. _fixed-9:
+.. _fixed-10:
 
 Fixed
 ~~~~~
@@ -276,7 +286,7 @@ Security
 [1.1.4] - 2019-04-15
 --------------------
 
-.. _fixed-10:
+.. _fixed-11:
 
 Fixed
 ~~~~~
@@ -289,7 +299,7 @@ Fixed
 [1.1.3] - 2019-01-03
 --------------------
 
-.. _fixed-11:
+.. _fixed-12:
 
 Fixed
 ~~~~~
@@ -311,7 +321,7 @@ Added
 -  *Getting Started* page on the documentation to make easier for
    newcomers
 
-.. _fixed-12:
+.. _fixed-13:
 
 Fixed
 ~~~~~
@@ -326,7 +336,7 @@ Fixed
 [1.1.1] - 2018-12-10
 --------------------
 
-.. _fixed-13:
+.. _fixed-14:
 
 Fixed
 ~~~~~
@@ -391,7 +401,7 @@ Added
    FormatError.
 -  Stricter parsing and validation of general CoNLL guidelines.
 
-.. _fixed-14:
+.. _fixed-15:
 
 Fixed
 ~~~~~
@@ -405,7 +415,7 @@ Fixed
 [0.3.1] - 2018-08-08
 --------------------
 
-.. _fixed-15:
+.. _fixed-16:
 
 Fixed
 ~~~~~
@@ -431,7 +441,7 @@ Added
 -  Conll is now a ``MutableSequence``, so it handles methods beyond its
    implementation as well as defined by python.
 
-.. _fixed-16:
+.. _fixed-17:
 
 Fixed
 ~~~~~
@@ -443,7 +453,7 @@ Fixed
 [0.2.3] - 2018-07-23
 --------------------
 
-.. _fixed-17:
+.. _fixed-18:
 
 Fixed
 ~~~~~
@@ -465,7 +475,7 @@ Added
 [0.2.2] - 2018-07-18
 --------------------
 
-.. _fixed-18:
+.. _fixed-19:
 
 Fixed
 ~~~~~
@@ -477,7 +487,7 @@ Fixed
 [0.2.1] - 2018-07-18
 --------------------
 
-.. _fixed-19:
+.. _fixed-20:
 
 Fixed
 ~~~~~
