@@ -1,10 +1,9 @@
 [Build Status] [Coverage Status] [Documentation Status] [Version]
 [gitter]
 
-
 pyconll
 
-_Easily work with CONLL files using the familiar syntax of PYTHON._
+Easily work with CoNLL files using the familiar syntax of python.
 
 Links
 
@@ -22,14 +21,14 @@ Only packages 2.2.0 and newer are available on conda at the moment.
 
     conda install -c pyconll pyconll
 
-pyconll supports Python 3.5 and greater, starting in version 3.0.0. In
+pyconll supports Python 3.6 and greater, starting in version 3.0.0. In
 general pyconll will focus development efforts on officially supported
 python versions. Python 3.5 reached end of support in October 2020.
 
 Use
 
-This tool is intended to be a MINIMAL, LOW LEVEL, EXPRESSIVE and
-PRAGMATIC library in a widely used programming language. pyconll creates
+This tool is intended to be a minimal, low level, expressive and
+pragmatic library in a widely used programming language. pyconll creates
 a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
 It offers the following features: * Regular CI testing and validation
@@ -54,7 +53,7 @@ See the following code example to understand the basics of the API.
 
     # Conll objects are iterable over their sentences, and sentences are iterable
     # over their tokens. Sentences also de/serialize comment information.
-    for sentence in train:                  
+    for sentence in train:
         for token in sentence:
 
             # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
@@ -123,8 +122,9 @@ note, that the dev branch is always a direct extension of master with
 the latest changes since the last release. That is, it is essentially a
 staging release branch.
 
--   Merge dev into master LOCALLY. Github does not offer a fast forward
-    merge and explicitly uses --no-ff. So to keep the linear nature of
+-   Change the version in pyconll/_version.py appropriately.
+-   Merge dev into master locally. Github does not offer a fast forward
+    merge and explicitly uses –no-ff. So to keep the linear nature of
     changes, merge locally to fast forward. This is assuming that the
     dev branch looks good on CI tests which do not automatically run in
     this situation.
@@ -136,4 +136,3 @@ staging release branch.
     pypi, and the other releases to conda.
 -   Validate these workflows pass, and the package is properly released
     on both platforms.
-

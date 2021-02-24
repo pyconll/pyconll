@@ -4,24 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - xxxxxxxxxx
+## [3.0.0] - 2021-02-23
 ### Fixed
-- Handled multi-word tokens better in Tree creation by simply ignoring them.
+- Handled multi-word tokens better in Tree creation by simply ignoring them since they do not interact with dependency relations.
 - Several linting and style issues on updating tools.
 - Conllable metaclass is now set properly in Python 3 method rather than old Python 2 method.
+- Several typos in the docstrings via new codespell linting process.
+- Thorough dependency cleanup and updating.
 
 ### Changed
 - A Sentence with no root will throw a ValueError on Tree creation rather than returning an empty tree.
-- TODO: Continued changes and improvements with DevOps moving from TravisCI to GitHub actions, caching build artifacts for faster and more replicable builds, etc.
+- Continued changes and improvements with DevOps moving from TravisCI to GitHub actions, having better structured tests, typo checking as part of linting, etc.
+- Dependencies are now separated into build specific and other dev dependencies
 
 ### Added
 - Type annotations the public and internal API
-- TODO: Added UD 2.7 to the list of versions validated against.
+- Added UD 2.7 to the list of versions validated against.
+- Revamped version mechanism so that this is now present within the actual module under `pyconll.__version__` as a string
 
 ### Removed
-- Python 3.4 and 3.5 support was removed as part of supporting type annotations.
-- TODO: Loading or iterating from network url was removed. It introduced a dependency that was better removed, and did not seem to be used often in the wild. It also encourages inefficient design and can be easily replicated for those who need it.
-- TODO: Some dev and build dependencies which are no longer needed with the new GitHub action usage and new CI checks.
+- Python 3.4 and 3.5 support was removed as part of supporting type annotations and staying up to date with the currently supported versions.
+- Loading or iterating from network url was removed. It introduced a dependency that was better removed, and did not seem to be used often in the wild. It also encourages inefficient design and can be easily replicated for those who need it.
 
 ## [2.3.3] - 2020-10-25
 ### Fixed
