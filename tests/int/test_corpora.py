@@ -4,6 +4,7 @@ import operator
 import os
 from pathlib import Path
 import tarfile
+from urllib import parse
 
 import pytest
 import requests
@@ -94,6 +95,23 @@ def hash_path(hash_obj, path, block_size):
     """
     _hash_path_helper(hash_obj, path, block_size)
     return hash_obj.hexdigest()
+
+
+def _get_filename_from_url(url):
+    """
+    For a url that represents a network file, return the filename part.
+
+    Args:
+        url: The url to extract the filename from.
+
+    Returns:
+        The filename part at the end of the url with the extension.
+    """
+    parsed = parse.urlparse(url)
+    name = Path(parsed.path).name
+    unquoted = parse.unquote(name)
+
+    return unquoted
 
 
 def download_file(url, dest, chunk_size, attempts):
@@ -202,7 +220,7 @@ def download_file_to_dir(url, direc):
         url: The url of the file to download
         direc: The directory to download the file to.
     """
-    tmp = direc / 'fixture.tgz'
+    tmp = direc / _get_filename_from_url(url)
     if tmp.exists():
         tmp.unlink()
     logging.info('Starting to download %s to %s.', url, tmp)
@@ -226,7 +244,7 @@ def extract_tgz(p, tgz):
         tf.extractall(str(p))
 
 
-def url_zip(entry_id, fixture_cache, contents_hash, url):
+def url_zip(entry_id, fixture_cache, contents_hash, zip_hash, url):
     """
     Creates a cacheable fixture that is a url download that is a zip.
 
@@ -234,26 +252,46 @@ def url_zip(entry_id, fixture_cache, contents_hash, url):
         entry_id: The unique id of the entry in the cache.
         fixture_cache: The cache location for the fixtures.
         contents_hash: The hexdigest format hash of the fixture's contents.
+        zip_hash: The hexdigest format hash of the zip file's contents.
         url: The url of the zip download.
 
     Returns:
         The path of the fixture within the cache as the fixture value.
     """
     final_path = fixture_cache / entry_id
+    fn = _get_filename_from_url(url)
+    zip_path = fixture_cache / fn
+
+    download = \
+        sequence(
+            clean_subdir(fixture_cache, entry_id),
+            pipe(
+                download_file_to_dir(url, fixture_cache),
+                extract_tgz(final_path)
+            ),
+            _if(
+                validate_hash_sha256(final_path, contents_hash),
+                value(final_path),
+                fail('Fixture for {} in {} was not able to be properly setup.'.
+                    format(url, final_path))))
+
     w = _if(
             validate_hash_sha256(final_path, contents_hash),
             value(final_path),
-            sequence(
-                clean_subdir(fixture_cache, entry_id),
-                pipe(
-                    download_file_to_dir(url, fixture_cache),
-                    extract_tgz(final_path)
+            _if(
+                validate_hash_sha256(zip_path, zip_hash),
+                sequence(
+                    extract_tgz(final_path, zip_path),
+                    _if(
+                        validate_hash_sha256(final_path, contents_hash),
+                        value(final_path),
+                        sequence(
+                            zip_path.unlink,
+                            download
+                        )
+                    )
                 ),
-                _if(
-                    validate_hash_sha256(final_path, contents_hash),
-                    value(final_path),
-                    fail('Fixture for {} in {} was not able to be properly setup.'.
-                         format(url, final_path))))) # yapf: disable
+                download)) # yapf: disable
     return w
 
 
@@ -265,54 +303,69 @@ def url_zip(entry_id, fixture_cache, contents_hash, url):
 # some tweaking of what structure works best, but this is a definite improvement
 # and is on a path toward more flexibility and robustness.
 corpora = {
+    'UD v2.7':
+    url_zip(
+        'UD v2.7', Path('tests/int/_corpora_cache'),
+        '38e7d484b0125aaf7101a8c447fd2cb3833235cf428cf3c5749128ade73ecee2',
+        'ee61f186ac5701440f9d2889ca26da35f18d433255b5a188b0df30bc1525502b',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3424/ud-treebanks-v2.7.tgz'
+    ),
     'UD v2.6':
     url_zip(
         'UD v2.6', Path('tests/int/_corpora_cache'),
         'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
+        'a462a91606c6b2534a767bbe8e3f154b678ef3cc81b64eedfc9efe9d60ceeb9e',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
     ),
     'UD v2.5':
     url_zip(
         'UD v2.5', Path('tests/int/_corpora_cache'),
         'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
+        '5ff973e44345a5f69b94cc1427158e14e851c967d58773cc2ac5a1d3adaca409',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
     ),
     'UD v2.4':
     url_zip(
         'UD v2.4', Path('tests/int/_corpora_cache'),
         '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
+        '252a937038d88587842f652669cdf922b07d0f1ed98b926f738def662791eb62',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
     ),
     'UD v2.3':
     url_zip(
         'UD v2.3', Path('tests/int/_corpora_cache'),
         '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
+        '122e93ad09684b971fd32b4eb4deeebd9740cd96df5542abc79925d74976efff',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
     ),
     'UD v2.2':
     url_zip(
         'UD v2.2', Path('tests/int/_corpora_cache'),
         'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
+        'a9580ac2d3a6d70d6a9589d3aeb948fbfba76dca813ef7ca7668eb7be2eb4322',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
     ),
     'UD v2.1':
     url_zip(
         'UD v2.1', Path('tests/int/_corpora_cache'),
         '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
+        '446cc70f2194d0141fb079fb22c05b310cae9213920e3036b763899f349fee9b',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
     ),
     'UD v2.0':
     url_zip(
         'UD v2.0', Path('tests/int/_corpora_cache'),
         '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
+        'c6c6428f709102e64f608e9f251be59d35e4add1dd842d8dc5a417d01415eb29',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
     )
 }
 
-marks = {'UD v2.6': pytest.mark.latest}
+marks = {'UD v2.7': pytest.mark.latest}
 exceptions = {
     'UD v2.5': [
         Path(
+            # There is one token with less than 10 columns.
             'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
         )
     ]
