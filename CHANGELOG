@@ -9,6 +9,14 @@ The format is based on Keep a Changelog and this project adheres to
 Semantic Versioning.
 
 
+[3.0.4] - 2021-02-24
+
+Fixed
+
+-   The actual fix for the conda build to make sure the version is in
+    lock-step across all uses, properly validated this time.
+
+
 [3.0.3] - 2021-02-23
 
 Fixed
@@ -64,8 +72,8 @@ Added
 Removed
 
 -   Python 3.4 and 3.5 support was removed as part of supporting type
-    annotations and staying up to date with the currently supported
-    versions.
+    annotations and staying up to date with the currently
+    supported versions.
 -   Loading or iterating from network url was removed. It introduced a
     dependency that was better removed, and did not seem to be used
     often in the wild. It also encourages inefficient design and can be
@@ -145,8 +153,8 @@ Changed
 -   Use slots on Token and Sentence class for more efficient memory
     usage with large amounts of objects
 -   Remove source fields on Token and Sentence. These were not an
-    explicit part of the public API so this is not considered a breaking
-    change.
+    explicit part of the public API so this is not considered a
+    breaking change.
 
 
 [2.1.1] - 2019-09-04
@@ -173,15 +181,15 @@ Added
 
 Fixed
 
--   find_ngrams in the util module did not properly match case
-    insensitivity.
+-   find_ngrams in the util module did not properly match
+    case insensitivity.
 -   conllable is now properly included in wildcard imports from pyconll.
 -   Issue when loading a CoNLL file over a network if the file contained
-    UTF-8 characters. requests default assumes ASCII enconding on HTTP
-    responses.
+    UTF-8 characters. requests default assumes ASCII enconding on
+    HTTP responses.
 -   The Token columns deps and feats were not properly sorted by
-    attribute (either numeric index or case invariant lexicographic
-    sort) on serialization
+    attribute (either numeric index or case invariant
+    lexicographic sort) on serialization
 
 Changed
 
@@ -213,7 +221,7 @@ Security
 
 Fixed
 
--   Parsing of underscore’s for the form and lemma field, would
+-   Parsing of underscore's for the form and lemma field, would
     automatically default to None, rather than the intended behavior.
 
 
@@ -222,8 +230,8 @@ Fixed
 Fixed
 
 -   When used on Windows, the default encoding of Windows-1252 was used
-    when loading CoNLL-U files, however, CoNLL-U is UTF-8. This is now
-    fixed.
+    when loading CoNLL-U files, however, CoNLL-U is UTF-8. This is
+    now fixed.
 
 
 [1.1.2] - 2018-12-28
@@ -260,8 +268,8 @@ Changed
 
 -   Linting patches suggested by pylint.
 -   Removed _end_line_number from Sentence constructor. This is an
-    internal patch, as this parameter was not meant to be used by
-    callers.
+    internal patch, as this parameter was not meant to be used
+    by callers.
 -   New, improved, and clearer documentation
 -   Update of requests dependency due to security flaw
 
@@ -281,8 +289,8 @@ Added
     internal data of a Token is put into an invalid state. This error
     will be seen on running Token#conll.
 -   Certain token fields with empty values, were not output when calling
-    Token#conll and were instead ignored. This situation now causes a
-    FormatError.
+    Token#conll and were instead ignored. This situation now causes
+    a FormatError.
 -   Stricter parsing and validation of general CoNLL guidelines.
 
 Fixed
@@ -306,8 +314,8 @@ Added
 -   Ability to easily load CoNLL files from a network path (url)
 -   Some parsing validation. Before the error was not caught up front so
     the error could unexpectedly later show up.
--   Sentence slicing had an issue before if either the start or end was
-    omittted.
+-   Sentence slicing had an issue before if either the start or end
+    was omittted.
 -   More documentation and examples.
 -   Conll is now a MutableSequence, so it handles methods beyond its
     implementation as well as defined by python.
@@ -368,3 +376,4 @@ Added
 -   Everything. This is the first release of this package. The most
     notable absence is documentation which will be coming in a
     near-future release.
+
