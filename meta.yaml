@@ -1,6 +1,8 @@
+{% set version = load_setup_py_data(setup_file='setup.py').version %}
+
 package:
   name: "pyconll"
-  version: "3.0.3"
+  version: "{{ version }}"
 
 source:
   path: ./
@@ -16,13 +18,6 @@ requirements:
     - python >=3.6
   run:
     - python >=3.6
-
-test:
-  imports:
-    - pyconll
-    - pyconll.tree
-    - pyconll.unit
-    - util
 
 about:
   home: "https://github.com/pyconll/pyconll"

@@ -1,9 +1,10 @@
 [Build Status] [Coverage Status] [Documentation Status] [Version]
 [gitter]
 
+
 pyconll
 
-Easily work with CoNLL files using the familiar syntax of python.
+_Easily work with CONLL files using the familiar syntax of PYTHON._
 
 Links
 
@@ -27,8 +28,8 @@ python versions. Python 3.5 reached end of support in October 2020.
 
 Use
 
-This tool is intended to be a minimal, low level, expressive and
-pragmatic library in a widely used programming language. pyconll creates
+This tool is intended to be a MINIMAL, LOW LEVEL, EXPRESSIVE and
+PRAGMATIC library in a widely used programming language. pyconll creates
 a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
 It offers the following features: * Regular CI testing and validation
@@ -123,8 +124,8 @@ the latest changes since the last release. That is, it is essentially a
 staging release branch.
 
 -   Change the version in pyconll/_version.py appropriately.
--   Merge dev into master locally. Github does not offer a fast forward
-    merge and explicitly uses –no-ff. So to keep the linear nature of
+-   Merge dev into master LOCALLY. Github does not offer a fast forward
+    merge and explicitly uses --no-ff. So to keep the linear nature of
     changes, merge locally to fast forward. This is assuming that the
     dev branch looks good on CI tests which do not automatically run in
     this situation.
@@ -136,3 +137,4 @@ staging release branch.
     pypi, and the other releases to conda.
 -   Validate these workflows pass, and the package is properly released
     on both platforms.
+

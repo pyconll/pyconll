@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.4] - 2021-02-24
+### Fixed
+- The actual fix for the conda build to make sure the version is in lock-step across all uses, properly validated this time.
+
 ## [3.0.3] - 2021-02-23
 ### Fixed
 - Fixed conda release temporarily by manually setting version number, this will be addressed in future deployment
