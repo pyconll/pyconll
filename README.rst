@@ -145,7 +145,7 @@ staging release branch.
 
 -  Change the version in ``pyconll/_version.py`` appropriately.
 -  Merge dev into master **locally**. Github does not offer a fast
-   forward merge and explicitly uses –no-ff. So to keep the linear
+   forward merge and explicitly uses –no-ff. So to keep the linear
    nature of changes, merge locally to fast forward. This is assuming
    that the dev branch looks good on CI tests which do not automatically
    run in this situation.
