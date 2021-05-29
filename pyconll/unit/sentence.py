@@ -3,7 +3,6 @@ Defines the Sentence type and the associated parsing and output logic.
 """
 
 from collections import OrderedDict
-import operator
 import re
 from typing import ClassVar, Dict, Iterator, List, Optional, Sequence, overload
 
@@ -59,7 +58,7 @@ class Sentence(Sequence[Token], Conllable):
         """
         lines = source.split('\n')
 
-        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()
+        self._meta: OrderedDict[str, Optional[str]] = OrderedDict() # pylint: disable=E1136
         self._tokens: List[Token] = []
         self._ids_to_indexes: Dict[str, int] = {}
 
