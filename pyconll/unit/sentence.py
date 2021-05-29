@@ -39,8 +39,10 @@ class Sentence(Sequence[Token], Conllable):
     __slots__ = ['_meta', '_tokens', '_ids_to_indexes']
 
     COMMENT_MARKER: ClassVar[str] = '#'
-    KEY_VALUE_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
-    SINGLETON_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
+    KEY_VALUE_COMMENT_PATTERN: ClassVar[
+        str] = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
+    SINGLETON_COMMENT_PATTERN: ClassVar[
+        str] = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
 
     SENTENCE_ID_KEY: ClassVar[str] = 'sent_id'
     TEXT_KEY: ClassVar[str] = 'text'
@@ -58,7 +60,7 @@ class Sentence(Sequence[Token], Conllable):
         """
         lines = source.split('\n')
 
-        self._meta: OrderedDict[str, Optional[str]] = OrderedDict() # pylint: disable=E1136
+        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()  # pylint: disable=E1136
         self._tokens: List[Token] = []
         self._ids_to_indexes: Dict[str, int] = {}
 
