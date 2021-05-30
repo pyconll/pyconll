@@ -2,9 +2,9 @@
 Defines the Sentence type and the associated parsing and output logic.
 """
 
-import operator
+from collections import OrderedDict
 import re
-from typing import Dict, Iterator, List, Optional, Sequence, overload
+from typing import ClassVar, Dict, Iterator, List, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.tree._treebuilder import TreeBuilder
@@ -38,12 +38,14 @@ class Sentence(Sequence[Token], Conllable):
 
     __slots__ = ['_meta', '_tokens', '_ids_to_indexes']
 
-    COMMENT_MARKER = '#'
-    KEY_VALUE_COMMENT_PATTERN = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
-    SINGLETON_COMMENT_PATTERN = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
+    COMMENT_MARKER: ClassVar[str] = '#'
+    KEY_VALUE_COMMENT_PATTERN: ClassVar[
+        str] = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
+    SINGLETON_COMMENT_PATTERN: ClassVar[
+        str] = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
 
-    SENTENCE_ID_KEY = 'sent_id'
-    TEXT_KEY = 'text'
+    SENTENCE_ID_KEY: ClassVar[str] = 'sent_id'
+    TEXT_KEY: ClassVar[str] = 'text'
 
     def __init__(self, source: str) -> None:
         """
@@ -58,7 +60,7 @@ class Sentence(Sequence[Token], Conllable):
         """
         lines = source.split('\n')
 
-        self._meta: Dict[str, Optional[str]] = {}
+        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()  # pylint: disable=E1136
         self._tokens: List[Token] = []
         self._ids_to_indexes: Dict[str, int] = {}
 
@@ -67,16 +69,17 @@ class Sentence(Sequence[Token], Conllable):
                 if line[0] == Sentence.COMMENT_MARKER:
                     kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN,
                                         line)
-                    singleton_match = re.match(
-                        Sentence.SINGLETON_COMMENT_PATTERN, line)
 
                     if kv_match:
                         k = kv_match.group(1)
                         v = kv_match.group(2)
                         self._meta[k] = v
-                    elif singleton_match:
-                        k = singleton_match.group(1)
-                        self._meta[k] = None
+                    else:
+                        singleton_match = re.match(
+                            Sentence.SINGLETON_COMMENT_PATTERN, line)
+                        if singleton_match:
+                            k = singleton_match.group(1)
+                            self._meta[k] = None
                 else:
                     token = Token(line)
                     self._tokens.append(token)
@@ -266,8 +269,7 @@ class Sentence(Sequence[Token], Conllable):
             A string representing the Sentence in CoNLL-U format.
         """
         lines = []
-        sorted_meta = sorted(self._meta.items(), key=operator.itemgetter(0))
-        for meta in sorted_meta:
+        for meta in self._meta.items():
             if meta[1] is not None:
                 line = '{} {} = {}'.format(Sentence.COMMENT_MARKER, meta[0],
                                            meta[1])
