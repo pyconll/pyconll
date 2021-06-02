@@ -1067,6 +1067,30 @@ def test_to_tree_token_with_no_head():
         st = sentence.to_tree()
 
 
+def test_to_tree_empty_node_exception():
+    """
+    Test tree parsing for sentence with an empty node.
+    """
+    source = ('# sent_id = fr-ud-dev_00003\n'
+              '# text = Mais comment faire ?\n'
+              '1	Mais	mais	CCONJ	_	_	3	cc	_	_\n'
+              '2	comment	comment	ADV	_	_	3	advmod	_	_\n'
+              '3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n'
+              '3.1	test	test	VERB	_	_	_	_	_	_\n'
+              '4	?	?	PUNCT	_	_	3	punct	_	_\n')
+    sentence = Sentence(source)
+    st = sentence.to_tree()
+
+    assert_tree_structure(
+        st, {
+            (): sentence[2],
+            (0, ): sentence[0],
+            (1, ): sentence[1],
+            (2, ): sentence[4]
+        }
+    )
+
+
 def test_to_tree_no_root_token():
     """
     Test that a sentence with no root token results in error.

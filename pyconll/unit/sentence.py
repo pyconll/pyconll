@@ -213,7 +213,7 @@ class Sentence(Sequence[Token], Conllable):
                     children_tokens[token.head].append(token)
                 except KeyError:
                     children_tokens[token.head] = [token]
-            elif not token.is_multiword():
+            elif not (token.is_multiword() or token.is_empty_node()):
                 raise ValueError(
                     'The current sentence is not fully defined as a tree and ' \
                     'has a token with an empty head at {}'.format(token.id))

@@ -714,6 +714,18 @@ class Token(Conllable):
         """
         return '-' in self.id
 
+    def is_empty_node(self) -> bool:
+        """
+        Checks if this Token is an empty node, used for ellipsis annotation.
+
+        Note that this is separate from any field being empty, rather it means
+        the id has a period in it.
+
+        Returns:
+            True if this token is an empty node and False otherwise.
+        """
+        return '.' in self.id
+
     def conll(self) -> str:
         """
         Convert this Token to its CoNLL-U representation.
