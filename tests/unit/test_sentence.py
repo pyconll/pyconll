@@ -1087,8 +1087,7 @@ def test_to_tree_empty_node_exception():
             (0, ): sentence[0],
             (1, ): sentence[1],
             (2, ): sentence[4]
-        }
-    )
+        })
 
 
 def test_to_tree_no_root_token():
