@@ -183,7 +183,7 @@ def validate_hash_sha256(p, hash_s):
                 'The current contents of %s do not hash to the expected %s.',
                 p, hash_s)
             logging.info('Instead %s hashed as %s. Recreating fixture', p,
-                         hash_s)
+                         s)
         return r
     else:
         logging.info('File, %s, does not exist.', p)
@@ -320,7 +320,7 @@ corpora = {
     'UD v2.5':
     url_zip(
         'UD v2.5', Path('tests/int/_corpora_cache'),
-        'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
+        '4761846e8c5f7ec7e40a6591f7ef5307ca9e7264da894d05d135514a4ea22a10',
         '5ff973e44345a5f69b94cc1427158e14e851c967d58773cc2ac5a1d3adaca409',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
     ),
