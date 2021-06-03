@@ -7,18 +7,25 @@ The format is based on `Keep a
 Changelog <http://keepachangelog.com/en/1.0.0/>`__ and this project
 adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`__.
 
-[3.0.5] - 2021-05-29
+[3.1.0] - 2021-06-02
 --------------------
+
+Added
+~~~~~
+
+-  is_empty_node method to Token which identifies empty nodes used for
+   ellipsis constructions
 
 Fixed
 ~~~~~
 
--  Comments are output in the same order as they are read as.
-   Previously, comments were sorted alphabetically before serialization.
+-  Sentences with empty nodes were not properly parsed as trees since
+   they do not have a head token, and this was not properly accounted
+   for.
 
 .. _section-1:
 
-[3.0.4] - 2021-02-24
+[3.0.5] - 2021-05-29
 --------------------
 
 .. _fixed-1:
@@ -26,12 +33,12 @@ Fixed
 Fixed
 ~~~~~
 
--  The actual fix for the conda build to make sure the version is in
-   lock-step across all uses, properly validated this time.
+-  Comments are output in the same order as they are read as.
+   Previously, comments were sorted alphabetically before serialization.
 
 .. _section-2:
 
-[3.0.3] - 2021-02-23
+[3.0.4] - 2021-02-24
 --------------------
 
 .. _fixed-2:
@@ -39,12 +46,12 @@ Fixed
 Fixed
 ~~~~~
 
--  Fixed conda release temporarily by manually setting version number,
-   this will be addressed in future deployment
+-  The actual fix for the conda build to make sure the version is in
+   lock-step across all uses, properly validated this time.
 
 .. _section-3:
 
-[3.0.2] - 2021-02-23
+[3.0.3] - 2021-02-23
 --------------------
 
 .. _fixed-3:
@@ -52,11 +59,12 @@ Fixed
 Fixed
 ~~~~~
 
--  Another attempt to fix the conda release pipeline
+-  Fixed conda release temporarily by manually setting version number,
+   this will be addressed in future deployment
 
 .. _section-4:
 
-[3.0.1] - 2021-02-23
+[3.0.2] - 2021-02-23
 --------------------
 
 .. _fixed-4:
@@ -64,15 +72,27 @@ Fixed
 Fixed
 ~~~~~
 
+-  Another attempt to fix the conda release pipeline
+
+.. _section-5:
+
+[3.0.1] - 2021-02-23
+--------------------
+
+.. _fixed-5:
+
+Fixed
+~~~~~
+
 -  Fix issue with conda build where package name cannot be read from
    external sources anymore.
 
-.. _section-5:
+.. _section-6:
 
 [3.0.0] - 2021-02-23
 --------------------
 
-.. _fixed-5:
+.. _fixed-6:
 
 Fixed
 ~~~~~
@@ -96,6 +116,8 @@ Changed
 -  Dependencies are now separated into build specific and other dev
    dependencies
 
+.. _added-1:
+
 Added
 ~~~~~
 
@@ -115,12 +137,12 @@ Removed
    in the wild. It also encourages inefficient design and can be easily
    replicated for those who need it.
 
-.. _section-6:
+.. _section-7:
 
 [2.3.3] - 2020-10-25
 --------------------
 
-.. _fixed-6:
+.. _fixed-7:
 
 Fixed
 ~~~~~
@@ -128,12 +150,12 @@ Fixed
 -  Github action workflows were using old version of python that was no
    longer supported.
 
-.. _section-7:
+.. _section-8:
 
 [2.3.2] - 2020-10-25
 --------------------
 
-.. _fixed-7:
+.. _fixed-8:
 
 Fixed
 ~~~~~
@@ -142,24 +164,24 @@ Fixed
    docstring improvements, better testing strategies, etc.
 -  Clarified supported UD versions in README
 
-.. _section-8:
+.. _section-9:
 
 [2.3.1] - 2020-10-06
 --------------------
 
-.. _fixed-8:
+.. _fixed-9:
 
 Fixed
 ~~~~~
 
 -  PyPi workflow on release had improper repository url
 
-.. _section-9:
+.. _section-10:
 
 [2.3] - 2020-10-06
 ------------------
 
-.. _fixed-9:
+.. _fixed-10:
 
 Fixed
 ~~~~~
@@ -169,7 +191,7 @@ Fixed
 -  Typo in variable reference in documentation generation code
 -  Corrected docstring for ``set_meta`` for the Sentence API
 
-.. _added-1:
+.. _added-2:
 
 Added
 ~~~~~
@@ -184,12 +206,12 @@ Changed
 -  Miscellaneous testing improvements and investments, Makefile
    improvements, release script improvements, and community improvements
 
-.. _section-10:
+.. _section-11:
 
 [2.2.1] - 2019-11-17
 --------------------
 
-.. _fixed-10:
+.. _fixed-11:
 
 Fixed
 ~~~~~
@@ -197,7 +219,7 @@ Fixed
 -  Branding information typo within setup.py
 -  Spurious command in Makefile recipe
 
-.. _added-2:
+.. _added-3:
 
 Added
 ~~~~~
@@ -217,7 +239,7 @@ Changed
 -  ``pyconll`` version is now housed in .version file so that this
    version only needs to be changed in one place before release.
 
-.. _section-11:
+.. _section-12:
 
 [2.2.0] - 2019-10-01
 --------------------
@@ -233,21 +255,9 @@ Changed
    explicit part of the public API so this is not considered a breaking
    change.
 
-.. _section-12:
-
-[2.1.1] - 2019-09-04
---------------------
-
-.. _fixed-11:
-
-Fixed
-~~~~~
-
--  Solved ``math.inf`` issue with python 3.4 where it does not exist
-
 .. _section-13:
 
-[2.1.0] - 2019-08-30
+[2.1.1] - 2019-09-04
 --------------------
 
 .. _fixed-12:
@@ -255,10 +265,22 @@ Fixed
 Fixed
 ~~~~~
 
+-  Solved ``math.inf`` issue with python 3.4 where it does not exist
+
+.. _section-14:
+
+[2.1.0] - 2019-08-30
+--------------------
+
+.. _fixed-13:
+
+Fixed
+~~~~~
+
 -  The example ``reannotate\_ngrams.py`` was out of sync with the
    function return type
 
-.. _added-3:
+.. _added-4:
 
 Added
 ~~~~~
@@ -266,12 +288,12 @@ Added
 -  \`find_nonprojective_deps`\` was added to look for non-projective
    dependencies within a sentence
 
-.. _section-14:
+.. _section-15:
 
 [2.0.0] - 2019-05-09
 --------------------
 
-.. _fixed-13:
+.. _fixed-14:
 
 Fixed
 ~~~~~
@@ -309,7 +331,7 @@ Removed
 -  ``SentenceTree`` module. This functionaliy was moved to the Sentence
    class method ``to_tree``.
 
-.. _added-4:
+.. _added-5:
 
 Added
 ~~~~~
@@ -322,12 +344,12 @@ Security
 
 -  Updates to ``requirements.txt`` to patch Jinja2 and requests
 
-.. _section-15:
+.. _section-16:
 
 [1.1.4] - 2019-04-15
 --------------------
 
-.. _fixed-14:
+.. _fixed-15:
 
 Fixed
 ~~~~~
@@ -335,12 +357,12 @@ Fixed
 -  Parsing of underscore’s for the form and lemma field, would
    automatically default to None, rather than the intended behavior.
 
-.. _section-16:
+.. _section-17:
 
 [1.1.3] - 2019-01-03
 --------------------
 
-.. _fixed-15:
+.. _fixed-16:
 
 Fixed
 ~~~~~
@@ -349,12 +371,12 @@ Fixed
    when loading CoNLL-U files, however, CoNLL-U is UTF-8. This is now
    fixed.
 
-.. _section-17:
+.. _section-18:
 
 [1.1.2] - 2018-12-28
 --------------------
 
-.. _added-5:
+.. _added-6:
 
 Added
 ~~~~~
@@ -362,7 +384,7 @@ Added
 -  *Getting Started* page on the documentation to make easier for
    newcomers
 
-.. _fixed-16:
+.. _fixed-17:
 
 Fixed
 ~~~~~
@@ -372,12 +394,12 @@ Fixed
 -  ``requests`` version used in ``requirements.txt`` was insecure and
    updated to newer version
 
-.. _section-18:
+.. _section-19:
 
 [1.1.1] - 2018-12-10
 --------------------
 
-.. _fixed-17:
+.. _fixed-18:
 
 Fixed
 ~~~~~
@@ -385,12 +407,12 @@ Fixed
 -  The ``pyconll.tree`` module was not properly included before in
    ``setup.py``
 
-.. _section-19:
+.. _section-20:
 
 [1.1.0] - 2018-11-11
 --------------------
 
-.. _added-6:
+.. _added-7:
 
 Added
 ~~~~~
@@ -412,7 +434,7 @@ Changed
 -  New, improved, and clearer documentation
 -  Update of ``requests`` dependency due to security flaw
 
-.. _section-20:
+.. _section-21:
 
 [1.0.1] - 2018-09-14
 --------------------
@@ -424,12 +446,12 @@ Changed
 
 -  Removed test packages from final shipped package.
 
-.. _section-21:
+.. _section-22:
 
 [1.0] - 2018-09-13
 ------------------
 
-.. _added-7:
+.. _added-8:
 
 Added
 ~~~~~
@@ -442,7 +464,7 @@ Added
    FormatError.
 -  Stricter parsing and validation of general CoNLL guidelines.
 
-.. _fixed-18:
+.. _fixed-19:
 
 Fixed
 ~~~~~
@@ -451,24 +473,24 @@ Fixed
    information than is actually possible in the UD format. This means
    that now ``deps`` is a tuple with cardinality 4.
 
-.. _section-22:
+.. _section-23:
 
 [0.3.1] - 2018-08-08
 --------------------
 
-.. _fixed-19:
+.. _fixed-20:
 
 Fixed
 ~~~~~
 
 -  Fixed issue with submodules not being packaged in build
 
-.. _section-23:
+.. _section-24:
 
 [0.3] - 2018-07-28
 ------------------
 
-.. _added-8:
+.. _added-9:
 
 Added
 ~~~~~
@@ -482,19 +504,19 @@ Added
 -  Conll is now a ``MutableSequence``, so it handles methods beyond its
    implementation as well as defined by python.
 
-.. _fixed-20:
+.. _fixed-21:
 
 Fixed
 ~~~~~
 
 -  Some small bug fixes with parsing the token dicts.
 
-.. _section-24:
+.. _section-25:
 
 [0.2.3] - 2018-07-23
 --------------------
 
-.. _fixed-21:
+.. _fixed-22:
 
 Fixed
 ~~~~~
@@ -502,7 +524,7 @@ Fixed
 -  Issues with documentation since docstrings were not in RST. Fixed by
    using napoleon sphinx extension
 
-.. _added-9:
+.. _added-10:
 
 Added
 ~~~~~
@@ -511,21 +533,9 @@ Added
 -  More README info
 -  Better examples
 
-.. _section-25:
-
-[0.2.2] - 2018-07-18
---------------------
-
-.. _fixed-22:
-
-Fixed
-~~~~~
-
--  Installation issues again with wheel when using ``pip``.
-
 .. _section-26:
 
-[0.2.1] - 2018-07-18
+[0.2.2] - 2018-07-18
 --------------------
 
 .. _fixed-23:
@@ -533,14 +543,26 @@ Fixed
 Fixed
 ~~~~~
 
--  Installation issues when using ``pip``
+-  Installation issues again with wheel when using ``pip``.
 
 .. _section-27:
+
+[0.2.1] - 2018-07-18
+--------------------
+
+.. _fixed-24:
+
+Fixed
+~~~~~
+
+-  Installation issues when using ``pip``
+
+.. _section-28:
 
 [0.2] - 2018-07-16
 ------------------
 
-.. _added-10:
+.. _added-11:
 
 Added
 ~~~~~
@@ -548,12 +570,12 @@ Added
 -  More documentation
 -  Util package for convenient and common logic
 
-.. _section-28:
+.. _section-29:
 
 [0.1.1] - 2018-07-15
 --------------------
 
-.. _added-11:
+.. _added-12:
 
 Added
 ~~~~~
@@ -562,12 +584,12 @@ Added
    `here <https://pyconll.readthedocs.io/en/latest/>`__.
 -  Small documentation changes on methods.
 
-.. _section-29:
+.. _section-30:
 
 [0.1] - 2018-07-04
 ------------------
 
-.. _added-12:
+.. _added-13:
 
 Added
 ~~~~~

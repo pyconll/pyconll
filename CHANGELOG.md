@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2021-06-02
+### Added
+- is_empty_node method to Token which identifies empty nodes used for ellipsis constructions
+
+### Fixed
+- Sentences with empty nodes were not properly parsed as trees since they do not have a head token, and this was not properly accounted for.
+
 ## [3.0.5] - 2021-05-29
 ### Fixed
 - Comments are output in the same order as they are read as. Previously, comments were sorted alphabetically before serialization.
