@@ -6,10 +6,11 @@ can then be used in the Conll class or in pyconll.load.
 
 from typing import Iterable, Iterator
 
+from pyconll.exception import ParseError
 from pyconll.unit.sentence import Sentence
 
 
-def _create_sentence(sent_lines: Iterable[str]) -> Sentence:
+def _create_sentence(sent_lines: Iterable[str], line_num: int) -> Sentence:
     """
     Creates a Sentence object given the current state of the source iteration.
 
@@ -23,7 +24,11 @@ def _create_sentence(sent_lines: Iterable[str]) -> Sentence:
         ParseError: If the sentence source is not valid.
     """
     sent_source = '\n'.join(sent_lines)
-    sentence = Sentence(sent_source)
+    try:
+        sentence = Sentence(sent_source)
+    except ParseError as err:
+        raise ParseError(
+            'Failed to create sentence at line {}'.format(line_num)) from err
 
     return sentence
 
@@ -44,19 +49,25 @@ def iter_sentences(lines_it: Iterable[str]) -> Iterator[Sentence]:
         ValueError: If there is an error constructing the Sentence.
     """
     sent_lines = []
-    for line in lines_it:
+    line_num = 1
+    for i, line in enumerate(lines_it):
         line = line.strip()
 
         # Collect all lines until there is a blank line. Then all the
         # collected lines were between blank lines and are a sentence.
         if line:
             sent_lines.append(line)
-        elif sent_lines:
-            sentence = _create_sentence(sent_lines)
-            sent_lines.clear()
+        else:
+            if sent_lines:
+                sentence = _create_sentence(sent_lines, line_num)
 
-            yield sentence
+                sent_lines.clear()
+                line_num = i + 2
+
+                yield sentence
+
+            line_num = i + 2
 
     if sent_lines:
-        sentence = _create_sentence(sent_lines)
+        sentence = _create_sentence(sent_lines, line_num)
         yield sentence

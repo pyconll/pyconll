@@ -7,6 +7,7 @@ import re
 from typing import ClassVar, Dict, Iterator, List, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
+from pyconll.exception import ParseError
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
@@ -64,7 +65,7 @@ class Sentence(Sequence[Token], Conllable):
         self._tokens: List[Token] = []
         self._ids_to_indexes: Dict[str, int] = {}
 
-        for line in lines:
+        for i, line in enumerate(lines):
             if line:
                 if line[0] == Sentence.COMMENT_MARKER:
                     kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN,
@@ -81,7 +82,13 @@ class Sentence(Sequence[Token], Conllable):
                             k = singleton_match.group(1)
                             self._meta[k] = None
                 else:
-                    token = Token(line)
+                    try:
+                        token = Token(line)
+                    except ParseError as err:
+                        raise ParseError(
+                            'Error creating token on line {} for the current sentence'
+                            .format(i)) from err
+
                     self._tokens.append(token)
 
                     if token.id is not None:
