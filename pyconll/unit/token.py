@@ -9,7 +9,7 @@ import math
 from typing import Callable, ClassVar, Dict, Optional, Set, Tuple
 
 from pyconll.conllable import Conllable
-from pyconll.exception import ParseError, FormatError
+from pyconll.exception import FormatError, ParseError
 
 
 def _unit_empty_map(value, empty):
@@ -735,6 +735,9 @@ class Token(Conllable):
 
         Returns:
             A string representing the Token in CoNLL-U format.
+
+        Raises:
+            FormatError: If the Token can not be converted to the CoNLL format.
         """
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.
