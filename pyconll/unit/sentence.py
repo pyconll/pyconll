@@ -7,7 +7,7 @@ import re
 from typing import ClassVar, Dict, Iterator, List, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
-from pyconll.exception import ParseError
+from pyconll.exception import FormatError, ParseError
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
@@ -274,6 +274,10 @@ class Sentence(Sequence[Token], Conllable):
 
         Returns:
             A string representing the Sentence in CoNLL-U format.
+
+        Raises:
+            FormatError: If the Sentence or underlying Tokens can not be
+                converted to the CoNLL format.
         """
         lines = []
         for meta in self._meta.items():
@@ -286,7 +290,12 @@ class Sentence(Sequence[Token], Conllable):
             lines.append(line)
 
         for token in self._tokens:
-            lines.append(token.conll())
+            try:
+                lines.append(token.conll())
+            except FormatError as err:
+                raise FormatError(
+                    'Error serializing sentence with id {} on token \'{}\'.'.
+                    format(self.id, token.id)) from err
 
         return '\n'.join(lines)
 
