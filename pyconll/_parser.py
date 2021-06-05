@@ -16,6 +16,8 @@ def _create_sentence(sent_lines: Iterable[str], line_num: int) -> Sentence:
 
     Args:
         sent_lines: An iterable of the lines that make up the source.
+        line_num: The current line number the sentence starts at, for logging
+            purposes.
 
     Returns:
         The created Sentence.
