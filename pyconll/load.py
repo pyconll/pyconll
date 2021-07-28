@@ -5,6 +5,7 @@ storing Conll objects in memory. This module is the main entrance to pyconll's
 functionalities.
 """
 
+import lzma
 from typing import Iterator
 
 from pyconll._parser import iter_sentences
@@ -87,5 +88,24 @@ def iter_from_file(filename: str) -> Iterator[Sentence]:
         ParseError: If there is an error parsing the input into a Conll object.
     """
     with open(filename, encoding='utf-8') as f:
+        for sentence in iter_sentences(f):
+            yield sentence
+
+
+def iter_from_compressed_file(filename: str) -> Iterator[Sentence]:
+    """
+    Iterate over a CoNLL-U file's sentences.
+
+    Args:
+        filename: The name of the compressed file whose sentences should be iterated over.
+
+    Yields:
+        The sentences that make up the CoNLL-U file.
+
+    Raises:
+        IOError if there is an error opening the file.
+        ParseError: If there is an error parsing the input into a Conll object.
+    """
+    with lzma.open(filename, "rt", encoding='utf-8', errors="ignore") as f:
         for sentence in iter_sentences(f):
             yield sentence

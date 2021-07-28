@@ -1,6 +1,7 @@
 import pytest
 
 from pyconll import load_from_string, load_from_file, iter_from_string, iter_from_file
+from pyconll.load import iter_from_compressed_file
 from tests.util import fixture_location
 from tests.unit.util import assert_token_members
 
@@ -79,6 +80,19 @@ def test_iter_from_file():
     expected_ids = ['fr-ud-dev_0000{}'.format(i) for i in range(1, 5)]
     actual_ids = [
         sent.id for sent in iter_from_file(fixture_location('basic.conll'))
+    ]
+
+    assert expected_ids == actual_ids
+
+
+def test_iter_from_compressed_file():
+    """
+    Test that compressed CoNLL files (.xz) can be iterated over without
+    memory given the filename.
+    """
+    expected_ids = ['fr-ud-dev_0000{}'.format(i) for i in range(1, 5)]
+    actual_ids = [
+        sent.id for sent in iter_from_compressed_file(fixture_location('basic.conll.xz'))
     ]
 
     assert expected_ids == actual_ids
