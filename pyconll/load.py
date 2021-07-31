@@ -94,7 +94,7 @@ def iter_from_file(filename: str) -> Iterator[Sentence]:
 
 def iter_from_compressed_file(filename: str) -> Iterator[Sentence]:
     """
-    Iterate over a CoNLL-U file's sentences.
+    Iterate over sentences from a compressed CoNLL-U file.
 
     Args:
         filename: The name of the compressed file whose sentences should be iterated over.
