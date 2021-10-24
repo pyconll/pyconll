@@ -5,6 +5,7 @@ format.
 """
 
 import functools
+import itertools
 import math
 from typing import Callable, ClassVar, Dict, Optional, Set, Tuple
 
@@ -659,8 +660,8 @@ class Token(Conllable):
 
         fields = source.split(Token.FIELD_DELIMITER)
 
-        if len(fields) != 10:
-            error_msg = 'The number of columns per token line must be 10. Invalid token: {}'.format(
+        if len(fields) < 10:
+            error_msg = 'The number of columns per token line must be at least 10. Invalid token line: {}'.format(
                 source)
             raise ParseError(error_msg)
 
@@ -694,6 +695,8 @@ class Token(Conllable):
         self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
             fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_SEPARATOR, Token.V_DELIMITER)
+
+        self.extra_cols = fields[10:]
 
     @property
     def form(self) -> Optional[str]:
@@ -760,5 +763,6 @@ class Token(Conllable):
         items = [
             token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc
         ]
+        it = itertools.chain(items, self.extra_cols)
 
-        return Token.FIELD_DELIMITER.join(items)
+        return Token.FIELD_DELIMITER.join(it)
