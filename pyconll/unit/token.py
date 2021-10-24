@@ -661,7 +661,7 @@ class Token(Conllable):
         fields = source.split(Token.FIELD_DELIMITER)
 
         if len(fields) < 10:
-            error_msg = 'The number of columns per token line must be at least 10. Invalid token line: {}'.format(
+            error_msg = 'The columns per token line must be at least 10. Invalid line: {}'.format(
                 source)
             raise ParseError(error_msg)
 
