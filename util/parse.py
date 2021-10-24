@@ -27,7 +27,7 @@ def package_version(path: Union[str, Path]) -> str:
 
     # Note that this regex version check is very simple and is not all encompassing
     # but works fine for the given use case and internal nature of the logic.
-    m = re.search('__version__\\s*=\\s*[\'"]((\\d+\\.)+(\\d+))(\\+[A-Za-z0-9\.]+[A-Za-z0-9])?[\'"]', contents)
+    m = re.search('__version__\\s*=\\s*[\'"]((\\d+\\.)+(\\d+)(\\+[A-Za-z0-9\.]+[A-Za-z0-9])?)[\'"]', contents)
 
     if not m:
         raise ValueError(
