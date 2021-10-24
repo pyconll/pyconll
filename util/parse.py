@@ -67,10 +67,10 @@ def package_version(path: Union[str, Path]) -> str:
 
     # Note that this regex version check is very simple and is not all encompassing
     # but works fine for the given use case and internal nature of the logic.
-    m = _canonical_regex.search(contents) or _arbitrary_regex.search(contents)
+    m = _canonical_regex.search(contents)
 
     if m:
         ver = m.group(1)
         return ver
 
-    raise ValueError('There is no version string identified in the file contents.')
+    raise ValueError('There is no valid version string identified in the file contents.')
