@@ -1,8 +1,8 @@
-name: Pyconll Release to PyPi
+name: Pyconll Release Support Version to PyPi
 on:
-  release:
-    types:
-      - released
+  push:
+    branches:
+      - 'support/**'
 
 jobs:
   release:
@@ -22,8 +22,6 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
       - name: Publish packages from dist/*
-        # Make sure the current git ref is tagged.
-        if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
