@@ -688,10 +688,7 @@ class Token(Conllable):
                                                      Token.V_DELIMITER)
         self.head: Optional[str] = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel: Optional[str] = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps: Dict[str,
-                        Tuple[str, str, str, str]] = _dict_tupled_empty_map(
-                            fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
-                            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
+        self.deps: Optional[str] = _unit_empty_map(fields[9], Token.EMPTY)
         self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
             fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_SEPARATOR, Token.V_DELIMITER)
