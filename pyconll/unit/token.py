@@ -681,14 +681,12 @@ class Token(Conllable):
 
         self.upos: Optional[str] = _unit_empty_map(fields[3], Token.EMPTY)
         self.xpos: Optional[str] = _unit_empty_map(fields[4], Token.EMPTY)
-        self.feats: Dict[str,
-                         Set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
-                                                     Token.COMPONENT_DELIMITER,
-                                                     Token.AV_SEPARATOR,
-                                                     Token.V_DELIMITER)
+        self.feats: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
+            fields[5], Token.EMPTY, Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR, Token.V_DELIMITER)
         self.head: Optional[str] = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel: Optional[str] = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps: Optional[str] = _unit_empty_map(fields[9], Token.EMPTY)
+        self.deps: Optional[str] = _unit_empty_map(fields[8], Token.EMPTY)
         self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
             fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_SEPARATOR, Token.V_DELIMITER)
@@ -743,15 +741,13 @@ class Token(Conllable):
         lemma = _unit_conll_map(self.lemma, Token.EMPTY)
         upos = _unit_conll_map(self.upos, Token.EMPTY)
         xpos = _unit_conll_map(self.xpos, Token.EMPTY)
-        feats = _dict_conll_map(self.feats, Token.EMPTY,
-                                Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
-                                Token.V_DELIMITER, Token.BY_CASE_INSENSITIVE)
+        feats = _dict_mixed_conll_map(self.feats, Token.EMPTY,
+                                      Token.COMPONENT_DELIMITER,
+                                      Token.AV_SEPARATOR, Token.V_DELIMITER,
+                                      Token.BY_CASE_INSENSITIVE)
         head = _unit_conll_map(self.head, Token.EMPTY)
         deprel = _unit_conll_map(self.deprel, Token.EMPTY)
-        deps = _dict_tupled_conll_map(self.deps, Token.EMPTY,
-                                      Token.COMPONENT_DELIMITER,
-                                      Token.AV_DEPS_SEPARATOR,
-                                      Token.V_DEPS_DELIMITER, Token.BY_ID)
+        deps = _unit_conll_map(self.deps, Token.EMPTY)
         misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
                                      Token.COMPONENT_DELIMITER,
                                      Token.AV_SEPARATOR, Token.V_DELIMITER,

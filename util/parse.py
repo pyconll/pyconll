@@ -41,13 +41,11 @@ CANONICAL_VERSION_PATTERN: str = r"""
 
 _canonical_regex = re.compile(
     '__version__\\s*=\\s*[\'"]' + CANONICAL_VERSION_PATTERN + '[\'"]',
-    re.VERBOSE | re.IGNORECASE
-)
+    re.VERBOSE | re.IGNORECASE)
 
-_arbitrary_regex = re.compile(
-    '__version__\\s*=\\s*[\'"](.+)[\'"]',
-    re.VERBOSE | re.IGNORECASE
-)
+_arbitrary_regex = re.compile('__version__\\s*=\\s*[\'"](.+)[\'"]',
+                              re.VERBOSE | re.IGNORECASE)
+
 
 def package_version(path: Union[str, Path]) -> str:
     """
@@ -73,4 +71,5 @@ def package_version(path: Union[str, Path]) -> str:
         ver = m.group(1)
         return ver
 
-    raise ValueError('There is no valid version string identified in the file contents.')
+    raise ValueError(
+        'There is no valid version string identified in the file contents.')
