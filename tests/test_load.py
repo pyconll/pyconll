@@ -61,7 +61,7 @@ def test_equivalence_across_load_operations():
     def assert_equivalent_conll_objs(conll1, conll2):
         assert len(conll1) == len(conll1)
         for i in range(len(conll1)):
-            assert(len(conll1[i]) == len(conll2[i]))
+            assert len(conll1[i]) == len(conll2[i])
             assert conll1[i].id == conll2[i].id
             assert conll1[i].text == conll2[i].text
 
@@ -71,6 +71,7 @@ def test_equivalence_across_load_operations():
 
     assert_equivalent_conll_objs(str_c, file_c)
     assert_equivalent_conll_objs(file_c, resource_c)
+
 
 def test_iter_from_string():
     """

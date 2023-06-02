@@ -14,6 +14,7 @@ from pyconll.unit.sentence import Sentence
 
 PathLike: TypeAlias = Union[str, bytes, os.PathLike]
 
+
 def load_from_string(source: str) -> Conll:
     """
     Load the CoNLL-U source in a string into a Conll object.
