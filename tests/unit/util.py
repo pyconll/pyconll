@@ -3,6 +3,17 @@ Module for helping test Token related functionality.
 """
 
 
+def assert_token_equivalence(token1, token2):
+    """
+    Asserts that two tokens are equivalent in all their members.
+
+    Args:
+        token1: One of the tokens to compare.
+        token2: The second token to compare against the first for equality.
+    """
+    assert_token_members(token1, token2.id, token2.form, token2.lemma, token2.upos, token2.xpos, token2.feats, token2.head, token2.deprel, token2.deps, token2.misc)
+
+
 def assert_token_members(token, id, form, lemma, upos, xpos, feats, head,
                          deprel, deps, misc):
     """
