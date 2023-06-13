@@ -86,8 +86,8 @@ class Sentence(Sequence[Token], Conllable):
                         token = Token(line)
                     except ParseError as err:
                         raise ParseError(
-                            'Error creating token on line {} for the current sentence'
-                            .format(i)) from err
+                            f'Error creating token on line {i} for the current sentence'
+                        ) from err
 
                     self._tokens.append(token)
 
@@ -170,7 +170,7 @@ class Sentence(Sequence[Token], Conllable):
                 singleton, this field can be ignored or set to None.
         """
         if key == Sentence.TEXT_KEY:
-            raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
+            raise ValueError(f'Key cannot be {Sentence.TEXT_KEY}')
 
         self._meta[key] = value
 
@@ -186,7 +186,7 @@ class Sentence(Sequence[Token], Conllable):
             ValueError: If the text key is provided, regardless of presence.
         """
         if key == Sentence.TEXT_KEY:
-            raise ValueError('Key cannot be {}'.format(Sentence.TEXT_KEY))
+            raise ValueError(f'Key cannot be {Sentence.TEXT_KEY}')
 
         del self._meta[key]
 
@@ -222,8 +222,9 @@ class Sentence(Sequence[Token], Conllable):
                     children_tokens[token.head] = [token]
             elif not (token.is_multiword() or token.is_empty_node()):
                 raise ValueError(
-                    'The current sentence is not fully defined as a tree and ' \
-                    'has a token with an empty head at {}'.format(token.id))
+                    'The current sentence is not fully defined as a tree and has a token with an '
+                    f'empty head at {token.id}'
+                )
 
         builder: TreeBuilder[Token] = TreeBuilder()
         if '0' in children_tokens:
@@ -282,10 +283,9 @@ class Sentence(Sequence[Token], Conllable):
         lines = []
         for meta in self._meta.items():
             if meta[1] is not None:
-                line = '{} {} = {}'.format(Sentence.COMMENT_MARKER, meta[0],
-                                           meta[1])
+                line = f'{Sentence.COMMENT_MARKER} {meta[0]} = {meta[1]}'
             else:
-                line = '{} {}'.format(Sentence.COMMENT_MARKER, meta[0])
+                line = f'{Sentence.COMMENT_MARKER} {meta[0]}'
 
             lines.append(line)
 
@@ -294,8 +294,8 @@ class Sentence(Sequence[Token], Conllable):
                 lines.append(token.conll())
             except FormatError as err:
                 raise FormatError(
-                    'Error serializing sentence with id {} on token \'{}\'.'.
-                    format(self.id, token.id)) from err
+                    f'Error serializing sentence with id {self.id} on token \'{token.id}\'.'
+                ) from err
 
         return '\n'.join(lines)
 

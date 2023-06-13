@@ -30,7 +30,7 @@ def _create_sentence(sent_lines: Iterable[str], line_num: int) -> Sentence:
         sentence = Sentence(sent_source)
     except ParseError as err:
         raise ParseError(
-            'Failed to create sentence at line {}'.format(line_num)) from err
+            f'Failed to create sentence at line {line_num}') from err
 
     return sentence
 

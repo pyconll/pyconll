@@ -76,8 +76,8 @@ class TreeBuilder(Generic[T]):
             self.current = self.current[i]
         except IndexError as e:
             raise IndexError(
-                '{}-th child is out of range. There are {} children on this node'
-                .format(i, len(self.current))) from e
+                f'{i}-th child is out of range. There are {len(self.current)} children on this node'
+            ) from e
 
     def move_to_root(self) -> None:
         """
@@ -121,8 +121,8 @@ class TreeBuilder(Generic[T]):
             del self.current._children[i]
         except IndexError as e:
             raise IndexError(
-                '{}-th child is out of range. There are {} children on this node'
-                .format(i, len(self.current))) from e
+                f'{i}-th child is out of range. There are {len(self.current)} children on this node'
+            ) from e
 
     def add_child(self, data: T, move: bool = False) -> None:
         """
