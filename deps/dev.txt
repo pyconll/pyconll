@@ -8,7 +8,7 @@ chardet==4.0.0
 codespell==2.0.0
 colorama==0.4.4
 docutils==0.16
-guppy3==3.1.0
+guppy3==3.1.3
 idna==2.10
 imagesize==1.2.0
 iniconfig==1.1.1
@@ -18,10 +18,10 @@ lazy-object-proxy==1.4.3
 MarkupSafe==1.1.1
 mccabe==0.6.1
 more-itertools==4.2.0
-mypy==0.800
-mypy-extensions==0.4.3
+mypy==1.3.0
+mypy-extensions==1.0.0
 packaging==20.9
-pipdeptree==2.0.0
+pipdeptree==2.9.0
 pluggy==0.13.1
 pockets==0.6.2
 py==1.10.0
@@ -43,8 +43,9 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 sphinxcontrib-websupport==1.2.4
 toml==0.10.2
-typed-ast==1.4.2; python_version < '3.8'
-typing-extensions==3.7.4.3
+tomli==2.0.1
+typed-ast==1.5.4
+typing-extensions==4.6.3
 urllib3==1.26.3
 wrapt==1.12.1
 yapf==0.30.0
