@@ -2,7 +2,7 @@ import pytest
 
 from pyconll import load_from_string, load_from_file, load_from_resource, iter_from_string, iter_from_file, iter_from_resource
 from tests.util import fixture_location
-from tests.unit.util import assert_token_members
+from tests.unit.util import assert_token_equivalence
 
 
 def test_load_from_string():
@@ -67,7 +67,7 @@ def test_equivalence_across_load_operations():
 
             for token1 in conll1[i]:
                 token2 = conll2[i][token1.id]
-                assert_token_members(token1, token2)
+                assert_token_equivalence(token1, token2)
 
     assert_equivalent_conll_objs(str_c, file_c)
     assert_equivalent_conll_objs(file_c, resource_c)
@@ -80,7 +80,7 @@ def test_iter_from_string():
     with open(fixture_location('basic.conll'), encoding='utf-8') as f:
         contents = f.read()
 
-    expected_ids = ['fr-ud-dev_0000{i}' for i in range(1, 5)]
+    expected_ids = [f'fr-ud-dev_0000{i}' for i in range(1, 5)]
     actual_ids = [sent.id for sent in iter_from_string(contents)]
 
     assert expected_ids == actual_ids
@@ -103,7 +103,7 @@ def test_iter_from_resource():
     """
     Test that an arbitrary resource can be iterated over.
     """
-    with open(fixture_location('basic.conll'), enconding='utf-8') as f:
+    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
         expected_ids = [f'fr-ud-dev_0000{i}' for i in range(1, 5)]
         actual_ids = [sent.id for sent in iter_from_resource(f)]
 
