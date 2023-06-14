@@ -17,7 +17,6 @@ Installation
 ~~~~~~~~~~~~
 
 As with most python packages, simply use ``pip`` to install from PyPi.
-
 ::
 
    pip install pyconll
@@ -52,7 +51,6 @@ a smooth development workflow no matter the dataset size (performs about
 See the following code example to understand the basics of the API.
 
 .. code:: python
-
    # This snippet finds sentences where a token marked with part of speech 'AUX' are
    # governed by a NOUN. For example, in French this is a less common construction
    # and we may want to validate these examples because we have previously found some
@@ -66,17 +64,17 @@ See the following code example to understand the basics of the API.
    # Conll objects are iterable over their sentences, and sentences are iterable
    # over their tokens. Sentences also de/serialize comment information.
    for sentence in train:
-       for token in sentence:
+      for token in sentence:
 
-           # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
-           # can be indexed by a token's id. We must check that the token is not the
-           # root token, whose id, '0', cannot be looked up.
-           if token.upos == 'AUX' and (token.head != '0' and sentence[token.head].upos == 'NOUN'):
-               review_sentences.append(sentence)
-
+      # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
+      # can be indexed by a token's id. We must check that the token is not the
+      # root token, whose id, '0', cannot be looked up.
+      if token.upos == 'AUX' and (token.head != '0' and sentence[token.head].upos == 'NOUN'):
+         review_sentences.append(sentence)
+    
    print('Review the following sentences:')
    for sent in review_sentences:
-       print(sent.id)
+      print(sent.id)
 
 A full definition of the API can be found in the
 `documentation <https://pyconll.readthedocs.io/>`__ or use the `quick
