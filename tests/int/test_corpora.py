@@ -413,10 +413,7 @@ def pytest_generate_tests(metafunc):
             mark = marks.get(item[0])
 
             if mark:
-                p = pytest.param(item[1],
-                                 exc,
-                                 marks=mark,
-                                 id=item[0])
+                p = pytest.param(item[1], exc, marks=mark, id=item[0])
             else:
                 p = pytest.param(item[1], exc, id=item[0])
 
