@@ -51,6 +51,7 @@ a smooth development workflow no matter the dataset size (performs about
 See the following code example to understand the basics of the API.
 
 .. code:: python
+
    # This snippet finds sentences where a token marked with part of speech 'AUX' are
    # governed by a NOUN. For example, in French this is a less common construction
    # and we may want to validate these examples because we have previously found some
