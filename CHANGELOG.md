@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2023-06-14
+### Added
+- iter_from_resource and load_from_resource within the load module to allow for arbitrary resource usage.
+- When there is a failure to parse a CoNLL file, the line number of the start of the sentence is included in the message.
+
+### Changed
+- Update support to be inline with current python versions.
+
 ## [3.1.0] - 2021-06-02
 ### Added
 - is_empty_node method to Token which identifies empty nodes used for ellipsis constructions

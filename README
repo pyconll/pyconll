@@ -1,10 +1,9 @@
 [Build Status] [Coverage Status] [Documentation Status] [Version]
 [gitter]
 
-
 pyconll
 
-_Easily work with CONLL files using the familiar syntax of PYTHON._
+Easily work with CoNLL files using the familiar syntax of python.
 
 Links
 
@@ -22,14 +21,13 @@ Only packages 2.2.0 and newer are available on conda at the moment.
 
     conda install -c pyconll pyconll
 
-pyconll supports Python 3.6 and greater, starting in version 3.0.0. In
-general pyconll will focus development efforts on officially supported
-python versions. Python 3.5 reached end of support in October 2020.
+pyconll supports Python 3.8 and greater. In general, pyconll will focus
+development efforts on officially supported python versions.
 
 Use
 
-This tool is intended to be a MINIMAL, LOW LEVEL, EXPRESSIVE and
-PRAGMATIC library in a widely used programming language. pyconll creates
+This tool is intended to be a minimal, low level, expressive and
+pragmatic library in a widely used programming language. pyconll creates
 a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
 It offers the following features: * Regular CI testing and validation
@@ -137,4 +135,3 @@ staging release branch.
     pypi, and the other releases to conda.
 -   Validate these workflows pass, and the package is properly released
     on both platforms.
-
