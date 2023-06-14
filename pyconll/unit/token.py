@@ -104,8 +104,9 @@ def _create_dict_tupled_empty_parse(size, strict):
             ParseError: If there was an error parsing the value as a tuple.
         """
         if v is None:
-            raise ParseError(f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
-                             ' format spec')
+            raise ParseError(
+                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
+                ' format spec')
 
         components = v.split(v_delimiter)
         left = size - len(components)
@@ -113,8 +114,9 @@ def _create_dict_tupled_empty_parse(size, strict):
         if not strict and 0 <= left < size:
             vs = tuple(components + [None] * left)
         else:
-            raise ParseError(f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
-                             ' format spec.')
+            raise ParseError(
+                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
+                ' format spec.')
 
         return vs
 

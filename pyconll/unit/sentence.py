@@ -223,8 +223,7 @@ class Sentence(Sequence[Token], Conllable):
             elif not (token.is_multiword() or token.is_empty_node()):
                 raise ValueError(
                     'The current sentence is not fully defined as a tree and has a token with an '
-                    f'empty head at {token.id}'
-                )
+                    f'empty head at {token.id}')
 
         builder: TreeBuilder[Token] = TreeBuilder()
         if '0' in children_tokens:
