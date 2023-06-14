@@ -409,11 +409,13 @@ def pytest_generate_tests(metafunc):
     if 'corpus' in metafunc.fixturenames:
         testdata = []
         for item in corpora.items():
-            exc = exceptions[item[0]] if item[0] in exceptions else []
-            if item[0] in marks:
+            exc = exceptions.get(item[0]) or []
+            mark = marks.get(item[0])
+
+            if mark:
                 p = pytest.param(item[1],
                                  exc,
-                                 marks=pytest.mark.latest,
+                                 marks=mark,
                                  id=item[0])
             else:
                 p = pytest.param(item[1], exc, id=item[0])
