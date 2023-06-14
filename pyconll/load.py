@@ -6,13 +6,13 @@ functionalities.
 """
 
 import os
-from typing import Iterable, Iterator, TypeAlias, Union
+from typing import Iterable, Iterator, Union
 
 from pyconll._parser import iter_sentences
 from pyconll.unit.conll import Conll
 from pyconll.unit.sentence import Sentence
 
-PathLike: TypeAlias = Union[str, bytes, os.PathLike]
+PathLike = Union[str, bytes, os.PathLike]
 
 
 def load_from_string(source: str) -> Conll:
