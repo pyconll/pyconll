@@ -39,6 +39,10 @@ class Conll(MutableSequence[Sentence], Conllable):
 
         Returns:
             The CoNLL-U object as a string. This string will end in a newline.
+
+        Raises:
+            FormatError: If there are issues converting the sentences to the
+                CoNLL format.
         """
         # Add newlines along with sentence strings so that there is no need to
         # slice potentially long lists or modify strings.

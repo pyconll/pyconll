@@ -9,7 +9,7 @@ import math
 from typing import Callable, ClassVar, Dict, Optional, Set, Tuple
 
 from pyconll.conllable import Conllable
-from pyconll.exception import ParseError, FormatError
+from pyconll.exception import FormatError, ParseError
 
 
 def _unit_empty_map(value, empty):
@@ -45,8 +45,7 @@ def _dict_empty_map_parser(v, v_delimiter):
         vs = set(v.split(v_delimiter))
         return vs
 
-    error_msg = 'Error parsing "{}" properly. Please check against CoNLL format spec.'.format(
-        v)
+    error_msg = f'Error parsing "{v}" properly. Please check against CoNLL format spec.'
     raise ParseError(error_msg)
 
 
@@ -105,9 +104,9 @@ def _create_dict_tupled_empty_parse(size, strict):
             ParseError: If there was an error parsing the value as a tuple.
         """
         if v is None:
-            error_msg = ('Error parsing "{}" as tuple properly. Please check'
-                         'against CoNLL format spec').format(v)
-            raise ParseError(error_msg)
+            raise ParseError(
+                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
+                ' format spec')
 
         components = v.split(v_delimiter)
         left = size - len(components)
@@ -115,9 +114,9 @@ def _create_dict_tupled_empty_parse(size, strict):
         if not strict and 0 <= left < size:
             vs = tuple(components + [None] * left)
         else:
-            error_msg = ('Error parsing "{}" as tuple properly. Please'
-                         'check against CoNLL format spec.').format(v)
-            raise ParseError(error_msg)
+            raise ParseError(
+                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
+                ' format spec.')
 
         return vs
 
@@ -660,8 +659,7 @@ class Token(Conllable):
         fields = source.split(Token.FIELD_DELIMITER)
 
         if len(fields) != 10:
-            error_msg = 'The number of columns per token line must be 10. Invalid token: {}'.format(
-                source)
+            error_msg = f'The number of columns per token line must be 10. Invalid token: {source}'
             raise ParseError(error_msg)
 
         # Assign all the field values from the line to internal equivalents.
@@ -735,6 +733,9 @@ class Token(Conllable):
 
         Returns:
             A string representing the Token in CoNLL-U format.
+
+        Raises:
+            FormatError: If the Token can not be converted to the CoNLL format.
         """
         # Transform the internal CoNLL-U representations back to text and
         # combine the fields.

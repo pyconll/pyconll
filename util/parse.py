@@ -23,7 +23,7 @@ def package_version(path: Union[str, Path]) -> str:
         ValueError: If the file is deemed not clear enough to determine version
             information.
     """
-    contents = Path(path).read_text()
+    contents = Path(path).read_text(encoding='utf-8')
 
     # Note that this regex version check is very simple and is not all encompassing
     # but works fine for the given use case and internal nature of the logic.

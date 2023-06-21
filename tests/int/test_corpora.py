@@ -182,8 +182,7 @@ def validate_hash_sha256(p, hash_s):
             logging.info(
                 'The current contents of %s do not hash to the expected %s.',
                 p, hash_s)
-            logging.info('Instead %s hashed as %s. Recreating fixture', p,
-                         hash_s)
+            logging.info('Instead %s hashed as %s. Recreating fixture', p, s)
         return r
     else:
         logging.info('File, %s, does not exist.', p)
@@ -303,6 +302,13 @@ def url_zip(entry_id, fixture_cache, contents_hash, zip_hash, url):
 # some tweaking of what structure works best, but this is a definite improvement
 # and is on a path toward more flexibility and robustness.
 corpora = {
+    'UD v2.8':
+    url_zip(
+        'UD v2.8', Path('tests/int/_corpora_cache'),
+        'eb5d8941be917d2cb46677cb575f18dd6218bddec446b428a5b96d96ab44c0cd',
+        '95d2f4370dc5fe93653eb36e7268f4ec0c1bd012e51e943d55430f1e9d0d7e05',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3687/ud-treebanks-v2.8.tgz'
+    ),
     'UD v2.7':
     url_zip(
         'UD v2.7', Path('tests/int/_corpora_cache'),
@@ -320,7 +326,7 @@ corpora = {
     'UD v2.5':
     url_zip(
         'UD v2.5', Path('tests/int/_corpora_cache'),
-        'dfa4bdef847ade28fa67b30181d32a95f81e641d6c356b98b02d00c4d19aba6e',
+        '4761846e8c5f7ec7e40a6591f7ef5307ca9e7264da894d05d135514a4ea22a10',
         '5ff973e44345a5f69b94cc1427158e14e851c967d58773cc2ac5a1d3adaca409',
         'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
     ),
@@ -403,12 +409,11 @@ def pytest_generate_tests(metafunc):
     if 'corpus' in metafunc.fixturenames:
         testdata = []
         for item in corpora.items():
-            exc = exceptions[item[0]] if item[0] in exceptions else []
-            if item[0] in marks:
-                p = pytest.param(item[1],
-                                 exc,
-                                 marks=pytest.mark.latest,
-                                 id=item[0])
+            exc = exceptions.get(item[0]) or []
+            mark = marks.get(item[0])
+
+            if mark:
+                p = pytest.param(item[1], exc, marks=mark, id=item[0])
             else:
                 p = pytest.param(item[1], exc, id=item[0])
 
