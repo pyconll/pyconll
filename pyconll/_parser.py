@@ -30,7 +30,7 @@ def _create_sentence(sent_lines: Iterable[str], line_num: int) -> Sentence:
         sentence = Sentence(sent_source)
     except ParseError as err:
         raise ParseError(
-            'Failed to create sentence at line {}'.format(line_num)) from err
+            f'Failed to create sentence at line {line_num}') from err
 
     return sentence
 
@@ -51,7 +51,7 @@ def iter_sentences(lines_it: Iterable[str]) -> Iterator[Sentence]:
         ValueError: If there is an error constructing the Sentence.
     """
     sent_lines = []
-    line_num = 1
+    last_empty_line = -1
     for i, line in enumerate(lines_it):
         line = line.strip()
 
@@ -61,15 +61,12 @@ def iter_sentences(lines_it: Iterable[str]) -> Iterator[Sentence]:
             sent_lines.append(line)
         else:
             if sent_lines:
-                sentence = _create_sentence(sent_lines, line_num)
-
+                sentence = _create_sentence(sent_lines, last_empty_line + 2)
                 sent_lines.clear()
-                line_num = i + 2
-
                 yield sentence
 
-            line_num = i + 2
+            last_empty_line = i
 
     if sent_lines:
-        sentence = _create_sentence(sent_lines, line_num)
+        sentence = _create_sentence(sent_lines, last_empty_line)
         yield sentence
