@@ -4,7 +4,7 @@ Defines the Sentence type and the associated parsing and output logic.
 
 from collections import OrderedDict
 import re
-from typing import ClassVar, Dict, Iterator, List, Optional, Sequence, overload
+from typing import ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
@@ -62,8 +62,8 @@ class Sentence(Sequence[Token], Conllable):
         lines = source.split('\n')
 
         self._meta: OrderedDict[str, Optional[str]] = OrderedDict()  # pylint: disable=E1136
-        self._tokens: List[Token] = []
-        self._ids_to_indexes: Dict[str, int] = {}
+        self._tokens: list[Token] = []
+        self._ids_to_indexes: dict[str, int] = {}
 
         for i, line in enumerate(lines):
             if line:
@@ -212,7 +212,7 @@ class Sentence(Sequence[Token], Conllable):
             ValueError: If the sentence can not be made into a tree because a
                 token has an empty head value or if there is no root token.
         """
-        children_tokens: Dict[str, List[Token]] = {}
+        children_tokens: dict[str, list[Token]] = {}
 
         for token in self:
             if token.head is not None:
@@ -244,7 +244,7 @@ class Sentence(Sequence[Token], Conllable):
     @staticmethod
     def _create_tree_helper(builder: TreeBuilder, sentence: 'Sentence',
                             root: Token,
-                            children_tokens: Dict[str, List[Token]]) -> None:
+                            children_tokens: dict[str, list[Token]]) -> None:
         """
         Method to create a tree from a sentence given the root token.
 

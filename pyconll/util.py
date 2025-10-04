@@ -5,7 +5,7 @@ collection of functions.
 
 import functools
 import itertools
-from typing import Iterable, Iterator, Sequence, List, Tuple
+from typing import Iterable, Iterator, Sequence
 
 from pyconll.unit.sentence import Sentence
 from pyconll.unit.token import Token
@@ -15,7 +15,7 @@ def find_ngrams(
     conll: Iterable[Sentence],
     ngram: Sequence[str],
     case_sensitive: bool = True
-) -> Iterator[Tuple[Sentence, int, List[Token]]]:
+) -> Iterator[tuple[Sentence, int, list[Token]]]:
     """
     Find the occurrences of the ngram in the provided Conll collection.
 
@@ -77,7 +77,7 @@ def find_ngrams(
             i += 1
 
 
-def find_nonprojective_deps(sentence: Sentence) -> List[Tuple[Token, Token]]:
+def find_nonprojective_deps(sentence: Sentence) -> list[tuple[Token, Token]]:
     """
     Find the nonprojective dependency pairs in the provided sentence.
 
@@ -95,7 +95,7 @@ def find_nonprojective_deps(sentence: Sentence) -> List[Tuple[Token, Token]]:
         dependency pair.
     """
     deps = _transform_tokens_to_sorted_dependency_arcs(sentence)
-    non_projective_deps: List[Tuple[int, int]] = []
+    non_projective_deps: list[tuple[int, int]] = []
 
     openings = [-1]
     closings = [len(sentence)]
