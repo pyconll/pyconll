@@ -21,7 +21,7 @@ Only packages 2.2.0 and newer are available on conda at the moment.
 
     conda install -c pyconll pyconll
 
-pyconll supports Python 3.8 and greater. In general, pyconll will focus
+pyconll supports Python 3.10 or newer. In general, pyconll will focus
 development efforts on officially supported python versions.
 
 Use
@@ -122,8 +122,8 @@ the latest changes since the last release. That is, it is essentially a
 staging release branch.
 
 -   Change the version in pyconll/_version.py appropriately.
--   Merge dev into master LOCALLY. Github does not offer a fast forward
-    merge and explicitly uses --no-ff. So to keep the linear nature of
+-   Merge dev into master locally. Github does not offer a fast forward
+    merge and explicitly uses –no-ff. So to keep the linear nature of
     changes, merge locally to fast forward. This is assuming that the
     dev branch looks good on CI tests which do not automatically run in
     this situation.

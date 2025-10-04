@@ -17,6 +17,7 @@ Installation
 ~~~~~~~~~~~~
 
 As with most python packages, simply use ``pip`` to install from PyPi.
+
 ::
 
    pip install pyconll
@@ -29,7 +30,7 @@ moment.
 
    conda install -c pyconll pyconll
 
-pyconll supports Python 3.8 and greater. In general, pyconll will focus
+pyconll supports Python 3.10 or newer. In general, pyconll will focus
 development efforts on officially supported python versions.
 
 Use
@@ -65,17 +66,17 @@ See the following code example to understand the basics of the API.
    # Conll objects are iterable over their sentences, and sentences are iterable
    # over their tokens. Sentences also de/serialize comment information.
    for sentence in train:
-      for token in sentence:
+       for token in sentence:
 
-      # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
-      # can be indexed by a token's id. We must check that the token is not the
-      # root token, whose id, '0', cannot be looked up.
-      if token.upos == 'AUX' and (token.head != '0' and sentence[token.head].upos == 'NOUN'):
-         review_sentences.append(sentence)
-    
+           # Tokens have attributes such as upos, head, id, deprel, etc, and sentences
+           # can be indexed by a token's id. We must check that the token is not the
+           # root token, whose id, '0', cannot be looked up.
+           if token.upos == 'AUX' and (token.head != '0' and sentence[token.head].upos == 'NOUN'):
+               review_sentences.append(sentence)
+
    print('Review the following sentences:')
    for sent in review_sentences:
-      print(sent.id)
+       print(sent.id)
 
 A full definition of the API can be found in the
 `documentation <https://pyconll.readthedocs.io/>`__ or use the `quick
@@ -143,7 +144,7 @@ staging release branch.
 
 -  Change the version in ``pyconll/_version.py`` appropriately.
 -  Merge dev into master **locally**. Github does not offer a fast
-   forward merge and explicitly uses --no-ff. So to keep the linear
+   forward merge and explicitly uses –no-ff. So to keep the linear
    nature of changes, merge locally to fast forward. This is assuming
    that the dev branch looks good on CI tests which do not automatically
    run in this situation.
