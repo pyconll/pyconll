@@ -17,10 +17,11 @@ jobs:
       matrix:
         py: ['3.10', '3.11', '3.12', '3.13']
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.py }}
+          cache: 'pip'
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
@@ -38,10 +39,11 @@ jobs:
     name: Integration Test
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: 3.13
+          python-version: '3.13'
+          cache: 'pip'
       - name: Run
         run: |
           pip install -r requirements.txt
@@ -51,10 +53,11 @@ jobs:
     name: Lint
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: 3.13
+          python-version: '3.13'
+          cache: 'pip'
       - name: Run
         run: |
           pip install -r requirements.txt
