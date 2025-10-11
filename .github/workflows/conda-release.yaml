@@ -20,6 +20,10 @@ jobs:
         with:
           activate-conda: true
           python-version: '3.12'
+      - name: Configure conda channels
+        run: |
+          conda config --add channels conda-forge
+          conda config --add channels defaults
       - name: Install conda dependencies
         run: |
           conda install conda-build
