@@ -29,7 +29,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-pyconll supports Python 3.8 and greater. In general, pyconll will focus development efforts on officially supported python versions.
+pyconll supports Python 3.10 or newer. In general, pyconll will focus development efforts on officially supported python versions.
 
 
 ### Use

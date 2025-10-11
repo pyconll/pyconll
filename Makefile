@@ -1,4 +1,4 @@
-.PHONY: format lint test coveragetest inttest datatest build gendocs clean hooks
+.PHONY: format lint test coveragetest inttest datatest build clean hooks
 
 # Format python files in place, outputs error code if there are changes
 format:
@@ -13,7 +13,7 @@ lint:
 	python -m mypy pyconll/ util/
 
 # Unit test scenario for fast CI builds and local testing
-test:
+unittest:
 	python -m pytest -vv --ignore tests/int
 
 # Create coverage analysis for CI builds
@@ -22,22 +22,18 @@ coveragetest:
 
 # Integration test scenario for releases validation and support.
 inttest:
-	python -m pytest tests/int/ -m latest --log-cli-level info
+	python -m pytest tests/int/ --corpora-test-skip-write --corpora-versions 2.16 --log-cli-level info
 
 # Data test scenario across all supported data sets to be run periodically.
 datatest:
-	python -m pytest tests/int --log-cli-level info
+	python -m pytest tests/int --corpora-test-skip-write --log-cli-level info
 
 build:
 	python setup.py sdist bdist_wheel
 
-gendocs:
-	pandoc --from=markdown --to=rst --output=README.rst README.md
-	pandoc --from=markdown --to=plain --output=README README.md
-	pandoc --from=markdown --to=rst --output=CHANGELOG.rst CHANGELOG.md
-	pandoc --from=markdown --to=plain --output=CHANGELOG CHANGELOG.md
-
 clean:
+	find . -path ./venv -prune -o -type d -name "__pycache__" -exec rm -rf {} +
+
 	if [ -d 'dist' ]; then \
 		rm -r dist; \
 	fi

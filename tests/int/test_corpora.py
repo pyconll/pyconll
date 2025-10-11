@@ -1,16 +1,18 @@
+from dataclasses import dataclass
 import hashlib
 import logging
 import operator
 import os
 from pathlib import Path
 import tarfile
+import tempfile
+from typing import Callable, Optional
 from urllib import parse
 
 import pytest
 import requests
 
 import pyconll
-from .workflow import conditional as _if, fail, partial, pipe, sequence, value
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -164,7 +166,6 @@ def delete_dir(path):
     path.rmdir()
 
 
-@partial
 def validate_hash_sha256(p, hash_s):
     """
     Check that a path's SHA256 hash matches the provided string. 
@@ -189,7 +190,6 @@ def validate_hash_sha256(p, hash_s):
         return False
 
 
-@partial
 def clean_subdir(direc, subdir):
     """
     Create a clean subdirectory in the provided path.
@@ -210,27 +210,28 @@ def clean_subdir(direc, subdir):
         p.mkdir()
 
 
-@partial
-def download_file_to_dir(url, direc):
+def download_file_to_location(url, location, hash_sha256):
     """
     Download a file (final name matching the URL) to a specified directory.
 
     Args:
         url: The url of the file to download
-        direc: The directory to download the file to.
+        location: The location or final destination name of the file.
+        hash_sha256: The hash of the file at the end to confirm successful download.
     """
-    tmp = direc / _get_filename_from_url(url)
-    if tmp.exists():
-        tmp.unlink()
-    logging.info('Starting to download %s to %s.', url, tmp)
-    download_file(url, tmp, 16384, 15)
-    logging.info('Download succeeded to %s.', tmp)
+    if location.exists():
+        location.unlink()
+    logging.info('Starting to download %s to %s.', url, location)
+    download_file(url, location, 16384, 15)
+    logging.info('Download succeeded to %s.', location)
 
-    return tmp
+    if not validate_hash_sha256(location, hash_sha256):
+        raise RuntimeError(
+            f"Not able to successfully download url {url} to location {location}."
+        )
 
 
-@partial
-def extract_tgz(p, tgz):
+def extract_tgz(p: Path, tgz: Path) -> None:
     """
     Extracts a tarfile to a directory.
 
@@ -240,16 +241,16 @@ def extract_tgz(p, tgz):
     """
     logging.info('Extracting tarfile to %s.', p)
     with tarfile.open(str(tgz)) as tf:
-        tf.extractall(str(p))
+        tf.extractall(str(p), filter="data")
 
 
-def url_zip(entry_id, fixture_cache, contents_hash, zip_hash, url):
+def url_zip(entry_id: str, contents_hash: str, zip_hash: str,
+            url: str) -> Callable[[Path, Path], Path]:
     """
     Creates a cacheable fixture that is a url download that is a zip.
 
     Args:
         entry_id: The unique id of the entry in the cache.
-        fixture_cache: The cache location for the fixtures.
         contents_hash: The hexdigest format hash of the fixture's contents.
         zip_hash: The hexdigest format hash of the zip file's contents.
         url: The url of the zip download.
@@ -257,41 +258,36 @@ def url_zip(entry_id, fixture_cache, contents_hash, zip_hash, url):
     Returns:
         The path of the fixture within the cache as the fixture value.
     """
-    final_path = fixture_cache / entry_id
-    fn = _get_filename_from_url(url)
-    zip_path = fixture_cache / fn
 
-    download = \
-        sequence(
-            clean_subdir(fixture_cache, entry_id),
-            pipe(
-                download_file_to_dir(url, fixture_cache),
-                extract_tgz(final_path)
-            ),
-            _if(
-                validate_hash_sha256(final_path, contents_hash),
-                value(final_path),
-                fail('Fixture for {} in {} was not able to be properly setup.'.
-                    format(url, final_path))))
+    def workflow(artifacts_path: Path, contents_path: Path) -> Path:
+        final_path = contents_path / entry_id
+        fn = _get_filename_from_url(url)
+        zip_path = artifacts_path / fn
 
-    w = _if(
-            validate_hash_sha256(final_path, contents_hash),
-            value(final_path),
-            _if(
-                validate_hash_sha256(zip_path, zip_hash),
-                sequence(
-                    extract_tgz(final_path, zip_path),
-                    _if(
-                        validate_hash_sha256(final_path, contents_hash),
-                        value(final_path),
-                        sequence(
-                            zip_path.unlink,
-                            download
-                        )
-                    )
-                ),
-                download)) # yapf: disable
-    return w
+        if not validate_hash_sha256(final_path, contents_hash):
+            clean_subdir(contents_path, entry_id)
+            if not validate_hash_sha256(zip_path, zip_hash):
+                download_file_to_location(url, zip_path, zip_hash)
+
+            # Just assume that extraction is successful and has the expected values if
+            # the zip is as expected to remove one hashing round.
+            extract_tgz(final_path, zip_path)
+
+        return final_path
+
+    return workflow
+
+
+@dataclass
+class CorporaRegistration:
+    """
+    Info to register an online resource as a corpora that can be tested against.
+    """
+
+    version: str
+    url: str
+    zip_hash: str
+    contents_hash: str
 
 
 # This is the registration for the different corpora. It includes an id, and a
@@ -301,81 +297,112 @@ def url_zip(entry_id, fixture_cache, contents_hash, zip_hash, url):
 # performance. Given the structure of exceptions and marks, I may still need
 # some tweaking of what structure works best, but this is a definite improvement
 # and is on a path toward more flexibility and robustness.
-corpora = {
-    'UD v2.8':
-    url_zip(
-        'UD v2.8', Path('tests/int/_corpora_cache'),
-        'eb5d8941be917d2cb46677cb575f18dd6218bddec446b428a5b96d96ab44c0cd',
+corpora = [
+    CorporaRegistration(
+        '2.16',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5901/ud-treebanks-v2.16.tgz',
+        '87710204b6441736a8a9fed779585aa88b6eeafe231fa2ed9282c0cd9e30960b',
+        '6b38dc116ec0da5177b8808e5bead78a4d85cdd47ce007eede99df25b48b27e9'),
+    CorporaRegistration(
+        '2.15',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5787/ud-treebanks-v2.15.tgz',
+        '24ddd9a7e6a291f3882c13febb4d97accfbc6f51633a867963c19e6004d7df97',
+        'f84959120d53a701325ba15b3abcb819be8ceda3d1ec6d5edbeda7b5f8b3a358'),
+    CorporaRegistration(
+        '2.14',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5502/ud-treebanks-v2.14.tgz',
+        'a710e09f977fc1ca4aeaf200806a75fbbc46d2c0717c70933a94ad78129ee1af',
+        'f6dc84752cce6087b26fd97522dd7171df82492c1004d80e2f6f0224a750c7e5'),
+    CorporaRegistration(
+        '2.13',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5287/ud-treebanks-v2.13.tgz',
+        'd6538ed4c05508be3bb7d9c3448de1062f6f9958c833b93558df300e4b1d3781',
+        '57c44ceda3d7b89bc9f84238b73363d09a1d895f34b29e1dad4a5e6e3d1f0cea'),
+    CorporaRegistration(
+        '2.12',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5150/ud-treebanks-v2.12.tgz',
+        '24f876d5ad9dbdc639a33a73f02d12ddfe582e8d4e7f5d08978c8a86680d088c',
+        '68152f141a2653a183865cef4ddc64ae146c76fd6effd724c99c2145c80f213c'),
+    CorporaRegistration(
+        '2.11',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4923/ud-treebanks-v2.11.tgz',
+        'd75f7df726761836f797fe6c001c7a1ecce93d93129414ef57cf2262d15707e8',
+        '59a87cfbb82524d6dbf4aa27c0c8a8d35fd3e5d3cca3493875a6c4b2c5031a40'),
+    CorporaRegistration(
+        '2.10',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4758/ud-treebanks-v2.10.tgz',
+        'f6deca6ab803abdfa8dca911600f6bc5f214267e348acbd59fd4c4b88db14ea6',
+        '572d09f96d52a949750e99caa36519daa3fac366a7643d97e37498873c2ad104'),
+    CorporaRegistration(
+        '2.9',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4611/ud-treebanks-v2.9.tgz',
+        'ca0162be47151a55a5c6c5de24db821c76d67f322fcdfa3fe1436891e9bf2232',
+        '7fed278e47358be198303e51f1afca9d77985db550d69c685bbcd5d066d78915'),
+    CorporaRegistration(
+        '2.8',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3687/ud-treebanks-v2.8.tgz',
         '95d2f4370dc5fe93653eb36e7268f4ec0c1bd012e51e943d55430f1e9d0d7e05',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3687/ud-treebanks-v2.8.tgz'
-    ),
-    'UD v2.7':
-    url_zip(
-        'UD v2.7', Path('tests/int/_corpora_cache'),
-        '38e7d484b0125aaf7101a8c447fd2cb3833235cf428cf3c5749128ade73ecee2',
+        'eb5d8941be917d2cb46677cb575f18dd6218bddec446b428a5b96d96ab44c0cd'),
+    CorporaRegistration(
+        '2.7',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3424/ud-treebanks-v2.7.tgz',
         'ee61f186ac5701440f9d2889ca26da35f18d433255b5a188b0df30bc1525502b',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3424/ud-treebanks-v2.7.tgz'
-    ),
-    'UD v2.6':
-    url_zip(
-        'UD v2.6', Path('tests/int/_corpora_cache'),
-        'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd',
+        '38e7d484b0125aaf7101a8c447fd2cb3833235cf428cf3c5749128ade73ecee2'),
+    CorporaRegistration(
+        '2.6',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz',
         'a462a91606c6b2534a767bbe8e3f154b678ef3cc81b64eedfc9efe9d60ceeb9e',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3226/ud-treebanks-v2.6.tgz'
-    ),
-    'UD v2.5':
-    url_zip(
-        'UD v2.5', Path('tests/int/_corpora_cache'),
-        '4761846e8c5f7ec7e40a6591f7ef5307ca9e7264da894d05d135514a4ea22a10',
+        'a28fdc1bdab09ad597a873da62d99b268bdfef57b64faa25b905136194915ddd'),
+    CorporaRegistration(
+        '2.5',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz',
         '5ff973e44345a5f69b94cc1427158e14e851c967d58773cc2ac5a1d3adaca409',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3105/ud-treebanks-v2.5.tgz'
-    ),
-    'UD v2.4':
-    url_zip(
-        'UD v2.4', Path('tests/int/_corpora_cache'),
-        '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9',
+        '4761846e8c5f7ec7e40a6591f7ef5307ca9e7264da894d05d135514a4ea22a10'),
+    CorporaRegistration(
+        '2.4',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz',
         '252a937038d88587842f652669cdf922b07d0f1ed98b926f738def662791eb62',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2988/ud-treebanks-v2.4.tgz'
-    ),
-    'UD v2.3':
-    url_zip(
-        'UD v2.3', Path('tests/int/_corpora_cache'),
-        '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f',
+        '000646eb71cec8608bd95730d41e45fac319480c6a78132503e0efe2f0ddd9a9'),
+    CorporaRegistration(
+        '2.3',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz',
         '122e93ad09684b971fd32b4eb4deeebd9740cd96df5542abc79925d74976efff',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2895/ud-treebanks-v2.3.tgz'
-    ),
-    'UD v2.2':
-    url_zip(
-        'UD v2.2', Path('tests/int/_corpora_cache'),
-        'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a',
+        '359e1989771268ab475c429a1b9e8c2f6c76649b18dd1ff6568c127fb326dd8f'),
+    CorporaRegistration(
+        '2.2',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz',
         'a9580ac2d3a6d70d6a9589d3aeb948fbfba76dca813ef7ca7668eb7be2eb4322',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2837/ud-treebanks-v2.2.tgz'
-    ),
-    'UD v2.1':
-    url_zip(
-        'UD v2.1', Path('tests/int/_corpora_cache'),
-        '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee',
+        'fa3a09f2c4607e19d7385a5e975316590f902fa0c1f4440c843738fbc95e3e2a'),
+    CorporaRegistration(
+        '2.1',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz',
         '446cc70f2194d0141fb079fb22c05b310cae9213920e3036b763899f349fee9b',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2515/ud-treebanks-v2.1.tgz'
-    ),
-    'UD v2.0':
-    url_zip(
-        'UD v2.0', Path('tests/int/_corpora_cache'),
-        '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab',
+        '36921a1d8410dc5e22ef9f64d95885dc60c11811a91e173e1fd21706b83fdfee'),
+    CorporaRegistration(
+        '2.0',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz',
         'c6c6428f709102e64f608e9f251be59d35e4add1dd842d8dc5a417d01415eb29',
-        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-1983/ud-treebanks-v2.0.tgz'
-    )
-}
+        '4f08c84bec5bafc87686409800a9fe9b5ac21434f0afd9afe1cc12afe8aa90ab')
+]
 
-marks = {'UD v2.7': pytest.mark.latest}
 exceptions = {
-    'UD v2.5': [
+    '2.5': [
         Path(
             # There is one token with less than 10 columns.
             'ud-treebanks-v2.5/UD_Russian-SynTagRus/ru_syntagrus-ud-train.conllu'
         )
     ]
 }
+CORPORA_CACHE = Path('tests/int/_corpora_cache')
+
+
+@pytest.fixture(scope="module", autouse=True)
+def create_corpora_cache() -> None:
+    req_dirs = [
+        CORPORA_CACHE, CORPORA_CACHE / 'artifacts', CORPORA_CACHE / 'corpora'
+    ]
+    for d in req_dirs:
+        d.mkdir(exist_ok=True)
 
 
 @pytest.fixture
@@ -390,7 +417,12 @@ def corpus(request):
     Returns:
         The value of the execution of the corpus fixture.
     """
-    return request.param()
+    registration: CorporaRegistration = request.param
+    workflow = url_zip(registration.version, registration.contents_hash,
+                       registration.zip_hash, registration.url)
+    corpus_path = workflow(CORPORA_CACHE / 'artifacts',
+                           CORPORA_CACHE / 'corpora')
+    return corpus_path
 
 
 def pytest_generate_tests(metafunc):
@@ -406,25 +438,27 @@ def pytest_generate_tests(metafunc):
     Args:
         metafunc: The object to parameterize the tests with.
     """
+    versions_str_filter = metafunc.config.getoption(
+        '--corpora-versions').strip()
+    versions_set: Optional[set[str]] = None
+    if versions_str_filter != '*' or not versions_str_filter:
+        versions_set = set(
+            filter(lambda v: bool(v), versions_str_filter.split(',')))
+
     if 'corpus' in metafunc.fixturenames:
         testdata = []
-        for item in corpora.items():
-            exc = exceptions.get(item[0]) or []
-            mark = marks.get(item[0])
-
-            if mark:
-                p = pytest.param(item[1], exc, marks=mark, id=item[0])
-            else:
-                p = pytest.param(item[1], exc, id=item[0])
-
-            testdata.append(p)
+        for registration in corpora:
+            if versions_set is None or registration.version in versions_set:
+                exc = exceptions.get(registration.version, [])
+                p = pytest.param(registration, exc, id=registration.version)
+                testdata.append(p)
 
         metafunc.parametrize(argnames=('corpus', 'exceptions'),
                              argvalues=testdata,
                              indirect=['corpus'])
 
 
-def test_corpus(corpus, exceptions):
+def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest):
     """
     Tests a corpus using the fixture path and the glob for files to test.
 
@@ -432,37 +466,36 @@ def test_corpus(corpus, exceptions):
         corpus: The path where the corpus is.
         exceptions: A list of paths relative to fixture that are known failures.
     """
+    skip_write: bool = pytestconfig.getoption("--corpora-test-skip-write")
+
     globs = corpus.glob('**/*.conllu')
 
     for path in globs:
         is_exp = any(path == corpus / exp for exp in exceptions)
 
         if is_exp:
-            logging.info('Skipping over %s because it is a known failure.',
+            logging.info('Skipping over %s because it is a known exception.',
                          path)
         else:
-            _test_treebank(str(path))
+            _test_treebank(path, skip_write)
 
 
-def _test_treebank(treebank_path):
+def _test_treebank(treebank_path: Path, skip_write: bool) -> None:
     """
     Test that the provided treebank can be parsed and written without error.
 
     Args:
         treebank_path: The path to the treebank file that is to be parsed and written.
+        skip_write: Flag if the writing/serializing of the treebank should also be tested.
     """
-    TMP_OUTPUT_FILE = '__tmp__ud.conllu'
 
     logging.info('Starting to parse %s', treebank_path)
 
     treebank = pyconll.iter_from_file(treebank_path)
 
-    # For each sentence write back and make sure to include the proper
-    # newlines between sentences.
-    with open(TMP_OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        for sentence in treebank:
-            f.write(sentence.conll())
-            f.write('\n\n')
-
-    # Clean up afterwards.
-    os.remove(TMP_OUTPUT_FILE)
+    if not skip_write:
+        with tempfile.TemporaryFile(mode='w',
+                                    encoding='utf-8') as tmp_output_file:
+            for sentence in treebank:
+                tmp_output_file.write(sentence.conll())
+                tmp_output_file.write('\n\n')

@@ -6,13 +6,13 @@ functionalities.
 """
 
 import os
-from typing import Iterable, Iterator, Union
+from typing import Iterable, Iterator
 
 from pyconll._parser import iter_sentences
 from pyconll.unit.conll import Conll
 from pyconll.unit.sentence import Sentence
 
-PathLike = Union[str, bytes, os.PathLike]
+PathLike = str | bytes | os.PathLike
 
 
 def load_from_string(source: str) -> Conll:
@@ -89,8 +89,7 @@ def iter_from_string(source: str) -> Iterator[Sentence]:
         ParseError: If there is an error parsing the input into a Conll object.
     """
     lines = source.splitlines()
-    for sentence in iter_sentences(lines):
-        yield sentence
+    yield from iter_sentences(lines)
 
 
 def iter_from_file(file_descriptor: PathLike) -> Iterator[Sentence]:
@@ -109,8 +108,7 @@ def iter_from_file(file_descriptor: PathLike) -> Iterator[Sentence]:
         ParseError: If there is an error parsing the input into a Conll object.
     """
     with open(file_descriptor, encoding='utf-8') as f:
-        for sentence in iter_sentences(f):
-            yield sentence
+        yield from iter_sentences(f)
 
 
 def iter_from_resource(resource: Iterable[str]) -> Iterator[Sentence]:
@@ -131,5 +129,4 @@ def iter_from_resource(resource: Iterable[str]) -> Iterator[Sentence]:
     Raises:
         ParseError: If there is an error parsing the input into a Conll object.
     """
-    for sentence in iter_sentences(resource):
-        yield sentence
+    yield from iter_sentences(resource)

@@ -6,7 +6,7 @@ format.
 
 import functools
 import math
-from typing import Callable, ClassVar, Dict, Optional, Set, Tuple
+from typing import Callable, ClassVar, Optional
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
@@ -78,7 +78,7 @@ def _create_dict_tupled_empty_parse(size, strict):
 
     Args:
         size: The expected size of the tuple.
-        strict: Flag to signifiy if parsed values with less components than size
+        strict: Flag to signify if parsed values with less components than size
             will be accepted. In this case, missing values will be supplated
             with None.
 
@@ -89,6 +89,7 @@ def _create_dict_tupled_empty_parse(size, strict):
         ParseError: If the parsing is strict and there is a component size
             mismatch, or if there are too many components in general.
     """
+
     def _dict_tupled_empty_parser(v, v_delimiter):
         """
         Map a value into the appropriate form, for a tupled based column.
@@ -123,7 +124,7 @@ def _create_dict_tupled_empty_parse(size, strict):
     return _dict_tupled_empty_parser
 
 
-TUPLE_PARSER_MEMOIZE: Dict[int, Callable[[str, str], Tuple[Optional[str],
+TUPLE_PARSER_MEMOIZE: dict[int, Callable[[str, str], tuple[Optional[str],
                                                            ...]]] = {}
 
 
@@ -237,7 +238,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
             k = parts[0]
             v = None
-        elif len(parts) == 2:
+        else:
             k, v = parts
 
         parsed = parser(v, v_delimiter)
@@ -419,6 +420,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
+
     def paramed(pair):
         f = formatter(pair[1], v_delimiter)
         if f is None:
@@ -445,6 +447,7 @@ class _TokenIdComparer:
     being compared by the start index and then by the end index, and decimal
     ids having the radix separated parts compared separately.
     """
+
     def __init__(self, token_id):
         """
         Create the comparer wrapping the given, assumed valid format, id.
@@ -619,9 +622,9 @@ class Token(Conllable):
     # Keys for sorting attribute-value columns. BY_ID converts the attribute
     # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
     # converts the pair to the lowercase version of the attribute.
-    BY_ID: ClassVar[Callable[[Tuple[
+    BY_ID: ClassVar[Callable[[tuple[
         str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(pair[0])
-    BY_CASE_INSENSITIVE: ClassVar[Callable[[Tuple[
+    BY_CASE_INSENSITIVE: ClassVar[Callable[[tuple[
         str, str]], str]] = lambda pair: pair[0].lower()
 
     def __init__(self, source: str, empty: bool = False) -> None:
@@ -678,18 +681,18 @@ class Token(Conllable):
 
         self.upos: Optional[str] = _unit_empty_map(fields[3], Token.EMPTY)
         self.xpos: Optional[str] = _unit_empty_map(fields[4], Token.EMPTY)
-        self.feats: Dict[str,
-                         Set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
+        self.feats: dict[str,
+                         set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
                                                      Token.COMPONENT_DELIMITER,
                                                      Token.AV_SEPARATOR,
                                                      Token.V_DELIMITER)
         self.head: Optional[str] = _unit_empty_map(fields[6], Token.EMPTY)
         self.deprel: Optional[str] = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps: Dict[str,
-                        Tuple[str, str, str, str]] = _dict_tupled_empty_map(
+        self.deps: dict[str,
+                        tuple[str, str, str, str]] = _dict_tupled_empty_map(
                             fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
                             Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
-        self.misc: Dict[str, Optional[Set[str]]] = _dict_mixed_empty_map(
+        self.misc: dict[str, Optional[set[str]]] = _dict_mixed_empty_map(
             fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
             Token.AV_SEPARATOR, Token.V_DELIMITER)
 

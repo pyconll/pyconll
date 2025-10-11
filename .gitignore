@@ -21,6 +21,3 @@ docs/_build
 # Editor files
 .vscode
 .*.swp
-
-# Temporary testing files
-__tmp__ud.conllu

@@ -2,7 +2,7 @@
 Defines the Conll type and the associated parsing and output logic.
 """
 
-from typing import Any, Iterable, Iterator, List, Union, MutableSequence, overload
+from typing import Any, Iterable, Iterator, MutableSequence, overload
 
 import pyconll._parser
 from pyconll.conllable import Conllable
@@ -17,6 +17,7 @@ class Conll(MutableSequence[Sentence], Conllable):
     specifies that the file must end in a new line but that requirement is
     relaxed here in parsing.
     """
+
     def __init__(self, it: Iterable[str]) -> None:
         """
         Create a CoNLL-U file collection of sentences.
@@ -28,7 +29,7 @@ class Conll(MutableSequence[Sentence], Conllable):
             ParseError: If there is an error constructing the sentences in the
                 iterator.
         """
-        self._sentences: List[Sentence] = []
+        self._sentences: list[Sentence] = []
 
         for sentence in pyconll._parser.iter_sentences(it):
             self._sentences.append(sentence)
@@ -99,8 +100,7 @@ class Conll(MutableSequence[Sentence], Conllable):
         Yields:
             An iterator over the sentences in this Conll object.
         """
-        for sentence in self._sentences:
-            yield sentence
+        yield from self._sentences
 
     @overload
     def __getitem__(self, key: int) -> Sentence:
@@ -156,7 +156,7 @@ class Conll(MutableSequence[Sentence], Conllable):
         """
         self._sentences[key] = item
 
-    def __delitem__(self, key: Union[int, slice]) -> None:
+    def __delitem__(self, key: int | slice) -> None:
         """
         Delete the Sentence corresponding with the given key.
 

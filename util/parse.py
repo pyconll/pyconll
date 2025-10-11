@@ -4,12 +4,11 @@ Currently this is information like version, which is specified once, but used in
 many areas like packaging and documentation generation.
 """
 
-from typing import Union
 from pathlib import Path
 import re
 
 
-def package_version(path: Union[str, Path]) -> str:
+def package_version(path: str | Path) -> str:
     """
     Parse the version from specified file, assumed to be a versioner module.
 

@@ -23,6 +23,7 @@ class TreeBuilder(Generic[T]):
     created from the same TreeBuilder, Tree nodes will be unique, but data on
     the nodes will be shallow copies.
     """
+
     def __init__(self) -> None:
         """
         Creates a new empty TreeBuilder, with no internal data.
