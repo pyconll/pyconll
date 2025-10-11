@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Fixed
 - Automated Conda release workflow.
+- Returned documentation theme back to as it was before 3.3.0 release.
 
 ## [3.3.0] - 2025-10-11
 ### Changed
