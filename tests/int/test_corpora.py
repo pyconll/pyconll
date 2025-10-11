@@ -271,7 +271,7 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str,
 
             # Just assume that extraction is successful and has the expected values if
             # the zip is as expected to remove one hashing round.
-            extract_tgz(zip_path, final_path)
+            extract_tgz(final_path, zip_path)
 
         return final_path
 
