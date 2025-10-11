@@ -258,8 +258,6 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str,
 
     def workflow(zip_path: Path, contents_path: Path) -> Path:
         final_path = contents_path / entry_id
-        fn = _get_filename_from_url(url)
-        zip_path = zip_path / fn
 
         def download():
             clean_subdir(contents_path, entry_id)
