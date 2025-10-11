@@ -238,7 +238,7 @@ def extract_tgz(p: Path, tgz: Path) -> None:
     """
     logging.info('Extracting tarfile to %s.', p)
     with tarfile.open(str(tgz)) as tf:
-        tf.extractall(str(p))
+        tf.extractall(str(p), filter="data")
 
 
 def url_zip(entry_id: str, contents_hash: str, zip_hash: str, url: str) -> Callable[[Path, Path], Path]:
