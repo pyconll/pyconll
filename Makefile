@@ -32,6 +32,8 @@ build:
 	python setup.py sdist bdist_wheel
 
 clean:
+	find . -path ./venv -prune -o -type d -name "__pycache__" -exec rm -rf {} +
+
 	if [ -d 'dist' ]; then \
 		rm -r dist; \
 	fi
