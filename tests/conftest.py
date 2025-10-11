@@ -3,7 +3,8 @@ def pytest_addoption(parser):
         '--corpora-versions',
         action='store',
         default='*',
-        help='The comma delimited list of corpora versions to run corpora tests on (or wildcard).'
+        help=
+        'The comma delimited list of corpora versions to run corpora tests on (or wildcard).'
     )
 
     parser.addoption(
