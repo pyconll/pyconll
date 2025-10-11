@@ -238,7 +238,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
         if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
             k = parts[0]
             v = None
-        elif len(parts) == 2:
+        else:
             k, v = parts
 
         parsed = parser(v, v_delimiter)

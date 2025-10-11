@@ -71,8 +71,7 @@ class Tree(Generic[T]):
         """
         Provides an iterator over the children.
         """
-        for child in self._children:
-            yield child
+        yield from self._children
 
     def __len__(self) -> int:
         """

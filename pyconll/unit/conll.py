@@ -100,8 +100,7 @@ class Conll(MutableSequence[Sentence], Conllable):
         Yields:
             An iterator over the sentences in this Conll object.
         """
-        for sentence in self._sentences:
-            yield sentence
+        yield from self._sentences
 
     @overload
     def __getitem__(self, key: int) -> Sentence:

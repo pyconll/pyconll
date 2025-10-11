@@ -303,8 +303,7 @@ class Sentence(Sequence[Token], Conllable):
         Iterate through all the tokens in the Sentence including multiword
         tokens.
         """
-        for token in self._tokens:
-            yield token
+        yield from self._tokens
 
     @overload
     def __getitem__(self, key: str) -> Token:
