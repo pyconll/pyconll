@@ -424,6 +424,15 @@ exceptions = {
 }
 CORPORA_CACHE = Path('tests/int/_corpora_cache')
 
+@pytest.fixture(scope="module", autouse=True)
+def create_corpora_cache() -> None:
+    req_dirs = [
+        CORPORA_CACHE,
+        CORPORA_CACHE / 'artifacts',
+        CORPORA_CACHE / 'corpora'
+    ]
+    for d in req_dirs:
+        d.mkdir(exist_ok=True)
 
 @pytest.fixture
 def corpus(request):

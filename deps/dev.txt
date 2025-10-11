@@ -1,5 +1,5 @@
 alabaster==0.7.12
-astroid==2.15.5
+astroid==3.3.11
 atomicwrites==1.4.0
 attrs==20.3.0
 Babel==2.9.0
@@ -7,7 +7,7 @@ certifi==2025.8.3
 chardet==4.0.0
 codespell==2.0.0
 colorama==0.4.6
-dill==0.3.6
+dill==0.4.0
 docutils==0.16
 exceptiongroup==1.1.1
 guppy3==3.1.5
@@ -22,14 +22,14 @@ mccabe==0.6.1
 more-itertools==4.2.0
 mypy==1.18.2
 mypy-extensions==1.0.0
-packaging==20.9
+packaging==25.0
 pathspec==0.12.1
 pipdeptree==2.9.0
 platformdirs==3.5.3
 pluggy==0.13.1
 pockets==0.6.2
 Pygments==2.7.4
-pylint==2.17.4
+pylint==3.3.9
 pyparsing==2.4.7
 pytest==7.3.2
 pytz==2021.1
@@ -48,9 +48,9 @@ sphinxcontrib-websupport==1.2.4
 toml==0.10.2
 tomli==2.0.1
 tomlkit==0.11.8
+typed_ast==1.5.4
 types-requests==2.25.1
 typing_extensions==4.6.3
 urllib3==1.26.20
-wrapt==1.14.1; python_version >= '3.11'
-wrapt==1.12.1; python_version < '3.11'
+wrapt==1.14.1
 yapf==0.43.0
