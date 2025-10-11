@@ -9,11 +9,11 @@ jobs:
     name: Release pyconll
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v2.3.2
+      - uses: actions/checkout@v5
       - name: Setup Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v6
         with:
-          python-version: 3.13
+          python-version: '3.12'
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
