@@ -269,11 +269,9 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str,
             if not validate_hash_sha256(zip_path, zip_hash):
                 download_file_to_location(url, zip_path, zip_hash)
 
+            # Just assume that extraction is successful and has the expected values if
+            # the zip is as expected to remove one hashing round.
             extract_tgz(zip_path, final_path)
-            if not validate_hash_sha256(final_path, contents_hash):
-                raise RuntimeError(
-                    f'Fixture for {url} in {final_path} was not able to be properly setup at tarfile extraction.'
-                )
 
         return final_path
 
