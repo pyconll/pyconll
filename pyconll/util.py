@@ -169,6 +169,7 @@ class _DependencyComparer:
     """
     Wrapper to compare dependency arcs.
     """
+
     def __init__(self, dep):
         """
         Creates the wrapper for this dependency.

@@ -252,6 +252,7 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str, url: str):
     Returns:
         The path of the fixture within the cache as the fixture value.
     """
+
     def workflow(fixture_cache: Path):
         final_path = fixture_cache / entry_id
         fn = _get_filename_from_url(url)

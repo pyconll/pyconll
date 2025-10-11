@@ -89,6 +89,7 @@ def _create_dict_tupled_empty_parse(size, strict):
         ParseError: If the parsing is strict and there is a component size
             mismatch, or if there are too many components in general.
     """
+
     def _dict_tupled_empty_parser(v, v_delimiter):
         """
         Map a value into the appropriate form, for a tupled based column.
@@ -419,6 +420,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
+
     def paramed(pair):
         f = formatter(pair[1], v_delimiter)
         if f is None:
@@ -445,6 +447,7 @@ class _TokenIdComparer:
     being compared by the start index and then by the end index, and decimal
     ids having the radix separated parts compared separately.
     """
+
     def __init__(self, token_id):
         """
         Create the comparer wrapping the given, assumed valid format, id.

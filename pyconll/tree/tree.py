@@ -18,6 +18,7 @@ class Tree(Generic[T]):
     module which is a sort of friend class of Tree to maintain its immutable
     public contract.
     """
+
     def __init__(self, data: T) -> None:
         """
         Create a tree holding the value. Create a larger Tree, with TreeBuilder.
