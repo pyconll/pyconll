@@ -210,22 +210,25 @@ def clean_subdir(direc, subdir):
         p.mkdir()
 
 
-def download_file_to_dir(url, direc):
+def download_file_to_location(url, location, hash_sha256):
     """
     Download a file (final name matching the URL) to a specified directory.
 
     Args:
         url: The url of the file to download
-        direc: The directory to download the file to.
+        location: The location or final destination name of the file.
+        hash_sha256: The hash of the file at the end to confirm successful download.
     """
-    tmp = direc / _get_filename_from_url(url)
-    if tmp.exists():
-        tmp.unlink()
-    logging.info('Starting to download %s to %s.', url, tmp)
-    download_file(url, tmp, 16384, 15)
-    logging.info('Download succeeded to %s.', tmp)
+    if location.exists():
+        location.unlink()
+    logging.info('Starting to download %s to %s.', url, location)
+    download_file(url, location, 16384, 15)
+    logging.info('Download succeeded to %s.', location)
 
-    return tmp
+    if not validate_hash_sha256(location, hash_sha256):
+        raise RuntimeError(
+            f"Not able to successfully download url {url} to location {location}."
+        )
 
 
 def extract_tgz(p: Path, tgz: Path) -> None:
@@ -256,34 +259,22 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str,
         The path of the fixture within the cache as the fixture value.
     """
 
-    def workflow(zip_path: Path, contents_path: Path) -> Path:
+    def workflow(artifacts_path: Path, contents_path: Path) -> Path:
         final_path = contents_path / entry_id
+        fn = _get_filename_from_url(url)
+        zip_path = artifacts_path / fn
 
-        def download():
+        if not validate_hash_sha256(final_path, contents_hash):
             clean_subdir(contents_path, entry_id)
-            downloaded_to = download_file_to_dir(url, zip_path)
-            extract_tgz(downloaded_to, final_path)
+            if not validate_hash_sha256(zip_path, zip_hash):
+                download_file_to_location(url, zip_path, zip_hash)
 
-            if validate_hash_sha256(final_path, contents_hash):
-                return final_path
+            extract_tgz(zip_path, final_path)
+            if not validate_hash_sha256(final_path, contents_hash):
+                raise RuntimeError(
+                    f'Fixture for {url} in {final_path} was not able to be properly setup at tarfile extraction.'
+                )
 
-            raise RuntimeError(
-                f'Fixture for {url} in {final_path} was not able to be properly setup.'
-            )
-
-        if validate_hash_sha256(final_path, contents_hash):
-            return final_path
-
-        if not validate_hash_sha256(zip_path, zip_hash):
-            download()
-            return final_path
-
-        extract_tgz(final_path, zip_path)
-        if validate_hash_sha256(final_path, contents_hash):
-            return final_path
-
-        zip_path.unlink()
-        download()
         return final_path
 
     return workflow
