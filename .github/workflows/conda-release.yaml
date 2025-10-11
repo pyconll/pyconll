@@ -18,6 +18,7 @@ jobs:
         uses: s-weigand/setup-conda@v1
         with:
           activate-conda: true
+          python-version: '3.12'
       - name: Install conda dependencies
         run: |
           conda install conda-build
