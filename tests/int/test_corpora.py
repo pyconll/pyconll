@@ -265,7 +265,9 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str, url: str):
             if validate_hash_sha256(final_path, contents_hash):
                 return final_path
 
-            raise RuntimeError(f'Fixture for {url} in {final_path} was not able to be properly setup.')
+            raise RuntimeError(
+                f'Fixture for {url} in {final_path} was not able to be properly setup.'
+            )
 
         if validate_hash_sha256(final_path, contents_hash):
             return final_path
@@ -292,14 +294,62 @@ def url_zip(entry_id: str, contents_hash: str, zip_hash: str, url: str):
 # some tweaking of what structure works best, but this is a definite improvement
 # and is on a path toward more flexibility and robustness.
 corpora = {
-    '2.16': url_zip('2.16', '6b38dc116ec0da5177b8808e5bead78a4d85cdd47ce007eede99df25b48b27e9', '87710204b6441736a8a9fed779585aa88b6eeafe231fa2ed9282c0cd9e30960b', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5901/ud-treebanks-v2.16.tgz'),
-    '2.15': url_zip('2.15', 'f84959120d53a701325ba15b3abcb819be8ceda3d1ec6d5edbeda7b5f8b3a358', '24DDD9A7E6A291F3882C13FEBB4D97ACCFBC6F51633A867963C19E6004D7DF97', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5787/ud-treebanks-v2.15.tgz'),
-    '2.14': url_zip('2.14', 'f6dc84752cce6087b26fd97522dd7171df82492c1004d80e2f6f0224a750c7e5', 'A710E09F977FC1CA4AEAF200806A75FBBC46D2C0717C70933A94AD78129EE1AF', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5502/ud-treebanks-v2.14.tgz'),
-    '2.13': url_zip('2.13', '57c44ceda3d7b89bc9f84238b73363d09a1d895f34b29e1dad4a5e6e3d1f0cea', 'D6538ED4C05508BE3BB7D9C3448DE1062F6F9958C833B93558DF300E4B1D3781', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5287/ud-treebanks-v2.13.tgz'),
-    '2.12': url_zip('2.12', '68152f141a2653a183865cef4ddc64ae146c76fd6effd724c99c2145c80f213c', '24F876D5AD9DBDC639A33A73F02D12DDFE582E8D4E7F5D08978C8A86680D088C', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5150/ud-treebanks-v2.12.tgz'),
-    '2.11': url_zip('2.11', '59a87cfbb82524d6dbf4aa27c0c8a8d35fd3e5d3cca3493875a6c4b2c5031a40', 'D75F7DF726761836F797FE6C001C7A1ECCE93D93129414EF57CF2262D15707E8', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4923/ud-treebanks-v2.11.tgz'),
-    '2.10': url_zip('2.10', '572d09f96d52a949750e99caa36519daa3fac366a7643d97e37498873c2ad104', 'F6DECA6AB803ABDFA8DCA911600F6BC5F214267E348ACBD59FD4C4B88DB14EA6', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4758/ud-treebanks-v2.10.tgz'),
-    '2.9': url_zip('2.9', '7fed278e47358be198303e51f1afca9d77985db550d69c685bbcd5d066d78915', 'CA0162BE47151A55A5C6C5DE24DB821C76D67F322FCDFA3FE1436891E9BF2232', 'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4611/ud-treebanks-v2.9.tgz'),
+    '2.16':
+    url_zip(
+        '2.16',
+        '6b38dc116ec0da5177b8808e5bead78a4d85cdd47ce007eede99df25b48b27e9',
+        '87710204b6441736a8a9fed779585aa88b6eeafe231fa2ed9282c0cd9e30960b',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5901/ud-treebanks-v2.16.tgz'
+    ),
+    '2.15':
+    url_zip(
+        '2.15',
+        'f84959120d53a701325ba15b3abcb819be8ceda3d1ec6d5edbeda7b5f8b3a358',
+        '24DDD9A7E6A291F3882C13FEBB4D97ACCFBC6F51633A867963C19E6004D7DF97',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5787/ud-treebanks-v2.15.tgz'
+    ),
+    '2.14':
+    url_zip(
+        '2.14',
+        'f6dc84752cce6087b26fd97522dd7171df82492c1004d80e2f6f0224a750c7e5',
+        'A710E09F977FC1CA4AEAF200806A75FBBC46D2C0717C70933A94AD78129EE1AF',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5502/ud-treebanks-v2.14.tgz'
+    ),
+    '2.13':
+    url_zip(
+        '2.13',
+        '57c44ceda3d7b89bc9f84238b73363d09a1d895f34b29e1dad4a5e6e3d1f0cea',
+        'D6538ED4C05508BE3BB7D9C3448DE1062F6F9958C833B93558DF300E4B1D3781',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5287/ud-treebanks-v2.13.tgz'
+    ),
+    '2.12':
+    url_zip(
+        '2.12',
+        '68152f141a2653a183865cef4ddc64ae146c76fd6effd724c99c2145c80f213c',
+        '24F876D5AD9DBDC639A33A73F02D12DDFE582E8D4E7F5D08978C8A86680D088C',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5150/ud-treebanks-v2.12.tgz'
+    ),
+    '2.11':
+    url_zip(
+        '2.11',
+        '59a87cfbb82524d6dbf4aa27c0c8a8d35fd3e5d3cca3493875a6c4b2c5031a40',
+        'D75F7DF726761836F797FE6C001C7A1ECCE93D93129414EF57CF2262D15707E8',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4923/ud-treebanks-v2.11.tgz'
+    ),
+    '2.10':
+    url_zip(
+        '2.10',
+        '572d09f96d52a949750e99caa36519daa3fac366a7643d97e37498873c2ad104',
+        'F6DECA6AB803ABDFA8DCA911600F6BC5F214267E348ACBD59FD4C4B88DB14EA6',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4758/ud-treebanks-v2.10.tgz'
+    ),
+    '2.9':
+    url_zip(
+        '2.9',
+        '7fed278e47358be198303e51f1afca9d77985db550d69c685bbcd5d066d78915',
+        'CA0162BE47151A55A5C6C5DE24DB821C76D67F322FCDFA3FE1436891E9BF2232',
+        'https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-4611/ud-treebanks-v2.9.tgz'
+    ),
     '2.8':
     url_zip(
         '2.8',
@@ -412,7 +462,10 @@ def pytest_generate_tests(metafunc):
             mark = marks.get(fixture_name)
 
             if mark:
-                p = pytest.param(fixture_exec, exc, marks=mark, id=fixture_name)
+                p = pytest.param(fixture_exec,
+                                 exc,
+                                 marks=mark,
+                                 id=fixture_name)
             else:
                 p = pytest.param(fixture_exec, exc, id=fixture_name)
 
@@ -459,7 +512,8 @@ def _test_treebank(treebank_path: Path, do_write: bool) -> None:
     treebank = pyconll.iter_from_file(treebank_path)
 
     if do_write:
-        with tempfile.TemporaryFile(mode='w', encoding='utf-8') as tmp_output_file:
+        with tempfile.TemporaryFile(mode='w',
+                                    encoding='utf-8') as tmp_output_file:
             for sentence in treebank:
                 tmp_output_file.write(sentence.conll())
                 tmp_output_file.write('\n\n')
