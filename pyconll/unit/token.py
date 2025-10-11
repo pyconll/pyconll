@@ -78,7 +78,7 @@ def _create_dict_tupled_empty_parse(size, strict):
 
     Args:
         size: The expected size of the tuple.
-        strict: Flag to signifiy if parsed values with less components than size
+        strict: Flag to signify if parsed values with less components than size
             will be accepted. In this case, missing values will be supplated
             with None.
 
