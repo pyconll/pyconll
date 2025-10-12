@@ -29,7 +29,7 @@ pip install pyconll
 conda install -c pyconll pyconll
 ```
 
-pyconll supports Python 3.10 or newer. In general, pyconll will focus development efforts on officially supported python versions.
+The 4.0 release of pyconll supports Python 3.12 or newer. Earlier releases cover other LTS Python versions but 4.0 introduced a large revamp to Pyconll which significantly improved parsing flexibility, improved efficiency, and improved the object model to better align with actual usage. It is recommended to move to this version if possible, and only bug patches will be taken on pre-4.0 versions.
 
 
 ### Use

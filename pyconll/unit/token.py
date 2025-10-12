@@ -367,7 +367,7 @@ class Token(Conllable):
     """
 
     __slots__ = [
-        'id', '_form', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel',
+        'id', 'form', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel',
         'deps', 'misc'
     ]
 
