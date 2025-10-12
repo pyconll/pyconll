@@ -5,6 +5,5 @@ and python code.
 
 __all__ = ['conllable', 'exception', 'load', 'tree', 'unit', 'util']
 
-from .load import load_from_string, load_from_file, load_from_resource, \
-       iter_from_string, iter_from_file, iter_from_resource
+from .load import Parser, get_default_parser
 from ._version import __version__

@@ -491,7 +491,7 @@ def _test_treebank(treebank_path: Path, skip_write: bool) -> None:
 
     logging.info('Starting to parse %s', treebank_path)
 
-    treebank = pyconll.iter_from_file(treebank_path)
+    treebank = pyconll.get_default_parser().iter_from_file(treebank_path)
 
     if not skip_write:
         with tempfile.TemporaryFile(mode='w',
