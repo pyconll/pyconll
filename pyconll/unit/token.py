@@ -9,242 +9,7 @@ import math
 from typing import Callable, ClassVar, Optional
 
 from pyconll.conllable import Conllable
-from pyconll.exception import FormatError, ParseError
-
-
-def _unit_empty_map(value, empty):
-    """
-    Map unit values for CoNLL-U columns to a string or None if empty.
-
-    Args:
-        value: The value to map.
-        empty: The empty representation for this unit.
-
-    Returns:
-        None if value is empty and value otherwise.
-    """
-    return None if value == empty else value
-
-
-def _dict_empty_map_parser(v, v_delimiter):
-    """
-    Map a value into the appropriate form, for a standard dict based column.
-
-    Args:
-        v: The raw string value that was parsed from the column as a value.
-        v_delimiter: The delimiter between components of the value.
-
-    Returns:
-        The parsed value, as a set of its components.
-
-    Raises:
-        ParseError: If there was an error parsing the value. This happens when
-            the value is None.
-    """
-    if v is not None:
-        vs = set(v.split(v_delimiter))
-        return vs
-
-    error_msg = f'Error parsing "{v}" properly. Please check against CoNLL format spec.'
-    raise ParseError(error_msg)
-
-
-def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
-    """
-    Map dict values for CoNLL-U columns to a dict or empty dict if empty.
-
-    Args:
-        values: The value to check for existence.
-        empty: The empty representation for this dict.
-        delim: The delimiter between components in the provided value.
-        av_separator: The attribute-value separator for each component.
-        v_delimiter: The delimiter between values for the same attribute.
-
-    Returns:
-        An empty dict if value is empty. Otherwise, a dict of key-value where
-        the values are sets.
-
-    Raises:
-        ParseError: If the dict format was unable to parsed, because of a lack
-            of a value.
-    """
-    return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_empty_map_parser)
-
-
-def _create_dict_tupled_empty_parse(size, strict):
-    """
-    Parameterized creation of a parser for tupled values.
-
-    Args:
-        size: The expected size of the tuple.
-        strict: Flag to signify if parsed values with less components than size
-            will be accepted. In this case, missing values will be supplated
-            with None.
-
-    Returns:
-        The parameterized parser function for parsing tupled columns.
-
-    Raises:
-        ParseError: If the parsing is strict and there is a component size
-            mismatch, or if there are too many components in general.
-    """
-
-    def _dict_tupled_empty_parser(v, v_delimiter):
-        """
-        Map a value into the appropriate form, for a tupled based column.
-
-        Args:
-            v: The raw string value parsed from a column.
-            v_delimiter: The delimiter between components of the value.
-
-        Returns:
-            The parsed value as a tuple.
-
-        Raises:
-            ParseError: If there was an error parsing the value as a tuple.
-        """
-        if v is None:
-            raise ParseError(
-                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
-                ' format spec')
-
-        components = v.split(v_delimiter)
-        left = size - len(components)
-
-        if not strict and 0 <= left < size:
-            vs = tuple(components + [None] * left)
-        else:
-            raise ParseError(
-                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
-                ' format spec.')
-
-        return vs
-
-    return _dict_tupled_empty_parser
-
-
-TUPLE_PARSER_MEMOIZE: dict[int, Callable[[str, str], tuple[Optional[str],
-                                                           ...]]] = {}
-
-
-def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
-                           size):
-    """
-    Map dict based values for CoNLL-U columns to a dict with tupled values.
-
-    Tupled values are those with a maximum number of components, which is also
-    greater than 1.
-
-    Args:
-        values: The value to parse.
-        empty: The empty representation for this value in CoNLL format.
-        delim: The delimiter between components in the value.
-        av_separator: The separator between the attribute and value in each
-            component.
-        v_delimiter: The delimiter between values for the same attribute.
-        size: The maximum size of the tuple. Components with less values than
-            this will be supplanted with None.
-
-    Returns:
-        An empty dict if values was empty. Otherwise, a dictionary with fixed
-        length tuples as the values.
-
-    Raises:
-        ParseError: If there was an error parsing the tuple. Related to the
-            number of components.
-    """
-    try:
-        parser = TUPLE_PARSER_MEMOIZE[size]
-    except KeyError:
-        parser = _create_dict_tupled_empty_parse(size, False)
-        TUPLE_PARSER_MEMOIZE[size] = parser
-
-    return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, parser)
-
-
-def _dict_mixed_empty_parser(v, v_delimiter):
-    """
-    Parse a value into the appropriate form, for a mixed value based column.
-
-    Args:
-        v: The raw string value parsed from a column.
-        v_delimiter: The delimiter between components of the value.
-
-    Returns:
-        The parsed value, which can either be None in the case of no
-        corresponding value, or a set of the components in the value.
-    """
-    if v is None:
-        return v
-
-    vs = set(v.split(v_delimiter))
-    return vs
-
-
-def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
-    """
-    Map dict based values for CoNLL-U columns to dict with mixed values.
-
-    Mixed values are those that can be either singletons or sets.
-
-    Args:
-        values: The value to parse.
-        empty: The empty representation for this value in CoNLL-U format.
-        delim: The delimiter between components in the value.
-        av_separator: The separator between attribute and value in each
-            component.
-        v_delimiter: The delimiter between values for the same attribute.
-
-    Returns:
-        An empty dict if values is empty. Otherwise, a dictionary with either
-        None, or a set of strings as the values.
-
-    Raises:
-        ParseError: If the dict format was unable to parsed.
-    """
-    return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_mixed_empty_parser)
-
-
-def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           parser):
-    """
-    A helper to consolidate logic between singleton and non-singleton mapping.
-
-    Args:
-        values: The value to parse.
-        empty: The empty representation for this value in CoNLL-U format.
-        delim: The delimiter between components of the value.
-        av_separator: The separator between attribute and value in each
-            component.
-        v_delimiter: The delimiter between values for the same attribute.
-        parser: The parser of the value from the attribute value pair.
-
-    Returns:
-        An empty dict if the value is empty and otherwise a parsed equivalent.
-
-    Raises:
-        ParseError: If the dict format was unable to parsed. This error will be
-            raised by the provided parser.
-    """
-    if values == empty:
-        return {}
-
-    d = {}
-    for el in values.split(delim):
-        parts = el.split(av_separator, 1)
-        if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
-            k = parts[0]
-            v = None
-        else:
-            k, v = parts
-
-        parsed = parser(v, v_delimiter)
-        d[k] = parsed
-
-    return d
+from pyconll.exception import FormatError
 
 
 def _unit_conll_map(value, empty):
@@ -627,74 +392,48 @@ class Token(Conllable):
     BY_CASE_INSENSITIVE: ClassVar[Callable[[tuple[
         str, str]], str]] = lambda pair: pair[0].lower()
 
-    def __init__(self, source: str, empty: bool = False) -> None:
+    def __init__(
+        self,
+        token_id: str,
+        form: Optional[str],
+        lemma: Optional[str],
+        upos: Optional[str],
+        xpos: Optional[str],
+        feats: dict[str, set[str]],
+        head: Optional[str],
+        deprel: Optional[str],
+        deps: dict[str, tuple[str, str, str, str]],
+        misc: dict[str, Optional[set[str]]],
+    ) -> None:
         """
-        Construct a Token from the given source line.
+        Construct a Token from the given parsed fields.
 
-        A Token line ends in an an LF line break according to the CoNLL-U
-        specification. However, this method accepts a line with or without the
-        LF line break.
-
-        On parsing, a '_' in the form and lemma is ambiguous and either refers
-        to an empty value or to an actual underscore. The empty parameter flag
-        controls how this situation should be handled.
-
-        This method also guarantees properly processing valid input, but invalid
-        input may not be parsed properly. Some inputs that do not follow the
-        CoNLL-U specification may still be parsed properly and as expected. So
-        proper parsing is not an indication of validity.
+        This constructor accepts the 10 CoNLL-U fields as separate arguments,
+        with parsing already performed. The fields should be in their internal
+        representation (e.g., dicts for feats, deps, misc).
 
         Args:
-            line: The line that represents the Token in CoNLL-U format.
-            empty: A flag to control if the word form and lemma can be assumed
-                to be empty and not the token signifying empty. If both the form
-                and lemma are underscores and empty is set to False (there is no
-                empty assumption), then the form and lemma will be underscores
-                rather than None.
-
-        Raises:
-            ParseError: On various parsing errors, such as not enough columns or
-                improper column values.
+            token_id: The token ID field.
+            form: The word form or None if empty.
+            lemma: The lemma or None if empty.
+            upos: The universal part-of-speech tag or None if empty.
+            xpos: The language-specific part-of-speech tag or None if empty.
+            feats: The morphological features as a dict.
+            head: The head of the current token or None if empty.
+            deprel: The dependency relation or None if empty.
+            deps: The enhanced dependencies as a dict.
+            misc: Any other annotation as a dict.
         """
-        if source[-1] == '\n':
-            source = source[:-1]
-
-        fields = source.split(Token.FIELD_DELIMITER)
-
-        if len(fields) != 10:
-            error_msg = f'The number of columns per token line must be 10. Invalid token: {source}'
-            raise ParseError(error_msg)
-
-        # Assign all the field values from the line to internal equivalents.
-        self.id: str = fields[0]
-
-        # If we can assume the form and lemma are empty, or if either of the
-        # fields are not the empty token, then we can proceed as usual.
-        # Otherwise, these empty tokens might not mean empty, but rather the
-        # actual tokens.
-        if empty or (fields[1] != Token.EMPTY or fields[2] != Token.EMPTY):
-            self._form: Optional[str] = _unit_empty_map(fields[1], Token.EMPTY)
-            self.lemma: Optional[str] = _unit_empty_map(fields[2], Token.EMPTY)
-        else:
-            self._form = fields[1]
-            self.lemma = fields[2]
-
-        self.upos: Optional[str] = _unit_empty_map(fields[3], Token.EMPTY)
-        self.xpos: Optional[str] = _unit_empty_map(fields[4], Token.EMPTY)
-        self.feats: dict[str,
-                         set[str]] = _dict_empty_map(fields[5], Token.EMPTY,
-                                                     Token.COMPONENT_DELIMITER,
-                                                     Token.AV_SEPARATOR,
-                                                     Token.V_DELIMITER)
-        self.head: Optional[str] = _unit_empty_map(fields[6], Token.EMPTY)
-        self.deprel: Optional[str] = _unit_empty_map(fields[7], Token.EMPTY)
-        self.deps: dict[str,
-                        tuple[str, str, str, str]] = _dict_tupled_empty_map(
-                            fields[8], Token.EMPTY, Token.COMPONENT_DELIMITER,
-                            Token.AV_DEPS_SEPARATOR, Token.V_DEPS_DELIMITER, 4)
-        self.misc: dict[str, Optional[set[str]]] = _dict_mixed_empty_map(
-            fields[9], Token.EMPTY, Token.COMPONENT_DELIMITER,
-            Token.AV_SEPARATOR, Token.V_DELIMITER)
+        self.id: str = token_id
+        self._form: Optional[str] = form
+        self.lemma: Optional[str] = lemma
+        self.upos: Optional[str] = upos
+        self.xpos: Optional[str] = xpos
+        self.feats: dict[str, set[str]] = feats
+        self.head: Optional[str] = head
+        self.deprel: Optional[str] = deprel
+        self.deps: dict[str, tuple[str, str, str, str]] = deps
+        self.misc: dict[str, Optional[set[str]]] = misc
 
     @property
     def form(self) -> Optional[str]:

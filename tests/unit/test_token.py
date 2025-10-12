@@ -1,9 +1,10 @@
 import pytest
 
-from pyconll.unit.token import Token
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
+from pyconll._token_parsing import _parse_token
+from pyconll.unit.token import Token
 
 
 def test_construction():
@@ -11,7 +12,7 @@ def test_construction():
     Test the normal construction of a general token.
     """
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
         'Gender': set(('Fem', )),
@@ -24,7 +25,7 @@ def test_construction_no_newline():
     Test the construction of a token with no newline at the end of the line.
     """
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '7', 'vie', 'vie', 'NOUN', None, {
         'Gender': set(('Fem', )),
@@ -37,7 +38,7 @@ def test_only_form_and_lemma():
     Test construction when token line only has a form and lemma.
     """
     token_line = '10.1	micro-pays	micro-pays	_	_	_	_	_	_	_\n'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '10.1', 'micro-pays', 'micro-pays', None, None,
                          {}, None, None, {}, {})
@@ -48,7 +49,7 @@ def test_form_readonly():
     Test that the word form for a Token is readonly.
     """
     token_line = '7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     with pytest.raises(AttributeError):
         token.form = 'vi'
@@ -60,7 +61,7 @@ def test_multiple_features_modify():
     """
     token_line = '28	une	un	DET	_	' \
         'Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	30	det	_	_\n'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(
         token, '28', 'une', 'un', 'DET', None, {
@@ -87,7 +88,7 @@ def test_deps_construction():
     Test construction of a token when the deps field is present.
     """
     token_line = '1	They	they	PRON	PRP	Case=Nom|Number=Plur	2	nsubj	2:nsubj|4:nsubj	_\n'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '1', 'They', 'they', 'PRON', 'PRP', {
         'Case': set(('Nom', )),
@@ -103,7 +104,7 @@ def test_multiword_construction():
     Test the creation of a token that is a multiword token line.
     """
     token_line = '8-9	du	_	_	_	_	_	_	_	_'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '8-9', 'du', None, None, None, {}, None, None,
                          {}, {})
@@ -116,7 +117,7 @@ def test_to_string():
     """
     token_line =  '26	surmonté	surmonter	VERB	_	' \
         'Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert token.conll() == token_line
 
@@ -127,7 +128,7 @@ def test_modify_unit_field_to_string():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
         '30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     token.lemma = 'pain'
 
@@ -143,7 +144,7 @@ def test_modify_dict_field_to_string():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
         '30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     token.feats['Gender'].add('Fem')
 
@@ -159,7 +160,7 @@ def test_remove_feature_to_string():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
         '30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     del token.feats['Gender']
 
@@ -174,7 +175,7 @@ def test_underscore_construction():
     Test construction of token without empty assumption and no form or lemma.
     """
     token_line = '33	_	_	PUN	_	_	30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '33', '_', '_', 'PUN', None, {}, '30', 'nmod',
                          {}, {'SpaceAfter': set(('No', ))})
@@ -185,7 +186,7 @@ def test_empty_form_present_lemma():
     Test construction of token without empty assumption and no form but a present lemma.
     """
     token_line = '33	hate	_	VERB	_	_	30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '33', 'hate', None, 'VERB', None, {}, '30',
                          'nmod', {}, {'SpaceAfter': set(('No', ))})
@@ -196,7 +197,7 @@ def test_empty_lemma_present_form():
     Test construction of token without empty assumption and no lemma but a present form.
     """
     token_line = '33	_	hate	VERB	_	_	30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert_token_members(token, '33', None, 'hate', 'VERB', None, {}, '30',
                          'nmod', {}, {'SpaceAfter': set(('No', ))})
@@ -204,10 +205,10 @@ def test_empty_lemma_present_form():
 
 def test_empty_lemma_empty_form_with_assumption():
     """
-    Test that a Token with no form or lemma  with the empty assumption gets values of None.
+    Test that a Token with no form or lemma with the empty assumption gets values of None.
     """
     token_line = '33	_	_	SYM	_	_	30	punct	_	SpaceAfter=No'
-    token = Token(token_line, empty=True)
+    token = _parse_token(token_line, empty=True)
 
     assert_token_members(token, '33', None, None, 'SYM', None, {}, '30',
                          'punct', {}, {'SpaceAfter': set(('No', ))})
@@ -220,7 +221,7 @@ def test_improper_source():
     token_line = '33	hate	_	VERB	_	_	30	nmod	_'
 
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_misc_parsing():
@@ -229,7 +230,7 @@ def test_misc_parsing():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
         '30	nmod	_	SpaceAfter=No|French|Independent=P,Q'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert 'SpaceAfter' in token.misc
     assert 'French' in token.misc
@@ -246,7 +247,7 @@ def test_deps_parsing():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	' \
         '30	nmod	2:nsubj|4:nmod	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert token.deps['2'] == ('nsubj', None, None, None)
     assert token.deps['4'] == ('nmod', None, None, None)
@@ -260,7 +261,7 @@ def test_invalid_token():
     token_line = '33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	'
 
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_invalid_token_feats():
@@ -271,7 +272,7 @@ def test_invalid_token_feats():
         '30	nmod	_	SpaceAfter=No|French|Independent=P,Q'
 
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_invalid_token_deps():
@@ -280,7 +281,7 @@ def test_invalid_token_deps():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert token.misc['SpaceAfter'] == set(('No', ))
 
@@ -291,7 +292,7 @@ def test_enhanced_deps_parsing():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj,noun|4:root	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert token.deps['2'] == ('nsubj,noun', None, None, None)
     assert token.deps['4'] == ('root', None, None, None)
@@ -304,7 +305,7 @@ def test_enhanced_deps_parsing_invalid():
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4	SpaceAfter=No'
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_misc_parsing_output():
@@ -313,7 +314,7 @@ def test_misc_parsing_output():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     token.misc['Independent'] = None
     token.misc['SpaceAfter'].add('Yes')
@@ -334,7 +335,7 @@ def test_del_values():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     del token.feats['Gender']
     del token.misc['SpaceAfter']
@@ -353,7 +354,7 @@ def test_deps_max_size():
         '30	nmod	2:nsubj:another:field:here:andhere:j	SpaceAfter=No'
 
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_empty_set_format_error():
@@ -362,7 +363,7 @@ def test_empty_set_format_error():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     token.feats['Gender'].pop()
 
@@ -376,7 +377,7 @@ def test_all_empty_deps_component_error():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj|4:root	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     cur_list = [None] + list(token.deps['2'][1:])
     token.deps['2'] = cur_list
@@ -391,7 +392,7 @@ def test_all_deps_components():
     """
     token_line = '33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	' \
         '30	nmod	2:nsubj:another:and:another|4:root	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
 
     assert token.deps['2'] == ('nsubj', 'another', 'and', 'another')
 
@@ -404,7 +405,7 @@ def test_empty_deps():
         '30	nmod	2:|4:root	SpaceAfter=No'
 
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_no_empty_deps():
@@ -415,7 +416,7 @@ def test_no_empty_deps():
         '30	nmod	2:nsubj|4	SpaceAfter=No'
 
     with pytest.raises(ParseError):
-        token = Token(token_line)
+        token = _parse_token(token_line)
 
 
 def test_feats_keep_case_insensitive_order():
@@ -424,7 +425,7 @@ def test_feats_keep_case_insensitive_order():
     """
     token_line = '10	gave	give	VERB	_	gender=Fem|Number=Sing	' \
         '0	root	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
     conll = token.conll()
 
     assert conll == token_line
@@ -436,7 +437,7 @@ def test_feats_induce_case_insensitive_order():
     """
     token_line = '10	gave	give	VERB	_	Number=Sing|gender=Fem	' \
         '0	root	_	SpaceAfter=No'
-    token = Token(token_line)
+    token = _parse_token(token_line)
     conll = token.conll()
 
     formatted_line = '10	gave	give	VERB	_	gender=Fem|Number=Sing	' \
@@ -452,7 +453,7 @@ def test_deps_sort_order():
     token_line = '10	gave	give	VERB	_	Number=Sing|Gender=Fem	' \
             '0	root	4:nsubj|2:nmod	SpaceAfter=No'
 
-    token = Token(token_line)
+    token = _parse_token(token_line)
     conll = token.conll()
 
     formatted_line = '10	gave	give	VERB	_	Gender=Fem|Number=Sing	' \
@@ -468,7 +469,7 @@ def test_deps_sort_order_double_digits():
     token_line = '10	gave	give	VERB	_	Number=Sing|Gender=Fem	' \
             '0	root	10:nsubj|2:nmod	SpaceAfter=No'
 
-    token = Token(token_line)
+    token = _parse_token(token_line)
     conll = token.conll()
 
     formatted_line = '10	gave	give	VERB	_	Gender=Fem|Number=Sing	' \
@@ -484,7 +485,7 @@ def test_deps_sort_order_decimal():
     token_line = '10	gave	give	VERB	_	Number=Sing|Gender=Fem	' \
             '0	root	10.2:nsubj|2:nmod|10.1:nsubj	SpaceAfter=No'
 
-    token = Token(token_line)
+    token = _parse_token(token_line)
     conll = token.conll()
 
     formatted_line = '10	gave	give	VERB	_	Gender=Fem|Number=Sing	' \
