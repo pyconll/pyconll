@@ -11,13 +11,7 @@ from pyconll.exception import FormatError, ParseError
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
-from pyconll._token_parsing import (
-    _unit_empty_map,
-    _dict_empty_map,
-    _dict_tupled_empty_map,
-    _dict_mixed_empty_map,
-    _parse_token,
-)
+from pyconll._token_parsing import _parse_token
 
 
 class Sentence(Sequence[Token], Conllable):
@@ -89,11 +83,16 @@ class Sentence(Sequence[Token], Conllable):
                             k = singleton_match.group(1)
                             self._meta[k] = None
                 else:
-                    token = _parse_token(line)
-                    self._tokens.append(token)
-
-                    if token.id is not None:
-                        self._ids_to_indexes[token.id] = len(self._tokens) - 1
+                    try:
+                        token = _parse_token(line)
+                        self._tokens.append(token)
+                        if token.id is not None:
+                            self._ids_to_indexes[token.id] = len(
+                                self._tokens) - 1
+                    except ParseError as exc:
+                        raise ParseError(
+                            f'Error creating token on line {i} for the current sentence'
+                        ) from exc
 
     @property
     def id(self) -> Optional[str]:

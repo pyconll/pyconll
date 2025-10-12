@@ -291,5 +291,5 @@ def _parse_token(line: str, empty: bool = False) -> Token:
     deps = _dict_tupled_empty_map(fields[8], '_', '|', ':', ':', 4)
     misc = _dict_mixed_empty_map(fields[9], '_', '|', '=', ',')
 
-    return Token(token_id, form, lemma, upos, xpos, feats, head, deprel,
-                    deps, misc)
+    return Token(token_id, form, lemma, upos, xpos, feats, head, deprel, deps,
+                 misc)

@@ -425,7 +425,7 @@ class Token(Conllable):
             misc: Any other annotation as a dict.
         """
         self.id: str = token_id
-        self._form: Optional[str] = form
+        self.form: Optional[str] = form
         self.lemma: Optional[str] = lemma
         self.upos: Optional[str] = upos
         self.xpos: Optional[str] = xpos
@@ -434,16 +434,6 @@ class Token(Conllable):
         self.deprel: Optional[str] = deprel
         self.deps: dict[str, tuple[str, str, str, str]] = deps
         self.misc: dict[str, Optional[set[str]]] = misc
-
-    @property
-    def form(self) -> Optional[str]:
-        """
-        Provide the word form of this Token. This property is read only.
-
-        Returns:
-            The Token form.
-        """
-        return self._form
 
     def is_multiword(self) -> bool:
         """
