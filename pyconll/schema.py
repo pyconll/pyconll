@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, Optional, Protocol, TYPE_CHECKING, Union, Unpack
+from typing import Callable, Optional, Protocol, Type, TYPE_CHECKING, Union, Unpack
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRichComparisonT
@@ -30,7 +30,9 @@ class array_tuple[*Ts](FieldDescriptor):
     delimiter: str
     el_mapper: Optional[FieldDescriptor | Callable[[int, str], Union[Unpack[*Ts]]]] = field(default=None, kw_only=True)
 
-class ConlluToken(Protocol):
+class TokenProtocol(Protocol): pass
+
+class ConlluToken(TokenProtocol):
     id: str
     form: Optional[str] = optional[str]('_')
     lemma: Optional[str] = optional[str]('_')
@@ -70,3 +72,8 @@ class ConlluToken(Protocol):
             True if this token is an empty node and False otherwise.
         """
         return '.' in self.id
+
+
+_compiled_schemas: dict[Type, Callable[[str], TokenProtocol]] = {}
+def compile_token_schema[S]() -> Callable[[str], S]:
+    pass
