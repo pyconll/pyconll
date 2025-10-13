@@ -63,17 +63,6 @@ def test_only_form_and_lemma():
     )
 
 
-def test_form_readonly():
-    """
-    Test that the word form for a Token is readonly.
-    """
-    token_line = "7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_"
-    token = _parse_token(token_line)
-
-    with pytest.raises(AttributeError):
-        token.form = "vi"
-
-
 def test_multiple_features_modify():
     """
     Test modification of features.

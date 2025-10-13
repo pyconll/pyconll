@@ -4,14 +4,14 @@ Defines the Sentence type and the associated parsing and output logic.
 
 from collections import OrderedDict
 import re
-from typing import ClassVar, Iterator, Optional, Sequence, overload
+from typing import Callable, ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
+from pyconll._schema import ConlluToken, compile_token_parser
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
-from pyconll._token_parsing import _parse_token
 
 
 class Sentence(Sequence[Token], Conllable):
@@ -64,6 +64,8 @@ class Sentence(Sequence[Token], Conllable):
         self._tokens: list[Token] = []
         self._ids_to_indexes: dict[str, int] = {}
 
+        token_parser: Callable[[str], Token] = compile_token_parser(ConlluToken)
+
         for i, line in enumerate(lines):
             if line:
                 if line[0] == Sentence.COMMENT_MARKER:
@@ -80,7 +82,7 @@ class Sentence(Sequence[Token], Conllable):
                             self._meta[k] = None
                 else:
                     try:
-                        token = _parse_token(line)
+                        token = token_parser(line)
                         self._tokens.append(token)
                         if token.id is not None:
                             self._ids_to_indexes[token.id] = len(self._tokens) - 1

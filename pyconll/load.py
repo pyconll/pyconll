@@ -140,6 +140,8 @@ class Parser:
 _default_parser: Parser | None = None
 
 
+# TODO: Delete this and just create a lot of defaults in the constructor for easy
+# parser creation.
 def get_default_parser() -> Parser:
     """
     Get the default parser instance.
