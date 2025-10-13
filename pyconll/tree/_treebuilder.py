@@ -8,7 +8,7 @@ from typing import Any, Generic, TypeVar
 
 from pyconll.tree.tree import Tree
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class TreeBuilder(Generic[T]):
@@ -56,7 +56,7 @@ class TreeBuilder(Generic[T]):
         """
         self._assert_initialization_status()
         if self.current is self.root:
-            raise ValueError('Currently at root. Cannot move to parent')
+            raise ValueError("Currently at root. Cannot move to parent")
 
         self.current = self.current.parent
 
@@ -77,7 +77,7 @@ class TreeBuilder(Generic[T]):
             self.current = self.current[i]
         except IndexError as e:
             raise IndexError(
-                f'{i}-th child is out of range. There are {len(self.current)} children on this node'
+                f"{i}-th child is out of range. There are {len(self.current)} children on this node"
             ) from e
 
     def move_to_root(self) -> None:
@@ -122,7 +122,7 @@ class TreeBuilder(Generic[T]):
             del self.current._children[i]
         except IndexError as e:
             raise IndexError(
-                f'{i}-th child is out of range. There are {len(self.current)} children on this node'
+                f"{i}-th child is out of range. There are {len(self.current)} children on this node"
             ) from e
 
     def add_child(self, data: T, move: bool = False) -> None:
@@ -209,5 +209,4 @@ class TreeBuilder(Generic[T]):
             ValueError: If the TreeBuilder's root has not been initialized.
         """
         if self.root is None:
-            raise ValueError(
-                'The TreeBuilder has not created a root for the Tree yet')
+            raise ValueError("The TreeBuilder has not created a root for the Tree yet")

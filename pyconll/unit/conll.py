@@ -48,9 +48,9 @@ class Conll(MutableSequence[Sentence], Conllable):
         # Add newlines along with sentence strings so that there is no need to
         # slice potentially long lists or modify strings.
         components = list(map(lambda sent: sent.conll(), self._sentences))
-        components.append('')
+        components.append("")
 
-        return '\n\n'.join(components)
+        return "\n\n".join(components)
 
     def write(self, writable: Any) -> None:
         """
@@ -66,7 +66,7 @@ class Conll(MutableSequence[Sentence], Conllable):
         """
         for sentence in self._sentences:
             writable.write(sentence.conll())
-            writable.write('\n\n')
+            writable.write("\n\n")
 
     def insert(self, index: int, value: Sentence) -> None:
         """
@@ -107,7 +107,7 @@ class Conll(MutableSequence[Sentence], Conllable):
         pass
 
     @overload
-    def __getitem__(self, key: slice) -> 'Conll':
+    def __getitem__(self, key: slice) -> "Conll":
         pass
 
     def __getitem__(self, key):
@@ -134,7 +134,7 @@ class Conll(MutableSequence[Sentence], Conllable):
 
             return sliced_conll
 
-        raise TypeError('Conll indices must be ints or slices.')
+        raise TypeError("Conll indices must be ints or slices.")
 
     @overload
     def __setitem__(self, key: int, sent: Sentence) -> None:

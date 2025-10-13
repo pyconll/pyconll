@@ -12,9 +12,7 @@ from pyconll.unit.token import Token
 
 
 def find_ngrams(
-    conll: Iterable[Sentence],
-    ngram: Sequence[str],
-    case_sensitive: bool = True
+    conll: Iterable[Sentence], ngram: Sequence[str], case_sensitive: bool = True
 ) -> Iterator[tuple[Sentence, int, list[Token]]]:
     """
     Find the occurrences of the ngram in the provided Conll collection.
@@ -46,8 +44,7 @@ def find_ngrams(
         while i <= len(sentence) - len(ngram):
             token = sentence[i]
 
-            cased_form, cased_ngram_start = _get_cased(case_sensitive,
-                                                       token.form, ngram[0])
+            cased_form, cased_ngram_start = _get_cased(case_sensitive, token.form, ngram[0])
 
             if cased_form == cased_ngram_start and not token.is_multiword():
                 matches = True
@@ -63,7 +60,8 @@ def find_ngrams(
                         new_token = sentence[cur_idx]
 
                     cased_new_token_form, cased_ngram_token = _get_cased(
-                        case_sensitive, new_token.form, ngram_token)
+                        case_sensitive, new_token.form, ngram_token
+                    )
                     if cased_new_token_form != cased_ngram_token:
                         matches = False
                         matched_tokens.clear()
@@ -99,7 +97,7 @@ def find_nonprojective_deps(sentence: Sentence) -> list[tuple[Token, Token]]:
 
     openings = [-1]
     closings = [len(sentence)]
-    direcs = ['']
+    direcs = [""]
 
     for dep in deps:
         cur_opening = openings[-1]
@@ -121,8 +119,8 @@ def find_nonprojective_deps(sentence: Sentence) -> list[tuple[Token, Token]]:
                 c = closings[i]
                 d = direcs[i]
                 if right_index > c:
-                    dep_child_idx = dep[1] if dep[2] == 'l' else dep[0]
-                    base_child_idx = c if d == 'l' else o
+                    dep_child_idx = dep[1] if dep[2] == "l" else dep[0]
+                    base_child_idx = c if d == "l" else o
                     non_projective_deps.append((dep_child_idx, base_child_idx))
                 else:
                     break
@@ -132,9 +130,7 @@ def find_nonprojective_deps(sentence: Sentence) -> list[tuple[Token, Token]]:
             closings.append(right_index)
             direcs.append(direc)
 
-    child_tokens = list(
-        map(lambda dep: (sentence[dep[0]], sentence[dep[1]]),
-            non_projective_deps))
+    child_tokens = list(map(lambda dep: (sentence[dep[0]], sentence[dep[1]]), non_projective_deps))
     return child_tokens
 
 
@@ -156,10 +152,12 @@ def _transform_tokens_to_sorted_dependency_arcs(sentence):
     ids_to_idxs = {token.id: i for i, token in enumerate(sentence)}
 
     dependency_tokens = filter(
-        lambda token: token.head != '0' and not token.is_multiword(), sentence)
-    deps = sorted(map(lambda token: _token_to_dep_tuple(token, ids_to_idxs),
-                      dependency_tokens),
-                  key=_DependencyComparer)
+        lambda token: token.head != "0" and not token.is_multiword(), sentence
+    )
+    deps = sorted(
+        map(lambda token: _token_to_dep_tuple(token, ids_to_idxs), dependency_tokens),
+        key=_DependencyComparer,
+    )
 
     return deps
 
@@ -208,8 +206,7 @@ class _DependencyComparer:
         Args:
             other: Another wrapped dependency to compare against.
         """
-        return self._l < other._l or (self._l == other._l
-                                      and self._r > other._r)
+        return self._l < other._l or (self._l == other._l and self._r > other._r)
 
 
 def _token_to_dep_tuple(token, id_map):
@@ -228,9 +225,9 @@ def _token_to_dep_tuple(token, id_map):
     token_idx = id_map[token.id]
     head_idx = id_map[token.head]
     if token_idx < head_idx:
-        return (token_idx, head_idx, 'r')
+        return (token_idx, head_idx, "r")
 
-    return (head_idx, token_idx, 'l')
+    return (head_idx, token_idx, "l")
 
 
 def _get_cased(case_sensitive, *args):

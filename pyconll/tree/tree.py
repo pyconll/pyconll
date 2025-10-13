@@ -5,7 +5,7 @@ sentence into a Tree structure.
 
 from typing import Generic, Iterator, List, Optional, TypeVar, overload
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Tree(Generic[T]):
@@ -27,8 +27,8 @@ class Tree(Generic[T]):
             data: The data to put with the Tree node.
         """
         self._data: T = data
-        self._parent: Optional['Tree[T]'] = None
-        self._children: List['Tree[T]'] = []
+        self._parent: Optional["Tree[T]"] = None
+        self._children: List["Tree[T]"] = []
 
     @property
     def data(self) -> T:
@@ -41,7 +41,7 @@ class Tree(Generic[T]):
         return self._data
 
     @property
-    def parent(self) -> Optional['Tree[T]']:
+    def parent(self) -> Optional["Tree[T]"]:
         """
         Provides the parent of the Tree. The property ensures it is readonly.
 
@@ -51,11 +51,11 @@ class Tree(Generic[T]):
         return self._parent
 
     @overload
-    def __getitem__(self, key: int) -> 'Tree[T]':
+    def __getitem__(self, key: int) -> "Tree[T]":
         pass
 
     @overload
-    def __getitem__(self, key: slice) -> List['Tree[T]']:
+    def __getitem__(self, key: slice) -> List["Tree[T]"]:
         pass
 
     def __getitem__(self, key):
@@ -67,7 +67,7 @@ class Tree(Generic[T]):
         """
         return self._children[key]
 
-    def __iter__(self) -> Iterator['Tree[T]']:
+    def __iter__(self) -> Iterator["Tree[T]"]:
         """
         Provides an iterator over the children.
         """

@@ -44,7 +44,7 @@ def _dict_conll_map_formatter(v, v_delimiter):
         sorted_vs = sorted(v, key=str.lower)
         str_vs = v_delimiter.join(sorted_vs)
     else:
-        error_msg = 'There are no values to format.'
+        error_msg = "There are no values to format."
         raise FormatError(error_msg)
 
     return str_vs
@@ -69,9 +69,9 @@ def _dict_conll_map(values, empty, delim, av_separator, v_delimiter, av_key):
     Returns:
         The CoNLL-U format as a string.
     """
-    return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_conll_map_formatter,
-                                  av_key)
+    return _dict_conll_map_helper(
+        values, empty, delim, av_separator, v_delimiter, _dict_conll_map_formatter, av_key
+    )
 
 
 def _dict_tupled_conll_formatter(v, v_delimiter):
@@ -90,15 +90,14 @@ def _dict_tupled_conll_formatter(v, v_delimiter):
     """
     presents = list(filter(lambda el: el is not None, v))
     if not presents:
-        error_msg = 'All values in the tuple are None.'
+        error_msg = "All values in the tuple are None."
         raise FormatError(error_msg)
 
     form = v_delimiter.join(presents)
     return form
 
 
-def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter,
-                           av_key):
+def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter, av_key):
     """
     Map a dict whose components are max length tuples to a CoNLL format.
 
@@ -116,9 +115,9 @@ def _dict_tupled_conll_map(values, empty, delim, av_separator, v_delimiter,
     Raises:
         FormatError: If there was an error converting a tuple to a CoNLL format.
     """
-    return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_tupled_conll_formatter,
-                                  av_key)
+    return _dict_conll_map_helper(
+        values, empty, delim, av_separator, v_delimiter, _dict_tupled_conll_formatter, av_key
+    )
 
 
 def _dict_mixed_conll_formatter(v, v_delimiter):
@@ -141,8 +140,7 @@ def _dict_mixed_conll_formatter(v, v_delimiter):
     return str_vs
 
 
-def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter,
-                          av_key):
+def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter, av_key):
     """
     Map a dict whose components can be mixed to a CoNLL-U format.
 
@@ -158,13 +156,12 @@ def _dict_mixed_conll_map(values, empty, delim, av_separator, v_delimiter,
     Returns:
         The CoNLL-U formatted equivalent to the value.
     """
-    return _dict_conll_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_mixed_conll_formatter,
-                                  av_key)
+    return _dict_conll_map_helper(
+        values, empty, delim, av_separator, v_delimiter, _dict_mixed_conll_formatter, av_key
+    )
 
 
-def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           formatter, av_key):
+def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter, formatter, av_key):
     """
     Helper to map dicts to CoNLL-U format equivalents.
 
@@ -189,7 +186,7 @@ def _dict_conll_map_helper(values, empty, delim, av_separator, v_delimiter,
     def paramed(pair):
         f = formatter(pair[1], v_delimiter)
         if f is None:
-            return (pair[0], )
+            return (pair[0],)
 
         return (pair[0], f)
 
@@ -260,11 +257,11 @@ class _TokenIdComparer:
         Returns:
             A tuple of size two with the token id representing the range.
         """
-        idx = token_id.find('-')
+        idx = token_id.find("-")
         if idx < 0:
             ranges = (token_id, token_id)
         else:
-            ranges = (token_id[:idx], token_id[idx + 1:])
+            ranges = (token_id[:idx], token_id[idx + 1 :])
 
         return ranges
 
@@ -281,12 +278,12 @@ class _TokenIdComparer:
         Returns:
             A tuple of size 2 with the id parts decomposed as integers.
         """
-        idx = token_id.find('.')
+        idx = token_id.find(".")
         if idx < 0:
             return [int(token_id), 0]
 
         first = int(token_id[:idx])
-        second = int(token_id[idx + 1:])
+        second = int(token_id[idx + 1 :])
         return [first, second]
 
     @staticmethod
@@ -304,8 +301,7 @@ class _TokenIdComparer:
         a_l, a_r = _TokenIdComparer._split_by_radix(a)
         b_l, b_r = _TokenIdComparer._split_by_radix(b)
 
-        return _TokenIdComparer._zcopysign(2, a_l - b_l) + \
-               _TokenIdComparer._zcopysign(1, a_r - b_r)
+        return _TokenIdComparer._zcopysign(2, a_l - b_l) + _TokenIdComparer._zcopysign(1, a_r - b_r)
 
     @staticmethod
     def _zcopysign(a, b):
@@ -334,17 +330,14 @@ class _TokenIdComparer:
         Returns:
             True if the current id is less than the id wrapped by other.
         """
-        self_split_1, self_split_2 = _TokenIdComparer._split_token_id_as_range(
-            self.token_id)
-        other_split_1, other_split_2 = _TokenIdComparer._split_token_id_as_range(
-            other.token_id)
+        self_split_1, self_split_2 = _TokenIdComparer._split_token_id_as_range(self.token_id)
+        other_split_1, other_split_2 = _TokenIdComparer._split_token_id_as_range(other.token_id)
 
-        first_cmp = _TokenIdComparer._cmp_individual_ids(
-            self_split_1, other_split_1)
+        first_cmp = _TokenIdComparer._cmp_individual_ids(self_split_1, other_split_1)
 
-        return first_cmp < 0 or (first_cmp == 0
-                                 and _TokenIdComparer._cmp_individual_ids(
-                                     self_split_2, other_split_2))
+        return first_cmp < 0 or (
+            first_cmp == 0 and _TokenIdComparer._cmp_individual_ids(self_split_2, other_split_2)
+        )
 
 
 class Token(Conllable):
@@ -366,31 +359,28 @@ class Token(Conllable):
     sentences.
     """
 
-    __slots__ = [
-        'id', 'form', 'lemma', 'upos', 'xpos', 'feats', 'head', 'deprel',
-        'deps', 'misc'
-    ]
+    __slots__ = ["id", "form", "lemma", "upos", "xpos", "feats", "head", "deprel", "deps", "misc"]
 
     # The different delimiters and separators for the CoNLL-U format.
     # FIELD_DELIMITER separates columns on the token line.
     # COMPONENT_DELIMITER separates a field with multiple components.
     # AV_SEPARATOR separates the attribute from the value in a component.
     # V_DELIMITER separates the values in an attribute-value pair.
-    FIELD_DELIMITER: ClassVar[str] = '\t'
-    COMPONENT_DELIMITER: ClassVar[str] = '|'
-    AV_SEPARATOR: ClassVar[str] = '='
-    AV_DEPS_SEPARATOR: ClassVar[str] = ':'
-    V_DELIMITER: ClassVar[str] = ','
-    V_DEPS_DELIMITER: ClassVar[str] = ':'
-    EMPTY: ClassVar[str] = '_'
+    FIELD_DELIMITER: ClassVar[str] = "\t"
+    COMPONENT_DELIMITER: ClassVar[str] = "|"
+    AV_SEPARATOR: ClassVar[str] = "="
+    AV_DEPS_SEPARATOR: ClassVar[str] = ":"
+    V_DELIMITER: ClassVar[str] = ","
+    V_DEPS_DELIMITER: ClassVar[str] = ":"
+    EMPTY: ClassVar[str] = "_"
 
     # Keys for sorting attribute-value columns. BY_ID converts the attribute
     # value pair to the integer value of the attribute, and BY_CASE_SENSITIVE
     # converts the pair to the lowercase version of the attribute.
-    BY_ID: ClassVar[Callable[[tuple[
-        str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(pair[0])
-    BY_CASE_INSENSITIVE: ClassVar[Callable[[tuple[
-        str, str]], str]] = lambda pair: pair[0].lower()
+    BY_ID: ClassVar[Callable[[tuple[str, str]], _TokenIdComparer]] = lambda pair: _TokenIdComparer(
+        pair[0]
+    )
+    BY_CASE_INSENSITIVE: ClassVar[Callable[[tuple[str, str]], str]] = lambda pair: pair[0].lower()
 
     def __init__(
         self,
@@ -442,7 +432,7 @@ class Token(Conllable):
         Returns:
             True if this token is a multiword token, and False otherwise.
         """
-        return '-' in self.id
+        return "-" in self.id
 
     def is_empty_node(self) -> bool:
         """
@@ -454,7 +444,7 @@ class Token(Conllable):
         Returns:
             True if this token is an empty node and False otherwise.
         """
-        return '.' in self.id
+        return "." in self.id
 
     def conll(self) -> str:
         """
@@ -476,22 +466,33 @@ class Token(Conllable):
         lemma = _unit_conll_map(self.lemma, Token.EMPTY)
         upos = _unit_conll_map(self.upos, Token.EMPTY)
         xpos = _unit_conll_map(self.xpos, Token.EMPTY)
-        feats = _dict_conll_map(self.feats, Token.EMPTY,
-                                Token.COMPONENT_DELIMITER, Token.AV_SEPARATOR,
-                                Token.V_DELIMITER, Token.BY_CASE_INSENSITIVE)
+        feats = _dict_conll_map(
+            self.feats,
+            Token.EMPTY,
+            Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR,
+            Token.V_DELIMITER,
+            Token.BY_CASE_INSENSITIVE,
+        )
         head = _unit_conll_map(self.head, Token.EMPTY)
         deprel = _unit_conll_map(self.deprel, Token.EMPTY)
-        deps = _dict_tupled_conll_map(self.deps, Token.EMPTY,
-                                      Token.COMPONENT_DELIMITER,
-                                      Token.AV_DEPS_SEPARATOR,
-                                      Token.V_DEPS_DELIMITER, Token.BY_ID)
-        misc = _dict_mixed_conll_map(self.misc, Token.EMPTY,
-                                     Token.COMPONENT_DELIMITER,
-                                     Token.AV_SEPARATOR, Token.V_DELIMITER,
-                                     Token.BY_CASE_INSENSITIVE)
+        deps = _dict_tupled_conll_map(
+            self.deps,
+            Token.EMPTY,
+            Token.COMPONENT_DELIMITER,
+            Token.AV_DEPS_SEPARATOR,
+            Token.V_DEPS_DELIMITER,
+            Token.BY_ID,
+        )
+        misc = _dict_mixed_conll_map(
+            self.misc,
+            Token.EMPTY,
+            Token.COMPONENT_DELIMITER,
+            Token.AV_SEPARATOR,
+            Token.V_DELIMITER,
+            Token.BY_CASE_INSENSITIVE,
+        )
 
-        items = [
-            token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc
-        ]
+        items = [token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc]
 
         return Token.FIELD_DELIMITER.join(items)

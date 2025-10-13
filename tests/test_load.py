@@ -10,7 +10,7 @@ def test_load_from_string():
     Test that a CoNLL file can properly be loaded from a string.
     """
     parser = get_default_parser()
-    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
+    with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         contents = f.read()
 
     c = parser.load_from_string(contents)
@@ -18,7 +18,7 @@ def test_load_from_string():
 
     assert len(c) == 4
     assert len(sent) == 14
-    assert sent['10'].form == 'donc'
+    assert sent["10"].form == "donc"
 
 
 def test_load_from_file():
@@ -26,12 +26,12 @@ def test_load_from_file():
     Test that a CoNLL file can properly be loaded from a filename.
     """
     parser = get_default_parser()
-    c = parser.load_from_file(fixture_location('basic.conll'))
+    c = parser.load_from_file(fixture_location("basic.conll"))
     sent = c[1]
 
     assert len(c) == 4
     assert len(sent) == 14
-    assert sent['10'].form == 'donc'
+    assert sent["10"].form == "donc"
 
 
 def test_load_from_resource():
@@ -39,13 +39,13 @@ def test_load_from_resource():
     Test that a CoNLL file can properly be loaded from a string.
     """
     parser = get_default_parser()
-    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
+    with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         c = parser.load_from_resource(f)
         sent = c[1]
 
         assert len(c) == 4
         assert len(sent) == 14
-        assert sent['10'].form == 'donc'
+        assert sent["10"].form == "donc"
 
 
 def test_equivalence_across_load_operations():
@@ -54,12 +54,12 @@ def test_equivalence_across_load_operations():
     the underlying source is the same.
     """
     parser = get_default_parser()
-    with open(fixture_location('long.conll'), encoding='utf-8') as f:
+    with open(fixture_location("long.conll"), encoding="utf-8") as f:
         contents = f.read()
     str_c = parser.load_from_string(contents)
-    file_c = parser.load_from_file(fixture_location('long.conll'))
+    file_c = parser.load_from_file(fixture_location("long.conll"))
 
-    with open(fixture_location('long.conll'), encoding='utf-8') as resource:
+    with open(fixture_location("long.conll"), encoding="utf-8") as resource:
         resource_c = parser.load_from_resource(resource)
 
     def assert_equivalent_conll_objs(conll1, conll2):
@@ -82,10 +82,10 @@ def test_iter_from_string():
     Test that CoNLL files in string form can be iterated over without memory.
     """
     parser = get_default_parser()
-    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
+    with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         contents = f.read()
 
-    expected_ids = [f'fr-ud-dev_0000{i}' for i in range(1, 5)]
+    expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
     actual_ids = [sent.id for sent in parser.iter_from_string(contents)]
 
     assert expected_ids == actual_ids
@@ -97,11 +97,8 @@ def test_iter_from_file():
     filename.
     """
     parser = get_default_parser()
-    expected_ids = [f'fr-ud-dev_0000{i}' for i in range(1, 5)]
-    actual_ids = [
-        sent.id
-        for sent in parser.iter_from_file(fixture_location('basic.conll'))
-    ]
+    expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
+    actual_ids = [sent.id for sent in parser.iter_from_file(fixture_location("basic.conll"))]
 
     assert expected_ids == actual_ids
 
@@ -111,8 +108,8 @@ def test_iter_from_resource():
     Test that an arbitrary resource can be iterated over.
     """
     parser = get_default_parser()
-    with open(fixture_location('basic.conll'), encoding='utf-8') as f:
-        expected_ids = [f'fr-ud-dev_0000{i}' for i in range(1, 5)]
+    with open(fixture_location("basic.conll"), encoding="utf-8") as f:
+        expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
         actual_ids = [sent.id for sent in parser.iter_from_resource(f)]
 
         assert expected_ids == actual_ids

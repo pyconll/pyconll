@@ -68,8 +68,9 @@ def _dict_empty_map(values, empty, delim, av_separator, v_delimiter):
         ParseError: If the dict format was unable to parsed, because of a lack
             of a value.
     """
-    return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_empty_map_parser)
+    return _dict_empty_map_helper(
+        values, empty, delim, av_separator, v_delimiter, _dict_empty_map_parser
+    )
 
 
 def _create_dict_tupled_empty_parse(size, strict):
@@ -106,8 +107,8 @@ def _create_dict_tupled_empty_parse(size, strict):
         """
         if v is None:
             raise ParseError(
-                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
-                ' format spec')
+                f'Error parsing "{v}" as tuple properly. Please check against the format spec.'
+            )
 
         components = v.split(v_delimiter)
         left = size - len(components)
@@ -116,20 +117,18 @@ def _create_dict_tupled_empty_parse(size, strict):
             vs = tuple(components + [None] * left)
         else:
             raise ParseError(
-                f'Error parsing "{v}" as tuple properly. Please check against CoNLL'
-                ' format spec.')
+                f'Error parsing "{v}" as tuple properly. Please check against the format spec.'
+            )
 
         return vs
 
     return _dict_tupled_empty_parser
 
 
-TUPLE_PARSER_MEMOIZE: dict[int, Callable[[str, str], tuple[Optional[str],
-                                                           ...]]] = {}
+TUPLE_PARSER_MEMOIZE: dict[int, Callable[[str, str], tuple[Optional[str], ...]]] = {}
 
 
-def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
-                           size):
+def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter, size):
     """
     Map dict based values for CoNLL-U columns to a dict with tupled values.
 
@@ -160,8 +159,7 @@ def _dict_tupled_empty_map(values, empty, delim, av_separator, v_delimiter,
         parser = _create_dict_tupled_empty_parse(size, False)
         TUPLE_PARSER_MEMOIZE[size] = parser
 
-    return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, parser)
+    return _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter, parser)
 
 
 def _dict_mixed_empty_parser(v, v_delimiter):
@@ -204,12 +202,12 @@ def _dict_mixed_empty_map(values, empty, delim, av_separator, v_delimiter):
     Raises:
         ParseError: If the dict format was unable to parsed.
     """
-    return _dict_empty_map_helper(values, empty, delim, av_separator,
-                                  v_delimiter, _dict_mixed_empty_parser)
+    return _dict_empty_map_helper(
+        values, empty, delim, av_separator, v_delimiter, _dict_mixed_empty_parser
+    )
 
 
-def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
-                           parser):
+def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter, parser):
     """
     A helper to consolidate logic between singleton and non-singleton mapping.
 
@@ -235,7 +233,7 @@ def _dict_empty_map_helper(values, empty, delim, av_separator, v_delimiter,
     d = {}
     for el in values.split(delim):
         parts = el.split(av_separator, 1)
-        if len(parts) == 1 or (len(parts) == 2 and parts[1] == ''):
+        if len(parts) == 1 or (len(parts) == 2 and parts[1] == ""):
             k = parts[0]
             v = None
         else:
@@ -262,34 +260,33 @@ def _parse_token(line: str, empty: bool = False) -> Token:
         ParseError: If there was an error parsing the token.
     """
     # Split the line into fields
-    fields = line.split('\t')
+    fields = line.split("\t")
 
     if len(fields) != 10:
-        error_msg = f'The number of columns per token line must be 10. Invalid token: {line!r}'
+        error_msg = f"The number of columns per token line must be 10. Invalid token: {line!r}"
         raise ParseError(error_msg)
 
     # Strip trailing newline if present
-    if fields[-1][-1] == '\n':
+    if fields[-1][-1] == "\n":
         fields[-1] = fields[-1][:-1]
 
     # Parse fields with empty flag set to False
     token_id = fields[0]
 
     # Handle form and lemma with empty flag logic
-    if empty or (fields[1] != '_' or fields[2] != '_'):
-        form = _unit_empty_map(fields[1], '_')
-        lemma = _unit_empty_map(fields[2], '_')
+    if empty or (fields[1] != "_" or fields[2] != "_"):
+        form = _unit_empty_map(fields[1], "_")
+        lemma = _unit_empty_map(fields[2], "_")
     else:
         form = fields[1]
         lemma = fields[2]
 
-    upos = _unit_empty_map(fields[3], '_')
-    xpos = _unit_empty_map(fields[4], '_')
-    feats = _dict_empty_map(fields[5], '_', '|', '=', ',')
-    head = _unit_empty_map(fields[6], '_')
-    deprel = _unit_empty_map(fields[7], '_')
-    deps = _dict_tupled_empty_map(fields[8], '_', '|', ':', ':', 4)
-    misc = _dict_mixed_empty_map(fields[9], '_', '|', '=', ',')
+    upos = _unit_empty_map(fields[3], "_")
+    xpos = _unit_empty_map(fields[4], "_")
+    feats = _dict_empty_map(fields[5], "_", "|", "=", ",")
+    head = _unit_empty_map(fields[6], "_")
+    deprel = _unit_empty_map(fields[7], "_")
+    deps = _dict_tupled_empty_map(fields[8], "_", "|", ":", ":", 4)
+    misc = _dict_mixed_empty_map(fields[9], "_", "|", "=", ",")
 
-    return Token(token_id, form, lemma, upos, xpos, feats, head, deprel, deps,
-                 misc)
+    return Token(token_id, form, lemma, upos, xpos, feats, head, deprel, deps, misc)

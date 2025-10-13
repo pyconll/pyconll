@@ -2,7 +2,7 @@
 
 # Format python files in place, outputs error code if there are changes
 format:
-	python -m black --config black.toml
+	python -m black --config black.toml pyconll/ util/ tests/
 
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.

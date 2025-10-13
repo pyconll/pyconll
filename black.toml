@@ -1,5 +1,4 @@
 [tool.black]
 line-length = 100
 target-version = ["py312", "py313"]
-include = ["pyconll/", "util/", "tests/"]
-exclude = ["tests/fixtures/"]
+preview = true
