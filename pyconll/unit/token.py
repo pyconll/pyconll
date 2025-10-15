@@ -392,7 +392,7 @@ class Token(Conllable):
         feats: dict[str, set[str]],
         head: Optional[str],
         deprel: Optional[str],
-        deps: dict[str, tuple[str, str, str, str]],
+        deps: dict[str, tuple[str, ...]],
         misc: dict[str, Optional[set[str]]],
     ) -> None:
         """
@@ -422,7 +422,7 @@ class Token(Conllable):
         self.feats: dict[str, set[str]] = feats
         self.head: Optional[str] = head
         self.deprel: Optional[str] = deprel
-        self.deps: dict[str, tuple[str, str, str, str]] = deps
+        self.deps: dict[str, tuple[str, ...]] = deps
         self.misc: dict[str, Optional[set[str]]] = misc
 
     def is_multiword(self) -> bool:

@@ -18,7 +18,7 @@ class SchemaDescriptor[T]:
 @dataclass(frozen=True, slots=True)
 class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
     mapper: type[T] | SchemaDescriptor[T]
-    empty: str
+    empty_marker: Optional[str]
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,7 +40,8 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
 class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
-    length: int
+    min_size_req: Optional[int]
+    max_size_req: Optional[int]
     empty_marker: Optional[str]
 
 
@@ -54,8 +55,8 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     ordering_key: Optional[Callable[[K], "SupportsRichComparisonT"]]
 
 
-def nullable[T](mapper: type[T] | SchemaDescriptor[T], empty: str) -> _NullableDescriptor[T]:
-    return _NullableDescriptor[T](mapper, empty)
+def nullable[T](mapper: type[T] | SchemaDescriptor[T], empty_marker: Optional[str] = None) -> _NullableDescriptor[T]:
+    return _NullableDescriptor[T](mapper, empty_marker)
 
 
 def array[T](
@@ -76,10 +77,11 @@ def unique_array[T](
 def fixed_array[T](
     mapper: type[T] | SchemaDescriptor[T],
     delimiter: str,
-    length: int,
+    min_size_req: Optional[int] = None,
+    max_size_req: Optional[int] = None,
     empty_marker: Optional[str] = None,
 ) -> _FixedArrayDescriptor[T]:
-    return _FixedArrayDescriptor[T](mapper, delimiter, length, empty_marker)
+    return _FixedArrayDescriptor[T](mapper, delimiter, min_size_req, max_size_req, empty_marker)
 
 
 def mapping[K, V](
@@ -103,30 +105,17 @@ class TokenProtocol(Protocol):
     pass
 
 
-a = schema(mapping(str, array(int, ","), ";", "=", "_"))
-
-
 class ConlluToken(TokenProtocol):
     id: str
-    # form: Optional[str] = schema(nullable("_", str))
-    # lemma: Optional[str] = optional[str]("_")
-    # upos: Optional[str] = optional[str]("_")
-    # xpos: Optional[str] = optional[str]("_")
-    # feats: dict[str, set[str]] = mapping[str, set[str]](
-    #    "_", "|", "=", vmapper=array_set(","), ordering_key=lambda k: k.lower()
-    # )
-    # head: Optional[str] = optional[str]("_")
-    # deprel: Optional[str] = optional[str]("_")
-    # deps: dict[str, tuple[str, str, str, str]] = mapping[str, tuple[str, str, str, str]](
-    #    "_", "|", ":", vmapper=array_tuple[str, str, str, str](":")
-    # )
-    # misc: dict[str, Optional[set[str]]] = mapping[str, Optional[set[str]]](
-    #    "_",
-    #    "|",
-    #    "=",
-    #    vmapper=optional("_", mapper=array_set[str](",")),
-    #    ordering_key=lambda k: k.lower(),
-    # )
+    form: Optional[str] = schema(nullable(str, "_"))
+    lemma: Optional[str] = schema(nullable(str, "_"))
+    upos: Optional[str] = schema(nullable(str, "_"))
+    xpos: Optional[str] = schema(nullable(str, "_"))
+    feats: dict[str, set[str]] = schema(mapping(str, unique_array(str, ","), "|", "=", "_", lambda k: k.lower()))
+    head: Optional[str] = schema(nullable(str, "_"))
+    deprel: Optional[str] = schema(nullable(str, "_"))
+    deps: dict[str, tuple[str, ...]] = schema(mapping(str, fixed_array(str, ':', None, 4), "|", ":", "_"))
+    misc: dict[str, Optional[set[str]]] = schema(mapping(str, nullable(unique_array(str, ",")), "|", "=", "_", lambda k: k.lower()))
 
     def is_multiword(self) -> bool:
         """
@@ -163,9 +152,46 @@ def unique_name_id(prefix: str) -> str:
 
     return var_name
 
+def root_ir(code: str) -> str:
+    lines = code.split("\n")
+    if not lines:
+        return code
+
+    for first, line in enumerate(lines):
+        if line:
+            break
+    else:
+        return code
+
+    prefix_chars = []
+    for ch in lines[first]:
+        if ch not in ' \t':
+            break
+        if ch != lines[first][0]:
+            raise RuntimeError("Inconsistent whitespace usage in IR being reformatted.")
+
+        prefix_chars.append(ch)
+    prefix = "".join(prefix_chars)
+
+    new_lines = [lines[first].removeprefix(prefix)]
+    for line in lines[first + 1:]:
+        if not line:
+            continue
+        if not line.startswith(prefix):
+            raise RuntimeError("Expected whitespace prefix not found on one of the IR lines.")
+
+        new_lines.append(line.removeprefix(prefix))
+
+    return "\n".join(new_lines)
+
+
+def splice_ir(levels: int, code: str) -> str:
+    prefix = ' ' * 4 * levels
+    return "\n".join([prefix + line if i > 0 else line for i, line in enumerate(code.split("\n"))])
+
 
 def add_schema_descriptor_method(namespace: dict[str, Any], descriptor: SchemaDescriptor) -> str:
-    method_name = unique_name_id("mfd")
+    method_name = unique_name_id("mfd_" + descriptor.__class__.__name__)
 
     if isinstance(descriptor, _NullableDescriptor):
         sub_method_name = ""
@@ -179,16 +205,52 @@ def add_schema_descriptor_method(namespace: dict[str, Any], descriptor: SchemaDe
                 "Nullable schema must map via an int, float, or str or provide a nested SchemaDescriptor."
             )
 
-        method_ir = f"""
-def {method_name}(s):
-    if s == "{descriptor.empty}":
-        return None
-    else:
-        return {sub_method_name}(s)
-"""
+        guard_ir = ""
+        if descriptor.empty_marker is not None:
+            guard_ir = root_ir(f"""
+                if s == "{descriptor.empty_marker}":
+                    return None
+                """)
 
-    elif isinstance(descriptor, _MappingDescriptor):
-        pass
+        method_ir = root_ir(f"""
+            def {method_name}(s):
+                if not s:
+                    return None
+                {splice_ir(4, guard_ir)}
+                else:
+                    return {sub_method_name}(s)
+            """)
+
+    elif isinstance(descriptor, _ArrayDescriptor):
+        result_ir = ""
+        mapper = descriptor.mapper
+        if isinstance(mapper, SchemaDescriptor):
+            sub_method_name = add_schema_descriptor_method(namespace, mapper)
+            result_ir = f"[{sub_method_name}(el) for el in s.split(\"{descriptor.delimiter}\")]"
+        elif mapper in (int, float):
+            result_ir = f"[{mapper.__name__}(el) for el in s.split(\"{descriptor.delimiter}\")]"
+        elif mapper == str:
+            result_ir = f"s.split(\"{descriptor.delimiter}\")"
+        else:
+            raise RuntimeError(
+                "Nullable schema must map via an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        guard_ir = ""
+        if descriptor.empty_marker is not None:
+            guard_ir = root_ir(f"""
+                if s == "{descriptor.empty_marker}":
+                    return []
+                """)
+
+        method_ir = root_ir(f"""
+            def {method_name}(s):
+                {splice_ir(4, guard_ir)}
+                if not s:
+                    return []
+                return {result_ir}
+            """)
+
     elif isinstance(descriptor, _UniqueArrayDescriptor):
         sub_method_name = ""
         mapper = descriptor.mapper
@@ -201,10 +263,21 @@ def {method_name}(s):
                 "UniqueArray schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
             )
 
-        method_ir = f"""
-def {method_name}(s):
-    return {{ {sub_method_name}(el) for el in s.split("{descriptor.delimiter}") }}
-"""
+        guard_ir = ""
+        if descriptor.empty_marker is not None:
+            guard_ir = root_ir(f"""
+                if s == "{descriptor.empty_marker}":
+                    return set()
+                """)
+
+        method_ir = root_ir(f"""
+            def {method_name}(s):
+                {splice_ir(4, guard_ir)}
+                if not s:
+                    return set()
+                return {{ {sub_method_name}(el) for el in s.split("{descriptor.delimiter}") }}
+            """)
+
     elif isinstance(descriptor, _FixedArrayDescriptor):
         sub_method_name = ""
         mapper = descriptor.mapper
@@ -217,13 +290,75 @@ def {method_name}(s):
                 "FixedArray schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
             )
 
-        method_ir = f"""
-def {method_name}(s):
-    t = tuple({sub_method_name}(el) for el in s.split("{descriptor.delimiter}"))
-    if len(t) != {descriptor.length}:
-        raise RuntimeError("The length of the FixedArray is not the expected length.")
-    return t
-"""
+        empty_guard_ir = ""
+        if descriptor.empty_marker is not None:
+            empty_guard_ir = root_ir(f"""
+                if s == "{descriptor.empty_marker}":
+                    return ()
+                """)
+
+        guard_ir = ""
+        if descriptor.min_size_req is not None:
+            guard_ir += root_ir(f"""
+                if len(t) < {descriptor.min_size_req}:
+                    raise ParseError("The input \\"{{s}}\\" is parsed as a tuple smaller than the required minimum size of {descriptor.min_size_req}")
+                """)
+        if descriptor.max_size_req is not None:
+            guard_ir += root_ir(f"""
+                if len(t) > {descriptor.max_size_req}:
+                    raise ParseError("The input \\"{{s}}\\" is parsed as a tuple smaller than the required minimum size of {descriptor.max_size_req}")
+                """)
+
+        method_ir = root_ir(f"""
+            def {method_name}(s):
+                {splice_ir(4, empty_guard_ir)}
+                if not s:
+                    t = ()
+                else:
+                    t = tuple({sub_method_name}(el) for el in s.split("{descriptor.delimiter}"))
+                {splice_ir(4, guard_ir)}
+                return t
+            """)
+
+    elif isinstance(descriptor, _MappingDescriptor):
+        key_sub_method_name = ""
+        kmapper = descriptor.kmapper
+        if isinstance(kmapper, SchemaDescriptor):
+            key_sub_method_name = add_schema_descriptor_method(namespace, kmapper)
+        elif kmapper in (int, float):
+            key_sub_method_name = kmapper.__name__
+        elif kmapper != str:
+            raise RuntimeError(
+                "Mapping key schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        value_sub_method_name = ""
+        vmapper = descriptor.vmapper
+        if isinstance(vmapper, SchemaDescriptor):
+            value_sub_method_name = add_schema_descriptor_method(namespace, vmapper)
+        elif vmapper in (int, float):
+            value_sub_method_name = vmapper.__name__
+        elif vmapper != str:
+            raise RuntimeError(
+                "Mapping value schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        guard_ir = ""
+        if descriptor.empty_marker is not None:
+            guard_ir = root_ir(f"""
+                if s == "{descriptor.empty_marker}":
+                    return {{}}
+                """)
+
+        method_ir = root_ir(f"""
+            def {method_name}(s):
+                {splice_ir(4, guard_ir)}
+                if not s:
+                    return {{}}
+                pairs = (el.split("{descriptor.av_delimiter}", 1) for el in s.split("{descriptor.pair_delimiter}"))
+                return {{ {key_sub_method_name}(pair[0]): {value_sub_method_name}(pair[1]) for pair in pairs }}
+            """)
+
     else:
         raise RuntimeError("The SchemaDescriptor could not be transformed into IR.")
 
@@ -275,33 +410,32 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
         field_names.append(name)
         field_irs.append(field_ir)
 
-    # TODO: Create ability to simplify ir, based on first line, identation.
     unique_token_name = unique_name_id("Token")
-    class_ir = f"""
-class {unique_token_name}({s.__name__}):
-    __slots__ = (\"{"\", \"".join(field_names)}\",)
+    class_ir = root_ir(f"""
+        class {unique_token_name}({s.__name__}):
+            __slots__ = (\"{"\", \"".join(field_names)}\",)
 
-    def __init__(self, {", ".join(field_names)}) -> None:
-        {"\n        ".join(f"self.{fn} = {fn}" for fn in field_names)}
-"""
+            def __init__(self, {", ".join(field_names)}) -> None:
+                {"\n                ".join(f"self.{fn} = {fn}" for fn in field_names)}
+        """)
     exec(class_ir, namespace)
 
     compiled_parse_token = unique_name_id("compiled_parse_token")
-    compiled_parse_token_ir = f"""
-def {compiled_parse_token}(line: str) -> {s.__name__}:
-    fields = line.split("\\t")
+    compiled_parse_token_ir = root_ir(f"""
+        def {compiled_parse_token}(line: str) -> {s.__name__}:
+            fields = line.split("\\t")
 
-    if len(fields) != {len(field_names)}:
-        error_msg = f"The number of columns per token line must be {len(field_names)}. Invalid token: {{line!r}}"
-        raise ParseError(error_msg)
+            if len(fields) != {len(field_names)}:
+                error_msg = f"The number of columns per token line must be {len(field_names)}. Invalid token: {{line!r}}"
+                raise ParseError(error_msg)
 
-    if fields[-1][-1] == "\\n":
-        fields[-1] = fields[-1][:-1]
+            if len(fields[-1]) > 0 and fields[-1][-1] == "\\n":
+                fields[-1] = fields[-1][:-1]
 
-    {"\n    ".join(field_irs)}
+            {"\n            ".join(field_irs)}
 
-    return {unique_token_name}({",".join(field_names)})
-"""
+            return {unique_token_name}({",".join(field_names)})
+        """)
 
     exec(compiled_parse_token_ir, namespace)
     parser = cast(Callable[[str], S], namespace[compiled_parse_token])

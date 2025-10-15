@@ -64,7 +64,7 @@ class Sentence(Sequence[Token], Conllable):
         self._tokens: list[Token] = []
         self._ids_to_indexes: dict[str, int] = {}
 
-        token_parser: Callable[[str], Token] = compile_token_parser(ConlluToken)
+        token_parser: Callable[[str], ConlluToken] = compile_token_parser(ConlluToken)
 
         for i, line in enumerate(lines):
             if line:
@@ -83,7 +83,8 @@ class Sentence(Sequence[Token], Conllable):
                 else:
                     try:
                         token = token_parser(line)
-                        self._tokens.append(token)
+                        converted = Token(token.id, token.form, token.lemma, token.upos, token.xpos, token.feats, token.head, token.deprel, token.deps, token.misc)
+                        self._tokens.append(converted)
                         if token.id is not None:
                             self._ids_to_indexes[token.id] = len(self._tokens) - 1
                     except ParseError as exc:
