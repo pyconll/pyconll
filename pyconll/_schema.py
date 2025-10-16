@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 import random
 from typing import Any, Callable, cast, get_type_hints, Optional, Protocol, TYPE_CHECKING
 
@@ -9,16 +10,81 @@ if TYPE_CHECKING:
 
 # TODO: What's up with "SupportsRichComparisonT"
 # TODO: How to handle empty for containers appropriately and keeping same behavior as before (or better)
+_used_name_ids = set[str]()
 
+def unique_name_id(prefix: str) -> str:
+    var_name = ""
+    suffix = -1
+    while suffix < 0 or (var_name in _used_name_ids or var_name in globals()):
+        suffix = random.randint(0, 4294967296)
+        var_name = f"{prefix}_{suffix}"
+    _used_name_ids.add(var_name)
 
-class SchemaDescriptor[T]:
-    pass
+    return var_name
+
+class SchemaDescriptor[T](ABC):
+    @abstractmethod
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        pass
+
+    @abstractmethod
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        pass
+
+    def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
+        method_name = unique_name_id("deserialize_" + self.__class__.__name__)
+        codegen = self.do_deserialize_codegen(namespace, method_name)
+        exec(codegen, namespace)
+        return method_name
+
+    def serialize_codegen(self, namespace: dict[str, Any]) -> str:
+        method_name = unique_name_id("serialize_" + self.__class__.__name__)
+        codegen = self.do_serialize_codegen(namespace, method_name)
+        exec(codegen, namespace)
+        return method_name
 
 
 @dataclass(frozen=True, slots=True)
 class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     empty_marker: Optional[str]
+
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = ""
+        if isinstance(self.mapper, SchemaDescriptor):
+            sub_method_name = self.mapper.deserialize_codegen(namespace)
+        elif self.mapper in (int, float):
+            sub_method_name = self.mapper.__name__
+        elif self.mapper != str:
+            raise RuntimeError(
+                "Nullable schema must map via an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(val):
+                if val is None:
+                    return {self.empty_marker}
+
+                return {sub_method_name}(val)
+            """)
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = ""
+        if isinstance(self.mapper, SchemaDescriptor):
+            sub_method_name = self.mapper.serialize_codegen(namespace)
+        elif self.mapper in (int, float):
+            sub_method_name = self.mapper.__name__
+        elif self.mapper != str:
+            raise RuntimeError(
+                "Nullable schema must map via an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(s):
+                if {self.empty_marker!r} is not None and s == {self.empty_marker!r}:
+                    return None:
+                return {sub_method_name}(s)
+            """)
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,6 +93,45 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
     delimiter: str
     empty_marker: Optional[str]
 
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = ""
+        if isinstance(self.mapper, SchemaDescriptor):
+            sub_method_name = self.mapper.deserialize_codegen(namespace)
+        elif self.mapper in (int, float):
+            sub_method_name = self.mapper.__name__
+        elif self.mapper != str:
+            raise RuntimeError(
+                "Array schema must map via an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(vs):
+                if len(vs) == 0:
+                    return "{self.empty_marker}"
+                "{self.delimiter}".join({sub_method_name}(el) for el in vs)
+            """)
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        result_ir = ""
+        if isinstance(self.mapper, SchemaDescriptor):
+            sub_method_name = self.mapper.serialize_codegen(namespace)
+            result_ir = f"[{sub_method_name}(el) for el in s.split(\"{self.delimiter}\")]"
+        elif self.mapper in (int, float):
+            result_ir = f"[{self.mapper.__name__}(el) for el in s.split(\"{self.delimiter}\")]"
+        elif self.mapper == str:
+            result_ir = f"s.split(\"{self.delimiter}\")"
+        else:
+            raise RuntimeError(
+                "Array schema must map via an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(s):
+                if s == {self.empty_marker!r} or len(s) == 0:
+                    return []
+                return {result_ir}
+            """)
+
 
 @dataclass(frozen=True, slots=True)
 class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
@@ -34,6 +139,27 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
     delimiter: str
     empty_marker: Optional[str]
     ordering_key: Optional[Callable[[T], "SupportsRichComparisonT"]]
+
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        raise NotImplementedError("You know it")
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = ""
+        if isinstance(self.mapper, SchemaDescriptor):
+            sub_method_name = self.mapper.serialize_codegen(namespace)
+        elif self.mapper in (int, float):
+            sub_method_name = self.mapper.__name__
+        elif self.mapper != str:
+            raise RuntimeError(
+                "UniqueArray schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(s):
+                if s == {self.empty_marker!r} or not s:
+                    return set()
+                return {{ {sub_method_name}(el) for el in s.split("{self.delimiter}") }}
+            """)
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +170,38 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
     max_size_req: Optional[int]
     empty_marker: Optional[str]
 
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        raise NotImplementedError("You know it")
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = ""
+        if isinstance(self.mapper, SchemaDescriptor):
+            sub_method_name = self.mapper.serialize_codegen(namespace)
+        elif self.mapper in (int, float):
+            sub_method_name = self.mapper.__name__
+        elif self.mapper != str:
+            raise RuntimeError(
+                "FixedArray schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(s):
+                if {self.empty_marker!r} is not None and s == {self.empty_marker!r}:
+                    return ()
+                if not s:
+                    t = ()
+                else:
+                    t = tuple({sub_method_name}(el) for el in s.split("{self.delimiter}"))
+
+                if {self.min_size_req} is not None and len(t) < {self.min_size_req}:
+                    raise ParseError("The input \\"{{s}}\\" is parsed as a tuple smaller than the required minimum size of {self.min_size_req}")
+
+                if {self.max_size_req} is not None and len(t) > {self.max_size_req}:
+                    raise ParseError("The input \\"{{s}}\\" is parsed as a tuple smaller than the required minimum size of {self.max_size_req}")
+
+                return t
+            """)
+
 
 @dataclass(frozen=True, slots=True)
 class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
@@ -53,6 +211,38 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     av_delimiter: str
     empty_marker: Optional[str]
     ordering_key: Optional[Callable[[K], "SupportsRichComparisonT"]]
+
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        raise NotImplementedError("You know it")
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        key_sub_method_name = ""
+        if isinstance(self.kmapper, SchemaDescriptor):
+            key_sub_method_name = self.kmapper.serialize_codegen(namespace)
+        elif self.kmapper in (int, float):
+            key_sub_method_name = self.kmapper.__name__
+        elif self.kmapper != str:
+            raise RuntimeError(
+                "Mapping key schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        value_sub_method_name = ""
+        if isinstance(self.vmapper, SchemaDescriptor):
+            value_sub_method_name = self.vmapper.serialize_codegen(namespace)
+        elif self.vmapper in (int, float):
+            value_sub_method_name = self.vmapper.__name__
+        elif self.vmapper != str:
+            raise RuntimeError(
+                "Mapping value schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
+            )
+
+        return root_ir(f"""
+            def {method_name}(s):
+                if ({self.empty_marker!r} is not None and s == {self.empty_marker!r}) or not s:
+                    return {{}}
+                pairs = (el.split("{self.av_delimiter}", 1) for el in s.split("{self.pair_delimiter}"))
+                return {{ {key_sub_method_name}(pair[0]): {value_sub_method_name}(pair[1]) for pair in pairs }}
+            """)
 
 
 def nullable[T](mapper: type[T] | SchemaDescriptor[T], empty_marker: Optional[str] = None) -> _NullableDescriptor[T]:
@@ -102,7 +292,7 @@ def schema[T](desc: SchemaDescriptor[T]) -> T:
 
 
 class TokenProtocol(Protocol):
-    pass
+    def conll(self) -> str: ...
 
 
 class ConlluToken(TokenProtocol):
@@ -138,19 +328,6 @@ class ConlluToken(TokenProtocol):
         """
         return "." in self.id
 
-
-_used_name_ids = set[str]()
-
-
-def unique_name_id(prefix: str) -> str:
-    var_name = ""
-    suffix = -1
-    while suffix < 0 or (var_name in _used_name_ids or var_name in globals()):
-        suffix = random.randint(0, 4294967296)
-        var_name = f"{prefix}_{suffix}"
-    _used_name_ids.add(var_name)
-
-    return var_name
 
 def root_ir(code: str) -> str:
     lines = code.split("\n")
@@ -190,182 +367,6 @@ def splice_ir(levels: int, code: str) -> str:
     return "\n".join([prefix + line if i > 0 else line for i, line in enumerate(code.split("\n"))])
 
 
-def add_schema_descriptor_method(namespace: dict[str, Any], descriptor: SchemaDescriptor) -> str:
-    method_name = unique_name_id("mfd_" + descriptor.__class__.__name__)
-
-    if isinstance(descriptor, _NullableDescriptor):
-        sub_method_name = ""
-        mapper = descriptor.mapper
-        if isinstance(mapper, SchemaDescriptor):
-            sub_method_name = add_schema_descriptor_method(namespace, mapper)
-        elif mapper in (int, float):
-            sub_method_name = mapper.__name__
-        elif mapper != str:
-            raise RuntimeError(
-                "Nullable schema must map via an int, float, or str or provide a nested SchemaDescriptor."
-            )
-
-        guard_ir = ""
-        if descriptor.empty_marker is not None:
-            guard_ir = root_ir(f"""
-                if s == "{descriptor.empty_marker}":
-                    return None
-                """)
-
-        method_ir = root_ir(f"""
-            def {method_name}(s):
-                if not s:
-                    return None
-                {splice_ir(4, guard_ir)}
-                else:
-                    return {sub_method_name}(s)
-            """)
-
-    elif isinstance(descriptor, _ArrayDescriptor):
-        result_ir = ""
-        mapper = descriptor.mapper
-        if isinstance(mapper, SchemaDescriptor):
-            sub_method_name = add_schema_descriptor_method(namespace, mapper)
-            result_ir = f"[{sub_method_name}(el) for el in s.split(\"{descriptor.delimiter}\")]"
-        elif mapper in (int, float):
-            result_ir = f"[{mapper.__name__}(el) for el in s.split(\"{descriptor.delimiter}\")]"
-        elif mapper == str:
-            result_ir = f"s.split(\"{descriptor.delimiter}\")"
-        else:
-            raise RuntimeError(
-                "Nullable schema must map via an int, float, or str or provide a nested SchemaDescriptor."
-            )
-
-        guard_ir = ""
-        if descriptor.empty_marker is not None:
-            guard_ir = root_ir(f"""
-                if s == "{descriptor.empty_marker}":
-                    return []
-                """)
-
-        method_ir = root_ir(f"""
-            def {method_name}(s):
-                {splice_ir(4, guard_ir)}
-                if not s:
-                    return []
-                return {result_ir}
-            """)
-
-    elif isinstance(descriptor, _UniqueArrayDescriptor):
-        sub_method_name = ""
-        mapper = descriptor.mapper
-        if isinstance(mapper, SchemaDescriptor):
-            sub_method_name = add_schema_descriptor_method(namespace, mapper)
-        elif mapper in (int, float):
-            sub_method_name = mapper.__name__
-        elif mapper != str:
-            raise RuntimeError(
-                "UniqueArray schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
-            )
-
-        guard_ir = ""
-        if descriptor.empty_marker is not None:
-            guard_ir = root_ir(f"""
-                if s == "{descriptor.empty_marker}":
-                    return set()
-                """)
-
-        method_ir = root_ir(f"""
-            def {method_name}(s):
-                {splice_ir(4, guard_ir)}
-                if not s:
-                    return set()
-                return {{ {sub_method_name}(el) for el in s.split("{descriptor.delimiter}") }}
-            """)
-
-    elif isinstance(descriptor, _FixedArrayDescriptor):
-        sub_method_name = ""
-        mapper = descriptor.mapper
-        if isinstance(mapper, SchemaDescriptor):
-            sub_method_name = add_schema_descriptor_method(namespace, mapper)
-        elif mapper in (int, float):
-            sub_method_name = mapper.__name__
-        elif mapper != str:
-            raise RuntimeError(
-                "FixedArray schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
-            )
-
-        empty_guard_ir = ""
-        if descriptor.empty_marker is not None:
-            empty_guard_ir = root_ir(f"""
-                if s == "{descriptor.empty_marker}":
-                    return ()
-                """)
-
-        guard_ir = ""
-        if descriptor.min_size_req is not None:
-            guard_ir += root_ir(f"""
-                if len(t) < {descriptor.min_size_req}:
-                    raise ParseError("The input \\"{{s}}\\" is parsed as a tuple smaller than the required minimum size of {descriptor.min_size_req}")
-                """)
-        if descriptor.max_size_req is not None:
-            guard_ir += root_ir(f"""
-                if len(t) > {descriptor.max_size_req}:
-                    raise ParseError("The input \\"{{s}}\\" is parsed as a tuple smaller than the required minimum size of {descriptor.max_size_req}")
-                """)
-
-        method_ir = root_ir(f"""
-            def {method_name}(s):
-                {splice_ir(4, empty_guard_ir)}
-                if not s:
-                    t = ()
-                else:
-                    t = tuple({sub_method_name}(el) for el in s.split("{descriptor.delimiter}"))
-                {splice_ir(4, guard_ir)}
-                return t
-            """)
-
-    elif isinstance(descriptor, _MappingDescriptor):
-        key_sub_method_name = ""
-        kmapper = descriptor.kmapper
-        if isinstance(kmapper, SchemaDescriptor):
-            key_sub_method_name = add_schema_descriptor_method(namespace, kmapper)
-        elif kmapper in (int, float):
-            key_sub_method_name = kmapper.__name__
-        elif kmapper != str:
-            raise RuntimeError(
-                "Mapping key schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
-            )
-
-        value_sub_method_name = ""
-        vmapper = descriptor.vmapper
-        if isinstance(vmapper, SchemaDescriptor):
-            value_sub_method_name = add_schema_descriptor_method(namespace, vmapper)
-        elif vmapper in (int, float):
-            value_sub_method_name = vmapper.__name__
-        elif vmapper != str:
-            raise RuntimeError(
-                "Mapping value schema must wrap an int, float, or str or provide a nested SchemaDescriptor."
-            )
-
-        guard_ir = ""
-        if descriptor.empty_marker is not None:
-            guard_ir = root_ir(f"""
-                if s == "{descriptor.empty_marker}":
-                    return {{}}
-                """)
-
-        method_ir = root_ir(f"""
-            def {method_name}(s):
-                {splice_ir(4, guard_ir)}
-                if not s:
-                    return {{}}
-                pairs = (el.split("{descriptor.av_delimiter}", 1) for el in s.split("{descriptor.pair_delimiter}"))
-                return {{ {key_sub_method_name}(pair[0]): {value_sub_method_name}(pair[1]) for pair in pairs }}
-            """)
-
-    else:
-        raise RuntimeError("The SchemaDescriptor could not be transformed into IR.")
-
-    exec(method_ir, namespace)
-    return method_name
-
-
 def compile_schema_ir(
     namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
 ) -> str:
@@ -384,8 +385,7 @@ def compile_schema_ir(
                 "Only str, int, and float are directly supported for column schemas. For other types, define the schema via SchemaDescriptors."
             )
     elif isinstance(attr, SchemaDescriptor):
-        method_name = add_schema_descriptor_method(namespace, attr)
-        return method_name
+        return attr.serialize_codegen(namespace)
     else:
         raise RuntimeError(
             "Attributes for column schemas must either be unassigned (None) or a SchemaDescriptor."
