@@ -8,8 +8,14 @@ import functools
 import math
 from typing import Optional
 
-from pyconll.exception import FormatError
-from pyconll._schema import schema, nullable, mapping, unique_array, fixed_array, TokenProtocol
+from pyconll._schema import (
+    schema,
+    nullable,
+    mapping,
+    unique_array,
+    legacy_fixed_array,
+    TokenProtocol,
+)
 
 
 @functools.total_ordering
@@ -159,15 +165,15 @@ class Token(TokenProtocol):
     upos: Optional[str] = schema(nullable(str, "_"))
     xpos: Optional[str] = schema(nullable(str, "_"))
     feats: dict[str, set[str]] = schema(
-        mapping(str, unique_array(str, ","), "|", "=", "_", lambda p: p[0].lower())
+        mapping(str, unique_array(str, ",", None, str.lower), "|", "=", "_", lambda p: p[0].lower())
     )
     head: Optional[str] = schema(nullable(str, "_"))
     deprel: Optional[str] = schema(nullable(str, "_"))
-    deps: dict[str, tuple[str, ...]] = schema(
-        mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
+    deps: dict[str, tuple[str, str, str, str]] = schema(
+        mapping(str, legacy_fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
     )
     misc: dict[str, Optional[set[str]]] = schema(
-        mapping(str, nullable(unique_array(str, ",")), "|", "=", "_", lambda p: p[0].lower())
+        mapping(str, nullable(unique_array(str, ",", None, str.lower)), "|", "=", "_", lambda p: p[0].lower())
     )
 
     @property

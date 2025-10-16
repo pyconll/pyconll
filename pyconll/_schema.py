@@ -7,8 +7,6 @@ from typing import (
     cast,
     get_type_hints,
     Optional,
-    Protocol,
-    runtime_checkable,
     TYPE_CHECKING,
 )
 
@@ -21,6 +19,8 @@ if TYPE_CHECKING:
 # TODO: Figure out how to consistenly handle empty fields
 # TODO: What's up with "SupportsRichComparisonT"
 # TODO: How to handle empty for containers appropriately and keeping same behavior as before (or better)
+# TODO: Improve error handling and make it consistent for exceptions, everything just be a raise ParseError and as little
+#       validation as possible.
 _used_name_ids = set[str]()
 
 
@@ -90,14 +90,14 @@ def serialize_sub_method_name[T](
 @dataclass(frozen=True, slots=True)
 class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
     mapper: type[T] | SchemaDescriptor[T]
-    empty_marker: Optional[str]
+    empty_marker: str
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
         return root_ir(
             f"""
             def {method_name}(s):
-                if {self.empty_marker!r} != None and s == {self.empty_marker!r}:
+                if s == {self.empty_marker!r}:
                     return None
                 return {sub_method_name}(s)
             """
@@ -124,7 +124,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
-        if sub_method_name == "":
+        if not sub_method_name:
             result_ir = f's.split("{self.delimiter}")'
         else:
             result_ir = f'[{sub_method_name}(el) for el in s.split("{self.delimiter}")]'
@@ -140,13 +140,17 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
 
     def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = serialize_sub_method_name(namespace, self.mapper)
+        if not sub_method_name:
+            gen_ir = "vs"
+        else:
+            gen_ir = f"{sub_method_name}(el) for el in vs"
 
         return root_ir(
             f"""
             def {method_name}(vs):
                 if len(vs) == 0:
                     return "{self.empty_marker}"
-                "{self.delimiter}".join({sub_method_name}(el) for el in vs)
+                "{self.delimiter}".join({gen_ir})
             """
         )
 
@@ -160,24 +164,34 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
+        if not sub_method_name:
+            return_ir = f"set(s.split({self.delimiter!r}))"
+        else:
+            return_ir = f"{{ {sub_method_name}(el) for el in s.split({self.delimiter!r}) }}"
+
         return root_ir(
             f"""
             def {method_name}(s):
                 if {self.empty_marker!r} != None and s == {self.empty_marker!r} or not s:
                     return set()
-                return {{ {sub_method_name}(el) for el in s.split({self.delimiter!r}) }}
+                return {return_ir}
             """
         )
 
     def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = serialize_sub_method_name(namespace, self.mapper)
 
-        if self.ordering_key is not None:
+        if self.ordering_key is None:
+            values_ir = "vs"
+        else:
             ordering_key_id = unique_name_id("_UniqueArrayDescriptor_ordering_key")
             namespace[ordering_key_id] = self.ordering_key
             values_ir = f"sorted(vs, key={ordering_key_id})"
+
+        if not sub_method_name:
+            gen_ir = values_ir
         else:
-            values_ir = "vs"
+            gen_ir = f"{sub_method_name}(el) for el in {values_ir}"
 
         return root_ir(
             f"""
@@ -185,7 +199,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
                 if {self.empty_marker!r} != None and len(vs) == 0:
                     return {self.empty_marker!r}
                 
-                return {self.delimiter!r}.join({sub_method_name}(el) for el in {values_ir})
+                return {self.delimiter!r}.join({gen_ir})
             """
         )
 
@@ -198,25 +212,77 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
+        if not sub_method_name:
+            gen_ir = f"s.split({self.delimiter!r})"
+        else:
+            gen_ir = f"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
+
         return root_ir(
             f"""
             def {method_name}(s):
                 if ({self.empty_marker!r} != None and s == {self.empty_marker!r}) or (not s):
                     return ()
 
-                return tuple({sub_method_name}(el) for el in s.split("{self.delimiter}"))
+                return tuple({gen_ir})
             """
         )
 
     def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = serialize_sub_method_name(namespace, self.mapper)
+        if not sub_method_name:
+            gen_ir = "tup"
+        else:
+            gen_ir = f"{sub_method_name}(el) for el in tup"
+
         return root_ir(
             f"""
             def {method_name}(tup):
                 if {self.empty_marker!r} != None and len(tup) == 0:
                     return {self.empty_marker!r}
 
-                return {self.delimiter!r}.join({sub_method_name}(el) for el in tup)
+                return {self.delimiter!r}.join({gen_ir})
+            """
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
+    mapper: type[T] | SchemaDescriptor[T]
+    delimiter: str
+    empty_marker: Optional[str]
+
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
+        if sub_method_name != "":
+            els_ir = f"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
+        else:
+            els_ir = f"s.split({self.delimiter!r})"
+
+        return root_ir(
+            f"""
+            def {method_name}(s):
+                if {self.empty_marker!r} == s:
+                    return ()
+            
+                els = {els_ir}
+
+                if 0 <= len(els) <= 4:
+                    return tuple(els + ([None] * (4 - len(els))))
+
+                raise ParseError(f"Error parsing \\"{{s}}\\" as tuple properly. Please check against CoNLL format spec.")
+            """
+        )
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        sub_method_name = serialize_sub_method_name(namespace, self.mapper)
+
+        return root_ir(
+            f"""
+            def {method_name}(tup):
+                if {self.empty_marker!r} != None and len(tup) == 0:
+                    return {self.empty_marker!r}
+
+                return {self.delimiter!r}.join({sub_method_name}(el) for el in tup if el is not None)
             """
         )
 
@@ -230,6 +296,12 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     empty_marker: Optional[str]
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparisonT"]]
 
+    # TODO: Add bool to control if av_delimiter must be present and if it doesn't, then it's absence
+    # is treated the same as no text after it.
+    # TODO: If the entire pair is empty, then also a flag should be added to say if that is treated as
+    # an empty string to both mappers (although this seems not necessary for compatbility, although test
+    # needs to be added to confirm stability of parsing).
+
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         key_sub_method_name = deserialize_sub_method_name(namespace, self.kmapper)
         value_sub_method_name = deserialize_sub_method_name(namespace, self.vmapper)
@@ -238,7 +310,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
             def {method_name}(s):
                 if ({self.empty_marker!r} != None and s == {self.empty_marker!r}) or not s:
                     return {{}}
-                pairs = (el.split("{self.av_delimiter}", 1) for el in s.split("{self.pair_delimiter}"))
+                pairs = (el.split({self.av_delimiter!r}, 1) for el in s.split({self.pair_delimiter!r}))
                 return {{ {key_sub_method_name}(pair[0]): {value_sub_method_name}(pair[1]) for pair in pairs }}
             """
         )
@@ -252,7 +324,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
             namespace[ordering_key_id] = self.ordering_key
             items_ir = f"items = sorted(mapping.items(), key={ordering_key_id})"
         else:
-            items_ir = "items = sorted(mapping.items())"
+            items_ir = "items = mapping.items()"
 
         return root_ir(
             f"""
@@ -268,7 +340,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
 
 
 def nullable[T](
-    mapper: type[T] | SchemaDescriptor[T], empty_marker: Optional[str] = None
+    mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ''
 ) -> _NullableDescriptor[T]:
     return _NullableDescriptor[T](mapper, empty_marker)
 
@@ -296,6 +368,12 @@ def fixed_array[T](
     return _FixedArrayDescriptor[T](mapper, delimiter, empty_marker)
 
 
+def legacy_fixed_array[T](
+    mapper: type[T] | SchemaDescriptor[T], delimiter: str, empty_marker: Optional[str] = None
+) -> _LegacyFixedArrayDescriptor[T]:
+    return _LegacyFixedArrayDescriptor[T](mapper, delimiter, empty_marker)
+
+
 def mapping[K, V](
     kmapper: type[K] | SchemaDescriptor[K],
     vmapper: type[V] | SchemaDescriptor[V],
@@ -313,7 +391,7 @@ def schema[T](desc: SchemaDescriptor[T]) -> T:
     return cast(T, desc)
 
 
-class TokenProtocol(Conllable, Protocol):
+class TokenProtocol(Conllable):
     pass
 
 
@@ -348,11 +426,6 @@ def root_ir(code: str) -> str:
         new_lines.append(line.removeprefix(prefix))
 
     return "\n".join(new_lines)
-
-
-def splice_ir(levels: int, code: str) -> str:
-    prefix = " " * 4 * levels
-    return "\n".join([prefix + line if i > 0 else line for i, line in enumerate(code.split("\n"))])
 
 
 def compile_deserialize_schema_ir(
