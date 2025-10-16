@@ -4,9 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [4.0.0] - YYYY-MM-DD
+## [3.4.0] - YYYY-MM-DD
 ### Changed
-- To support latest Python type hint syntax, move minimum supported version up to 3.12+.
+- To support latest Python type hint syntax, move minimum supported version up to 3.12+ for new features.
+- Add dynamic schema support and move existing CoNLL-U parsing to the same mechanism
 
 ## [3.3.1] - 2025-10-11
 ### Changed
