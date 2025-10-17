@@ -173,7 +173,7 @@ class Token(TokenProtocol):
         mapping(str, legacy_fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
     )
     misc: dict[str, Optional[set[str]]] = schema(
-        mapping(str, nullable(unique_array(str, ",", None, str.lower)), "|", "=", "_", lambda p: p[0].lower())
+        mapping(str, nullable(unique_array(str, ",", None, str.lower)), "|", "=", "_", lambda p: p[0].lower(), True)
     )
 
     @property

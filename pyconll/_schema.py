@@ -10,15 +10,12 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from pyconll.exception import ParseError
+from pyconll.exception import FormatError, ParseError
 from pyconll.conllable import Conllable
 
 if TYPE_CHECKING:
-    from _typeshed import SupportsRichComparisonT
+    from _typeshed import SupportsRichComparison
 
-# TODO: Figure out how to consistenly handle empty fields
-# TODO: What's up with "SupportsRichComparisonT"
-# TODO: How to handle empty for containers appropriately and keeping same behavior as before (or better)
 # TODO: Improve error handling and make it consistent for exceptions, everything just be a raise ParseError and as little
 #       validation as possible.
 _used_name_ids = set[str]()
@@ -125,14 +122,14 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            result_ir = f's.split("{self.delimiter}")'
+            result_ir = f's.split({self.delimiter!r})'
         else:
-            result_ir = f'[{sub_method_name}(el) for el in s.split("{self.delimiter}")]'
+            result_ir = f'[{sub_method_name}(el) for el in s.split({self.delimiter!r})]'
 
         return root_ir(
             f"""
             def {method_name}(s):
-                if s == {self.empty_marker!r} or len(s) == 0:
+                if s == {self.empty_marker!r} or not s:
                     return []
                 return {result_ir}
             """
@@ -148,9 +145,9 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
         return root_ir(
             f"""
             def {method_name}(vs):
-                if len(vs) == 0:
-                    return "{self.empty_marker}"
-                "{self.delimiter}".join({gen_ir})
+                if {self.empty_marker!r} != None and not vs:
+                    return {self.empty_marker!r}
+                return {self.delimiter!r}.join({gen_ir})
             """
         )
 
@@ -160,7 +157,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
     empty_marker: Optional[str]
-    ordering_key: Optional[Callable[[T], "SupportsRichComparisonT"]]
+    ordering_key: Optional[Callable[[T], "SupportsRichComparison"]]
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
@@ -172,7 +169,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if {self.empty_marker!r} != None and s == {self.empty_marker!r} or not s:
+                if s == {self.empty_marker!r} or not s:
                     return set()
                 return {return_ir}
             """
@@ -196,7 +193,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         return root_ir(
             f"""
             def {method_name}(vs):
-                if {self.empty_marker!r} != None and len(vs) == 0:
+                if {self.empty_marker!r} != None and not vs:
                     return {self.empty_marker!r}
                 
                 return {self.delimiter!r}.join({gen_ir})
@@ -220,7 +217,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if ({self.empty_marker!r} != None and s == {self.empty_marker!r}) or (not s):
+                if s == {self.empty_marker!r} or not s:
                     return ()
 
                 return tuple({gen_ir})
@@ -237,7 +234,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
         return root_ir(
             f"""
             def {method_name}(tup):
-                if {self.empty_marker!r} != None and len(tup) == 0:
+                if {self.empty_marker!r} != None and not tup:
                     return {self.empty_marker!r}
 
                 return {self.delimiter!r}.join({gen_ir})
@@ -249,7 +246,6 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
 class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
-    empty_marker: Optional[str]
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
@@ -261,9 +257,6 @@ class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if {self.empty_marker!r} == s:
-                    return ()
-            
                 els = {els_ir}
 
                 if 0 <= len(els) <= 4:
@@ -279,8 +272,9 @@ class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
         return root_ir(
             f"""
             def {method_name}(tup):
-                if {self.empty_marker!r} != None and len(tup) == 0:
-                    return {self.empty_marker!r}
+                presents = list(filter(lambda el: el is not None, tup))
+                if not presents:
+                    raise FormatError("All values in the tuple are None.")
 
                 return {self.delimiter!r}.join({sub_method_name}(el) for el in tup if el is not None)
             """
@@ -294,13 +288,17 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     pair_delimiter: str
     av_delimiter: str
     empty_marker: Optional[str]
-    ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparisonT"]]
+    ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
+    use_compact_pair: bool
 
-    # TODO: Add bool to control if av_delimiter must be present and if it doesn't, then it's absence
-    # is treated the same as no text after it.
     # TODO: If the entire pair is empty, then also a flag should be added to say if that is treated as
     # an empty string to both mappers (although this seems not necessary for compatbility, although test
-    # needs to be added to confirm stability of parsing).
+    # needs to be added to confirm stability of parsing). Although, this is similar to emptiness handling
+    # and has multiple dimensions that could be addressed, such as NotCompact,AllowCompactV,AllowCompactKV
+
+    # And for reference emptiness handling needs to be a three part struct as well, which describes:
+    #   empty_marker
+    #   exclusive_marker
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         key_sub_method_name = deserialize_sub_method_name(namespace, self.kmapper)
@@ -308,10 +306,22 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if ({self.empty_marker!r} != None and s == {self.empty_marker!r}) or not s:
+                if s == {self.empty_marker!r} or not s:
                     return {{}}
-                pairs = (el.split({self.av_delimiter!r}, 1) for el in s.split({self.pair_delimiter!r}))
-                return {{ {key_sub_method_name}(pair[0]): {value_sub_method_name}(pair[1]) for pair in pairs }}
+
+                d = {{}}
+                pairs = s.split({self.pair_delimiter!r})
+                for pair in pairs:
+                    avs = pair.split({self.av_delimiter!r}, 1)
+                    if len(avs) == 1:
+                        if {self.use_compact_pair!r}:
+                            avs.append("")
+                        else:
+                            raise ParseError(f"Could not parse one of the pairs in {{s}} which did not have an attribute-value delimiter.")
+
+                    d[{key_sub_method_name}(avs[0])] = {value_sub_method_name}(avs[1])
+
+                return d
             """
         )
 
@@ -329,12 +339,18 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         return root_ir(
             f"""
             def {method_name}(mapping):
-                if {self.empty_marker!r} != None and len(mapping) == 0:
+                if {self.empty_marker!r} != None and not mapping:
                     return {self.empty_marker!r}
 
                 {items_ir}
-                transformed = ({self.av_delimiter!r}.join(({key_sub_method_name}(key), {value_sub_method_name}(value))) for (key, value) in items)
-                return {self.pair_delimiter!r}.join(transformed)
+                transformed = []
+                for (key, value) in items:
+                    value_str = {value_sub_method_name}(value)
+                    if {self.use_compact_pair!r} and value_str == "":
+                        transformed.append(({key_sub_method_name}(key),))
+                    else:
+                        transformed.append(({key_sub_method_name}(key), value_str))
+                return {self.pair_delimiter!r}.join({self.av_delimiter!r}.join(t) for t in transformed)
             """
         )
 
@@ -369,9 +385,9 @@ def fixed_array[T](
 
 
 def legacy_fixed_array[T](
-    mapper: type[T] | SchemaDescriptor[T], delimiter: str, empty_marker: Optional[str] = None
+    mapper: type[T] | SchemaDescriptor[T], delimiter: str
 ) -> _LegacyFixedArrayDescriptor[T]:
-    return _LegacyFixedArrayDescriptor[T](mapper, delimiter, empty_marker)
+    return _LegacyFixedArrayDescriptor[T](mapper, delimiter)
 
 
 def mapping[K, V](
@@ -380,10 +396,11 @@ def mapping[K, V](
     pair_delimiter: str,
     av_delimiter: str,
     empty_marker: Optional[str] = None,
-    ordering_key: Optional[Callable[[tuple[K, V]], Any]] = None,
+    ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]] = None,
+    allow_no_av_delimiter: bool = False
 ) -> _MappingDescriptor[K, V]:
     return _MappingDescriptor[K, V](
-        kmapper, vmapper, pair_delimiter, av_delimiter, empty_marker, ordering_key
+        kmapper, vmapper, pair_delimiter, av_delimiter, empty_marker, ordering_key, allow_no_av_delimiter
     )
 
 
@@ -482,7 +499,7 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     field_names: list[str] = []
     field_irs: list[str] = []
     conll_irs: list[str] = []
-    namespace = {s.__name__: s, "ParseError": ParseError, "Conllable": Conllable}
+    namespace = {s.__name__: s, "ParseError": ParseError, "FormatError": FormatError, "Conllable": Conllable}
 
     for i, (name, type_hint) in enumerate(hints.items()):
         field_names.append(name)
