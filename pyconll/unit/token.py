@@ -176,6 +176,10 @@ class Token(TokenProtocol):
         mapping(str, nullable(unique_array(str, ",", None, str.lower)), "|", "=", "_", lambda p: p[0].lower(), True)
     )
 
+    def post_init(self):
+        if self._form is None and self.lemma is None:
+            self._form = self.lemma = "_"
+
     @property
     def form(self) -> Optional[str]:
         """

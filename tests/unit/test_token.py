@@ -239,18 +239,6 @@ def test_empty_lemma_present_form():
     )
 
 
-def test_empty_lemma_empty_form_with_assumption():
-    """
-    Test that a Token with no form or lemma with the empty assumption gets values of None.
-    """
-    token_line = "33	_	_	SYM	_	_	30	punct	_	SpaceAfter=No"
-    token = _parse_token(token_line, empty=True)
-
-    assert_token_members(
-        token, "33", None, None, "SYM", None, {}, "30", "punct", {}, {"SpaceAfter": set(("No",))}
-    )
-
-
 def test_improper_source():
     """
     Test that when an input without 10 delimited columns raises a ParseError.

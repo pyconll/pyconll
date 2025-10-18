@@ -18,7 +18,6 @@ def test_conllable_base_not_implemented():
     """
 
     class ConllableObj(Conllable):
-
         def conll(self) -> str:
             return super().conll()
 

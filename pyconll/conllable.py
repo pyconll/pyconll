@@ -7,13 +7,13 @@ token, and therefore has a conll method.
 import abc
 from typing import Protocol
 
-
 class Conllable(Protocol, metaclass=abc.ABCMeta):
     """
     A Conllable mixin to indicate that the component can be converted into a
     CoNLL representation.
     """
 
+    @abc.abstractmethod
     def conll(self) -> str:
         """
         Provides a conll representation of the component.
@@ -22,6 +22,6 @@ class Conllable(Protocol, metaclass=abc.ABCMeta):
             A string conll representation of the base component.
 
         Raises:
-            RuntimeError: If the child class does not implement the method.
+            NotImplementedError: If the class instance does not implement the method.
         """
-        raise RuntimeError("No implementation for conll")
+        raise NotImplementedError("No implementation has been defined for conll")

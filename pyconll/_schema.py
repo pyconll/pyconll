@@ -533,7 +533,7 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     compiled_parse_token = unique_name_id("compiled_parse_token")
     compiled_parse_token_ir = root_ir(
         f"""
-        def {compiled_parse_token}(line: str) -> {s.__name__}:
+        def {compiled_parse_token}(line):
             fields = line.split("\\t")
 
             if len(fields) != {len(field_names)}:
@@ -545,7 +545,9 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
 
             {"\n            ".join(field_irs)}
 
-            return {unique_token_name}({",".join(field_names)})
+            new_token = {unique_token_name}({",".join(field_names)})
+            { "new_token.post_init()" if hasattr(s, "post_init") else "" }
+            return new_token
         """
     )
 
