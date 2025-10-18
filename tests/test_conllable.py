@@ -21,6 +21,6 @@ def test_conllable_base_not_implemented():
         def conll(self) -> str:
             return super().conll()
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(RuntimeError):
         c = ConllableObj()
         c.conll()

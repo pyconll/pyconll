@@ -404,7 +404,7 @@ class TokenProtocol(Conllable):
     pass
 
 
-def compile_deserialize_schema_ir(
+def _compile_deserialize_schema_ir(
     namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
 ) -> str:
     if attr is None:
@@ -429,7 +429,7 @@ def compile_deserialize_schema_ir(
     )
 
 
-def compile_serialize_schema_ir(
+def _compile_serialize_schema_ir(
     namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
 ) -> str:
     if attr is None:
@@ -452,7 +452,7 @@ def compile_serialize_schema_ir(
     )
 
 
-def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
+def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     hints = get_type_hints(s)
 
     field_names: list[str] = []
@@ -469,11 +469,11 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
         field_names.append(name)
         attr = getattr(s, name) if hasattr(s, name) else None
 
-        deserialize_name = compile_deserialize_schema_ir(namespace, attr, type_hint)
+        deserialize_name = _compile_deserialize_schema_ir(namespace, attr, type_hint)
         field_ir = f"{name} = {deserialize_name}(fields[{i}])"
         field_irs.append(field_ir)
 
-        serialize_name = compile_serialize_schema_ir(namespace, attr, type_hint)
+        serialize_name = _compile_serialize_schema_ir(namespace, attr, type_hint)
         conll_ir = f"{name} = {serialize_name}(self.{name})"
         conll_irs.append(conll_ir)
 
