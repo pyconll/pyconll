@@ -3,7 +3,7 @@ import pytest
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
-from pyconll._schema import compile_token_parser
+from pyconll.schema import compile_token_parser
 from pyconll.unit.token import Token
 
 _parse_token = compile_token_parser(Token)

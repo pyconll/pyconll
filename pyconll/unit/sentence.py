@@ -8,7 +8,7 @@ from typing import Callable, ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
-from pyconll._schema import compile_token_parser
+from pyconll.schema import compile_token_parser
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token

@@ -8,7 +8,7 @@ import functools
 import math
 from typing import Optional
 
-from pyconll._schema import (
+from pyconll.schema import (
     schema,
     nullable,
     mapping,
