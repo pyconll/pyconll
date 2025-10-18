@@ -151,9 +151,7 @@ def test_to_string():
     """
     Test if a token's string representation is accurate.
     """
-    token_line = (
-        "26	surmonté	surmonter	VERB	_	Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_"
-    )
+    token_line = "26	surmonté	surmonter	VERB	_	Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_"
     token = _parse_token(token_line)
 
     assert token.conll() == token_line
@@ -182,9 +180,7 @@ def test_modify_dict_field_to_string():
 
     token.feats["Gender"].add("Fem")
 
-    new_token_line = (
-        "33	cintre	cintre	NOUN	_	Gender=Fem,Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
-    )
+    new_token_line = "33	cintre	cintre	NOUN	_	Gender=Fem,Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
 
     assert token.conll() == new_token_line
 
@@ -400,11 +396,14 @@ def test_empty_set_format_error():
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
     token = _parse_token(token_line)
-
     token.feats["Gender"].pop()
 
-    with pytest.raises(FormatError):
-        token.conll()
+    formatted_line = (
+        "33	cintre	cintre	NOUN	_	Gender=|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
+    )
+    conll = token.conll()
+
+    assert conll == formatted_line
 
 
 def test_all_empty_deps_component_error():
@@ -441,9 +440,21 @@ def test_empty_deps():
     Test that the deps for a field cannot be empty.
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:|4:root	SpaceAfter=No"
+    token = _parse_token(token_line)
 
-    with pytest.raises(ParseError):
-        token = _parse_token(token_line)
+    assert_token_members(
+        token,
+        "33",
+        "cintre",
+        "cintre",
+        "NOUN",
+        None,
+        {"Gender": {"Fem"}, "Number": {"Sing"}},
+        "30",
+        "nmod",
+        {"2": ("", None, None, None), "4": ("root", None, None, None)},
+        {"SpaceAfter": {"No"}},
+    )
 
 
 def test_no_empty_deps():
@@ -500,9 +511,7 @@ def test_deps_sort_order_double_digits():
     """
     Test that enhanced dependencies are sorted via numeric index and not string.
     """
-    token_line = (
-        "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	10:nsubj|2:nmod	SpaceAfter=No"
-    )
+    token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	10:nsubj|2:nmod	SpaceAfter=No"
 
     token = _parse_token(token_line)
     conll = token.conll()

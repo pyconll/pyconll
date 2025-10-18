@@ -7,6 +7,7 @@ token, and therefore has a conll method.
 import abc
 from typing import Protocol
 
+
 class Conllable(Protocol, metaclass=abc.ABCMeta):
     """
     A Conllable mixin to indicate that the component can be converted into a

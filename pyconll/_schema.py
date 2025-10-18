@@ -122,9 +122,9 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            result_ir = f's.split({self.delimiter!r})'
+            result_ir = f"s.split({self.delimiter!r})"
         else:
-            result_ir = f'[{sub_method_name}(el) for el in s.split({self.delimiter!r})]'
+            result_ir = f"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
 
         return root_ir(
             f"""
@@ -356,7 +356,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
 
 
 def nullable[T](
-    mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ''
+    mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ""
 ) -> _NullableDescriptor[T]:
     return _NullableDescriptor[T](mapper, empty_marker)
 
@@ -397,10 +397,16 @@ def mapping[K, V](
     av_delimiter: str,
     empty_marker: Optional[str] = None,
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]] = None,
-    allow_no_av_delimiter: bool = False
+    allow_no_av_delimiter: bool = False,
 ) -> _MappingDescriptor[K, V]:
     return _MappingDescriptor[K, V](
-        kmapper, vmapper, pair_delimiter, av_delimiter, empty_marker, ordering_key, allow_no_av_delimiter
+        kmapper,
+        vmapper,
+        pair_delimiter,
+        av_delimiter,
+        empty_marker,
+        ordering_key,
+        allow_no_av_delimiter,
     )
 
 
@@ -499,7 +505,12 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     field_names: list[str] = []
     field_irs: list[str] = []
     conll_irs: list[str] = []
-    namespace = {s.__name__: s, "ParseError": ParseError, "FormatError": FormatError, "Conllable": Conllable}
+    namespace = {
+        s.__name__: s,
+        "ParseError": ParseError,
+        "FormatError": FormatError,
+        "Conllable": Conllable,
+    }
 
     for i, (name, type_hint) in enumerate(hints.items()):
         field_names.append(name)
@@ -521,6 +532,9 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
 
             def __init__(self, {", ".join(field_names)}) -> None:
                 {"\n                ".join(f"self.{fn} = {fn}" for fn in field_names)}
+
+            def __repr__(self) -> str:
+                return f"{s.__name__}({", ".join([f"{{ self.{fn}!r }}" for fn in field_names])})"
 
             def conll(self) -> str:
                 {"\n                ".join(conll_irs)}

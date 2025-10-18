@@ -64,7 +64,7 @@ class Sentence(Sequence[Token], Conllable):
         self._tokens: list[Token] = []
         self._ids_to_indexes: dict[str, int] = {}
 
-        token_parser: Callable[[str], Token] = compile_token_parser(Token) # type: ignore[type-abstract]
+        token_parser: Callable[[str], Token] = compile_token_parser(Token)  # type: ignore[type-abstract]
 
         for i, line in enumerate(lines):
             if line:

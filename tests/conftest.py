@@ -7,8 +7,15 @@ def pytest_addoption(parser):
     )
 
     parser.addoption(
-        "--corpora-test-skip-write",
+        "--corpora-skip-write",
         action="store_true",
         default=False,
-        help="Flag if the corpora test should skip the writing component.",
+        help="Flag if the corpora tests should skip the writing component.",
+    )
+
+    parser.addoption(
+        "--corpora-skip-fixture",
+        action="store_true",
+        default=False,
+        help="Flag if the corpora tests should skip the setup fixtures (if it can be assumed the corpora already exist).",
     )

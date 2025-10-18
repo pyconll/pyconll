@@ -256,8 +256,12 @@ def url_zip(
         The path of the fixture within the cache as the fixture value.
     """
 
-    def workflow(artifacts_path: Path, contents_path: Path) -> Path:
+    def workflow(skip: bool, artifacts_path: Path, contents_path: Path) -> Path:
         final_path = contents_path / entry_id
+
+        if skip:
+            return final_path
+
         fn = _get_filename_from_url(url)
         zip_path = artifacts_path / fn
 
@@ -418,7 +422,7 @@ def create_corpora_cache() -> None:
 
 
 @pytest.fixture
-def corpus(request):
+def corpus(request: pytest.FixtureRequest) -> Path:
     """
     A utility fixture to merely execute the actual fixture logic as necessary.
 
@@ -429,15 +433,18 @@ def corpus(request):
     Returns:
         The value of the execution of the corpus fixture.
     """
+    skip: bool = request.config.getoption("--corpora-skip-fixture")
+
     registration: CorporaRegistration = request.param
     workflow = url_zip(
         registration.version, registration.contents_hash, registration.zip_hash, registration.url
     )
-    corpus_path = workflow(CORPORA_CACHE / "artifacts", CORPORA_CACHE / "corpora")
+
+    corpus_path = workflow(skip, CORPORA_CACHE / "artifacts", CORPORA_CACHE / "corpora")
     return corpus_path
 
 
-def pytest_generate_tests(metafunc):
+def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     """
     A pytest utility function for generating tests automatically.
 
@@ -468,7 +475,7 @@ def pytest_generate_tests(metafunc):
         )
 
 
-def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest):
+def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Config) -> None:
     """
     Tests a corpus using the fixture path and the glob for files to test.
 
@@ -476,7 +483,7 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest):
         corpus: The path where the corpus is.
         exceptions: A list of paths relative to fixture that are known failures.
     """
-    skip_write: bool = pytestconfig.getoption("--corpora-test-skip-write")
+    skip_write: bool = pytestconfig.getoption("--corpora-skip-write")
 
     globs = corpus.glob("**/*.conllu")
 
