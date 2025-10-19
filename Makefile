@@ -1,4 +1,4 @@
-.PHONY: format lint test coveragetest inttest datatest build clean hooks
+.PHONY: format lint test coveragetest inttest quickinttest datatest build clean hooks
 
 # Format python files in place, outputs error code if there are changes
 format:
@@ -23,6 +23,9 @@ coveragetest:
 # Integration test scenario for releases validation and support.
 inttest:
 	python -m pytest tests/int/ --corpora-skip-write --corpora-versions 2.16 --log-cli-level info
+
+quickinttest:
+	python -m pytest tests/int/ --corpora-skip-write --corpora-skip-fixture --corpora-versions 2.16 --log-cli-level info
 
 # Data test scenario across all supported data sets to be run periodically.
 datatest:
