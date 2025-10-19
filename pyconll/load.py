@@ -11,12 +11,11 @@ from typing import Iterable, Iterator
 from pyconll._parser import iter_sentences
 from pyconll.unit.conll import Conll
 from pyconll.unit.sentence import Sentence
-from pyconll.unit.token import Token
 
 PathLike = str | bytes | os.PathLike
 
 
-def load_from_string[T](source: str, schema: type[T] = Token) -> Conll:
+def load_from_string(source: str) -> Conll:
     """
     Load the CoNLL-U source in a string into a Conll object.
 
@@ -35,7 +34,7 @@ def load_from_string[T](source: str, schema: type[T] = Token) -> Conll:
     return c
 
 
-def load_from_file[T](file_descriptor: PathLike, schema: type[T] = Token) -> Conll:
+def load_from_file(file_descriptor: PathLike) -> Conll:
     """
     Load a CoNLL-U file given its location.
 
@@ -56,7 +55,7 @@ def load_from_file[T](file_descriptor: PathLike, schema: type[T] = Token) -> Con
     return c
 
 
-def load_from_resource[T](resource: Iterable[str], schema: type[T] = Token) -> Conll:
+def load_from_resource(resource: Iterable[str]) -> Conll:
     """
     Load a CoNLL-U file from a generic string resource.
 
@@ -73,7 +72,7 @@ def load_from_resource[T](resource: Iterable[str], schema: type[T] = Token) -> C
     return Conll(resource)
 
 
-def iter_from_string[T](source: str, schema: type[T] = Token) -> Iterator[Sentence]:
+def iter_from_string(source: str) -> Iterator[Sentence]:
     """
     Iterate over a CoNLL-U string's sentences.
 
@@ -93,7 +92,7 @@ def iter_from_string[T](source: str, schema: type[T] = Token) -> Iterator[Senten
     yield from iter_sentences(lines)
 
 
-def iter_from_file[T](file_descriptor: PathLike, schema: type[T] = Token) -> Iterator[Sentence]:
+def iter_from_file(file_descriptor: PathLike) -> Iterator[Sentence]:
     """
     Iterate over a CoNLL-U file's sentences.
 
@@ -112,7 +111,7 @@ def iter_from_file[T](file_descriptor: PathLike, schema: type[T] = Token) -> Ite
         yield from iter_sentences(f)
 
 
-def iter_from_resource[T](resource: Iterable[str], schema: type[T] = Token) -> Iterator[Sentence]:
+def iter_from_resource(resource: Iterable[str]) -> Iterator[Sentence]:
     """
     Iterate over the sentences from an iterable string resource.
 
