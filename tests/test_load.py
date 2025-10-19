@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll import get_default_parser
+import pyconll
 from tests.util import fixture_location
 from tests.unit.util import assert_token_equivalence
 
@@ -9,11 +9,10 @@ def test_load_from_string():
     """
     Test that a CoNLL file can properly be loaded from a string.
     """
-    parser = get_default_parser()
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         contents = f.read()
 
-    c = parser.load_from_string(contents)
+    c = pyconll.load_from_string(contents)
     sent = c[1]
 
     assert len(c) == 4
@@ -25,8 +24,7 @@ def test_load_from_file():
     """
     Test that a CoNLL file can properly be loaded from a filename.
     """
-    parser = get_default_parser()
-    c = parser.load_from_file(fixture_location("basic.conll"))
+    c = pyconll.load_from_file(fixture_location("basic.conll"))
     sent = c[1]
 
     assert len(c) == 4
@@ -38,9 +36,8 @@ def test_load_from_resource():
     """
     Test that a CoNLL file can properly be loaded from a string.
     """
-    parser = get_default_parser()
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
-        c = parser.load_from_resource(f)
+        c = pyconll.load_from_resource(f)
         sent = c[1]
 
         assert len(c) == 4
@@ -53,14 +50,13 @@ def test_equivalence_across_load_operations():
     Test that the Conll object created from a string, path, and resource is the same if
     the underlying source is the same.
     """
-    parser = get_default_parser()
     with open(fixture_location("long.conll"), encoding="utf-8") as f:
         contents = f.read()
-    str_c = parser.load_from_string(contents)
-    file_c = parser.load_from_file(fixture_location("long.conll"))
+    str_c = pyconll.load_from_string(contents)
+    file_c = pyconll.load_from_file(fixture_location("long.conll"))
 
     with open(fixture_location("long.conll"), encoding="utf-8") as resource:
-        resource_c = parser.load_from_resource(resource)
+        resource_c = pyconll.load_from_resource(resource)
 
     def assert_equivalent_conll_objs(conll1, conll2):
         assert len(conll1) == len(conll1)
@@ -81,12 +77,11 @@ def test_iter_from_string():
     """
     Test that CoNLL files in string form can be iterated over without memory.
     """
-    parser = get_default_parser()
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         contents = f.read()
 
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-    actual_ids = [sent.id for sent in parser.iter_from_string(contents)]
+    actual_ids = [sent.id for sent in pyconll.iter_from_string(contents)]
 
     assert expected_ids == actual_ids
 
@@ -96,9 +91,8 @@ def test_iter_from_file():
     Test that CoNLL files can be iterated over without memory given the
     filename.
     """
-    parser = get_default_parser()
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-    actual_ids = [sent.id for sent in parser.iter_from_file(fixture_location("basic.conll"))]
+    actual_ids = [sent.id for sent in pyconll.iter_from_file(fixture_location("basic.conll"))]
 
     assert expected_ids == actual_ids
 
@@ -107,9 +101,8 @@ def test_iter_from_resource():
     """
     Test that an arbitrary resource can be iterated over.
     """
-    parser = get_default_parser()
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-        actual_ids = [sent.id for sent in parser.iter_from_resource(f)]
+        actual_ids = [sent.id for sent in pyconll.iter_from_resource(f)]
 
         assert expected_ids == actual_ids

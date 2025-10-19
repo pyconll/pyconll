@@ -242,7 +242,7 @@ def extract_tgz(p: Path, tgz: Path) -> None:
 
 def url_zip(
     entry_id: str, contents_hash: str, zip_hash: str, url: str
-) -> Callable[[Path, Path], Path]:
+) -> Callable[[bool, Path, Path], Path]:
     """
     Creates a cacheable fixture that is a url download that is a zip.
 
@@ -507,7 +507,7 @@ def _test_treebank(treebank_path: Path, skip_write: bool) -> None:
 
     logging.info("Starting to parse %s", treebank_path)
 
-    treebank = pyconll.get_default_parser().iter_from_file(treebank_path)
+    treebank = pyconll.iter_from_file(treebank_path)
 
     if not skip_write:
         with tempfile.TemporaryFile(mode="w", encoding="utf-8") as tmp_output_file:
