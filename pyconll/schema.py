@@ -13,7 +13,6 @@ from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
 from pyconll._ir import root_ir, unique_name_id
 
-
 if TYPE_CHECKING:
     from _typeshed import SupportsRichComparison
 
@@ -341,6 +340,34 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _CustomDescriptor[T](SchemaDescriptor[T]):
+    deserialize: Callable[[str], T]
+    serialize: Callable[[T], str]
+
+    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        var_name = unique_name_id("_CustomDescriptor_Deserializer")
+        namespace[var_name] = self.deserialize
+
+        return root_ir(
+            f"""
+            def {method_name}(s):
+                return {var_name}(s)
+            """
+        )
+
+    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+        var_name = unique_name_id("_CustomDescriptor_Serializer")
+        namespace[var_name] = self.serialize
+
+        return root_ir(
+            f"""
+            def {method_name}(s):
+                return {var_name}(s)
+            """
+        )
+
+
 def nullable[T](
     mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ""
 ) -> _NullableDescriptor[T]:
@@ -394,6 +421,12 @@ def mapping[K, V](
         ordering_key,
         allow_no_av_delimiter,
     )
+
+
+def custom[T](
+    deserialize: Callable[[str], T], serialize: Callable[[T], str]
+) -> _CustomDescriptor[T]:
+    return _CustomDescriptor[T](deserialize, serialize)
 
 
 def schema[T](desc: SchemaDescriptor[T]) -> T:
@@ -521,4 +554,3 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     exec(compiled_parse_token_ir, namespace)
     parser = cast(Callable[[str], S], namespace[compiled_parse_token])
     return parser
-

@@ -13,6 +13,7 @@ def unique_name_id(prefix: str) -> str:
 
     return var_name
 
+
 def root_ir(code: str) -> str:
     lines = code.split("\n")
     if not lines:
@@ -44,4 +45,3 @@ def root_ir(code: str) -> str:
         new_lines.append(line.removeprefix(prefix))
 
     return "\n".join(new_lines)
-
