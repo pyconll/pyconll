@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        py: ['3.12', '3.13']
+        py: ['3.13', '3.14']
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

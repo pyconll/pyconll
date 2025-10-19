@@ -7,8 +7,7 @@ import re
 from typing import Callable, ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
-from pyconll.exception import FormatError, ParseError
-from pyconll.schema import _compile_token_parser
+from pyconll.exception import FormatError
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
@@ -40,6 +39,7 @@ class Sentence(Sequence[Token], Conllable):
 
     __slots__ = ["_meta", "_tokens", "_ids_to_indexes"]
 
+    # TODO: Consolidate COMMENT_MARKER better across here and _parser
     COMMENT_MARKER: ClassVar[str] = "#"
     KEY_VALUE_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r"\s*([^=]+?)\s*=\s*(.+)"
     SINGLETON_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r"\s*(\S.*?)\s*$"
@@ -47,49 +47,16 @@ class Sentence(Sequence[Token], Conllable):
     SENTENCE_ID_KEY: ClassVar[str] = "sent_id"
     TEXT_KEY: ClassVar[str] = "text"
 
-    def __init__(self, source: str) -> None:
+    def __init__(self, meta: OrderedDict[str, Optional[str]], tokens: list[Token]) -> None:
+        # TODO: on this comment
         """
         Construct a Sentence object from the provided CoNLL-U string.
 
         Args:
-            source: The raw CoNLL-U string to parse. Comments must precede token
-                lines.
-
-        Raises:
-            ParseError: If there is any token that was not valid.
         """
-        lines = source.split("\n")
-
-        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()  # pylint: disable=E1136
-        self._tokens: list[Token] = []
-        self._ids_to_indexes: dict[str, int] = {}
-
-        token_parser: Callable[[str], Token] = _compile_token_parser(Token)
-
-        for i, line in enumerate(lines):
-            if line:
-                if line[0] == Sentence.COMMENT_MARKER:
-                    kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN, line)
-
-                    if kv_match:
-                        k = kv_match.group(1)
-                        v = kv_match.group(2)
-                        self._meta[k] = v
-                    else:
-                        singleton_match = re.match(Sentence.SINGLETON_COMMENT_PATTERN, line)
-                        if singleton_match:
-                            k = singleton_match.group(1)
-                            self._meta[k] = None
-                else:
-                    try:
-                        token = token_parser(line)
-                        self._tokens.append(token)
-                        if token.id is not None:
-                            self._ids_to_indexes[token.id] = len(self._tokens) - 1
-                    except ParseError as exc:
-                        raise ParseError(
-                            f"Error creating token on line {i} for the current sentence"
-                        ) from exc
+        self._meta: OrderedDict[str, Optional[str]] = meta
+        self._tokens: list[Token] = tokens
+        self._ids_to_indexes: dict[str, int] = { token.id: i for (i, token) in enumerate(self._tokens) }
 
     @property
     def id(self) -> Optional[str]:

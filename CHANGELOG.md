@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [3.4.0] - YYYY-MM-DD
 ### Changed
-- To support latest Python type hint syntax, move minimum supported version up to 3.12+ for new features.
+- To support latest Python type hint syntax, move minimum supported version up to 3.13+ for new features.
 - Add dynamic schema support and move existing CoNLL-U parsing to the same mechanism
 
 ## [3.3.1] - 2025-10-11
