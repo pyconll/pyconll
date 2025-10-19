@@ -247,7 +247,9 @@ class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
                 if 0 <= len(els) <= 4:
                     return tuple(els + ([None] * (4 - len(els))))
 
-                raise ParseError(f"Error parsing \\"{{s}}\\" as tuple properly. Please check against CoNLL format spec.")
+                msg = (f"Error parsing \\"{{s}}\\" as tuple properly. Please check against CoNLL "
+                        "format spec.")
+                raise ParseError(msg)
             """
         )
 
@@ -261,7 +263,8 @@ class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
                 if not presents:
                     raise FormatError("All values in the tuple are None.")
 
-                return {self.delimiter!r}.join({sub_method_name}(el) for el in tup if el is not None)
+                gen_expr = ({sub_method_name}(el) for el in tup if el is not None)
+                return {self.delimiter!r}.join(gen_expr)
             """
         )
 
@@ -276,10 +279,11 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
     use_compact_pair: bool
 
-    # TODO: If the entire pair is empty, then also a flag should be added to say if that is treated as
-    # an empty string to both mappers (although this seems not necessary for compatbility, although test
-    # needs to be added to confirm stability of parsing). Although, this is similar to emptiness handling
-    # and has multiple dimensions that could be addressed, such as NotCompact,AllowCompactV,AllowCompactKV
+    # TODO: If the entire pair is empty, then also a flag should be added to say if that is treated
+    # as an empty string to both mappers (although this seems not necessary for compatbility,
+    # although test needs to be added to confirm stability of parsing). Although, this is similar to
+    # emptiness handling and has multiple dimensions that could be addressed, such as NotCompact,
+    # AllowCompactV, AllowCompactKV
 
     # And for reference emptiness handling needs to be a three part struct as well, which describes:
     #   empty_marker
@@ -446,15 +450,17 @@ def _compile_deserialize_schema_ir(
         # (de)serialization semantics that needs to be explicitly defined.
         if type_hint == str:
             return ""
-        elif type_hint == int:
+        if type_hint == int:
             return "int"
-        elif type_hint == float:
+        if type_hint == float:
             return "float"
-        else:
-            raise RuntimeError(
-                "Only str, int, and float are directly supported for column schemas. For other types, define the schema via SchemaDescriptors."
-            )
-    elif isinstance(attr, SchemaDescriptor):
+
+        raise RuntimeError(
+            "Only str, int, and float are directly supported for column schemas. For other types, "
+            "define the schema via SchemaDescriptors."
+        )
+
+    if isinstance(attr, SchemaDescriptor):
         return attr.deserialize_codegen(namespace)
 
     raise RuntimeError(
@@ -471,13 +477,15 @@ def _compile_serialize_schema_ir(
         # (de)serialization semantics that needs to be explicitly defined.
         if type_hint == str:
             return ""
-        elif type_hint in (int, float):
+        if type_hint in (int, float):
             return "str"
-        else:
-            raise RuntimeError(
-                "Only str, int, and float are directly supported for column schemas. For other types, define the schema via SchemaDescriptors."
-            )
-    elif isinstance(attr, SchemaDescriptor):
+
+        raise RuntimeError(
+            "Only str, int, and float are directly supported for column schemas. For other types, "
+            "define the schema via SchemaDescriptors."
+        )
+
+    if isinstance(attr, SchemaDescriptor):
         return attr.serialize_codegen(namespace)
 
     raise RuntimeError(
