@@ -23,5 +23,6 @@ class Conllable(Protocol, metaclass=abc.ABCMeta):
 
         Raises:
             RuntimeError: If the class instance does not implement the method.
+            FormatError: If the object cannot be properly converted into some conll format.
         """
         raise RuntimeError("No implementation has been defined for conll")

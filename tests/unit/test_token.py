@@ -131,7 +131,7 @@ def test_deps_construction():
         {"Case": set(("Nom",)), "Number": set(("Plur",))},
         "2",
         "nsubj",
-        {"2": ("nsubj", None, None, None), "4": ("nsubj", None, None, None)},
+        {"2": ("nsubj",), "4": ("nsubj",)},
         {},
     )
 
@@ -273,8 +273,8 @@ def test_deps_parsing():
     )
     token = _parse_token(token_line)
 
-    assert token.deps["2"] == ("nsubj", None, None, None)
-    assert token.deps["4"] == ("nmod", None, None, None)
+    assert token.deps["2"] == ("nsubj",)
+    assert token.deps["4"] == ("nmod",)
     assert token.conll() == token_line
 
 
@@ -321,8 +321,8 @@ def test_enhanced_deps_parsing():
     )
     token = _parse_token(token_line)
 
-    assert token.deps["2"] == ("nsubj,noun", None, None, None)
-    assert token.deps["4"] == ("root", None, None, None)
+    assert token.deps["2"] == ("nsubj,noun",)
+    assert token.deps["4"] == ("root",)
 
 
 def test_enhanced_deps_parsing_invalid():
@@ -373,19 +373,6 @@ def test_del_values():
     expected = "33	cintre	cintre	NOUN	_	Number=Sing	30	nmod	2:nsubj|4:root	_"
 
     assert expected == token.conll()
-
-
-def test_deps_max_size():
-    """
-    Test that only up to 4 components are allowed in the deps field.
-    """
-    token_line = (
-        "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	"
-        "30	nmod	2:nsubj:another:field:here:andhere:j	SpaceAfter=No"
-    )
-
-    with pytest.raises(ParseError):
-        token = _parse_token(token_line)
 
 
 def test_empty_set_format_error():
@@ -452,7 +439,7 @@ def test_empty_deps():
         {"Gender": {"Fem"}, "Number": {"Sing"}},
         "30",
         "nmod",
-        {"2": ("", None, None, None), "4": ("root", None, None, None)},
+        {"2": (), "4": ("root",)},
         {"SpaceAfter": {"No"}},
     )
 

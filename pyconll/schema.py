@@ -579,9 +579,14 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
                 return f"{s.__name__}({", ".join([f"{{ self.{fn}!r }}" for fn in field_names])})"
 
             def conll(self) -> str:
-                {"\n                ".join(conll_irs)}
-                items = [{", ".join(field_names)}]
-                return "\\t".join(items)
+                try:
+                    {"\n                    ".join(conll_irs)}
+                    items = [{", ".join(field_names)}]
+                    return "\\t".join(items)
+                except FormatError as fexc:
+                    raise fexc
+                except Exception as exc:
+                    raise FormatError("Unable to convert Token representation into conll string.") from exc
         """
     )
     exec(class_ir, namespace)
