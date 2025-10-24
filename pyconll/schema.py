@@ -18,9 +18,28 @@ if TYPE_CHECKING:
 
 
 class SchemaDescriptor[T](ABC):
+    """
+    Base class to represent the different types of descriptors that can be defined for the Token
+    fields. Each descriptor needs to be able to dynamically generate the relevant python code for
+    (de)serialization.
+    """
+
     @abstractmethod
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
-        pass
+        """
+        The method that sub-classes need to implement to allow for proper deserialization codegen.
+
+        The pattern relied on here is that a method with a caller provided name will be returned by
+        the method, and this will be defined within the given namespace. So any dependent variables
+        can be defined within this namespace as necessary.
+
+        Args:
+            namespace: The namespace that the code generation is done in.
+            method_name: The name the method must have.
+
+        Returns:
+            The python code that implements deserialization for this schema.
+        """
 
     @abstractmethod
     def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
@@ -102,7 +121,7 @@ class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
 class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
-    empty_marker: Optional[str]
+    empty_marker: str
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
@@ -114,7 +133,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if s == {self.empty_marker!r} or not s:
+                if s == {self.empty_marker!r}:
                     return []
                 return {result_ir}
             """
@@ -130,7 +149,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
         return root_ir(
             f"""
             def {method_name}(vs):
-                if {self.empty_marker!r} != None and not vs:
+                if not vs:
                     return {self.empty_marker!r}
                 return {self.delimiter!r}.join({gen_ir})
             """
@@ -141,7 +160,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
 class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
-    empty_marker: Optional[str]
+    empty_marker: str
     ordering_key: Optional[Callable[[T], "SupportsRichComparison"]]
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
@@ -154,7 +173,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if s == {self.empty_marker!r} or not s:
+                if s == {self.empty_marker!r}:
                     return set()
                 return {return_ir}
             """
@@ -178,7 +197,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         return root_ir(
             f"""
             def {method_name}(vs):
-                if {self.empty_marker!r} != None and not vs:
+                if not vs:
                     return {self.empty_marker!r}
                 
                 return {self.delimiter!r}.join({gen_ir})
@@ -190,7 +209,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
 class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
-    empty_marker: Optional[str]
+    empty_marker: str
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
@@ -202,7 +221,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if s == {self.empty_marker!r} or not s:
+                if s == {self.empty_marker!r}:
                     return ()
 
                 return tuple({gen_ir})
@@ -219,52 +238,10 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
         return root_ir(
             f"""
             def {method_name}(tup):
-                if {self.empty_marker!r} != None and not tup:
+                if not tup:
                     return {self.empty_marker!r}
 
                 return {self.delimiter!r}.join({gen_ir})
-            """
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class _LegacyFixedArrayDescriptor[T](SchemaDescriptor[tuple[T, T, T, T]]):
-    mapper: type[T] | SchemaDescriptor[T]
-    delimiter: str
-
-    def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
-        sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
-        if sub_method_name != "":
-            els_ir = f"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
-        else:
-            els_ir = f"s.split({self.delimiter!r})"
-
-        return root_ir(
-            f"""
-            def {method_name}(s):
-                els = {els_ir}
-
-                if 0 <= len(els) <= 4:
-                    return tuple(els + ([None] * (4 - len(els))))
-
-                msg = (f"Error parsing \\"{{s}}\\" as tuple properly. Please check against CoNLL "
-                        "format spec.")
-                raise ParseError(msg)
-            """
-        )
-
-    def do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
-        sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
-
-        return root_ir(
-            f"""
-            def {method_name}(tup):
-                presents = list(filter(lambda el: el is not None, tup))
-                if not presents:
-                    raise FormatError("All values in the tuple are None.")
-
-                gen_expr = ({sub_method_name}(el) for el in tup if el is not None)
-                return {self.delimiter!r}.join(gen_expr)
             """
         )
 
@@ -275,19 +252,9 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     vmapper: type[V] | SchemaDescriptor[V]
     pair_delimiter: str
     av_delimiter: str
-    empty_marker: Optional[str]
+    empty_marker: str
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
     use_compact_pair: bool
-
-    # TODO: If the entire pair is empty, then also a flag should be added to say if that is treated
-    # as an empty string to both mappers (although this seems not necessary for compatbility,
-    # although test needs to be added to confirm stability of parsing). Although, this is similar to
-    # emptiness handling and has multiple dimensions that could be addressed, such as NotCompact,
-    # AllowCompactV, AllowCompactKV
-
-    # And for reference emptiness handling needs to be a three part struct as well, which describes:
-    #   empty_marker
-    #   exclusive_marker
 
     def do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
         key_sub_method_name = _deserialize_sub_method_name(namespace, self.kmapper)
@@ -295,7 +262,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         return root_ir(
             f"""
             def {method_name}(s):
-                if s == {self.empty_marker!r} or not s:
+                if s == {self.empty_marker!r}:
                     return {{}}
 
                 d = {{}}
@@ -306,7 +273,8 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                         if {self.use_compact_pair!r}:
                             avs.append("")
                         else:
-                            raise ParseError(f"Could not parse one of the pairs in {{s}} which did not have an attribute-value delimiter.")
+                            raise ParseError(f"Could not parse one of the pairs in {{s}} which did "
+                                              "not have an attribute-value delimiter.")
 
                     d[{key_sub_method_name}(avs[0])] = {value_sub_method_name}(avs[1])
 
@@ -328,7 +296,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         return root_ir(
             f"""
             def {method_name}(mapping):
-                if {self.empty_marker!r} != None and not mapping:
+                if not mapping:
                     return {self.empty_marker!r}
 
                 {items_ir}
@@ -339,7 +307,8 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                         transformed.append(({key_sub_method_name}(key),))
                     else:
                         transformed.append(({key_sub_method_name}(key), value_str))
-                return {self.pair_delimiter!r}.join({self.av_delimiter!r}.join(t) for t in transformed)
+                gen_expr = ({self.av_delimiter!r}.join(t) for t in transformed))
+                return {self.pair_delimiter!r}.join(gen_expr)
             """
         )
 
@@ -375,79 +344,158 @@ class _CustomDescriptor[T](SchemaDescriptor[T]):
 def nullable[T](
     mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ""
 ) -> _NullableDescriptor[T]:
+    """
+    Describe a serialization schema for an optional value.
+
+    Args:
+        mapper: The nested mapper to describe the serialization scheme of the underlying type.
+        empty_marker: The string value which represents None.
+
+    Returns:
+        The SchemaDescriptor to use for compiling the structural Token parser.
+    """
     return _NullableDescriptor[T](mapper, empty_marker)
 
 
 def array[T](
-    mapper: type[T] | SchemaDescriptor[T], delimiter: str, empty_marker: Optional[str] = None
+    el_mapper: type[T] | SchemaDescriptor[T], delimiter: str, empty_marker: str = ""
 ) -> _ArrayDescriptor[T]:
-    return _ArrayDescriptor[T](mapper, delimiter, empty_marker)
+    """
+    Describe a serialization schema for a list.
+
+    Args:
+        mapper: The nested mapper to describe the serialization scheme of array elements.
+        delimiter: The string which separates array elements in the serialized representation.
+        empty_marker: The string representation which maps to an empty list.
+
+    Returns:
+        The SchemaDescriptor to use for compiling the structural Token parser.
+    """
+    return _ArrayDescriptor[T](el_mapper, delimiter, empty_marker)
 
 
 def unique_array[T](
     el_mapper: type[T] | SchemaDescriptor[T],
     delimiter: str,
-    empty_marker: Optional[str] = None,
+    empty_marker: str = "",
     ordering_key: Optional[Callable[[T], Any]] = None,
 ) -> _UniqueArrayDescriptor[T]:
+    """
+    Describe a serialization schema for a set.
+
+    Args:
+        el_mapper: The nested mapper to describe the serialization scheme of the set elements.
+        delimiter: The string which separates set elements in the serialized representation.
+        empty_marker: The string representation which maps to an empty set.
+        ordering_key: If provided, describes the order in which the set entries are serialized.
+
+    Returns:
+        The SchemaDescriptor to use for compiling the structural Token parser.
+    """
     return _UniqueArrayDescriptor(el_mapper, delimiter, empty_marker, ordering_key)
 
 
 def fixed_array[T](
-    mapper: type[T] | SchemaDescriptor[T],
+    el_mapper: type[T] | SchemaDescriptor[T],
     delimiter: str,
-    empty_marker: Optional[str] = None,
+    empty_marker: str = "",
 ) -> _FixedArrayDescriptor[T]:
-    return _FixedArrayDescriptor[T](mapper, delimiter, empty_marker)
+    """
+    Describe a serialization schema for a tuple.
 
+    Args:
+        el_mapper: The nested mapper to describe the serialization scheme of the tuple elements.
+        delimiter: The string which separates tuple elements in the serialized representation.
+        empty_marker: The string representation which maps to an empty tuple.
 
-def legacy_fixed_array[T](
-    mapper: type[T] | SchemaDescriptor[T], delimiter: str
-) -> _LegacyFixedArrayDescriptor[T]:
-    return _LegacyFixedArrayDescriptor[T](mapper, delimiter)
+    Returns:
+        The SchemaDescriptor to use for compiling the structural Token parser.
+    """
+    return _FixedArrayDescriptor[T](el_mapper, delimiter, empty_marker)
 
 
 def mapping[K, V](
     kmapper: type[K] | SchemaDescriptor[K],
     vmapper: type[V] | SchemaDescriptor[V],
     pair_delimiter: str,
-    av_delimiter: str,
-    empty_marker: Optional[str] = None,
+    kv_delimiter: str,
+    empty_marker: str = "",
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]] = None,
-    allow_no_av_delimiter: bool = False,
+    use_compact_pair: bool = False,
 ) -> _MappingDescriptor[K, V]:
+    """
+    Describe a serialization scheme for a dictionary.
+
+    Args:
+        kmapper: The nested mapper to describe the serialization scheme for keys in the map.
+        vmapper: The nested mapper to describe the serialization scheme for values in the map.
+        pair_delimiter: The string to delimit key-value pairs in the serialized representation.
+        kv_delimiter: The string to delimit the key and value within a single pair.
+        empty_marker: The string representation which maps to an empty dict.
+        ordering_key: If provided, describes the order in which the dict entries are serialized.
+        use_compact_pair: A compact pair is one in which if the serialized value is an empty string
+            then the key-value delimiter is not present. If set, this allows for compact pairs in
+            deserialization and prefers compact pairs in serialization.
+
+    Returns:
+        The SchemaDescriptor to use for compiling the structural Token parser.
+    """
     return _MappingDescriptor[K, V](
         kmapper,
         vmapper,
         pair_delimiter,
-        av_delimiter,
+        kv_delimiter,
         empty_marker,
         ordering_key,
-        allow_no_av_delimiter,
+        use_compact_pair,
     )
 
 
 def custom[T](
     deserialize: Callable[[str], T], serialize: Callable[[T], str]
 ) -> _CustomDescriptor[T]:
+    """
+    Describe a user-provided serialization scheme which uses arbitrary callables.
+
+    Args:
+        deserialize: The callable to deserialize the string into the in-memory representation.
+        serialize: The callable to serialize the in-memory representation to a string.
+
+    Returns:
+        The SchemaDescriptor to use for compiling the structural Token parser.
+    """
     return _CustomDescriptor[T](deserialize, serialize)
 
 
 def schema[T](desc: SchemaDescriptor[T]) -> T:
+    """
+    Method to help with type-checking on structural Token definitions.
+
+    Use on the outer-most level of each Token's field descriptor to unwrap the appropriate type.
+    The only application of this method is on structural Token definitions.
+
+    Args:
+        desc: The SchemaDescriptor whose type is being unwrapped.
+
+    Returns:
+        The descriptor originally provided by force cast to the type it describes.
+    """
     return cast(T, desc)
 
 
 class TokenProtocol(Conllable):
-    pass
+    """
+    All structural Token definitions must inherit from this protocol.
+    """
 
 
 def _compile_deserialize_schema_ir(
     namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
 ) -> str:
     if attr is None:
-        # If there is no value on the protocol's attribute then the type hint is used directly. In this case,
-        # only str, int, and float should really be handled, since all other types, will have more ambiguous
-        # (de)serialization semantics that needs to be explicitly defined.
+        # If there is no value on the protocol's attribute then the type hint is used directly. In
+        # this case, only str, int, and float should really be handled, since all other types, will
+        # have more ambiguous (de)serialization semantics that needs to be explicitly defined.
         if type_hint == str:
             return ""
         if type_hint == int:
@@ -472,9 +520,9 @@ def _compile_serialize_schema_ir(
     namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
 ) -> str:
     if attr is None:
-        # If there is no value on the protocol's attribute then the type hint is used directly. In this case,
-        # only str, int, and float should really be handled, since all other types, will have more ambiguous
-        # (de)serialization semantics that needs to be explicitly defined.
+        # If there is no value on the protocol's attribute then the type hint is used directly. In
+        # this case, only str, int, and float should really be handled, since all other types, will
+        # have more ambiguous (de)serialization semantics that needs to be explicitly defined.
         if type_hint == str:
             return ""
         if type_hint in (int, float):
@@ -545,8 +593,8 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
             fields = line.split("\\t")
 
             if len(fields) != {len(field_names)}:
-                error_msg = f"The number of columns per token line must be {len(field_names)}. Invalid token: {{line!r}}"
-                raise ParseError(error_msg)
+                raise ParseError(f"The number of columns per token line must be "
+                                  "{len(field_names)}. Invalid token: {{line!r}}")
 
             if len(fields[-1]) > 0 and fields[-1][-1] == "\\n":
                 fields[-1] = fields[-1][:-1]

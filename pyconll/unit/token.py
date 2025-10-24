@@ -13,7 +13,7 @@ from pyconll.schema import (
     nullable,
     mapping,
     unique_array,
-    legacy_fixed_array,
+    fixed_array,
     TokenProtocol,
 )
 
@@ -77,11 +77,9 @@ class _TokenIdComparer:
         """
         idx = token_id.find("-")
         if idx < 0:
-            ranges = (token_id, token_id)
-        else:
-            ranges = (token_id[:idx], token_id[idx + 1 :])
+            return (token_id, token_id)
 
-        return ranges
+        return (token_id[:idx], token_id[idx + 1 :])
 
     @staticmethod
     def _split_by_radix(token_id):
@@ -159,23 +157,29 @@ class _TokenIdComparer:
 
 
 class Token(TokenProtocol):
+    """
+    The prototypical CoNLL-U token definition. For reading CoNLL-U token files, use this as the
+    Token schema. Similarly, if defining a different schema to read, use this as a reference for how
+    this can be done.
+    """
+
     id: str
     _form: Optional[str] = schema(nullable(str, "_"))
     lemma: Optional[str] = schema(nullable(str, "_"))
     upos: Optional[str] = schema(nullable(str, "_"))
     xpos: Optional[str] = schema(nullable(str, "_"))
     feats: dict[str, set[str]] = schema(
-        mapping(str, unique_array(str, ",", None, str.lower), "|", "=", "_", lambda p: p[0].lower())
+        mapping(str, unique_array(str, ",", "", str.lower), "|", "=", "_", lambda p: p[0].lower())
     )
     head: Optional[str] = schema(nullable(str, "_"))
     deprel: Optional[str] = schema(nullable(str, "_"))
-    deps: dict[str, tuple[str, str, str, str]] = schema(
-        mapping(str, legacy_fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
+    deps: dict[str, tuple[str, ...]] = schema(
+        mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
     )
     misc: dict[str, Optional[set[str]]] = schema(
         mapping(
             str,
-            nullable(unique_array(str, ",", None, str.lower)),
+            nullable(unique_array(str, ",", "", str.lower)),
             "|",
             "=",
             "_",
@@ -185,6 +189,8 @@ class Token(TokenProtocol):
     )
 
     def post_init(self):
+        # TODO: Ideally this would not be present in the final API of the Token because it is not part of the
+        """ """
         if self._form is None and self.lemma is None:
             self._form = self.lemma = "_"
 

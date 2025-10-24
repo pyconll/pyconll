@@ -1,12 +1,22 @@
+"""
+Internal module to support dynamic code generation. The term IR is borrowed from compiler theory
+here. Although it does not exactly describe what is being done, it is used anyway as a short-hand
+to refer to the concept of dynamic code generation done within the python process itself.
+"""
+
 import random
 
 _used_name_ids = set[str]()
 
 
 def unique_name_id(prefix: str) -> str:
+    # TODO: Do proper namespace handling, probably encapsulate in a class
+    # TODO: Also literally all uses of root_ir are for method definition, so maybe re-do that, along
+    # with rooted flag
+    """ """
     var_name = ""
     suffix = -1
-    while suffix < 0 or (var_name in _used_name_ids or var_name in globals()):
+    while suffix < 0 or (var_name in _used_name_ids):
         suffix = random.randint(0, 4294967296)
         var_name = f"{prefix}_{suffix}"
     _used_name_ids.add(var_name)
