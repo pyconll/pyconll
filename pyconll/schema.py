@@ -251,7 +251,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     kmapper: type[K] | SchemaDescriptor[K]
     vmapper: type[V] | SchemaDescriptor[V]
     pair_delimiter: str
-    av_delimiter: str
+    kv_delimiter: str
     empty_marker: str
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
     use_compact_pair: bool
@@ -268,7 +268,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                 d = {{}}
                 pairs = s.split({self.pair_delimiter!r})
                 for pair in pairs:
-                    avs = pair.split({self.av_delimiter!r}, 1)
+                    avs = pair.split({self.kv_delimiter!r}, 1)
                     if len(avs) == 1:
                         if {self.use_compact_pair!r}:
                             avs.append("")
@@ -307,7 +307,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                         transformed.append(({key_sub_method_name}(key),))
                     else:
                         transformed.append(({key_sub_method_name}(key), value_str))
-                gen_expr = ({self.av_delimiter!r}.join(t) for t in transformed))
+                gen_expr = ({self.kv_delimiter!r}.join(t) for t in transformed)
                 return {self.pair_delimiter!r}.join(gen_expr)
             """
         )
