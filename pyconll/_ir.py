@@ -25,6 +25,18 @@ def unique_name_id(prefix: str) -> str:
 
 
 def root_ir(code: str) -> str:
+    """
+    Transform the indentation levels of some Python code to have no indentation.
+
+    This is mostly a helper method to allow for easier inline dynamic code creation without
+    requiring these strings to have indentation out of sync with the code it is defined with.
+
+    Args:
+        code: The code to transform.
+
+    Returns:
+        The rooted code with no base indentation.
+    """
     lines = code.split("\n")
     if not lines:
         return code

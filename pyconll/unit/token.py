@@ -15,6 +15,7 @@ from pyconll.schema import (
     unique_array,
     fixed_array,
     TokenProtocol,
+    token_lifecycle,
 )
 
 
@@ -156,6 +157,18 @@ class _TokenIdComparer:
         )
 
 
+def _conllu_post_init(t: "Token") -> None:
+    """
+    Post-initialization logic beyond per-field serialization needed to properly create Token.
+
+    Specifically, this handles the case where both the form and the lemma are underscore in which
+    case the behavior should be to treat these as their raw values.
+    """
+    if t._form is None and t.lemma is None:
+        t._form = t.lemma = "_"
+
+
+@token_lifecycle(post_init=_conllu_post_init)
 class Token(TokenProtocol):
     """
     The prototypical CoNLL-U token definition. For reading CoNLL-U token files, use this as the
@@ -187,12 +200,6 @@ class Token(TokenProtocol):
             True,
         )
     )
-
-    def post_init(self):
-        # TODO: Ideally this would not be present in the final API of the Token because it is not part of the
-        """ """
-        if self._form is None and self.lemma is None:
-            self._form = self.lemma = "_"
 
     @property
     def form(self) -> Optional[str]:
