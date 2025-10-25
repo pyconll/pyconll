@@ -158,32 +158,32 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            result_ir = f"s.split({self.delimiter!r})"
+            result_ir = t"s.split({self.delimiter!r})"
         else:
-            result_ir = f"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
+            result_ir = t"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
 
         return process_ir(
             t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return []
-                return {result_ir}
+                return {result_ir:t}
             """
         )
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            gen_ir = "vs"
+            gen_ir = t"vs"
         else:
-            gen_ir = f"{sub_method_name}(el) for el in vs"
+            gen_ir = t"{sub_method_name}(el) for el in vs"
 
         return process_ir(
             t"""
             def {method_name}(vs):
                 if not vs:
                     return {self.empty_marker!r}
-                return {self.delimiter!r}.join({gen_ir})
+                return {self.delimiter!r}.join({gen_ir:t})
             """
         )
 
@@ -198,16 +198,16 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            return_ir = f"set(s.split({self.delimiter!r}))"
+            return_ir = t"set(s.split({self.delimiter!r}))"
         else:
-            return_ir = f"{{ {sub_method_name}(el) for el in s.split({self.delimiter!r}) }}"
+            return_ir = t"{{ {sub_method_name}(el) for el in s.split({self.delimiter!r}) }}"
 
         return process_ir(
             t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return set()
-                return {return_ir}
+                return {return_ir:t}
             """
         )
 
@@ -215,16 +215,16 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
 
         if self.ordering_key is None:
-            values_ir = "vs"
+            values_ir = t"vs"
         else:
             ordering_key_id = unique_name_id(namespace, "_UniqueArrayDescriptor_ordering_key")
             namespace[ordering_key_id] = self.ordering_key
-            values_ir = f"sorted(vs, key={ordering_key_id})"
+            values_ir = t"sorted(vs, key={ordering_key_id})"
 
         if not sub_method_name:
             gen_ir = values_ir
         else:
-            gen_ir = f"{sub_method_name}(el) for el in {values_ir}"
+            gen_ir = t"{sub_method_name}(el) for el in {values_ir}"
 
         return process_ir(
             t"""
@@ -232,7 +232,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
                 if not vs:
                     return {self.empty_marker!r}
                 
-                return {self.delimiter!r}.join({gen_ir})
+                return {self.delimiter!r}.join({gen_ir:t})
             """
         )
 
@@ -246,9 +246,9 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            gen_ir = f"s.split({self.delimiter!r})"
+            gen_ir = t"s.split({self.delimiter!r})"
         else:
-            gen_ir = f"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
+            gen_ir = t"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
 
         return process_ir(
             t"""
@@ -256,16 +256,16 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
                 if s == {self.empty_marker!r}:
                     return ()
 
-                return tuple({gen_ir})
+                return tuple({gen_ir:t})
             """
         )
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
-            gen_ir = "tup"
+            gen_ir = t"tup"
         else:
-            gen_ir = f"{sub_method_name}(el) for el in tup"
+            gen_ir = t"{sub_method_name}(el) for el in tup"
 
         return process_ir(
             t"""
@@ -273,7 +273,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
                 if not tup:
                     return {self.empty_marker!r}
 
-                return {self.delimiter!r}.join({gen_ir})
+                return {self.delimiter!r}.join({gen_ir:t})
             """
         )
 
@@ -302,7 +302,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                 for pair in pairs:
                     avs = pair.split({self.kv_delimiter!r}, 1)
                     if len(avs) == 1:
-                        if {self.use_compact_pair!r}:
+                        if {(self.use_compact_pair, bool)!r}:
                             avs.append("")
                         else:
                             raise ParseError(f"Could not parse one of the pairs in {{s}} which did "
@@ -321,7 +321,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         if self.ordering_key is not None:
             ordering_key_id = unique_name_id(namespace, "_MappingDescriptor_ordering_key")
             namespace[ordering_key_id] = self.ordering_key
-            items_ir = f"items = sorted(mapping.items(), key={ordering_key_id})"
+            items_ir = t"items = sorted(mapping.items(), key={ordering_key_id})"
         else:
             items_ir = "items = mapping.items()"
 
@@ -331,11 +331,11 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                 if not mapping:
                     return {self.empty_marker!r}
 
-                {items_ir}
+                {items_ir:t}
                 transformed = []
                 for (key, value) in items:
                     value_str = {value_sub_method_name}(value)
-                    if {self.use_compact_pair!r} and value_str == "":
+                    if {(self.use_compact_pair, bool)!r} and value_str == "":
                         transformed.append(({key_sub_method_name}(key),))
                     else:
                         transformed.append(({key_sub_method_name}(key), value_str))
@@ -649,9 +649,9 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
         def {compiled_parse_token}(line):
             fields = line.split("\\t")
 
-            if len(fields) != {len(field_names)}:
+            if len(fields) != {(len(field_names), int)}:
                 raise ParseError(f"The number of columns per token line must be "
-                                "{len(field_names)}. Invalid token: {{line!r}}")
+                                "{(len(field_names), int)}. Invalid token: {{line!r}}")
 
             if len(fields[-1]) > 0 and fields[-1][-1] == "\\n":
                 fields[-1] = fields[-1][:-1]

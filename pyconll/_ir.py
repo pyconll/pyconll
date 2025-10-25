@@ -5,7 +5,7 @@ to refer to the concept of dynamic code generation done within the python proces
 """
 
 import random
-from string.templatelib import Interpolation, Template
+from string.templatelib import Interpolation, Template, convert
 from types import CodeType
 from typing import Any
 
@@ -40,36 +40,56 @@ def unique_name_id(namespace: dict[str, Any], prefix: str) -> str:
 
 def process_ir(code: Template) -> CodeType:
     """
-    TODO:
-    """
-    for value in code.values:
-        if type(value) not in (str, bool, int):
-            raise RuntimeError(
-                "For safety purposes, only basic, or builtin types can be provided as IR "
-                f"formatters and an object of type {type(value)} was passed in."
-            )
+    Check the code for safety and compile it with the expected optimizations and configurations.
 
-    str_ir = _to_str(code)
-    rooted = _root_ir(str_ir)
+    Args:
+        code: The code string to process.
+
+    Returns:
+        The compiled code in the case it was safely processed.
+
+    Raises:
+        RuntimeError: If the dynamic code did not match the safety requirements.
+    """
+    safe_ir = _safe_to_str(code)
+    rooted = _root_ir(safe_ir)
     return compile(rooted, "<string>", "exec", optimize=2)
 
 
-def _to_str(template: Template) -> str:
+def _safe_to_str(template: Template) -> str:
     parts = []
     for item in template:
         match item:
             case str() as s:
                 parts.append(s)
-            case Interpolation(value, _, conversion, format_spec):
-                if conversion == "a":
-                    value = ascii(value)
-                elif conversion == "r":
-                    value = repr(value)
-                elif conversion == "s":
-                    value = str(value)
+            case Interpolation(interpolated_value, _, conversion, format_spec):
+                explicit_type = None
+                match interpolated_value:
+                    case (value, explicit_type): ...
+                    case _:
+                        value = interpolated_value
 
-                value = format(value, format_spec)
+                inferred_type = None
+                pre_interpolation_op = None
+                if format_spec == "t":
+                    inferred_type = Template
+                    pre_interpolation_op = _safe_to_str
+
+                if inferred_type is not None and explicit_type is not None and explicit_type != inferred_type:
+                    raise RuntimeError("If an explicit type is provided along with an inferred type, they must match.")
+
+                desired_type = inferred_type or explicit_type or str
+                if type(value) != desired_type:  # pylint: disable=unidiomatic-typecheck
+                    raise RuntimeError(f"The type of the value {type(value)} does not match the desired {desired_type}.")
+
+                if pre_interpolation_op is not None:
+                    value = pre_interpolation_op(value)
+                value = convert(value, conversion)
+                if pre_interpolation_op is None:
+                    value = format(value, format_spec)
+
                 parts.append(value)
+
     return "".join(parts)
 
 

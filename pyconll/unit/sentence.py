@@ -60,7 +60,7 @@ class Sentence(Sequence[Token], Conllable):
         """
         lines = source.split("\n")
 
-        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()  # pylint: disable=E1136
+        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()
         self._tokens: list[Token] = []
         self._ids_to_indexes: dict[str, int] = {}
 
