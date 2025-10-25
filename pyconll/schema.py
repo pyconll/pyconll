@@ -68,7 +68,7 @@ class SchemaDescriptor[T](ABC):
         Returns:
             The name of the method that was generated.
         """
-        method_name = unique_name_id("deserialize_" + self.__class__.__name__)
+        method_name = unique_name_id(namespace, "deserialize_" + self.__class__.__name__)
         codegen = self._do_deserialize_codegen(namespace, method_name)
         exec(codegen, namespace)  # pylint: disable=exec-used
         return method_name
@@ -83,7 +83,7 @@ class SchemaDescriptor[T](ABC):
         Returns:
             The name of the method that was generated.
         """
-        method_name = unique_name_id("serialize_" + self.__class__.__name__)
+        method_name = unique_name_id(namespace, "serialize_" + self.__class__.__name__)
         codegen = self._do_serialize_codegen(namespace, method_name)
         exec(codegen, namespace)  # pylint: disable=exec-used
         return method_name
@@ -216,7 +216,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         if self.ordering_key is None:
             values_ir = "vs"
         else:
-            ordering_key_id = unique_name_id("_UniqueArrayDescriptor_ordering_key")
+            ordering_key_id = unique_name_id(namespace, "_UniqueArrayDescriptor_ordering_key")
             namespace[ordering_key_id] = self.ordering_key
             values_ir = f"sorted(vs, key={ordering_key_id})"
 
@@ -318,7 +318,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         value_sub_method_name = _serialize_sub_method_name(namespace, self.vmapper)
 
         if self.ordering_key is not None:
-            ordering_key_id = unique_name_id("_MappingDescriptor_ordering_key")
+            ordering_key_id = unique_name_id(namespace, "_MappingDescriptor_ordering_key")
             namespace[ordering_key_id] = self.ordering_key
             items_ir = f"items = sorted(mapping.items(), key={ordering_key_id})"
         else:
@@ -350,7 +350,7 @@ class _CustomDescriptor[T](SchemaDescriptor[T]):
     serialize: Callable[[T], str]
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
-        var_name = unique_name_id("_CustomDescriptor_Deserializer")
+        var_name = unique_name_id(namespace, "_CustomDescriptor_Deserializer")
         namespace[var_name] = self.deserialize
 
         return root_ir(
@@ -361,7 +361,7 @@ class _CustomDescriptor[T](SchemaDescriptor[T]):
         )
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
-        var_name = unique_name_id("_CustomDescriptor_Serializer")
+        var_name = unique_name_id(namespace, "_CustomDescriptor_Serializer")
         namespace[var_name] = self.serialize
 
         return root_ir(
@@ -617,7 +617,7 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
         conll_ir = f"{name} = {serialize_name}(self.{name})"
         conll_irs.append(conll_ir)
 
-    unique_token_name = unique_name_id("Token")
+    unique_token_name = unique_name_id(namespace, "Token")
     class_ir = root_ir(
         f"""
         class {unique_token_name}({s.__name__}):
@@ -642,7 +642,7 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     )
     exec(class_ir, namespace)  # pylint: disable=exec-used
 
-    compiled_parse_token = unique_name_id("compiled_parse_token")
+    compiled_parse_token = unique_name_id(namespace, "compiled_parse_token")
     parser_ir = root_ir(
         f"""
         def {compiled_parse_token}(line):
