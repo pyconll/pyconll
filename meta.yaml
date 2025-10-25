@@ -15,9 +15,9 @@ build:
 requirements:
   host:
     - pip
-    - python >=3.13
+    - python >=3.14
   run:
-    - python >=3.13
+    - python >=3.14
 
 about:
   home: "https://github.com/pyconll/pyconll"

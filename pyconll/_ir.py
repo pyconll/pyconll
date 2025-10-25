@@ -5,6 +5,8 @@ to refer to the concept of dynamic code generation done within the python proces
 """
 
 import random
+from string.templatelib import Interpolation, Template
+from types import CodeType
 from typing import Any
 
 _used_name_ids: set[str] = set()
@@ -36,7 +38,42 @@ def unique_name_id(namespace: dict[str, Any], prefix: str) -> str:
     return var_name
 
 
-def root_ir(code: str) -> str:
+def process_ir(code: Template) -> CodeType:
+    """
+    TODO:
+    """
+    for value in code.values:
+        if type(value) not in (str, bool, int):
+            raise RuntimeError(
+                "For safety purposes, only basic, or builtin types can be provided as IR "
+                f"formatters and an object of type {type(value)} was passed in."
+            )
+
+    str_ir = _to_str(code)
+    rooted = _root_ir(str_ir)
+    return compile(rooted, "<string>", "exec", optimize=2)
+
+
+def _to_str(template: Template) -> str:
+    parts = []
+    for item in template:
+        match item:
+            case str() as s:
+                parts.append(s)
+            case Interpolation(value, _, conversion, format_spec):
+                if conversion == "a":
+                    value = ascii(value)
+                elif conversion == "r":
+                    value = repr(value)
+                elif conversion == "s":
+                    value = str(value)
+
+                value = format(value, format_spec)
+                parts.append(value)
+    return "".join(parts)
+
+
+def _root_ir(code: str) -> str:
     """
     Transform the indentation levels of some Python code to have no indentation.
 

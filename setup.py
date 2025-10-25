@@ -29,7 +29,7 @@ setup(
     url = 'https://github.com/pyconll/pyconll',
     license = 'MIT',
     keywords = ['nlp', 'conllu', 'conll', 'universal dependencies'],
-    python_requires = '~=3.13',
+    python_requires = '~=3.14',
     package_data = { 'pyconll': ['py.typed'] },
     classifiers = [
         'Development Status :: 5 - Production/Stable',

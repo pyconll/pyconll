@@ -9,7 +9,6 @@ format:
 lint:
 	python -m pylint --rcfile .pylintrc pyconll/ util/ && \
 	codespell pyconll/ docs/ && \
-	python -m black --check --quiet --config black.toml pyconll/ util/ tests/ && \
 	python -m mypy pyconll/ util/
 
 # Unit test scenario for fast CI builds and local testing

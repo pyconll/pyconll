@@ -4,6 +4,7 @@ Module for structural Token parsing schema components and building blocks.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from types import CodeType
 from typing import (
     Any,
     Callable,
@@ -15,7 +16,7 @@ from typing import (
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
-from pyconll._ir import root_ir, unique_name_id
+from pyconll._ir import unique_name_id, process_ir
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRichComparison
@@ -29,7 +30,7 @@ class SchemaDescriptor[T](ABC):
     """
 
     @abstractmethod
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         """
         The method that sub-classes need to implement to support deserialization code generation.
 
@@ -42,11 +43,11 @@ class SchemaDescriptor[T](ABC):
             method_name: The name the method must have.
 
         Returns:
-            The python code that implements deserialization for this schema.
+            The compiled python code that was generated for deserialization of this schema.
         """
 
     @abstractmethod
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         """
         The method that sub-classes need to implement to support serialization code generation.
 
@@ -55,7 +56,7 @@ class SchemaDescriptor[T](ABC):
             method_name: The name the generated method must have.
 
         Returns:
-            The python code that implements serialization for this schema.
+            The compiled python code that was generated for serialization of this schema.
         """
 
     def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
@@ -124,10 +125,10 @@ class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     empty_marker: str
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return None
@@ -135,10 +136,10 @@ class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
             """
         )
 
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(val):
                 if val is None:
                     return {self.empty_marker!r}
@@ -154,15 +155,15 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
     delimiter: str
     empty_marker: str
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
             result_ir = f"s.split({self.delimiter!r})"
         else:
             result_ir = f"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return []
@@ -170,15 +171,15 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
             """
         )
 
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
             gen_ir = "vs"
         else:
             gen_ir = f"{sub_method_name}(el) for el in vs"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(vs):
                 if not vs:
                     return {self.empty_marker!r}
@@ -194,15 +195,15 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
     empty_marker: str
     ordering_key: Optional[Callable[[T], "SupportsRichComparison"]]
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
             return_ir = f"set(s.split({self.delimiter!r}))"
         else:
             return_ir = f"{{ {sub_method_name}(el) for el in s.split({self.delimiter!r}) }}"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return set()
@@ -210,7 +211,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
             """
         )
 
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
 
         if self.ordering_key is None:
@@ -225,8 +226,8 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         else:
             gen_ir = f"{sub_method_name}(el) for el in {values_ir}"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(vs):
                 if not vs:
                     return {self.empty_marker!r}
@@ -242,15 +243,15 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
     delimiter: str
     empty_marker: str
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
             gen_ir = f"s.split({self.delimiter!r})"
         else:
             gen_ir = f"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return ()
@@ -259,15 +260,15 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
             """
         )
 
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
         if not sub_method_name:
             gen_ir = "tup"
         else:
             gen_ir = f"{sub_method_name}(el) for el in tup"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(tup):
                 if not tup:
                     return {self.empty_marker!r}
@@ -287,11 +288,11 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
     use_compact_pair: bool
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         key_sub_method_name = _deserialize_sub_method_name(namespace, self.kmapper)
         value_sub_method_name = _deserialize_sub_method_name(namespace, self.vmapper)
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return {{}}
@@ -313,7 +314,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
             """
         )
 
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         key_sub_method_name = _serialize_sub_method_name(namespace, self.kmapper)
         value_sub_method_name = _serialize_sub_method_name(namespace, self.vmapper)
 
@@ -324,8 +325,8 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
         else:
             items_ir = "items = mapping.items()"
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(mapping):
                 if not mapping:
                     return {self.empty_marker!r}
@@ -349,23 +350,23 @@ class _CustomDescriptor[T](SchemaDescriptor[T]):
     deserialize: Callable[[str], T]
     serialize: Callable[[T], str]
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         var_name = unique_name_id(namespace, "_CustomDescriptor_Deserializer")
         namespace[var_name] = self.deserialize
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 return {var_name}(s)
             """
         )
 
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> str:
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         var_name = unique_name_id(namespace, "_CustomDescriptor_Serializer")
         namespace[var_name] = self.serialize
 
-        return root_ir(
-            f"""
+        return process_ir(
+            t"""
             def {method_name}(s):
                 return {var_name}(s)
             """
@@ -618,8 +619,8 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
         conll_irs.append(conll_ir)
 
     unique_token_name = unique_name_id(namespace, "Token")
-    class_ir = root_ir(
-        f"""
+    class_ir = process_ir(
+        t"""
         class {unique_token_name}({s.__name__}):
             __slots__ = (\"{"\", \"".join(field_names)}\",)
 
@@ -643,8 +644,8 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     exec(class_ir, namespace)  # pylint: disable=exec-used
 
     compiled_parse_token = unique_name_id(namespace, "compiled_parse_token")
-    parser_ir = root_ir(
-        f"""
+    parser_ir = process_ir(
+        t"""
         def {compiled_parse_token}(line):
             fields = line.split("\\t")
 
