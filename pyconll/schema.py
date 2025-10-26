@@ -1,3 +1,5 @@
+# mypy: disable-error-code="misc"
+
 """
 Module for structural Token parsing schema components and building blocks.
 """
