@@ -1,5 +1,5 @@
 alabaster==1.0.0
-astroid==3.3.11
+astroid==4.0.1
 babel==2.17.0
 black==25.9.0
 certifi==2025.10.5
@@ -23,7 +23,7 @@ pipdeptree==2.29.0
 platformdirs==4.5.0
 pluggy==1.6.0
 Pygments==2.19.2
-pylint==3.3.9
+pylint==4.0.2
 pytest==8.4.2
 pytokens==0.1.10
 requests==2.32.5

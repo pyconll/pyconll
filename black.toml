@@ -2,3 +2,4 @@
 line-length = 100
 target-version = ["py314"]
 preview = true
+extend-exclude = 'pyconll/schema\.py'

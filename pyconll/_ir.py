@@ -65,7 +65,8 @@ def _safe_to_str(template: Template) -> str:
             case Interpolation(interpolated_value, _, conversion, format_spec):
                 explicit_type = None
                 match interpolated_value:
-                    case (value, explicit_type): ...
+                    case (value, explicit_type):
+                        ...
                     case _:
                         value = interpolated_value
 
@@ -75,12 +76,22 @@ def _safe_to_str(template: Template) -> str:
                     inferred_type = Template
                     pre_interpolation_op = _safe_to_str
 
-                if inferred_type is not None and explicit_type is not None and explicit_type != inferred_type:
-                    raise RuntimeError("If an explicit type is provided along with an inferred type, they must match.")
+                if (
+                    inferred_type is not None
+                    and explicit_type is not None
+                    and explicit_type != inferred_type
+                ):
+                    raise RuntimeError(
+                        "If an explicit type is provided along with an inferred type, they must "
+                        "match."
+                    )
 
                 desired_type = inferred_type or explicit_type or str
                 if type(value) != desired_type:  # pylint: disable=unidiomatic-typecheck
-                    raise RuntimeError(f"The type of the value {type(value)} does not match the desired {desired_type}.")
+                    raise RuntimeError(
+                        f"The type of the value {type(value)} does not match the desired "
+                        f"{desired_type}."
+                    )
 
                 if pre_interpolation_op is not None:
                     value = pre_interpolation_op(value)

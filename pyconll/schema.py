@@ -167,8 +167,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return []
-                return {result_ir:t}
-            """
+                return {result_ir:t}"""  # pylint: disable=f-string-without-interpolation
         )
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
@@ -183,8 +182,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
             def {method_name}(vs):
                 if not vs:
                     return {self.empty_marker!r}
-                return {self.delimiter!r}.join({gen_ir:t})
-            """
+                return {self.delimiter!r}.join({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
         )
 
 
@@ -207,8 +205,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return set()
-                return {return_ir:t}
-            """
+                return {return_ir:t}"""  # pylint: disable=f-string-without-interpolation
         )
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
@@ -232,8 +229,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
                 if not vs:
                     return {self.empty_marker!r}
                 
-                return {self.delimiter!r}.join({gen_ir:t})
-            """
+                return {self.delimiter!r}.join({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
         )
 
 
@@ -256,8 +252,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
                 if s == {self.empty_marker!r}:
                     return ()
 
-                return tuple({gen_ir:t})
-            """
+                return tuple({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
         )
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
@@ -273,8 +268,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
                 if not tup:
                     return {self.empty_marker!r}
 
-                return {self.delimiter!r}.join({gen_ir:t})
-            """
+                return {self.delimiter!r}.join({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
         )
 
 
@@ -331,7 +325,8 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
                 if not mapping:
                     return {self.empty_marker!r}
 
-                {items_ir:t}
+                {items_ir:t}"""  # pylint: disable=f-string-without-interpolation
+            t"""
                 transformed = []
                 for (key, value) in items:
                     value_str = {value_sub_method_name}(value)
