@@ -18,6 +18,7 @@ from pyconll.schema import (
     custom,
 )
 
+
 def _get_base_namespace() -> dict[str, Any]:
     return {"ParseError": ParseError}
 

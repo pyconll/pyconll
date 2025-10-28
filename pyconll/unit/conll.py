@@ -103,12 +103,10 @@ class Conll(MutableSequence[Sentence], Conllable):
         yield from self._sentences
 
     @overload
-    def __getitem__(self, key: int) -> Sentence:
-        ...
+    def __getitem__(self, key: int) -> Sentence: ...
 
     @overload
-    def __getitem__(self, key: slice) -> "Conll":
-        ...
+    def __getitem__(self, key: slice) -> "Conll": ...
 
     def __getitem__(self, key):
         """
@@ -137,12 +135,10 @@ class Conll(MutableSequence[Sentence], Conllable):
         raise TypeError("Conll indices must be ints or slices.")
 
     @overload
-    def __setitem__(self, key: int, sent: Sentence) -> None:
-        ...
+    def __setitem__(self, key: int, sent: Sentence) -> None: ...
 
     @overload
-    def __setitem__(self, key: slice, sents: Iterable[Sentence]) -> None:
-        ...
+    def __setitem__(self, key: slice, sents: Iterable[Sentence]) -> None: ...
 
     def __setitem__(self, key, item) -> None:
         """

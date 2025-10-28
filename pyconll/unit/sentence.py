@@ -309,16 +309,13 @@ class Sentence(Sequence[Token], Conllable):
         yield from self._tokens
 
     @overload
-    def __getitem__(self, key: str) -> Token:
-        ...
+    def __getitem__(self, key: str) -> Token: ...
 
     @overload
-    def __getitem__(self, key: int) -> Token:
-        ...
+    def __getitem__(self, key: int) -> Token: ...
 
     @overload
-    def __getitem__(self, key: slice) -> Sequence[Token]:
-        ...
+    def __getitem__(self, key: slice) -> Sequence[Token]: ...
 
     def __getitem__(self, key):
         """
