@@ -104,11 +104,11 @@ class Conll(MutableSequence[Sentence], Conllable):
 
     @overload
     def __getitem__(self, key: int) -> Sentence:
-        pass
+        ...
 
     @overload
     def __getitem__(self, key: slice) -> "Conll":
-        pass
+        ...
 
     def __getitem__(self, key):
         """
@@ -138,11 +138,11 @@ class Conll(MutableSequence[Sentence], Conllable):
 
     @overload
     def __setitem__(self, key: int, sent: Sentence) -> None:
-        pass
+        ...
 
     @overload
     def __setitem__(self, key: slice, sents: Iterable[Sentence]) -> None:
-        pass
+        ...
 
     def __setitem__(self, key, item) -> None:
         """

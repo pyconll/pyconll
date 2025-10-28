@@ -668,7 +668,7 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
             except ParseError as rexc:
                 raise rexc
             except Exception as exc:
-                raise ParseError("Unable to deserialize represention during Token "
+                raise ParseError("Unable to deserialize representation during Token "
                                  " construction.") from exc
 
             new_token = {unique_token_name}({",".join(field_names)})

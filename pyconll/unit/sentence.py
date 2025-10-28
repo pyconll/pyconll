@@ -310,15 +310,15 @@ class Sentence(Sequence[Token], Conllable):
 
     @overload
     def __getitem__(self, key: str) -> Token:
-        pass
+        ...
 
     @overload
     def __getitem__(self, key: int) -> Token:
-        pass
+        ...
 
     @overload
     def __getitem__(self, key: slice) -> Sequence[Token]:
-        pass
+        ...
 
     def __getitem__(self, key):
         """

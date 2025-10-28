@@ -493,6 +493,7 @@ def test_deps_sort_order():
 
     assert conll == formatted_line
 
+
 def test_deps_sort_order_mwt():
     """
     Test that the enhanced dependencies order is properly sorted when using a multi-word token.
