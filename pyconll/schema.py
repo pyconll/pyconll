@@ -223,7 +223,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
         if not sub_method_name:
             gen_ir = values_ir
         else:
-            gen_ir = t"{sub_method_name}(el) for el in {values_ir}"
+            gen_ir = t"{sub_method_name}(el) for el in {values_ir:t}"  # pylint: disable=f-string-without-interpolation
 
         return process_ir(
             t"""
@@ -630,12 +630,12 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
             def conll(self) -> str:
                 try:
                     {"\n                    ".join(conll_irs)}
-                    items = [{", ".join(field_names)}]
-                    return "\\t".join(items)
+                    return f"{{ {'}\t{'.join(field_names)} }}"
                 except FormatError as fexc:
                     raise fexc
                 except Exception as exc:
-                    raise FormatError("Unable to convert Token representation into conll string.") from exc
+                    raise FormatError("Unable to convert Token representation into conll "
+                                      "string.") from exc
         """
     )
     exec(class_ir, namespace)  # pylint: disable=exec-used
@@ -653,7 +653,13 @@ def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
             if len(fields[-1]) > 0 and fields[-1][-1] == "\\n":
                 fields[-1] = fields[-1][:-1]
 
-            {"\n            ".join(field_irs)}
+            try:
+                {"\n                ".join(field_irs)}
+            except ParseError as rexc:
+                raise rexc
+            except Exception as exc:
+                raise ParseError("Unable to deserialize represention during Token "
+                                 " construction.") from exc
 
             new_token = {unique_token_name}({",".join(field_names)})
             { "new_token.__post_init()" if hasattr(s, "__post_init") else "" }
