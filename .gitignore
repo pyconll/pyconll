@@ -4,6 +4,8 @@ __pycache__/
 .mypy_cache/
 venv/
 *.pyc
+htmlcov/
+.coverage
 tests/int/_corpora_cache
 
 # Local env files

@@ -4,10 +4,11 @@ Defines the Sentence type and the associated parsing and output logic.
 
 from collections import OrderedDict
 import re
-from typing import ClassVar, Iterator, Optional, Sequence, overload
+from typing import Callable, ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
+from pyconll.schema import compile_token_parser
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
@@ -37,16 +38,16 @@ class Sentence(Sequence[Token], Conllable):
     the associated annotations can be changed.
     """
 
-    __slots__ = ['_meta', '_tokens', '_ids_to_indexes']
+    __slots__ = ["_meta", "_tokens", "_ids_to_indexes"]
 
-    COMMENT_MARKER: ClassVar[str] = '#'
-    KEY_VALUE_COMMENT_PATTERN: ClassVar[
-        str] = COMMENT_MARKER + r'\s*([^=]+?)\s*=\s*(.+)'
-    SINGLETON_COMMENT_PATTERN: ClassVar[
-        str] = COMMENT_MARKER + r'\s*(\S.*?)\s*$'
+    COMMENT_MARKER: ClassVar[str] = "#"
+    KEY_VALUE_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r"\s*([^=]+?)\s*=\s*(.+)"
+    SINGLETON_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r"\s*(\S.*?)\s*$"
 
-    SENTENCE_ID_KEY: ClassVar[str] = 'sent_id'
-    TEXT_KEY: ClassVar[str] = 'text'
+    SENTENCE_ID_KEY: ClassVar[str] = "sent_id"
+    TEXT_KEY: ClassVar[str] = "text"
+
+    PARSER_CACHE: ClassVar[dict[type, Callable[[str], Token]]] = {}
 
     def __init__(self, source: str) -> None:
         """
@@ -59,40 +60,41 @@ class Sentence(Sequence[Token], Conllable):
         Raises:
             ParseError: If there is any token that was not valid.
         """
-        lines = source.split('\n')
+        lines = source.split("\n")
 
-        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()  # pylint: disable=E1136
+        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()
         self._tokens: list[Token] = []
         self._ids_to_indexes: dict[str, int] = {}
+
+        try:
+            token_parser = Sentence.PARSER_CACHE[Token]
+        except KeyError:
+            token_parser = Sentence.PARSER_CACHE[Token] = compile_token_parser(Token)
 
         for i, line in enumerate(lines):
             if line:
                 if line[0] == Sentence.COMMENT_MARKER:
-                    kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN,
-                                        line)
+                    kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN, line)
 
                     if kv_match:
                         k = kv_match.group(1)
                         v = kv_match.group(2)
                         self._meta[k] = v
                     else:
-                        singleton_match = re.match(
-                            Sentence.SINGLETON_COMMENT_PATTERN, line)
+                        singleton_match = re.match(Sentence.SINGLETON_COMMENT_PATTERN, line)
                         if singleton_match:
                             k = singleton_match.group(1)
                             self._meta[k] = None
                 else:
                     try:
-                        token = Token(line)
-                    except ParseError as err:
+                        token = token_parser(line)
+                        self._tokens.append(token)
+                        if token.id is not None:
+                            self._ids_to_indexes[token.id] = len(self._tokens) - 1
+                    except ParseError as exc:
                         raise ParseError(
-                            f'Error creating token on line {i} for the current sentence'
-                        ) from err
-
-                    self._tokens.append(token)
-
-                    if token.id is not None:
-                        self._ids_to_indexes[token.id] = len(self._tokens) - 1
+                            f"Error creating token on line {i} for the current sentence"
+                        ) from exc
 
     @property
     def id(self) -> Optional[str]:
@@ -170,7 +172,7 @@ class Sentence(Sequence[Token], Conllable):
                 singleton, this field can be ignored or set to None.
         """
         if key == Sentence.TEXT_KEY:
-            raise ValueError(f'Key cannot be {Sentence.TEXT_KEY}')
+            raise ValueError(f"Key cannot be {Sentence.TEXT_KEY}")
 
         self._meta[key] = value
 
@@ -186,7 +188,7 @@ class Sentence(Sequence[Token], Conllable):
             ValueError: If the text key is provided, regardless of presence.
         """
         if key == Sentence.TEXT_KEY:
-            raise ValueError(f'Key cannot be {Sentence.TEXT_KEY}')
+            raise ValueError(f"Key cannot be {Sentence.TEXT_KEY}")
 
         del self._meta[key]
 
@@ -222,29 +224,31 @@ class Sentence(Sequence[Token], Conllable):
                     children_tokens[token.head] = [token]
             elif not (token.is_multiword() or token.is_empty_node()):
                 raise ValueError(
-                    'The current sentence is not fully defined as a tree and has a token with an '
-                    f'empty head at {token.id}')
+                    "The current sentence is not fully defined as a tree and has a token with an "
+                    f"empty head at {token.id}"
+                )
 
         builder: TreeBuilder[Token] = TreeBuilder()
-        if '0' in children_tokens:
-            if len(children_tokens['0']) != 1:
-                raise ValueError(
-                    'There should be exactly one root token in a sentence.')
+        if "0" in children_tokens:
+            if len(children_tokens["0"]) != 1:
+                raise ValueError("There should be exactly one root token in a sentence.")
 
-            root_token = children_tokens['0'][0]
+            root_token = children_tokens["0"][0]
             builder.create_root(root_token)
-            Sentence._create_tree_helper(builder, self, root_token,
-                                         children_tokens)
+            Sentence._create_tree_helper(builder, self, root_token, children_tokens)
         else:
-            raise ValueError('The current sentence has no root token.')
+            raise ValueError("The current sentence has no root token.")
 
         root = builder.build()
         return root
 
     @staticmethod
-    def _create_tree_helper(builder: TreeBuilder, sentence: 'Sentence',
-                            root: Token,
-                            children_tokens: dict[str, list[Token]]) -> None:
+    def _create_tree_helper(
+        builder: TreeBuilder,
+        sentence: "Sentence",
+        root: Token,
+        children_tokens: dict[str, list[Token]],
+    ) -> None:
         """
         Method to create a tree from a sentence given the root token.
 
@@ -264,8 +268,7 @@ class Sentence(Sequence[Token], Conllable):
 
         for token in tokens:
             builder.add_child(data=token, move=True)
-            Sentence._create_tree_helper(builder, sentence, token,
-                                         children_tokens)
+            Sentence._create_tree_helper(builder, sentence, token, children_tokens)
             builder.move_to_parent()
 
     def conll(self) -> str:
@@ -282,9 +285,9 @@ class Sentence(Sequence[Token], Conllable):
         lines = []
         for meta in self._meta.items():
             if meta[1] is not None:
-                line = f'{Sentence.COMMENT_MARKER} {meta[0]} = {meta[1]}'
+                line = f"{Sentence.COMMENT_MARKER} {meta[0]} = {meta[1]}"
             else:
-                line = f'{Sentence.COMMENT_MARKER} {meta[0]}'
+                line = f"{Sentence.COMMENT_MARKER} {meta[0]}"
 
             lines.append(line)
 
@@ -293,10 +296,10 @@ class Sentence(Sequence[Token], Conllable):
                 lines.append(token.conll())
             except FormatError as err:
                 raise FormatError(
-                    f'Error serializing sentence with id {self.id} on token \'{token.id}\'.'
+                    f"Error serializing sentence with id {self.id} on token '{token.id}'."
                 ) from err
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def __iter__(self) -> Iterator[Token]:
         """
@@ -306,16 +309,13 @@ class Sentence(Sequence[Token], Conllable):
         yield from self._tokens
 
     @overload
-    def __getitem__(self, key: str) -> Token:
-        pass
+    def __getitem__(self, key: str) -> Token: ...
 
     @overload
-    def __getitem__(self, key: int) -> Token:
-        pass
+    def __getitem__(self, key: int) -> Token: ...
 
     @overload
-    def __getitem__(self, key: slice) -> Sequence[Token]:
-        pass
+    def __getitem__(self, key: slice) -> Sequence[Token]: ...
 
     def __getitem__(self, key):
         """
@@ -350,9 +350,9 @@ class Sentence(Sequence[Token], Conllable):
             else:
                 end_idx = key.stop
 
-            return self._tokens[start_idx:end_idx:key.step]
+            return self._tokens[start_idx : end_idx : key.step]
 
-        raise ValueError('The key must be a str, int, or slice.')
+        raise ValueError("The key must be a str, int, or slice.")
 
     def __len__(self) -> int:
         """
