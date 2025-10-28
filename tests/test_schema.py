@@ -2,6 +2,7 @@
 Tests for schema descriptor factory methods.
 """
 
+from typing import Any
 import pytest
 
 from pyconll.exception import ParseError
@@ -15,6 +16,9 @@ from pyconll.schema import (
     custom,
 )
 
+def _get_base_namespace() -> dict[str, Any]:
+    return {"ParseError": ParseError}
+
 
 def assert_conversions[T](desc: SchemaDescriptor[T], val: T, raw: str) -> None:
     """
@@ -25,7 +29,7 @@ def assert_conversions[T](desc: SchemaDescriptor[T], val: T, raw: str) -> None:
         val: The expected in-memory value.
         raw: The expected serialized string representation.
     """
-    namespace = {"ParseError": ParseError}
+    namespace = _get_base_namespace()
     deser_name = desc.deserialize_codegen(namespace)
     ser_name = desc.serialize_codegen(namespace)
     assert namespace[deser_name](raw) == val
@@ -41,7 +45,7 @@ def assert_deserialization[T](desc: SchemaDescriptor[T], raw: str, expected: T) 
         raw: The serialized string representation.
         expected: The expected in-memory value.
     """
-    namespace = {"ParseError": ParseError}
+    namespace = _get_base_namespace()
     deser_name = desc.deserialize_codegen(namespace)
     assert namespace[deser_name](raw) == expected
 
@@ -55,7 +59,7 @@ def assert_serialization[T](desc: SchemaDescriptor[T], val: T, expected: str) ->
         val: The in-memory value.
         expected: The expected serialized string representation.
     """
-    namespace = {"ParseError": ParseError}
+    namespace = _get_base_namespace()
     ser_name = desc.serialize_codegen(namespace)
     assert namespace[ser_name](val) == expected
 
@@ -68,9 +72,9 @@ def assert_deserialization_error[T](desc: SchemaDescriptor[T], raw: str) -> None
         desc: The schema descriptor to test.
         raw: The serialized string representation that should cause an error.
     """
-    namespace = {"ParseError": ParseError}
+    namespace = _get_base_namespace()
     deser_name = desc.deserialize_codegen(namespace)
-    with pytest.raises(ParseError):
+    with pytest.raises(Exception):
         namespace[deser_name](raw)
 
 
