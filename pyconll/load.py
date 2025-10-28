@@ -49,7 +49,7 @@ def load_from_file(file_descriptor: PathLike) -> Conll:
         IOError: If there is an error opening the given filename.
         ParseError: If there is an error parsing the input into a Conll object.
     """
-    with open(file_descriptor, encoding="utf-8") as f:
+    with open(file_descriptor, encoding='utf-8') as f:
         c = Conll(f)
 
     return c
@@ -107,7 +107,7 @@ def iter_from_file(file_descriptor: PathLike) -> Iterator[Sentence]:
         IOError: If there is an error opening the file.
         ParseError: If there is an error parsing the input into a Conll object.
     """
-    with open(file_descriptor, encoding="utf-8") as f:
+    with open(file_descriptor, encoding='utf-8') as f:
         yield from iter_sentences(f)
 
 

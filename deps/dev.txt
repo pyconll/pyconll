@@ -1,14 +1,12 @@
 alabaster==1.0.0
-astroid==4.0.1
+astroid==3.3.11
 babel==2.17.0
-black==25.9.0
 certifi==2025.10.5
 charset-normalizer==3.4.3
-click==8.3.0
 codespell==2.4.1
-coverage==7.11.0
 dill==0.4.0
 docutils==0.21.2
+guppy3==3.1.5
 idna==3.10
 imagesize==1.4.1
 iniconfig==2.1.0
@@ -24,13 +22,12 @@ pipdeptree==2.29.0
 platformdirs==4.5.0
 pluggy==1.6.0
 Pygments==2.19.2
-pylint==4.0.2
+pylint==3.3.9
 pytest==8.4.2
-pytokens==0.1.10
 requests==2.32.5
 roman-numerals-py==3.1.0
 snowballstemmer==3.0.1
-Sphinx==8.2.3
+Sphinx==8.2.3; python_version >= '3.11'
 sphinx-rtd-theme==3.0.2
 sphinxcontrib-applehelp==2.0.0
 sphinxcontrib-devhelp==2.0.0
@@ -42,3 +39,4 @@ sphinxcontrib-serializinghtml==2.0.0
 tomlkit==0.13.3
 typing_extensions==4.15.0
 urllib3==2.5.0
+yapf==0.43.0

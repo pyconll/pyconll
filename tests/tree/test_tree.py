@@ -214,4 +214,4 @@ def test_on_copy_not_on_root():
     builder.add_child(7)
 
     t = builder.build()
-    assert_tree_structure(t, {(): 0, (0,): 5, (1,): 6, (1, 0): 7})
+    assert_tree_structure(t, {(): 0, (0, ): 5, (1, ): 6, (1, 0): 7})

@@ -5,6 +5,6 @@ so that pyconll methods that expose the Tree data structure will have
 appropriate documentation.
 """
 
-__all__ = ["tree"]
+__all__ = ['tree']
 
 from .tree import Tree

@@ -25,11 +25,12 @@ def _create_sentence(sent_lines: Iterable[str], line_num: int) -> Sentence:
     Raises:
         ParseError: If the sentence source is not valid.
     """
-    sent_source = "\n".join(sent_lines)
+    sent_source = '\n'.join(sent_lines)
     try:
         sentence = Sentence(sent_source)
     except ParseError as err:
-        raise ParseError(f"Failed to create sentence at line {line_num}") from err
+        raise ParseError(
+            f'Failed to create sentence at line {line_num}') from err
 
     return sentence
 
