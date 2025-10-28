@@ -8,7 +8,7 @@ from typing import Callable, ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
-from pyconll.schema import _compile_token_parser
+from pyconll.schema import compile_token_parser
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
@@ -47,6 +47,8 @@ class Sentence(Sequence[Token], Conllable):
     SENTENCE_ID_KEY: ClassVar[str] = "sent_id"
     TEXT_KEY: ClassVar[str] = "text"
 
+    PARSER_CACHE: ClassVar[dict[type, Callable[[str], Token]]] = {}
+
     def __init__(self, source: str) -> None:
         """
         Construct a Sentence object from the provided CoNLL-U string.
@@ -64,7 +66,10 @@ class Sentence(Sequence[Token], Conllable):
         self._tokens: list[Token] = []
         self._ids_to_indexes: dict[str, int] = {}
 
-        token_parser: Callable[[str], Token] = _compile_token_parser(Token)
+        try:
+            token_parser = Sentence.PARSER_CACHE[Token]
+        except KeyError:
+            token_parser = Sentence.PARSER_CACHE[Token] = compile_token_parser(Token)
 
         for i, line in enumerate(lines):
             if line:

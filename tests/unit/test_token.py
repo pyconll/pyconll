@@ -3,10 +3,10 @@ import pytest
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
-from pyconll.schema import _compile_token_parser
+from pyconll.schema import compile_token_parser
 from pyconll.unit.token import Token
 
-_parse_token = _compile_token_parser(Token)
+_parse_token = compile_token_parser(Token)
 
 
 def test_construction():
@@ -489,6 +489,21 @@ def test_deps_sort_order():
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2:nmod|4:nsubj	SpaceAfter=No"
+    )
+
+    assert conll == formatted_line
+
+def test_deps_sort_order_mwt():
+    """
+    Test that the enhanced dependencies order is properly sorted when using a multi-word token.
+    """
+    token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	2:nsubj|2-3:nmod	SpaceAfter=No"
+
+    token = _parse_token(token_line)
+    conll = token.conll()
+
+    formatted_line = (
+        "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2-3:nmod|2:nsubj	SpaceAfter=No"
     )
 
     assert conll == formatted_line

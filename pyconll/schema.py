@@ -319,7 +319,7 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
             namespace[ordering_key_id] = self.ordering_key
             items_ir = t"items = sorted(mapping.items(), key={ordering_key_id})"
         else:
-            items_ir = "items = mapping.items()"
+            items_ir = t"items = mapping.items()"
 
         return process_ir(
             t"""
@@ -590,7 +590,17 @@ def _compile_serialize_schema_ir(
     )
 
 
-def _compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
+def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
+    """
+    Compile a TokenProtocol definition into a method that can parse a given line of it.
+
+    Args:
+        s: The type to perform the compilation on.
+
+    Returns:
+        The compiled method which can parse a string representation according to the Token
+        definition.
+    """
     hints = get_type_hints(s)
 
     field_names: list[str] = []

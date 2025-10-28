@@ -8,6 +8,8 @@ import pytest
 from pyconll.exception import ParseError
 from pyconll.schema import (
     SchemaDescriptor,
+    TokenProtocol,
+    compile_token_parser,
     nullable,
     array,
     fixed_array,
@@ -64,6 +66,20 @@ def assert_serialization[T](desc: SchemaDescriptor[T], val: T, expected: str) ->
     assert namespace[ser_name](val) == expected
 
 
+def assert_serialization_error[T](desc: SchemaDescriptor[T], val: T) -> None:
+    """
+    Helper to test that serialization fails.
+
+    Args:
+        desc: The schema descriptor to test.
+        val: The serialized string representation that should cause an error.
+    """
+    namespace = _get_base_namespace()
+    with pytest.raises(Exception):
+        ser_name = desc.serialize_codegen(namespace)
+        namespace[ser_name](val)
+
+
 def assert_deserialization_error[T](desc: SchemaDescriptor[T], raw: str) -> None:
     """
     Helper to test that deserialization fails.
@@ -73,8 +89,8 @@ def assert_deserialization_error[T](desc: SchemaDescriptor[T], raw: str) -> None
         raw: The serialized string representation that should cause an error.
     """
     namespace = _get_base_namespace()
-    deser_name = desc.deserialize_codegen(namespace)
     with pytest.raises(Exception):
+        deser_name = desc.deserialize_codegen(namespace)
         namespace[deser_name](raw)
 
 
@@ -126,6 +142,12 @@ class TestNullable:
         desc = nullable(mapping(str, int, "|", "=", ordering_key=lambda x: x[0]), "_")
         assert_conversions(desc, None, "_")
         assert_conversions(desc, {"a": 1, "b": 2}, "a=1|b=2")
+
+    def test_nullable_invalid_base_type(self):
+        """Test nullable descriptor wrapping an invalid type."""
+        desc = nullable(dict)
+        assert_deserialization_error(desc, "")
+        assert_serialization_error(desc, {})
 
 
 class TestArray:
@@ -201,6 +223,13 @@ class TestFixedArray:
 class TestUniqueArray:
     """Tests for the unique_array factory method."""
 
+    def test_unique_array_str(self):
+        """Test unique_array of strings with ordering key."""
+        desc = unique_array(str, "|")
+        assert_conversions(desc, set(), "")
+        assert_conversions(desc, {"a"}, "a")
+        assert_conversions(desc, {"b"}, "b")
+
     def test_unique_array_str_with_ordering(self):
         """Test unique_array of strings with ordering key."""
         desc = unique_array(str, "|", ordering_key=lambda x: x)
@@ -248,6 +277,35 @@ class TestUniqueArray:
 
 class TestMapping:
     """Tests for the mapping factory method."""
+
+    def test_mapping_str_int(self):
+        """Test mapping with str:int."""
+        desc = mapping(str, int, "|", "=")
+        assert_conversions(desc, {}, "")
+        assert_conversions(desc, {"a": 1}, "a=1")
+        assert_deserialization_error(desc, "b=")
+        assert_deserialization_error(desc, "z")
+
+    def test_mapping_str_nullable_str_compact_pair(self):
+        """Test mapping with str:Optional[str]."""
+        desc = mapping(str, nullable(str), "|", "=", "_", None, True)
+        assert_conversions(desc, {"": None}, "")
+        assert_conversions(desc, {"a": None}, "a")
+        assert_conversions(desc, {"a": "$"}, "a=$")
+
+    def test_mapping_str_nullable_str_with_custom_marker_compact_pair(self):
+        """Test mapping with str:Optional[str]."""
+        desc = mapping(str, nullable(str, "_"), "|", "=", "_", None, True)
+        assert_conversions(desc, {"": None}, "=_")
+        assert_conversions(desc, {"a": ""}, "a")
+        assert_conversions(desc, {"a": "$"}, "a=$")
+
+    def test_mapping_str_int_compact_pair(self):
+        """Test mapping with str:str and ordering key."""
+        desc = mapping(str, str, "|", "=", "_", None, True)
+        assert_conversions(desc, {"": ""}, "")
+        assert_conversions(desc, {"a": ""}, "a")
+        assert_conversions(desc, {"a": "$"}, "a=$")
 
     def test_mapping_str_str_with_ordering(self):
         """Test mapping with str:str and ordering key."""
@@ -337,3 +395,41 @@ class TestCustom:
         """Test custom descriptor nested in an array descriptor."""
         desc = array(custom(deserialize=lambda s: int(s) * 2, serialize=lambda x: str(x // 2)), "|")
         assert_conversions(desc, [2, 4, 6], "1|2|3")
+
+
+class TestTokenProtocolCompilation:
+    """Tests that various (non CoNLL-U) Token protocols properly compile"""
+
+    def test_simple_primitive_protocol(self):
+        class SimpleToken(TokenProtocol):
+            id: int
+            name: str
+            score: float
+
+        raw_line = "3\tthe value of pi\t3.14"
+        parser = compile_token_parser(SimpleToken)
+        token = parser(raw_line)
+
+        assert token.conll() == raw_line
+
+        assert token.id == 3
+        assert token.name == "the value of pi"
+        assert token.score == 3.14
+
+    def test_invalid_primitive_protocol(self):
+        class InvalidToken(TokenProtocol):
+            id: int
+            name: str
+            scores: list[float]
+
+        with pytest.raises(Exception):
+            parser = compile_token_parser(InvalidToken)
+
+    def test_invalid_primitive_protocol(self):
+        class InvalidToken(TokenProtocol):
+            id: int
+            name: str
+            scores: list[float] = lambda s: map(float, s.split(","))
+
+        with pytest.raises(Exception):
+            parser = compile_token_parser(InvalidToken)
