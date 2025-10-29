@@ -2,13 +2,13 @@
 Module for helping test Token related functionality.
 """
 
-from typing import Iterable
-
+from typing import Optional
 from pyconll._parser import iter_sentences
 from pyconll.unit.sentence import Sentence
+from pyconll.unit.token import Token
 
 
-def assert_token_equivalence(token1, token2):
+def assert_token_equivalence(token1: Token, token2: Token) -> None:
     """
     Asserts that two tokens are equivalent in all their members.
 
@@ -31,7 +31,19 @@ def assert_token_equivalence(token1, token2):
     )
 
 
-def assert_token_members(token, id, form, lemma, upos, xpos, feats, head, deprel, deps, misc):
+def assert_token_members(
+    token: Token,
+    id: str,
+    form: Optional[str],
+    lemma: Optional[str],
+    upos: Optional[str],
+    xpos: Optional[str],
+    feats: dict[str, set[str]],
+    head: Optional[str],
+    deprel: Optional[str],
+    deps: dict[str, tuple[str, ...]],
+    misc: dict[str, Optional[set[str]]],
+) -> None:
     """
     Asserts the value of all the members for the given token.
 
@@ -48,7 +60,6 @@ def assert_token_members(token, id, form, lemma, upos, xpos, feats, head, deprel
         deps: Enhanced universal dependencies.
         misc: Miscellaneous associated attributes.
     """
-    # NOTE: This uses equality for None comparison, is it worth doing differently?
     assert token.id == id
     assert token.form == form
     assert token.lemma == lemma
