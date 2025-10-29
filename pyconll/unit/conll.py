@@ -4,7 +4,6 @@ Defines the Conll type and the associated parsing and output logic.
 
 from typing import Any, Iterable, Iterator, MutableSequence, overload
 
-import pyconll._parser
 from pyconll.conllable import Conllable
 from pyconll.unit.sentence import Sentence
 
@@ -18,21 +17,14 @@ class Conll(MutableSequence[Sentence], Conllable):
     relaxed here in parsing.
     """
 
-    def __init__(self, it: Iterable[str]) -> None:
+    def __init__(self, sentences: list[Sentence]) -> None:
         """
         Create a CoNLL-U file collection of sentences.
 
         Args:
-            it: An iterator of the lines of the CoNLL-U file.
-
-        Raises:
-            ParseError: If there is an error constructing the sentences in the
-                iterator.
+            sentences: The sentences to put into this Conll object.
         """
-        self._sentences: list[Sentence] = []
-
-        for sentence in pyconll._parser.iter_sentences(it):
-            self._sentences.append(sentence)
+        self._sentences: list[Sentence] = sentences
 
     def conll(self) -> str:
         """

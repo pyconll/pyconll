@@ -1,8 +1,8 @@
-import os
+from pathlib import Path
 
 
-def fixture_location(name):
+def fixture_location(name: str) -> Path:
     """
     Get the file location of the fixture with the given name.
     """
-    return os.path.join(os.path.dirname(__file__), "fixtures", name)
+    return Path(__file__).parent / "fixtures" / name

@@ -3,7 +3,7 @@ Module for helping test Token related functionality.
 """
 
 from typing import Optional
-from pyconll._parser import iter_sentences
+from pyconll.parser import Parser
 from pyconll.unit.sentence import Sentence
 from pyconll.unit.token import Token
 
@@ -82,16 +82,10 @@ def parse_sentence(lines: str) -> Sentence:
     Returns:
         The singular parsed Sentence that can be constructed from the line source.
     """
-    gen = iter_sentences(lines.split("\n"))
-    sentence = next(gen)
+    parser = Parser()
+    sentences = parser.load_from_string(lines)
 
-    raised = False
-    try:
-        next(gen)
-    except StopIteration:
-        raised = True
+    if len(sentences) != 1:
+        raise RuntimeError("Expected exactly one sentence in the lines given.")
 
-    if not raised:
-        raise RuntimeError("Expected only one sentence in the lines given.")
-
-    return sentence
+    return sentences[0]
