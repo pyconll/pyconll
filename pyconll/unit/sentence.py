@@ -3,12 +3,10 @@ Defines the Sentence type and the associated parsing and output logic.
 """
 
 from collections import OrderedDict
-import re
-from typing import Callable, ClassVar, Iterator, Optional, Sequence, overload
+from typing import ClassVar, Iterator, Optional, Sequence, overload
 
 from pyconll.conllable import Conllable
-from pyconll.exception import FormatError, ParseError
-from pyconll.schema import compile_token_parser
+from pyconll.exception import FormatError
 from pyconll.tree._treebuilder import TreeBuilder
 from pyconll.tree.tree import Tree
 from pyconll.unit.token import Token
@@ -41,60 +39,30 @@ class Sentence(Sequence[Token], Conllable):
     __slots__ = ["_meta", "_tokens", "_ids_to_indexes"]
 
     COMMENT_MARKER: ClassVar[str] = "#"
-    KEY_VALUE_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r"\s*([^=]+?)\s*=\s*(.+)"
-    SINGLETON_COMMENT_PATTERN: ClassVar[str] = COMMENT_MARKER + r"\s*(\S.*?)\s*$"
-
     SENTENCE_ID_KEY: ClassVar[str] = "sent_id"
     TEXT_KEY: ClassVar[str] = "text"
 
-    PARSER_CACHE: ClassVar[dict[type, Callable[[str], Token]]] = {}
-
-    def __init__(self, source: str) -> None:
+    def __init__(
+        self,
+        meta: OrderedDict[str, Optional[str]],
+        tokens: list[Token],
+        ids_to_indexes: dict[str, int],
+    ) -> None:
         """
-        Construct a Sentence object from the provided CoNLL-U string.
+        Create a new structured Sentence object.
+
+        In a future iteration of these updates, the ids_to_indexes parameter will be omitted in
+        favor of a lifecycle based API where token and meta data parsing can be hooked into for
+        inline data structure creation.
 
         Args:
-            source: The raw CoNLL-U string to parse. Comments must precede token
-                lines.
-
-        Raises:
-            ParseError: If there is any token that was not valid.
+            meta: The sentence metadata. Kept in modification order.
+            tokens: The tokens that make up this Sentence.
+            ids_to_indexes: The map from token id to token list position.
         """
-        lines = source.split("\n")
-
-        self._meta: OrderedDict[str, Optional[str]] = OrderedDict()
-        self._tokens: list[Token] = []
-        self._ids_to_indexes: dict[str, int] = {}
-
-        try:
-            token_parser = Sentence.PARSER_CACHE[Token]
-        except KeyError:
-            token_parser = Sentence.PARSER_CACHE[Token] = compile_token_parser(Token)
-
-        for i, line in enumerate(lines):
-            if line:
-                if line[0] == Sentence.COMMENT_MARKER:
-                    kv_match = re.match(Sentence.KEY_VALUE_COMMENT_PATTERN, line)
-
-                    if kv_match:
-                        k = kv_match.group(1)
-                        v = kv_match.group(2)
-                        self._meta[k] = v
-                    else:
-                        singleton_match = re.match(Sentence.SINGLETON_COMMENT_PATTERN, line)
-                        if singleton_match:
-                            k = singleton_match.group(1)
-                            self._meta[k] = None
-                else:
-                    try:
-                        token = token_parser(line)
-                        self._tokens.append(token)
-                        if token.id is not None:
-                            self._ids_to_indexes[token.id] = len(self._tokens) - 1
-                    except ParseError as exc:
-                        raise ParseError(
-                            f"Error creating token on line {i} for the current sentence"
-                        ) from exc
+        self._meta = meta
+        self._tokens = tokens
+        self._ids_to_indexes = ids_to_indexes
 
     @property
     def id(self) -> Optional[str]:

@@ -3,7 +3,7 @@ import os
 import pytest
 
 from pyconll.unit.conll import Conll
-from pyconll.unit.sentence import Sentence
+from tests.unit.util import parse_sentence
 from tests.util import fixture_location
 
 
@@ -156,7 +156,7 @@ def test_append():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     conll.append(sentence)
 
@@ -191,7 +191,7 @@ def test_insert():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     conll.insert(2, sentence)
 
@@ -225,7 +225,7 @@ def test_contains_true():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     conll.append(sentence)
 
     assert sentence in conll
@@ -262,7 +262,7 @@ def test_contains_false():
         "15	1973	1973	NUM	_	_	13	obl	_	SpaceAfter=No\n"
         "16	.	.	PUNCT	_	_	5	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence not in conll
 
@@ -294,7 +294,7 @@ def test_contains_non_existent_id():
         "15	1973	1973	NUM	_	_	13	obl	_	SpaceAfter=No\n"
         "16	.	.	PUNCT	_	_	5	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence not in conll
 
@@ -324,7 +324,7 @@ def test_setitem():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     c[1] = sentence
     assert c[1].conll() == source
@@ -410,8 +410,8 @@ def test_insert_contains():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    new_sent = Sentence(source)
-    other_sent = Sentence(source)
+    new_sent = parse_sentence(source)
+    other_sent = parse_sentence(source)
     other_sent.id = "xyz"
 
     c.insert(3, new_sent)
@@ -447,8 +447,8 @@ def test_append_contains():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    new_sent = Sentence(source)
-    other_sent = Sentence(source)
+    new_sent = parse_sentence(source)
+    other_sent = parse_sentence(source)
     other_sent.id = "xyz"
 
     c.append(new_sent)

@@ -3,7 +3,7 @@ import pytest
 from pyconll.unit.sentence import Sentence
 
 from tests.tree.util import assert_tree_structure
-from tests.unit.util import assert_token_members
+from tests.unit.util import assert_token_members, parse_sentence
 
 
 def test_simple_sentence_construction():
@@ -18,7 +18,7 @@ def test_simple_sentence_construction():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.id == "fr-ud-dev_00003"
     assert sentence.text == "Mais comment faire ?"
@@ -56,7 +56,7 @@ def test_cannot_assign_tokens():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     with pytest.raises(TypeError):
         sentence["1"] = sentence["2"]
@@ -77,7 +77,7 @@ def test_metadata_parsing():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.meta_value("sent_id") == "fr-ud-dev_00003"
     assert sentence.meta_value("newdoc id") == "test id"
@@ -105,7 +105,7 @@ def test_singleton_parsing():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.meta_value("sent_id") == "fr-ud-dev_00003"
     assert sentence.meta_present("newdoc") is True
@@ -130,7 +130,7 @@ def test_metadata_error():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     with pytest.raises(KeyError):
         sentence.meta_value("newpar")
@@ -151,7 +151,7 @@ def test_id_updating():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     sentence.id = "fr-ud-train_00123"
     assert sentence.meta_value("sent_id") == "fr-ud-train_00123"
@@ -172,7 +172,7 @@ def test_iter():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     expected_ids = ["1", "2", "3", "4"]
     expected_forms = ["Mais", "comment", "faire", "?"]
@@ -205,7 +205,7 @@ def test_str_indexing():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_token = sentence["8"]
     assert_token_members(
@@ -245,7 +245,7 @@ def test_int_indexing():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_token = sentence[7]
     assert_token_members(
@@ -285,7 +285,7 @@ def test_int_slice_indexing():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_tokens = sentence[7:10]
     assert_token_members(
@@ -347,7 +347,7 @@ def test_int_slice_indexing_step():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_tokens = sentence[0:5:2]
     assert_token_members(
@@ -427,7 +427,7 @@ def test_str_slice_indexing_step():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_tokens = sentence["1":"6":2]
     assert_token_members(
@@ -507,7 +507,7 @@ def test_str_slice_indexing():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_tokens = sentence["8":"11"]
     assert_token_members(
@@ -569,7 +569,7 @@ def test_int_slice_indexing_missing_value_start():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_tokens = sentence[:3]
     assert_token_members(
@@ -646,7 +646,7 @@ def test_int_slice_indexing_missing_value_stop():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     test_tokens = sentence[10:]
     assert_token_members(
@@ -703,7 +703,7 @@ def test_proper_slice_type():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     with pytest.raises(ValueError):
         token = sentence[7.8]
@@ -731,7 +731,7 @@ def test_len_basic():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert len(sentence) == 14
 
@@ -741,7 +741,7 @@ def test_len_empty():
     Test if an empty sentence is properly parsed.
     """
     source = ""
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert len(sentence) == 0
 
@@ -768,7 +768,7 @@ def test_text_readonly():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     with pytest.raises(AttributeError):
         sentence.text = "error causing text"
@@ -801,7 +801,7 @@ def test_output():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.conll() == source
 
@@ -829,7 +829,7 @@ def test_output_comments():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.conll() == source
 
@@ -856,7 +856,7 @@ def test_modified_output():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     sentence.id = "fr-ud-dev_00231"
     sentence["13"].lemma = "facultés"
@@ -931,7 +931,7 @@ def test_change_comments():
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
 
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     sentence.set_meta("newpar id", "xyz-1")
 
     assert sentence.conll() == expected
@@ -981,7 +981,7 @@ def test_add_comments():
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
 
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     sentence.set_meta("x-coord", "2")
 
     assert sentence.conll() == expected
@@ -1031,7 +1031,7 @@ def test_remove_comments():
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
 
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     sentence.remove_meta("x-coord")
 
     assert sentence.conll() == expected
@@ -1086,7 +1086,7 @@ def test_singleton_comment():
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
 
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     sentence.set_meta("foreign")
 
     assert sentence.conll() == expected
@@ -1115,7 +1115,7 @@ def test_invalid_comment_modification():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     with pytest.raises(ValueError):
         sentence.set_meta("text", "Qualcosa differente alla frase")
@@ -1143,7 +1143,7 @@ def test_no_id():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.id is None
 
@@ -1171,7 +1171,7 @@ def test_no_id_singleton():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.id is None
 
@@ -1198,7 +1198,7 @@ def test_no_text():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.text is None
 
@@ -1226,7 +1226,7 @@ def test_no_text_singleton():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     assert sentence.text is None
 
@@ -1256,7 +1256,7 @@ def test_invalid_sentence_by_token():
     )
 
     with pytest.raises(ValueError):
-        sentence = Sentence(source)
+        sentence = parse_sentence(source)
 
 
 def test_to_tree_standard_sentence():
@@ -1271,7 +1271,7 @@ def test_to_tree_standard_sentence():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     st = sentence.to_tree()
 
     assert_tree_structure(
@@ -1291,7 +1291,7 @@ def test_to_tree_token_with_no_head():
         "3	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     with pytest.raises(ValueError):
         st = sentence.to_tree()
 
@@ -1309,7 +1309,7 @@ def test_to_tree_empty_node_exception():
         "3.1	test	test	VERB	_	_	_	_	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     st = sentence.to_tree()
 
     assert_tree_structure(
@@ -1329,7 +1329,7 @@ def test_to_tree_no_root_token():
         "3	faire	faire	VERB	_	VerbForm=Inf	1	root	_	_\n"
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     with pytest.raises(ValueError):
         st = sentence.to_tree()
 
@@ -1349,7 +1349,7 @@ def test_to_tree_multiword_present():
         "5	faire	faire	VERB	_	VerbForm=Inf	0	root	_	_\n"
         "6	?	?	PUNCT	_	_	5	punct	_	_\n"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     st = sentence.to_tree()
 
     assert_tree_structure(
@@ -1387,7 +1387,7 @@ def test_to_tree_multi_level():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     st = sentence.to_tree()
 
     assert_tree_structure(
@@ -1416,7 +1416,7 @@ def test_tree_empty_sentence():
     Test that an empty sentence throws an error on Tree creation.
     """
     source = ""
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
 
     with pytest.raises(ValueError):
         st = sentence.to_tree()
@@ -1444,7 +1444,7 @@ def test_tree_no_extra_nodes():
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
-    sentence = Sentence(source)
+    sentence = parse_sentence(source)
     st = sentence.to_tree()
 
     count = 0
