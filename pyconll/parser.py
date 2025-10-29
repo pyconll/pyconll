@@ -122,7 +122,7 @@ class Parser:
 
             return sentence
 
-        for i, line in enumerate(resource):
+        for i, line in enumerate(resource, 1):
             if line in ("\n", "\r\n", ""):
                 if not empty:
                     yield step_next_sentence()
@@ -138,18 +138,17 @@ class Parser:
                         "has already been seen."
                     )
 
-                equal_sep = line.find("=")
+                equal_sep = line.find("=", 1)
                 if equal_sep < 0:
                     key = _pair_down_whitespace(line, comment_len)
-                    value = None
+                    if key is not None:
+                        meta[key] = None
                 else:
-                    key = _pair_down_whitespace(line, comment_len, equal_sep)
-                    value = _pair_down_whitespace(line, equal_sep + 1)
+                    key = _pair_down_whitespace(line, comment_len, equal_sep) or ""
+                    value = _pair_down_whitespace(line, equal_sep + 1) or ""
 
-                if key is None:
-                    raise ParseError(f"Comment on line number {i} has no key value.")
+                    meta[key] = value
 
-                meta[key] = value
             else:
                 token_line_seen = True
                 try:
@@ -169,13 +168,14 @@ class Parser:
 def _pair_down_whitespace(
     line: str, start_idx: int, end_idx: Optional[int] = None
 ) -> Optional[str]:
-    while start_idx < len(line) and line[start_idx] in string.whitespace:
+    end_idx = len(line) if end_idx is None else end_idx
+
+    while start_idx < end_idx and line[start_idx] in string.whitespace:
         start_idx += 1
 
-    if start_idx == len(line):
+    if start_idx == end_idx:
         return None
 
-    end_idx = len(line) if end_idx is None else end_idx
     while (end_idx - 1) > start_idx and line[end_idx - 1] in string.whitespace:
         end_idx -= 1
 
