@@ -29,6 +29,19 @@ def test_load_from_file():
     assert sent["10"].form == "donc"
 
 
+def test_load_from_windows_newline_file():
+    """
+    Test that a CoNLL file can properly be loaded from a filename with windows newlines.
+    """
+    c = Parser().load_from_file(fixture_location("newlines.conll"))
+    sent = c[1]
+
+    assert len(c) == 4
+    assert len(sent) == 14
+    assert sent["10"].form == "donc"
+    assert sent["10"].misc == {}
+
+
 def test_load_from_resource():
     """
     Test that a CoNLL file can properly be loaded from a string.
