@@ -1154,7 +1154,7 @@ def test_no_id_singleton():
     """
     source = (
         "# newpar id\n"
-        "# sent_id =\n"
+        "# sent_id\n"
         "# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n"
         "1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n"
         "2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n"
@@ -1210,7 +1210,7 @@ def test_no_text_singleton():
     source = (
         "# newpar id\n"
         "# sent_id =\n"
-        "# text =\n"
+        "# text\n"
         "1	Les	le	DET	_	Definite=Def|Gender=Fem|Number=Plur|PronType=Art	2	det	_	_\n"
         "2	études	étude	NOUN	_	Gender=Fem|Number=Plur	3	nsubj	_	_\n"
         "3	durent	durer	VERB	_	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_\n"

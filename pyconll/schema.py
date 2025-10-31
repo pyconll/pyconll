@@ -660,7 +660,7 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
                 raise ParseError(f"The number of columns per token line must be "
                                 "{(len(field_names), int)}. Invalid token: {{line!r}}")
 
-            if len(fields[-1]) > 0 and fields[-1][-1] == "\\n":
+            if fields[-1].endswith("\\n"):
                 fields[-1] = fields[-1][:-1]
 
             try:

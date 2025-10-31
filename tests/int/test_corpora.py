@@ -13,6 +13,7 @@ import pytest
 import requests
 
 import pyconll
+from pyconll.parser import Parser
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -486,6 +487,7 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
     skip_write: bool = pytestconfig.getoption("--corpora-skip-write")
 
     globs = corpus.glob("**/*.conllu")
+    parser = Parser()
 
     for path in globs:
         is_exp = any(path == corpus / exp for exp in exceptions)
@@ -493,24 +495,28 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
         if is_exp:
             logging.info("Skipping over %s because it is a known exception.", path)
         else:
-            _test_treebank(path, skip_write)
+            _test_treebank(parser, path, skip_write)
 
 
-def _test_treebank(treebank_path: Path, skip_write: bool) -> None:
+def _test_treebank(parser: Parser, treebank_path: Path, skip_write: bool) -> None:
     """
     Test that the provided treebank can be parsed and written without error.
 
     Args:
+        parser: The parser to use to load the treebank into memory.
         treebank_path: The path to the treebank file that is to be parsed and written.
         skip_write: Flag if the writing/serializing of the treebank should also be tested.
     """
 
     logging.info("Starting to parse %s", treebank_path)
 
-    treebank = pyconll.iter_from_file(treebank_path)
+    treebank = parser.iter_from_file(treebank_path)
 
-    if not skip_write:
-        with tempfile.TemporaryFile(mode="w", encoding="utf-8") as tmp_output_file:
-            for sentence in treebank:
+    count = 0
+    with tempfile.TemporaryFile(mode="w", encoding="utf-8") as tmp_output_file:
+        for sentence in treebank:
+            count += len(sentence)
+            if not skip_write:
                 tmp_output_file.write(sentence.conll())
                 tmp_output_file.write("\n\n")
+        tmp_output_file.write(str(count))

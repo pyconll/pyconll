@@ -1,18 +1,25 @@
 import os
+from pathlib import Path
 
 import pytest
 
+from pyconll.parser import Parser
 from pyconll.unit.conll import Conll
 from tests.unit.util import parse_sentence
 from tests.util import fixture_location
+
+
+def load_conll(p: Path) -> Conll:
+    parser = Parser()
+    sentences = parser.load_from_file(p)
+    return Conll(sentences)
 
 
 def test_creation():
     """
     Test the basic creation of a Conll object.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
 
     assert len(conll) == 4
 
@@ -33,8 +40,7 @@ def test_no_ending_newline():
     """
     Test correct creation when the ending of the file ends in no newline.
     """
-    with open(fixture_location("no_newline.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("no_newline.conll"))
 
     assert len(conll) == 3
 
@@ -52,8 +58,7 @@ def test_many_newlines():
     """
     Test correct Conll parsing when there are too many newlines.
     """
-    with open(fixture_location("many_newlines.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("many_newlines.conll"))
 
     assert len(conll) == 4
 
@@ -74,8 +79,7 @@ def test_numeric_indexing():
     """
     Test the ability to index sentences through their numeric position.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
 
     assert len(conll[0]) == 10
     assert conll[0].id == "fr-ud-dev_00001"
@@ -85,8 +89,7 @@ def test_slice_indexing():
     """
     Test the ability to slice up a Conll object and its result.
     """
-    with open(fixture_location("long.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll((fixture_location("long.conll")))
 
     every_3 = conll[1:7:3]
 
@@ -102,10 +105,9 @@ def test_string_output():
     """
     Test that the strings are properly created.
     """
-    with open(fixture_location("basic.conll")) as f:
-        contents = f.read()
-        f.seek(0)
-        conll = Conll(f)
+    fixture = fixture_location("basic.conll")
+    contents = fixture.read_text()
+    conll = load_conll(fixture)
 
     assert contents == conll.conll()
 
@@ -114,18 +116,16 @@ def test_writing_output():
     """
     Test that CoNLL files are properly created.
     """
-    with open(fixture_location("basic.conll")) as f:
-        contents_basic = f.read()
-        f.seek(0)
-        conll = Conll(f)
+    basic_fixture = fixture_location("basic.conll")
+    contents_basic = basic_fixture.read_text()
+    conll = load_conll(basic_fixture)
 
     output_loc = fixture_location("output.conll")
     with open(output_loc, "w") as f:
         conll.write(f)
 
-    with open(output_loc) as f:
-        contents_write = f.read()
-    os.remove(fixture_location("output.conll"))
+    contents_write = output_loc.read_text()
+    output_loc.unlink()
 
     assert contents_basic == contents_write
 
@@ -134,8 +134,7 @@ def test_append():
     """
     Test that a sentence can be properly added to a Conll object.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
     orig_length = len(conll)
 
     source = (
@@ -169,8 +168,7 @@ def test_insert():
     """
     Test that a sentence can be inserted to a Conll object.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
     orig_length = len(conll)
 
     source = (
@@ -204,8 +202,7 @@ def test_contains_true():
     """
     Test that a Conll object can test for membership presence properly.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
 
     source = (
         "# sent_id = fr-ud-dev_00002\n"
@@ -239,8 +236,7 @@ def test_contains_false():
     """
     Test that a Conll object can test for membership presence.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
 
     source = (
         "# sent_id = fr-ud-dev_00002"
@@ -271,8 +267,7 @@ def test_contains_non_existent_id():
     """
     Test that contains properly executes when the sentence id is unknown.
     """
-    with open(fixture_location("basic.conll")) as f:
-        conll = Conll(f)
+    conll = load_conll(fixture_location("basic.conll"))
 
     source = (
         "# sent_id = fr-ud-dev_00037"
@@ -303,8 +298,7 @@ def test_setitem():
     """
     Test that Sentences are properly assigned when using setitem.
     """
-    with open(fixture_location("basic.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("basic.conll"))
 
     source = (
         "# sent_id = fr-ud-dev_00002\n"
@@ -335,8 +329,7 @@ def test_getitem_raises_typeerror():
     """
     Test that a non integer or slice key raises a TypeError.
     """
-    with open(fixture_location("basic.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("basic.conll"))
 
     with pytest.raises(TypeError):
         sent = c["error"]
@@ -346,8 +339,7 @@ def test_delitem_single_int():
     """
     Test that Sentences keyed by index are properly deleted from Conll objects.
     """
-    with open(fixture_location("basic.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("basic.conll"))
 
     del c[2]
     assert len(c) == 3
@@ -358,8 +350,7 @@ def test_delitem_slice_int():
     """
     Test that Sentences can be deleted through slices with integer boundaries.
     """
-    with open(fixture_location("long.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("long.conll"))
 
     del c[3:8:2]
     assert len(c) == 6
@@ -374,8 +365,7 @@ def test_delitem_contains():
     """
     Test that the contains method still works after deletion.
     """
-    with open(fixture_location("long.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("long.conll"))
 
     sent = c[1]
 
@@ -388,8 +378,7 @@ def test_insert_contains():
     """
     Test that contains still works after inserting an Sentence.
     """
-    with open(fixture_location("long.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("long.conll"))
 
     sent = c[6]
     source = (
@@ -425,8 +414,7 @@ def test_append_contains():
     """
     Test that contains still works after appending an Sentence.
     """
-    with open(fixture_location("long.conll")) as f:
-        c = Conll(f)
+    c = load_conll(fixture_location("long.conll"))
 
     sent = c[6]
     source = (
@@ -462,6 +450,5 @@ def test_invalid_conll():
     """
     Test that an invalid sentence results in an invalid Conll object.
     """
-    with open(fixture_location("invalid.conll")) as f:
-        with pytest.raises(ValueError):
-            c = Conll(f)
+    with pytest.raises(ValueError):
+        c = load_conll(fixture_location("invalid.conll"))
