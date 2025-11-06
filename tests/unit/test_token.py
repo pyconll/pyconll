@@ -7,6 +7,8 @@ from pyconll.schema import compile_token_parser
 from pyconll.unit.token import Token
 
 _raw_parser = compile_token_parser(Token)
+
+
 def _parse_token(line: str) -> Token:
     return _raw_parser(line, "\t")
 

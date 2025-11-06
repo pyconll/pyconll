@@ -82,7 +82,7 @@ def parse_sentence(lines: str) -> Sentence:
     Returns:
         The singular parsed Sentence that can be constructed from the line source.
     """
-    parser = Parser()
+    parser = Parser(Token)
     sentences = parser.load_from_string(lines)
 
     if len(sentences) != 1:

@@ -2,13 +2,15 @@ from pathlib import Path
 
 from pyconll.parser import Parser
 from pyconll.unit.conll import Conll
+from pyconll.unit.token import Token
 from tests.util import fixture_location
 
 
 def load_conll(p: Path) -> Conll:
-    parser = Parser()
+    parser = Parser(Token)
     sentences = parser.load_from_file(p)
     return Conll(sentences)
+
 
 def test_string_output():
     """

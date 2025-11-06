@@ -37,8 +37,6 @@ class Sentence[T: TokenProtocol](Conllable):
     __slots__ = ["meta", "tokens"]
 
     COMMENT_MARKER: ClassVar[str] = "#"
-    SENTENCE_ID_KEY: ClassVar[str] = "sent_id"
-    TEXT_KEY: ClassVar[str] = "text"
 
     def __init__(self, meta: OrderedDict[str, Optional[str]], tokens: list[T]) -> None:
         """
@@ -54,6 +52,15 @@ class Sentence[T: TokenProtocol](Conllable):
         """
         self.meta = meta
         self.tokens = tokens
+
+    def __repr__(self) -> str:
+        """
+        Create a string that represents this Sentence object.
+
+        Returns:
+            The constructed string.
+        """
+        return f"Sentence(meta={self.meta!r}, tokens={self.tokens!r})"
 
     def conll(self) -> str:
         """
@@ -79,8 +86,6 @@ class Sentence[T: TokenProtocol](Conllable):
             try:
                 lines.append(token.conll())
             except FormatError as err:
-                raise FormatError(
-                    f"Error serializing sentence with id {self.id} on token '{token.id}'."
-                ) from err
+                raise FormatError(f"Error serializing sentence on token '{token!r}'.") from err
 
         return "\n".join(lines)

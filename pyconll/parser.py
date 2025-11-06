@@ -8,19 +8,13 @@ import io
 import os
 from collections import OrderedDict
 import string
-from typing import Callable, Iterator, Optional
+from typing import Iterator, Optional
 
 from pyconll.exception import ParseError
 from pyconll.schema import TokenProtocol, compile_token_parser
 from pyconll.unit.sentence import Sentence
-from pyconll.unit.token import Token
 
 PathLike = str | bytes | os.PathLike
-
-# TODO: Make this change...
-# I think best option is to have delimiter = "\t", comment_marker = "#", all on read and write APIs. It will be easiest that
-# way, and maybe some duplication but it is alright. Then just create a __repr__ for Sentence and Token and that should be enough, and no more
-# Conllable.
 
 
 class Parser[T: TokenProtocol]:
@@ -32,18 +26,20 @@ class Parser[T: TokenProtocol]:
     where the text resource is not explicitly provided.
     """
 
-    def __init__(self, token_type: type[T] = Token, comment_marker: str = "#", delimiter: str = "\t") -> None:
+    def __init__(
+        self, token_type: type[T], comment_marker: str = "#", delimiter: str = "\t"
+    ) -> None:
         """
         Initialize the parser.
 
         Args:
-            token_type: The Token type to use for parsing. Defaults to Token.
+            token_type: The Token type to use for parsing. If not provided, internally set as Token.
             comment_marker: The string that marks the beginning of comments. Defaults to '#'.
             delimiter: The delimiter between the columns on a token line.
         """
         self.comment_marker = comment_marker
         self.delimiter = delimiter
-        self.token_parser: Callable[[str, str], T] = compile_token_parser(token_type)
+        self.token_parser = compile_token_parser(token_type)
 
     def load_from_string(self, source: str) -> list[Sentence[T]]:
         """
@@ -141,7 +137,7 @@ class Parser[T: TokenProtocol]:
             ParseError: If there is an error parsing the input.
         """
         meta: OrderedDict[str, Optional[str]] = OrderedDict()
-        tokens: list[Token] = []
+        tokens: list[T] = []
         empty = True
         token_line_seen = False
         sentence_seen = False

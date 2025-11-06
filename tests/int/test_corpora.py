@@ -14,6 +14,7 @@ import requests
 
 import pyconll
 from pyconll.parser import Parser
+from pyconll.unit.token import Token
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -487,7 +488,7 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
     skip_write: bool = pytestconfig.getoption("--corpora-skip-write")
 
     globs = corpus.glob("**/*.conllu")
-    parser = Parser()
+    parser = Parser(Token)
 
     for path in globs:
         is_exp = any(path == corpus / exp for exp in exceptions)

@@ -21,7 +21,9 @@ def test_simple_sentence_construction():
     assert sentence.meta["text"] == "Mais comment faire ?"
     assert len(sentence.tokens) == 4
 
-    assert_token_members(sentence.tokens[0], "1", "Mais", "mais", "CCONJ", None, {}, "3", "cc", {}, {})
+    assert_token_members(
+        sentence.tokens[0], "1", "Mais", "mais", "CCONJ", None, {}, "3", "cc", {}, {}
+    )
     assert_token_members(
         sentence.tokens[1], "2", "comment", "comment", "ADV", None, {}, "3", "advmod", {}, {}
     )
