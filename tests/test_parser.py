@@ -1,5 +1,9 @@
+from typing import Optional
+import pytest
 from pyconll import Parser
-from pyconll.unit.conll import Conll
+from pyconll.schema import TokenProtocol, nullable
+from pyconll.unit.sentence import Sentence
+from pyconll.unit.token import Token
 from tests.util import fixture_location
 from tests.unit.util import assert_token_equivalence
 
@@ -10,11 +14,21 @@ def test_load_from_string():
     """
     contents = fixture_location("basic.conll").read_text("utf-8")
     c = Parser().load_from_string(contents)
-    sent = c[1]
 
     assert len(c) == 4
-    assert len(sent) == 14
-    assert sent["10"].form == "donc"
+
+    assert len(c[0].tokens) == 10
+    assert c[0].meta["sent_id"] == "fr-ud-dev_00001"
+
+    assert len(c[1].tokens) == 14
+    assert c[1].meta["sent_id"] == "fr-ud-dev_00002"
+    assert c[1].tokens[9].form == "donc"
+
+    assert len(c[2].tokens) == 9
+    assert c[2].meta["sent_id"] == "fr-ud-dev_00003"
+
+    assert len(c[3].tokens) == 52
+    assert c[3].meta["sent_id"] == "fr-ud-dev_00004"
 
 
 def test_load_from_file():
@@ -25,8 +39,8 @@ def test_load_from_file():
     sent = c[1]
 
     assert len(c) == 4
-    assert len(sent) == 14
-    assert sent["10"].form == "donc"
+    assert len(sent.tokens) == 14
+    assert sent.tokens[9].form == "donc"
 
 
 def test_load_from_windows_newline_file():
@@ -37,9 +51,48 @@ def test_load_from_windows_newline_file():
     sent = c[1]
 
     assert len(c) == 4
-    assert len(sent) == 14
-    assert sent["10"].form == "donc"
-    assert sent["10"].misc == {}
+    assert len(sent.tokens) == 14
+    assert sent.tokens[9].form == "donc"
+    assert sent.tokens[9].misc == {}
+
+
+def test_no_ending_newline():
+    """
+    Test correct creation when the ending of the file ends in no newline.
+    """
+    conll = Parser().load_from_file(fixture_location("no_newline.conll"))
+
+    assert len(conll) == 3
+
+    assert len(conll[0].tokens) == 10
+    assert conll[0].meta["sent_id"] == "fr-ud-dev_00001"
+
+    assert len(conll[1].tokens) == 14
+    assert conll[1].meta["sent_id"] == "fr-ud-dev_00002"
+
+    assert len(conll[2].tokens) == 9
+    assert conll[2].meta["sent_id"] == "fr-ud-dev_00003"
+
+
+def test_many_newlines():
+    """
+    Test correct Conll parsing when there are too many newlines.
+    """
+    conll = Parser().load_from_file(fixture_location("many_newlines.conll"))
+
+    assert len(conll) == 4
+
+    assert len(conll[0].tokens) == 10
+    assert conll[0].meta["sent_id"] == "fr-ud-dev_00001"
+
+    assert len(conll[1].tokens) == 14
+    assert conll[1].meta["sent_id"] == "fr-ud-dev_00002"
+
+    assert len(conll[2].tokens) == 9
+    assert conll[2].meta["sent_id"] == "fr-ud-dev_00003"
+
+    assert len(conll[3].tokens) == 52
+    assert conll[3].meta["sent_id"] == "fr-ud-dev_00004"
 
 
 def test_load_from_resource():
@@ -51,8 +104,8 @@ def test_load_from_resource():
         sent = c[1]
 
         assert len(c) == 4
-        assert len(sent) == 14
-        assert sent["10"].form == "donc"
+        assert len(sent.tokens) == 14
+        assert sent.tokens[9].form == "donc"
 
 
 def test_equivalence_across_load_operations():
@@ -68,15 +121,15 @@ def test_equivalence_across_load_operations():
     with open(fixture_location("long.conll"), encoding="utf-8") as resource:
         resource_c = parser.load_from_resource(resource)
 
-    def assert_equivalent_conll_objs(conll1: Conll, conll2: Conll) -> None:
+    def assert_equivalent_conll_objs(conll1: list[Sentence[Token]], conll2: list[Sentence[Token]]) -> None:
         assert len(conll1) == len(conll1)
         for i in range(len(conll1)):
-            assert len(conll1[i]) == len(conll2[i])
-            assert conll1[i].id == conll2[i].id
-            assert conll1[i].text == conll2[i].text
+            assert conll1[i].meta["sent_id"] == conll2[i].meta["sent_id"]
+            assert conll1[i].meta["text"] == conll2[i].meta["text"]
 
-            for token1 in conll1[i]:
-                token2 = conll2[i][token1.id]
+            assert len(conll1[i].tokens) == len(conll2[i].tokens)
+            for j, token1 in enumerate(conll1[i].tokens):
+                token2 = conll2[i].tokens[j]
                 assert_token_equivalence(token1, token2)
 
     assert_equivalent_conll_objs(str_c, file_c)
@@ -91,7 +144,7 @@ def test_iter_from_string():
     parser = Parser()
 
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-    actual_ids = [sent.id for sent in parser.iter_from_string(contents)]
+    actual_ids = [sent.meta["sent_id"] for sent in parser.iter_from_string(contents)]
 
     assert expected_ids == actual_ids
 
@@ -102,7 +155,7 @@ def test_iter_from_file():
     filename.
     """
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-    actual_ids = [sent.id for sent in Parser().iter_from_file(fixture_location("basic.conll"))]
+    actual_ids = [sent.meta["sent_id"] for sent in Parser().iter_from_file(fixture_location("basic.conll"))]
 
     assert expected_ids == actual_ids
 
@@ -113,6 +166,50 @@ def test_iter_from_resource():
     """
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-        actual_ids = [sent.id for sent in Parser().iter_from_resource(f)]
+        actual_ids = [sent.meta["sent_id"] for sent in Parser().iter_from_resource(f)]
 
         assert expected_ids == actual_ids
+
+
+def test_invalid_conll():
+    """
+    Test that an invalid sentence results in an invalid Conll object.
+    """
+    with pytest.raises(ValueError):
+        c = Parser().load_from_file(fixture_location("invalid.conll"))
+
+
+def test_custom_token_parsing():
+    """
+    Test that a custom token type can be used with the parser.
+    """
+    class TestToken(TokenProtocol):
+        id: str
+        category: int
+        body: Optional[str] = nullable(str, "_")
+
+    p = Parser(TestToken)
+
+    source = (
+        "1\t2\tSomething random.\n"
+        "2\t3\tAnother thing but not as random.\n"
+        "\n"
+        "1\t0\tA repeat.\n"
+        "2\t0\tNow something unique.\n"
+        "3\t1\t_\n"
+        "\n"
+    )
+
+    def as_tup(t: TestToken):
+        return (t.id, t.category, t.body)
+
+    sentences = p.load_from_string(source)
+
+    f = sentences[0]
+    assert as_tup(f.tokens[0]) == ("1", 2, "Something random.")
+    assert as_tup(f.tokens[1]) == ("2", 3, "Another thing but not as random.")
+
+    s = sentences[1]
+    assert as_tup(s.tokens[0]) == ("1", 0, "A repeat.")
+    assert as_tup(s.tokens[1]) == ("2", 0, "Now something unique.")
+    assert as_tup(s.tokens[2]) == ("3", 1, None)
