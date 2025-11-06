@@ -516,7 +516,7 @@ def _test_treebank(parser: Parser, treebank_path: Path, skip_write: bool) -> Non
     count = 0
     with tempfile.TemporaryFile(mode="w", encoding="utf-8") as tmp_output_file:
         for sentence in treebank:
-            count += len(sentence)
+            count += len(sentence.tokens)
             if not skip_write:
                 tmp_output_file.write(sentence.conll())
                 tmp_output_file.write("\n\n")

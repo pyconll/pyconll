@@ -33,7 +33,7 @@ class Parser[T: TokenProtocol]:
         Initialize the parser.
 
         Args:
-            token_type: The Token type to use for parsing. If not provided, internally set as Token.
+            token_type: The Token type to use for parsing.
             comment_marker: The string that marks the beginning of comments. Defaults to '#'.
             delimiter: The delimiter between the columns on a token line.
         """
