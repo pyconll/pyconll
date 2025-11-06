@@ -1,5 +1,6 @@
 import pytest
 
+from pyconll.serializer import Serializer
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
@@ -7,7 +8,7 @@ from pyconll.schema import compile_token_parser, compile_token_serializer
 from pyconll.unit.token import Token
 
 _raw_parser = compile_token_parser(Token)
-_raw_serializer = compile_token_serializer(Token)
+_raw_serializer = Serializer(Token)
 
 
 def _parse_token(line: str) -> Token:
@@ -15,7 +16,7 @@ def _parse_token(line: str) -> Token:
 
 
 def _serialize_token(token: Token) -> str:
-    return _raw_serializer(token, "\t")
+    return _raw_serializer.serialize_token(token)
 
 
 def test_construction():

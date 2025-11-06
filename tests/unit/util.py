@@ -96,8 +96,4 @@ def parse_sentence(lines: str) -> Sentence[Token]:
 def sentence_to_conll(sentence: Sentence[Token]) -> str:
     """ """
     serializer = Serializer(Token)
-    writeable = io.StringIO()
-    serializer.write_sentence(sentence, writeable)
-    conll = writeable.getvalue()
-
-    return conll
+    return serializer.serialize_sentence(sentence)
