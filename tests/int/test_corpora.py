@@ -14,6 +14,7 @@ import requests
 
 import pyconll
 from pyconll.parser import Parser
+from pyconll.unit.token import Token
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -487,7 +488,7 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
     skip_write: bool = pytestconfig.getoption("--corpora-skip-write")
 
     globs = corpus.glob("**/*.conllu")
-    parser = Parser()
+    parser = Parser(Token)
 
     for path in globs:
         is_exp = any(path == corpus / exp for exp in exceptions)
@@ -515,7 +516,7 @@ def _test_treebank(parser: Parser, treebank_path: Path, skip_write: bool) -> Non
     count = 0
     with tempfile.TemporaryFile(mode="w", encoding="utf-8") as tmp_output_file:
         for sentence in treebank:
-            count += len(sentence)
+            count += len(sentence.tokens)
             if not skip_write:
                 tmp_output_file.write(sentence.conll())
                 tmp_output_file.write("\n\n")

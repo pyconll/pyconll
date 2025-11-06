@@ -6,7 +6,11 @@ from pyconll.exception import ParseError, FormatError
 from pyconll.schema import compile_token_parser
 from pyconll.unit.token import Token
 
-_parse_token = compile_token_parser(Token)
+_raw_parser = compile_token_parser(Token)
+
+
+def _parse_token(line: str) -> Token:
+    return _raw_parser(line, "\t")
 
 
 def test_construction():
@@ -544,3 +548,27 @@ def test_deps_sort_order_decimal():
     )
 
     assert conll == formatted_line
+
+
+def test_empty_node():
+    """
+    Test the construction of an empty node token.
+    """
+    token_line = "7.1	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n"
+    token = _parse_token(token_line)
+
+    assert_token_members(
+        token,
+        "7.1",
+        "vie",
+        "vie",
+        "NOUN",
+        None,
+        {"Gender": set(("Fem",)), "Number": set(("Sing",))},
+        "4",
+        "nmod",
+        {},
+        {"SpaceAfter": set(("No",))},
+    )
+
+    assert token.is_empty_node()

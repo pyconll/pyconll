@@ -590,7 +590,7 @@ def _compile_serialize_schema_ir(
     )
 
 
-def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
+def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S]:
     """
     Compile a TokenProtocol definition into a method that can parse a given line of it.
 
@@ -653,8 +653,8 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     compiled_parse_token = unique_name_id(namespace, "compiled_parse_token")
     parser_ir = process_ir(
         t"""
-        def {compiled_parse_token}(line):
-            fields = line.split("\\t")
+        def {compiled_parse_token}(line, delimiter):
+            fields = line.split(delimiter)
 
             if len(fields) != {(len(field_names), int)}:
                 raise ParseError(f"The number of columns per token line must be "
@@ -678,6 +678,6 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str], S]:
     )
     exec(parser_ir, namespace)  # pylint: disable=exec-used
 
-    parser = cast(Callable[[str], S], namespace[compiled_parse_token])
+    parser = cast(Callable[[str, str], S], namespace[compiled_parse_token])
 
     return parser

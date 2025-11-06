@@ -409,7 +409,7 @@ class TestTokenProtocolCompilation:
 
         raw_line = "3\tthe value of pi\t3.14"
         parser = compile_token_parser(SimpleToken)
-        token = parser(raw_line)
+        token = parser(raw_line, "\t")
 
         assert token.conll() == raw_line
 
@@ -424,13 +424,13 @@ class TestTokenProtocolCompilation:
             scores: list[float]
 
         with pytest.raises(Exception):
-            parser = compile_token_parser(InvalidToken)
+            compile_token_parser(InvalidToken, "\t")
 
-    def test_invalid_primitive_protocol(self):
+    def test_invalid_schema_attribute(self):
         class InvalidToken(TokenProtocol):
             id: int
             name: str
             scores: list[float] = lambda s: map(float, s.split(","))
 
         with pytest.raises(Exception):
-            parser = compile_token_parser(InvalidToken)
+            compile_token_parser(InvalidToken, "\t")

@@ -72,7 +72,7 @@ def assert_token_members(
     assert token.misc == misc
 
 
-def parse_sentence(lines: str) -> Sentence:
+def parse_sentence(lines: str) -> Sentence[Token]:
     """
     Parse a single sentence, and assert that only one sentence can be extracted from the source.
 
@@ -82,7 +82,7 @@ def parse_sentence(lines: str) -> Sentence:
     Returns:
         The singular parsed Sentence that can be constructed from the line source.
     """
-    parser = Parser()
+    parser = Parser(Token)
     sentences = parser.load_from_string(lines)
 
     if len(sentences) != 1:

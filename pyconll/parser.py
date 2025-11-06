@@ -1,44 +1,46 @@
 """
-An internal module for common parsing logic, which is currently creating
-Sentence objects from an iterator that returns CoNLL source lines. This logic
-can then be used in the Conll class or in pyconll.load.
+The main parser component. For more common CoNLL-U parsing, the pyconll.load_* and pyconll.iter_*
+methods may be more succinct but for more general scenarios, this can be used as necessary.
 """
 
 import io
 import os
 from collections import OrderedDict
 import string
-from typing import Callable, Iterator, Optional
+from typing import Iterator, Optional
 
 from pyconll.exception import ParseError
-from pyconll.schema import compile_token_parser
+from pyconll.schema import TokenProtocol, compile_token_parser
 from pyconll.unit.sentence import Sentence
-from pyconll.unit.token import Token
 
 PathLike = str | bytes | os.PathLike
 
 
-class Parser:
+class Parser[T: TokenProtocol]:
     """
-    A parser for CoNLL-U formatted data.
+    A parser for CoNLL formatted data.
 
-    The parser maintains state including the comment marker and token parser, and provides methods
-    to parse from various sources. In all cases, the parser will handle windows or unix newlines.
+    The parser maintains state including the comment marker, delimiter, and the compiled parser,
+    and provides methods to parse from various sources. In all cases, the parser will handle both
+    windows or unix newlines where the text resource is not explicitly provided.
     """
 
-    def __init__(self, token_type: type[Token] = Token, comment_marker: str = "#") -> None:
+    def __init__(
+        self, token_type: type[T], comment_marker: str = "#", delimiter: str = "\t"
+    ) -> None:
         """
         Initialize the parser.
 
         Args:
-            token_type: The Token type to use for parsing. Defaults to Token.
-            comment_marker: The string that marks the beginning of comments.
-                Defaults to '#'.
+            token_type: The Token type to use for parsing.
+            comment_marker: The string that marks the beginning of comments. Defaults to '#'.
+            delimiter: The delimiter between the columns on a token line.
         """
         self.comment_marker = comment_marker
-        self.token_parser: Callable[[str], Token] = compile_token_parser(token_type)
+        self.delimiter = delimiter
+        self.token_parser = compile_token_parser(token_type)
 
-    def load_from_string(self, source: str) -> list[Sentence]:
+    def load_from_string(self, source: str) -> list[Sentence[T]]:
         """
         Parse a CoNLL-U formatted string into a list of sentences.
 
@@ -53,9 +55,11 @@ class Parser:
         """
         return list(self.iter_from_string(source))
 
-    def load_from_file(self, filepath: PathLike) -> list[Sentence]:
+    def load_from_file(self, filepath: PathLike) -> list[Sentence[T]]:
         """
         Parse a CoNLL-U file into a list of sentences.
+
+        Assumes the file is UTF-8 encoded.
 
         Args:
             filepath: The path descriptor of the file to parse.
@@ -69,7 +73,7 @@ class Parser:
         """
         return list(self.iter_from_file(filepath))
 
-    def load_from_resource(self, resource: io.TextIOBase) -> list[Sentence]:
+    def load_from_resource(self, resource: io.TextIOBase) -> list[Sentence[T]]:
         """
         Parse a CoNLL-U resource into a list of sentences.
 
@@ -85,7 +89,7 @@ class Parser:
         """
         return list(self.iter_from_resource(resource))
 
-    def iter_from_string(self, source: str) -> Iterator[Sentence]:
+    def iter_from_string(self, source: str) -> Iterator[Sentence[T]]:
         """
         Iterate over the Sentences contained within the string.
 
@@ -100,11 +104,11 @@ class Parser:
         """
         yield from self.iter_from_resource(io.StringIO(source))
 
-    def iter_from_file(self, filepath: PathLike) -> Iterator[Sentence]:
+    def iter_from_file(self, filepath: PathLike) -> Iterator[Sentence[T]]:
         """
         Iterate over the Sentence contained within the file.
 
-        Assumes that the file is utf-8 encoded.
+        Assumes that the file is UTF-8 encoded.
 
         Args:
             filepath: The path descriptor of the file to parse.
@@ -119,7 +123,7 @@ class Parser:
         with open(filepath, encoding="utf-8") as f:
             yield from self.iter_from_resource(f)
 
-    def iter_from_resource(self, resource: io.TextIOBase) -> Iterator[Sentence]:
+    def iter_from_resource(self, resource: io.TextIOBase) -> Iterator[Sentence[T]]:
         """
         Iterate over the Sentences contained within the resource.
 
@@ -134,20 +138,18 @@ class Parser:
             ParseError: If there is an error parsing the input.
         """
         meta: OrderedDict[str, Optional[str]] = OrderedDict()
-        tokens: list[Token] = []
-        ids_to_indexes: dict[str, int] = {}
+        tokens: list[T] = []
         empty = True
         token_line_seen = False
         sentence_seen = False
 
-        def step_next_sentence():
-            nonlocal meta, tokens, ids_to_indexes, empty, token_line_seen, sentence_seen
+        def step_next_sentence() -> Sentence[T]:
+            nonlocal meta, tokens, empty, token_line_seen, sentence_seen
 
-            sentence = Sentence(meta, tokens, ids_to_indexes)
+            sentence = Sentence[T](meta, tokens)
 
             meta = OrderedDict()
             tokens = []
-            ids_to_indexes = {}
             empty = True
             token_line_seen = False
             sentence_seen = True
@@ -188,10 +190,8 @@ class Parser:
             else:
                 token_line_seen = True
                 try:
-                    token = self.token_parser(line)
+                    token = self.token_parser(line, self.delimiter)
                     tokens.append(token)
-                    if token.id is not None:
-                        ids_to_indexes[token.id] = len(tokens) - 1
                 except ParseError as exc:
                     raise ParseError(
                         f"Error parsing token on line number {line_num} of the line source."
