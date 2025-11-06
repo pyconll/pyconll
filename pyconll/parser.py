@@ -1,6 +1,6 @@
 """
 The main parser component. For more common CoNLL-U parsing, the pyconll.load_* and pyconll.iter_*
-methods may be more succint but for more general scenarios, this can be used as necessary.
+methods may be more succinct but for more general scenarios, this can be used as necessary.
 """
 
 import io
