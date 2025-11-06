@@ -5,7 +5,6 @@ from pyconll.serializer import Serializer
 from pyconll.unit.token import Token
 from tests.util import fixture_location
 
-
 _conllu_parser = Parser(Token)
 _conllu_serializer = Serializer(Token)
 
@@ -19,7 +18,7 @@ def test_string_output():
 
     sentences = _conllu_parser.load_from_string(original)
 
-     # TODO: How does 
+    # TODO: How does
     buffer = io.StringIO()
     _conllu_serializer.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()

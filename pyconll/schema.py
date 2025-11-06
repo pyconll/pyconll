@@ -705,10 +705,10 @@ def compile_token_serializer[S: TokenProtocol](s: type[S]) -> Callable[[S, str],
             except FormatError as fexc:
                 raise fexc
             except Exception as exc:
-                raise FormatError(f"Unable to convert Token {{token!r}} into conll string.") from exc
+                raise FormatError(f"Unable to serialize Token: {{token!r}}.") from exc
         """)
 
-    exec(serializer_ir, namespace)
+    exec(serializer_ir, namespace)  # pylint: disable=exec-used
 
     serializer = cast(Callable[[S, str], str], namespace[serialize_token])
     return serializer
