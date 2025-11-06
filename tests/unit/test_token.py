@@ -548,3 +548,27 @@ def test_deps_sort_order_decimal():
     )
 
     assert conll == formatted_line
+
+
+def test_empty_node():
+    """
+    Test the construction of an empty node token.
+    """
+    token_line = "7.1	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n"
+    token = _parse_token(token_line)
+
+    assert_token_members(
+        token,
+        "7.1",
+        "vie",
+        "vie",
+        "NOUN",
+        None,
+        {"Gender": set(("Fem",)), "Number": set(("Sing",))},
+        "4",
+        "nmod",
+        {},
+        {"SpaceAfter": set(("No",))},
+    )
+
+    assert token.is_empty_node()

@@ -424,13 +424,13 @@ class TestTokenProtocolCompilation:
             scores: list[float]
 
         with pytest.raises(Exception):
-            parser = compile_token_parser(InvalidToken, "\t")
+            compile_token_parser(InvalidToken, "\t")
 
-    def test_invalid_primitive_protocol(self):
+    def test_invalid_schema_attribute(self):
         class InvalidToken(TokenProtocol):
             id: int
             name: str
             scores: list[float] = lambda s: map(float, s.split(","))
 
         with pytest.raises(Exception):
-            parser = compile_token_parser(InvalidToken, "\t")
+            compile_token_parser(InvalidToken, "\t")
