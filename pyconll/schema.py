@@ -17,7 +17,6 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
 from pyconll._ir import unique_name_id, process_ir
 
@@ -611,7 +610,6 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
         s.__name__: s,
         "ParseError": ParseError,
         "FormatError": FormatError,
-        "Conllable": Conllable,
     }
 
     for i, (name, type_hint) in enumerate(hints.items()):

@@ -13,6 +13,7 @@ _raw_serializer = compile_token_serializer(Token)
 def _parse_token(line: str) -> Token:
     return _raw_parser(line, "\t")
 
+
 def _serialize_token(token: Token) -> str:
     return _raw_serializer(token, "\t")
 

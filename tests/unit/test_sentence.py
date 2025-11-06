@@ -1,7 +1,7 @@
 import pytest
 
 from pyconll.exception import FormatError
-from tests.unit.util import assert_token_members, parse_sentence
+from tests.unit.util import assert_token_members, parse_sentence, sentence_to_conll
 
 
 def test_simple_sentence_construction():
@@ -164,7 +164,7 @@ def test_len_basic():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
@@ -201,11 +201,11 @@ def test_output():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
-    assert sentence.conll() == source
+    assert sentence_to_conll(sentence) == source
 
 
 def test_output_comments():
@@ -229,11 +229,11 @@ def test_output_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
-    assert sentence.conll() == source
+    assert sentence_to_conll(sentence) == source
 
 
 def test_modified_output():
@@ -256,7 +256,7 @@ def test_modified_output():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
@@ -283,10 +283,10 @@ def test_modified_output():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	facultés	NOUN	_	Number=Fem	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
-    assert sentence.conll() == output
+    assert sentence_to_conll(sentence) == output
 
 
 def test_change_comments():
@@ -310,7 +310,7 @@ def test_change_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     expected = (
@@ -330,13 +330,13 @@ def test_change_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     sentence = parse_sentence(source)
     sentence.meta["newpar id"] = "xyz-1"
 
-    assert sentence.conll() == expected
+    assert sentence_to_conll(sentence) == expected
 
 
 def test_add_comments():
@@ -360,7 +360,7 @@ def test_add_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     expected = (
@@ -380,13 +380,13 @@ def test_add_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     sentence = parse_sentence(source)
     sentence.meta["x-coord"] = "2"
 
-    assert sentence.conll() == expected
+    assert sentence_to_conll(sentence) == expected
 
 
 def test_remove_comments():
@@ -410,7 +410,7 @@ def test_remove_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     expected = (
@@ -429,13 +429,13 @@ def test_remove_comments():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     sentence = parse_sentence(source)
     del sentence.meta["x-coord"]
 
-    assert sentence.conll() == expected
+    assert sentence_to_conll(sentence) == expected
 
 
 def test_singleton_comment():
@@ -458,7 +458,7 @@ def test_singleton_comment():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     expected = (
@@ -478,13 +478,13 @@ def test_singleton_comment():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     sentence = parse_sentence(source)
     sentence.meta["foreign"] = None
 
-    assert sentence.conll() == expected
+    assert sentence_to_conll(sentence) == expected
 
 
 def test_no_id():
@@ -507,7 +507,7 @@ def test_no_id():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
@@ -535,7 +535,7 @@ def test_no_id_singleton():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
@@ -562,7 +562,7 @@ def test_no_text():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
@@ -590,7 +590,7 @@ def test_no_text_singleton():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
 
@@ -618,7 +618,7 @@ def test_invalid_sentence_by_token():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
 
     with pytest.raises(ValueError):
@@ -629,6 +629,7 @@ def test_conll_error():
     """
     Test that an error in serialization with a Token surfaces as a FormatError.
     """
+    # TODO: I guess this should actually move to serializer tests
     source = (
         "# sent_id = fr-ud-dev_00002\n"
         "# text = Les études durent six ans mais leur contenu diffère donc selon les Facultés.\n"
@@ -645,13 +646,13 @@ def test_conll_error():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sent = parse_sentence(source)
     sent.tokens[0].misc = True
 
     with pytest.raises(FormatError):
-        sent.conll()
+        sentence_to_conll(sent)
 
 
 def test_sentence_repr():
@@ -674,7 +675,7 @@ def test_sentence_repr():
         "11	selon	selon	ADP	_	_	13	case	_	_\n"
         "12	les	le	DET	_	Definite=Def|Number=Plur|PronType=Art	13	det	_	_\n"
         "13	Facultés	Facultés	PROPN	_	_	9	obl	_	SpaceAfter=No\n"
-        "14	.	.	PUNCT	_	_	3	punct	_	_"
+        "14	.	.	PUNCT	_	_	3	punct	_	_\n"
     )
     sent = parse_sentence(source)
     assert type(repr(sent)) is str
