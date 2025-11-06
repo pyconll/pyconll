@@ -1,7 +1,6 @@
 """
-An internal module for common parsing logic, which is currently creating
-Sentence objects from an iterator that returns CoNLL source lines. This logic
-can then be used in the Conll class or in pyconll.load.
+The main parser component. For more common CoNLL-U parsing, the pyconll.load_* and pyconll.iter_*
+methods may be more succint but for more general scenarios, this can be used as necessary.
 """
 
 import io
@@ -19,11 +18,11 @@ PathLike = str | bytes | os.PathLike
 
 class Parser[T: TokenProtocol]:
     """
-    A parser for CoNLL-U formatted data.
+    A parser for CoNLL formatted data.
 
-    The parser maintains state including the comment marker and token parser, and provides methods
-    to parse from various sources. In all cases, the parser will handle windows or unix newlines
-    where the text resource is not explicitly provided.
+    The parser maintains state including the comment marker, delimiter, and the compiled parser,
+    and provides methods to parse from various sources. In all cases, the parser will handle both
+    windows or unix newlines where the text resource is not explicitly provided.
     """
 
     def __init__(
@@ -59,6 +58,8 @@ class Parser[T: TokenProtocol]:
     def load_from_file(self, filepath: PathLike) -> list[Sentence[T]]:
         """
         Parse a CoNLL-U file into a list of sentences.
+
+        Assumes the file is UTF-8 encoded.
 
         Args:
             filepath: The path descriptor of the file to parse.
@@ -107,7 +108,7 @@ class Parser[T: TokenProtocol]:
         """
         Iterate over the Sentence contained within the file.
 
-        Assumes that the file is utf-8 encoded.
+        Assumes that the file is UTF-8 encoded.
 
         Args:
             filepath: The path descriptor of the file to parse.
