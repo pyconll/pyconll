@@ -58,6 +58,8 @@ class Serializer[T: TokenProtocol]:
         """
         Write an individual sentence to an IO buffer.
 
+        Note that the buffer always has a newline added at the end.
+
         Args:
             sentence: The sentence to write to the buffer.
             writable: The buffer to do the writing to.
@@ -72,14 +74,11 @@ class Serializer[T: TokenProtocol]:
                 line = f"{self.comment_marker} {meta[0]}\n"
             writable.write(line)
 
-        # TODO: newline logic.
         for token in sentence.tokens:
             writable.write(self.serializer(token, self.delimiter))
             writable.write("\n")
 
-    def write_corpus(
-        self, corpus: Iterator[Sentence[T]], writable: io.TextIOBase
-    ) -> None:
+    def write_corpus(self, corpus: Iterator[Sentence[T]], writable: io.TextIOBase) -> None:
         """
         Write out the entire corpus to the IO buffer.
 

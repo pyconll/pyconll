@@ -673,10 +673,15 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
 
 def compile_token_serializer[S: TokenProtocol](s: type[S]) -> Callable[[S, str], str]:
     """
-    """
-    # TODO: Runtime check that this is still a Protocol and not a real class here
-    # and for parser??
+    Compile a TokenProtocol definition into a method that can serialize an instance.
 
+    Args:
+        s: The type to perform the serialization compilation on.
+
+    Returns:
+        The compiled method which can convert an instance of a Token schema into a string
+        representation.
+    """
     hints = get_type_hints(s)
 
     field_names: list[str] = []
@@ -693,7 +698,6 @@ def compile_token_serializer[S: TokenProtocol](s: type[S]) -> Callable[[S, str],
         serialize_name = _compile_serialize_schema_ir(namespace, attr, type_hint)
         conll_ir = f"{name} = {serialize_name}(token.{name})"
         conll_irs.append(conll_ir)
-
 
     serialize_token = unique_name_id(namespace, "serialize_token")
     serializer_ir = process_ir(
