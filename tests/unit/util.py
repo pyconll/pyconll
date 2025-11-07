@@ -2,10 +2,12 @@
 Module for helping test Token related functionality.
 """
 
+import io
 from typing import Optional
 from pyconll.parser import Parser
 from pyconll.unit.sentence import Sentence
 from pyconll.unit.token import Token
+from pyconll.serializer import Serializer
 
 
 def assert_token_equivalence(token1: Token, token2: Token) -> None:
@@ -89,3 +91,9 @@ def parse_sentence(lines: str) -> Sentence[Token]:
         raise RuntimeError("Expected exactly one sentence in the lines given.")
 
     return sentences[0]
+
+
+def sentence_to_conll(sentence: Sentence[Token]) -> str:
+    """ """
+    serializer = Serializer(Token)
+    return serializer.serialize_sentence(sentence)

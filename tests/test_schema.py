@@ -10,6 +10,7 @@ from pyconll.schema import (
     SchemaDescriptor,
     TokenProtocol,
     compile_token_parser,
+    compile_token_serializer,
     nullable,
     array,
     fixed_array,
@@ -407,11 +408,13 @@ class TestTokenProtocolCompilation:
             name: str
             score: float
 
-        raw_line = "3\tthe value of pi\t3.14"
         parser = compile_token_parser(SimpleToken)
+        serializer = compile_token_serializer(SimpleToken)
+
+        raw_line = "3\tthe value of pi\t3.14"
         token = parser(raw_line, "\t")
 
-        assert token.conll() == raw_line
+        assert serializer(token, "\t") == raw_line
 
         assert token.id == 3
         assert token.name == "the value of pi"

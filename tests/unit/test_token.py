@@ -1,5 +1,6 @@
 import pytest
 
+from pyconll.serializer import Serializer
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
@@ -7,10 +8,15 @@ from pyconll.schema import compile_token_parser
 from pyconll.unit.token import Token
 
 _raw_parser = compile_token_parser(Token)
+_raw_serializer = Serializer(Token)
 
 
 def _parse_token(line: str) -> Token:
     return _raw_parser(line, "\t")
+
+
+def _serialize_token(token: Token) -> str:
+    return _raw_serializer.serialize_token(token)
 
 
 def test_construction():
@@ -158,7 +164,7 @@ def test_to_string():
     token_line = "26	surmonté	surmonter	VERB	_	Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_"
     token = _parse_token(token_line)
 
-    assert token.conll() == token_line
+    assert _serialize_token(token) == token_line
 
 
 def test_modify_unit_field_to_string():
@@ -172,7 +178,7 @@ def test_modify_unit_field_to_string():
 
     new_token_line = "33	cintre	pain	NOUN	_	Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
 
-    assert token.conll() == new_token_line
+    assert _serialize_token(token) == new_token_line
 
 
 def test_modify_dict_field_to_string():
@@ -186,7 +192,7 @@ def test_modify_dict_field_to_string():
 
     new_token_line = "33	cintre	cintre	NOUN	_	Gender=Fem,Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
 
-    assert token.conll() == new_token_line
+    assert _serialize_token(token) == new_token_line
 
 
 def test_remove_feature_to_string():
@@ -200,7 +206,7 @@ def test_remove_feature_to_string():
 
     new_token_line = "33	cintre	cintre	NOUN	_	Number=Sing	30	nmod	_	SpaceAfter=No"
 
-    assert token.conll() == new_token_line
+    assert _serialize_token(token) == new_token_line
 
 
 def test_underscore_construction():
@@ -279,7 +285,7 @@ def test_deps_parsing():
 
     assert token.deps["2"] == ("nsubj",)
     assert token.deps["4"] == ("nmod",)
-    assert token.conll() == token_line
+    assert _serialize_token(token) == token_line
 
 
 def test_invalid_token():
@@ -359,7 +365,7 @@ def test_misc_parsing_output():
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	"
         "30	nmod	2:nsubj|4:root	Independent|OtherTest=X,Y,Z|SpaceAfter=No,Yes"
     )
-    assert expected_output == token.conll()
+    assert expected_output == _serialize_token(token)
 
 
 def test_del_values():
@@ -376,7 +382,7 @@ def test_del_values():
 
     expected = "33	cintre	cintre	NOUN	_	Number=Sing	30	nmod	2:nsubj|4:root	_"
 
-    assert expected == token.conll()
+    assert expected == _serialize_token(token)
 
 
 def test_empty_set_format_error():
@@ -392,7 +398,7 @@ def test_empty_set_format_error():
     formatted_line = (
         "33	cintre	cintre	NOUN	_	Gender=|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     assert conll == formatted_line
 
@@ -410,7 +416,7 @@ def test_all_empty_deps_component_error():
     token.deps["2"] = cur_list
 
     with pytest.raises(FormatError):
-        token.conll()
+        _serialize_token(token)
 
 
 def test_all_deps_components():
@@ -464,7 +470,7 @@ def test_feats_keep_case_insensitive_order():
     """
     token_line = "10	gave	give	VERB	_	gender=Fem|Number=Sing	0	root	_	SpaceAfter=No"
     token = _parse_token(token_line)
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     assert conll == token_line
 
@@ -475,7 +481,7 @@ def test_feats_induce_case_insensitive_order():
     """
     token_line = "10	gave	give	VERB	_	Number=Sing|gender=Fem	0	root	_	SpaceAfter=No"
     token = _parse_token(token_line)
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     formatted_line = "10	gave	give	VERB	_	gender=Fem|Number=Sing	0	root	_	SpaceAfter=No"
 
@@ -489,7 +495,7 @@ def test_deps_sort_order():
     token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	4:nsubj|2:nmod	SpaceAfter=No"
 
     token = _parse_token(token_line)
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2:nmod|4:nsubj	SpaceAfter=No"
@@ -505,7 +511,7 @@ def test_deps_sort_order_mwt():
     token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	2:nsubj|2-3:nmod	SpaceAfter=No"
 
     token = _parse_token(token_line)
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2-3:nmod|2:nsubj	SpaceAfter=No"
@@ -521,7 +527,7 @@ def test_deps_sort_order_double_digits():
     token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	10:nsubj|2:nmod	SpaceAfter=No"
 
     token = _parse_token(token_line)
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2:nmod|10:nsubj	SpaceAfter=No"
@@ -540,7 +546,7 @@ def test_deps_sort_order_decimal():
     )
 
     token = _parse_token(token_line)
-    conll = token.conll()
+    conll = _serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	"

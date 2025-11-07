@@ -10,13 +10,13 @@ from types import CodeType
 from typing import (
     Any,
     Callable,
+    Protocol,
     cast,
     get_type_hints,
     Optional,
     TYPE_CHECKING,
 )
 
-from pyconll.conllable import Conllable
 from pyconll.exception import FormatError, ParseError
 from pyconll._ir import unique_name_id, process_ir
 
@@ -512,7 +512,7 @@ def schema[T](desc: SchemaDescriptor[T]) -> T:
     return cast(T, desc)
 
 
-class TokenProtocol(Conllable):
+class TokenProtocol(Protocol):
     """
     All structural Token definitions must inherit from this protocol.
     """
@@ -610,7 +610,6 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
         s.__name__: s,
         "ParseError": ParseError,
         "FormatError": FormatError,
-        "Conllable": Conllable,
     }
 
     for i, (name, type_hint) in enumerate(hints.items()):
@@ -636,16 +635,6 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
 
             def __repr__(self) -> str:
                 return f"{s.__name__}({", ".join([f"{{self.{fn}!r}}" for fn in field_names])})"
-
-            def conll(self) -> str:
-                try:
-                    {"\n                    ".join(conll_irs)}
-                    return f"{{ {'}\t{'.join(field_names)} }}"
-                except FormatError as fexc:
-                    raise fexc
-                except Exception as exc:
-                    raise FormatError("Unable to convert Token representation into conll "
-                                      "string.") from exc
         """
     )
     exec(class_ir, namespace)  # pylint: disable=exec-used
@@ -681,3 +670,49 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
     parser = cast(Callable[[str, str], S], namespace[compiled_parse_token])
 
     return parser
+
+def compile_token_serializer[S: TokenProtocol](s: type[S]) -> Callable[[S, str], str]:
+    """
+    Compile a TokenProtocol definition into a method that can serialize an instance.
+
+    Args:
+        s: The type to perform the serialization compilation on.
+
+    Returns:
+        The compiled method which can convert an instance of a Token schema into a string
+        representation.
+    """
+    hints = get_type_hints(s)
+
+    field_names: list[str] = []
+    conll_irs: list[str] = []
+    namespace = {
+        s.__name__: s,
+        "FormatError": FormatError,
+    }
+
+    for name, type_hint in hints.items():
+        field_names.append(name)
+        attr = getattr(s, name) if hasattr(s, name) else None
+
+        serialize_name = _compile_serialize_schema_ir(namespace, attr, type_hint)
+        conll_ir = f"{name} = {serialize_name}(token.{name})"
+        conll_irs.append(conll_ir)
+
+    serialize_token = unique_name_id(namespace, "serialize_token")
+    serializer_ir = process_ir(
+        t"""
+        def {serialize_token}(token, delimiter) -> str:
+            try:
+                {"\n                ".join(conll_irs)}
+                return f"{{ {'}\t{'.join(field_names)} }}"
+            except FormatError as fexc:
+                raise fexc
+            except Exception as exc:
+                raise FormatError(f"Unable to serialize Token: {{token!r}}.") from exc
+        """)
+
+    exec(serializer_ir, namespace)  # pylint: disable=exec-used
+
+    serializer = cast(Callable[[S, str], str], namespace[serialize_token])
+    return serializer

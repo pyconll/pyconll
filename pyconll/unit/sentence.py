@@ -3,14 +3,12 @@ Defines the Sentence type and the associated parsing and output logic.
 """
 
 from collections import OrderedDict
-from typing import ClassVar, Optional
+from typing import Optional
 
-from pyconll.conllable import Conllable
-from pyconll.exception import FormatError
 from pyconll.schema import TokenProtocol
 
 
-class Sentence[T: TokenProtocol](Conllable):
+class Sentence[T: TokenProtocol]:
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
 
@@ -36,8 +34,6 @@ class Sentence[T: TokenProtocol](Conllable):
 
     __slots__ = ["meta", "tokens"]
 
-    COMMENT_MARKER: ClassVar[str] = "#"
-
     def __init__(self, meta: OrderedDict[str, Optional[str]], tokens: list[T]) -> None:
         """
         Create a new structured Sentence object.
@@ -61,31 +57,3 @@ class Sentence[T: TokenProtocol](Conllable):
             The constructed string.
         """
         return f"Sentence(meta={self.meta!r}, tokens={self.tokens!r})"
-
-    def conll(self) -> str:
-        """
-        Convert the sentence to a CoNLL-U representation.
-
-        Returns:
-            A string representing the Sentence in CoNLL-U format.
-
-        Raises:
-            FormatError: If the Sentence or underlying Tokens can not be
-                converted to the CoNLL format.
-        """
-        lines = []
-        for meta in self.meta.items():
-            if meta[1] is not None:
-                line = f"{Sentence.COMMENT_MARKER} {meta[0]} = {meta[1]}"
-            else:
-                line = f"{Sentence.COMMENT_MARKER} {meta[0]}"
-
-            lines.append(line)
-
-        for token in self.tokens:
-            try:
-                lines.append(token.conll())
-            except FormatError as err:
-                raise FormatError(f"Error serializing sentence on token '{token!r}'.") from err
-
-        return "\n".join(lines)
