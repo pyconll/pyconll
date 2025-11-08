@@ -5,8 +5,6 @@ structure.
 
 from typing import Any, Callable, Iterator, Optional, Sequence, overload
 
-from pyconll.conllu import Token
-
 
 class _TreeBuilder[T]:
     """

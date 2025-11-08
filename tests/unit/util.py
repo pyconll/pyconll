@@ -9,6 +9,7 @@ from pyconll.parser import Parser
 from pyconll.serializer import Serializer
 from pyconll.sentence import Sentence
 from pyconll.conllu import Token
+from pyconll.tree import Tree
 
 
 def fixture_location(name: str) -> Path:
@@ -18,7 +19,7 @@ def fixture_location(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / name
 
 
-def assert_tree_structure(tree, children_paths):
+def assert_tree_structure[T](tree: Tree[T], children_paths: dict[tuple[int, ...], T]):
     """
     Assert a tree structure from tree node paths to values.
 
