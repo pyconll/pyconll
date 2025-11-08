@@ -10,7 +10,8 @@ import string
 from typing import Iterator, Optional
 
 from pyconll.exception import ParseError
-from pyconll.schema import TokenSchema, _compile_token_parser
+from pyconll.schema import TokenSchema
+from pyconll import _compile
 from pyconll.sentence import Sentence
 
 PathLike = str | bytes | os.PathLike
@@ -38,7 +39,7 @@ class Parser[T: TokenSchema]:
         """
         self.comment_marker = comment_marker
         self.delimiter = delimiter
-        self.token_parser = _compile_token_parser(token_type)
+        self.token_parser = _compile.token_parser(token_type)
 
     def parse_token(self, buffer: str) -> T:
         """

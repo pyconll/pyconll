@@ -4,10 +4,10 @@ from pyconll.serializer import Serializer
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
-from pyconll.schema import _compile_token_parser
+from pyconll import _compile
 from pyconll.conllu import Token
 
-_raw_parser = _compile_token_parser(Token)
+_raw_parser = _compile.token_parser(Token)
 _raw_serializer = Serializer(Token)
 
 

@@ -4,13 +4,11 @@ import sys
 import pytest
 from pyconll.schema import (
     TokenSchema,
-    _compile_token_parser,
-    _compile_token_serializer,
     mapping,
-    nullable,
     field,
     via,
 )
+from pyconll import _compile
 
 
 def test_simple_primitive_schema():
@@ -19,8 +17,8 @@ def test_simple_primitive_schema():
         name: str
         score: float
 
-    parser = _compile_token_parser(SimpleToken)
-    serializer = _compile_token_serializer(SimpleToken)
+    parser = _compile.token_parser(SimpleToken)
+    serializer = _compile.token_serializer(SimpleToken)
 
     raw_line = "3\tthe value of pi\t3.14"
     token = parser(raw_line, "\t")
@@ -39,10 +37,10 @@ def test_invalid_primitive_schema():
         scores: list[float]
 
     with pytest.raises(Exception):
-        _compile_token_parser(InvalidToken)
+        _compile.token_parser(InvalidToken)
 
     with pytest.raises(Exception):
-        _compile_token_serializer(InvalidToken)
+        _compile.token_serializer(InvalidToken)
 
 
 def test_invalid_schema_attribute():
@@ -52,10 +50,10 @@ def test_invalid_schema_attribute():
         scores: list[float] = lambda s: map(float, s.split(","))
 
     with pytest.raises(Exception):
-        _compile_token_parser(InvalidToken)
+        _compile.token_parser(InvalidToken)
 
     with pytest.raises(Exception):
-        _compile_token_serializer(InvalidToken)
+        _compile.token_serializer(InvalidToken)
 
 
 def test_via_descriptor_schema():
@@ -65,8 +63,8 @@ def test_via_descriptor_schema():
         lemma: str = field(via(sys.intern, str))
         feats: dict[str, str] = field(mapping(str, via(sys.intern, str), "|", "=", "_"))
 
-    parser = _compile_token_parser(MemoryEfficientToken)
-    serializer = _compile_token_serializer(MemoryEfficientToken)
+    parser = _compile.token_parser(MemoryEfficientToken)
+    serializer = _compile.token_serializer(MemoryEfficientToken)
 
     token_line1 = "3\tthe\tthe\t_"
     token_line2 = "4\tcats\tcat\tArticle=the|Definite=Yes"
@@ -86,8 +84,8 @@ def test_via_descriptor_optimizations():
         id: int = field(via(int, str))
         form: str = field(via(str, repr))
 
-    parser = _compile_token_parser(ViaProtocol)
-    serializer = _compile_token_serializer(ViaProtocol)
+    parser = _compile.token_parser(ViaProtocol)
+    serializer = _compile.token_serializer(ViaProtocol)
 
     line = "3\tcat"
     token = parser(line, "\t")
