@@ -5,7 +5,8 @@ Module for serializing tokens and sentences of different schemas.
 import io
 from typing import Iterator
 
-from pyconll.schema import TokenSchema, _compile_token_serializer
+from pyconll.schema import TokenSchema
+from pyconll import _compile
 from pyconll.sentence import Sentence
 
 
@@ -24,7 +25,7 @@ class Serializer[T: TokenSchema]:
             comment_marker: The prefix to use for comments or metadata.
             delimiter: The delimiter between Token columns.
         """
-        self.serializer = _compile_token_serializer(schema)
+        self.serializer = _compile.token_serializer(schema)
         self.comment_marker = comment_marker
         self.delimiter = delimiter
 

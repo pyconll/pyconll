@@ -1,3 +1,10 @@
+"""
+Tests for CoNLL-U corpus roundtrip consistency.
+
+These tests verify that reading a CoNLL-U file and then serializing it back
+produces identical output, ensuring format preservation.
+"""
+
 import io
 
 from pyconll import conllu
@@ -13,7 +20,6 @@ def test_string_output():
 
     sentences = conllu.parser.load_from_string(original)
 
-    # TODO: How does
     buffer = io.StringIO()
     conllu.serializer.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()

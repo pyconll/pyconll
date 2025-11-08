@@ -1,22 +1,36 @@
 import pytest
 
-from pyconll.serializer import Serializer
+from pyconll import conllu
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
-from pyconll.schema import _compile_token_parser
 from pyconll.conllu import Token
 
-_raw_parser = _compile_token_parser(Token)
-_raw_serializer = Serializer(Token)
+
+def parse_token(line: str) -> Token:
+    """
+    Parse a token line using the CoNLL-U parser.
+
+    Args:
+        line: The token line to parse.
+
+    Returns:
+        The parsed Token object.
+    """
+    return conllu.parser.parse_token(line)
 
 
-def _parse_token(line: str) -> Token:
-    return _raw_parser(line, "\t")
+def serialize_token(token: Token) -> str:
+    """
+    Serialize a token using the CoNLL-U serializer.
 
+    Args:
+        token: The token to serialize.
 
-def _serialize_token(token: Token) -> str:
-    return _raw_serializer.serialize_token(token)
+    Returns:
+        The serialized token line.
+    """
+    return conllu.serializer.serialize_token(token)
 
 
 def test_construction():
@@ -24,7 +38,7 @@ def test_construction():
     Test the normal construction of a general token.
     """
     token_line = "7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token,
@@ -46,7 +60,7 @@ def test_construction_no_newline():
     Test the construction of a token with no newline at the end of the line.
     """
     token_line = "7	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	_"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token,
@@ -68,7 +82,7 @@ def test_only_form_and_lemma():
     Test construction when token line only has a form and lemma.
     """
     token_line = "10.1	micro-pays	micro-pays	_	_	_	_	_	_	_\n"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token, "10.1", "micro-pays", "micro-pays", None, None, {}, None, None, {}, {}
@@ -80,7 +94,7 @@ def test_multiple_features_modify():
     Test modification of features.
     """
     token_line = "28	une	un	DET	_	Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	30	det	_	_\n"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token,
@@ -129,7 +143,7 @@ def test_deps_construction():
     Test construction of a token when the deps field is present.
     """
     token_line = "1	They	they	PRON	PRP	Case=Nom|Number=Plur	2	nsubj	2:nsubj|4:nsubj	_\n"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token,
@@ -151,7 +165,7 @@ def test_multiword_construction():
     Test the creation of a token that is a multiword token line.
     """
     token_line = "8-9	du	_	_	_	_	_	_	_	_"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(token, "8-9", "du", None, None, None, {}, None, None, {}, {})
     assert token.is_multiword()
@@ -162,9 +176,9 @@ def test_to_string():
     Test if a token's string representation is accurate.
     """
     token_line = "26	surmonté	surmonter	VERB	_	Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
-    assert _serialize_token(token) == token_line
+    assert serialize_token(token) == token_line
 
 
 def test_modify_unit_field_to_string():
@@ -172,13 +186,13 @@ def test_modify_unit_field_to_string():
     Test a token's string representation after changing one of it's fields.
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     token.lemma = "pain"
 
     new_token_line = "33	cintre	pain	NOUN	_	Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
 
-    assert _serialize_token(token) == new_token_line
+    assert serialize_token(token) == new_token_line
 
 
 def test_modify_dict_field_to_string():
@@ -186,13 +200,13 @@ def test_modify_dict_field_to_string():
     Test a token's string representation after adding a feature.
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     token.feats["Gender"].add("Fem")
 
     new_token_line = "33	cintre	cintre	NOUN	_	Gender=Fem,Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
 
-    assert _serialize_token(token) == new_token_line
+    assert serialize_token(token) == new_token_line
 
 
 def test_remove_feature_to_string():
@@ -200,13 +214,13 @@ def test_remove_feature_to_string():
     Test a token's string representation after removing a feature completely.
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     del token.feats["Gender"]
 
     new_token_line = "33	cintre	cintre	NOUN	_	Number=Sing	30	nmod	_	SpaceAfter=No"
 
-    assert _serialize_token(token) == new_token_line
+    assert serialize_token(token) == new_token_line
 
 
 def test_underscore_construction():
@@ -214,7 +228,7 @@ def test_underscore_construction():
     Test construction of token without empty assumption and no form or lemma.
     """
     token_line = "33	_	_	PUN	_	_	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token, "33", "_", "_", "PUN", None, {}, "30", "nmod", {}, {"SpaceAfter": set(("No",))}
@@ -226,7 +240,7 @@ def test_empty_form_present_lemma():
     Test construction of token without empty assumption and no form but a present lemma.
     """
     token_line = "33	hate	_	VERB	_	_	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token, "33", "hate", None, "VERB", None, {}, "30", "nmod", {}, {"SpaceAfter": set(("No",))}
@@ -238,7 +252,7 @@ def test_empty_lemma_present_form():
     Test construction of token without empty assumption and no lemma but a present form.
     """
     token_line = "33	_	hate	VERB	_	_	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token, "33", None, "hate", "VERB", None, {}, "30", "nmod", {}, {"SpaceAfter": set(("No",))}
@@ -252,7 +266,7 @@ def test_improper_source():
     token_line = "33	hate	_	VERB	_	_	30	nmod	_"
 
     with pytest.raises(ParseError):
-        token = _parse_token(token_line)
+        token = parse_token(token_line)
 
 
 def test_misc_parsing():
@@ -263,7 +277,7 @@ def test_misc_parsing():
         "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	"
         "30	nmod	_	SpaceAfter=No|French|Independent=P,Q"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert "SpaceAfter" in token.misc
     assert "French" in token.misc
@@ -281,11 +295,11 @@ def test_deps_parsing():
     token_line = (
         "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	30	nmod	2:nsubj|4:nmod	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert token.deps["2"] == ("nsubj",)
     assert token.deps["4"] == ("nmod",)
-    assert _serialize_token(token) == token_line
+    assert serialize_token(token) == token_line
 
 
 def test_invalid_token():
@@ -295,7 +309,7 @@ def test_invalid_token():
     token_line = "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	"
 
     with pytest.raises(ParseError):
-        token = _parse_token(token_line)
+        token = parse_token(token_line)
 
 
 def test_invalid_token_feats():
@@ -308,7 +322,7 @@ def test_invalid_token_feats():
     )
 
     with pytest.raises(ParseError):
-        token = _parse_token(token_line)
+        token = parse_token(token_line)
 
 
 def test_invalid_token_deps():
@@ -316,7 +330,7 @@ def test_invalid_token_deps():
     Test that there is no singleton parsing in the misc field.
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	_	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert token.misc["SpaceAfter"] == set(("No",))
 
@@ -329,7 +343,7 @@ def test_enhanced_deps_parsing():
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	"
         "30	nmod	2:nsubj,noun|4:root	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert token.deps["2"] == ("nsubj,noun",)
     assert token.deps["4"] == ("root",)
@@ -341,7 +355,7 @@ def test_enhanced_deps_parsing_invalid():
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4	SpaceAfter=No"
     with pytest.raises(ParseError):
-        token = _parse_token(token_line)
+        token = parse_token(token_line)
 
 
 def test_misc_parsing_output():
@@ -351,7 +365,7 @@ def test_misc_parsing_output():
     token_line = (
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     token.misc["Independent"] = None
     token.misc["SpaceAfter"].add("Yes")
@@ -365,7 +379,7 @@ def test_misc_parsing_output():
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	"
         "30	nmod	2:nsubj|4:root	Independent|OtherTest=X,Y,Z|SpaceAfter=No,Yes"
     )
-    assert expected_output == _serialize_token(token)
+    assert expected_output == serialize_token(token)
 
 
 def test_del_values():
@@ -375,14 +389,14 @@ def test_del_values():
     token_line = (
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     del token.feats["Gender"]
     del token.misc["SpaceAfter"]
 
     expected = "33	cintre	cintre	NOUN	_	Number=Sing	30	nmod	2:nsubj|4:root	_"
 
-    assert expected == _serialize_token(token)
+    assert expected == serialize_token(token)
 
 
 def test_empty_set_format_error():
@@ -392,13 +406,13 @@ def test_empty_set_format_error():
     token_line = (
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
     token.feats["Gender"].pop()
 
     formatted_line = (
         "33	cintre	cintre	NOUN	_	Gender=|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
-    conll = _serialize_token(token)
+    conll = serialize_token(token)
 
     assert conll == formatted_line
 
@@ -410,13 +424,13 @@ def test_all_empty_deps_component_error():
     token_line = (
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4:root	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     cur_list = [None] + list(token.deps["2"][1:])
     token.deps["2"] = cur_list
 
     with pytest.raises(FormatError):
-        _serialize_token(token)
+        serialize_token(token)
 
 
 def test_all_deps_components():
@@ -427,7 +441,7 @@ def test_all_deps_components():
         "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	"
         "30	nmod	2:nsubj:another:and:another|4:root	SpaceAfter=No"
     )
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert token.deps["2"] == ("nsubj", "another", "and", "another")
 
@@ -437,7 +451,7 @@ def test_empty_deps():
     Test that the deps for a field cannot be empty.
     """
     token_line = "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:|4:root	SpaceAfter=No"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token,
@@ -461,7 +475,7 @@ def test_no_empty_deps():
     token_line = "33	cintre	cintre	NOUN	_	Gender=Fem|Number=Sing	30	nmod	2:nsubj|4	SpaceAfter=No"
 
     with pytest.raises(ParseError):
-        token = _parse_token(token_line)
+        token = parse_token(token_line)
 
 
 def test_feats_keep_case_insensitive_order():
@@ -469,8 +483,8 @@ def test_feats_keep_case_insensitive_order():
     Test that the features are kept sorted via case insensitive attributes.
     """
     token_line = "10	gave	give	VERB	_	gender=Fem|Number=Sing	0	root	_	SpaceAfter=No"
-    token = _parse_token(token_line)
-    conll = _serialize_token(token)
+    token = parse_token(token_line)
+    conll = serialize_token(token)
 
     assert conll == token_line
 
@@ -480,8 +494,8 @@ def test_feats_induce_case_insensitive_order():
     Test that case insensitive sorting of feature attributes is induced.
     """
     token_line = "10	gave	give	VERB	_	Number=Sing|gender=Fem	0	root	_	SpaceAfter=No"
-    token = _parse_token(token_line)
-    conll = _serialize_token(token)
+    token = parse_token(token_line)
+    conll = serialize_token(token)
 
     formatted_line = "10	gave	give	VERB	_	gender=Fem|Number=Sing	0	root	_	SpaceAfter=No"
 
@@ -494,8 +508,8 @@ def test_deps_sort_order():
     """
     token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	4:nsubj|2:nmod	SpaceAfter=No"
 
-    token = _parse_token(token_line)
-    conll = _serialize_token(token)
+    token = parse_token(token_line)
+    conll = serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2:nmod|4:nsubj	SpaceAfter=No"
@@ -510,8 +524,8 @@ def test_deps_sort_order_mwt():
     """
     token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	2:nsubj|2-3:nmod	SpaceAfter=No"
 
-    token = _parse_token(token_line)
-    conll = _serialize_token(token)
+    token = parse_token(token_line)
+    conll = serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2-3:nmod|2:nsubj	SpaceAfter=No"
@@ -526,8 +540,8 @@ def test_deps_sort_order_double_digits():
     """
     token_line = "10	gave	give	VERB	_	Number=Sing|Gender=Fem	0	root	10:nsubj|2:nmod	SpaceAfter=No"
 
-    token = _parse_token(token_line)
-    conll = _serialize_token(token)
+    token = parse_token(token_line)
+    conll = serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	0	root	2:nmod|10:nsubj	SpaceAfter=No"
@@ -545,8 +559,8 @@ def test_deps_sort_order_decimal():
         "0	root	10.2:nsubj|2:nmod|10.1:nsubj	SpaceAfter=No"
     )
 
-    token = _parse_token(token_line)
-    conll = _serialize_token(token)
+    token = parse_token(token_line)
+    conll = serialize_token(token)
 
     formatted_line = (
         "10	gave	give	VERB	_	Gender=Fem|Number=Sing	"
@@ -561,7 +575,7 @@ def test_empty_node():
     Test the construction of an empty node token.
     """
     token_line = "7.1	vie	vie	NOUN	_	Gender=Fem|Number=Sing	4	nmod	_	SpaceAfter=No\n"
-    token = _parse_token(token_line)
+    token = parse_token(token_line)
 
     assert_token_members(
         token,
