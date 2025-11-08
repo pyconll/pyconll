@@ -2,6 +2,7 @@ import pytest
 
 from pyconll import tree
 from pyconll.tree import Tree, _TreeBuilder
+from pyconll import conllu
 
 from tests.unit.util import assert_tree_structure, parse_sentence
 
@@ -230,7 +231,7 @@ def test_to_tree_standard_sentence():
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
-    st = tree.from_conllu_tokens(sentence.tokens)
+    st = conllu.tree_from_tokens(sentence.tokens)
 
     assert_tree_structure(
         st,
@@ -257,7 +258,7 @@ def test_to_tree_token_with_no_head():
     )
     sentence = parse_sentence(source)
     with pytest.raises(ValueError):
-        tree.from_conllu_tokens(sentence.tokens)
+        conllu.tree_from_tokens(sentence.tokens)
 
 
 def test_to_tree_empty_node_exception():
@@ -274,7 +275,7 @@ def test_to_tree_empty_node_exception():
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = parse_sentence(source)
-    st = tree.from_conllu_tokens(sentence.tokens)
+    st = conllu.tree_from_tokens(sentence.tokens)
 
     assert_tree_structure(
         st,
@@ -301,7 +302,7 @@ def test_to_tree_no_root_token():
     )
     sentence = parse_sentence(source)
     with pytest.raises(ValueError):
-        tree.from_conllu_tokens(sentence.tokens)
+        conllu.tree_from_tokens(sentence.tokens)
 
 
 def test_to_tree_multiword_present():
@@ -320,7 +321,7 @@ def test_to_tree_multiword_present():
         "6	?	?	PUNCT	_	_	5	punct	_	_\n"
     )
     sentence = parse_sentence(source)
-    st = tree.from_conllu_tokens(sentence.tokens)
+    st = conllu.tree_from_tokens(sentence.tokens)
 
     assert_tree_structure(
         st,
@@ -358,7 +359,7 @@ def test_to_tree_multi_level():
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
     sentence = parse_sentence(source)
-    st = tree.from_conllu_tokens(sentence.tokens)
+    st = conllu.tree_from_tokens(sentence.tokens)
 
     assert_tree_structure(
         st,
@@ -389,7 +390,7 @@ def test_tree_empty_sentence():
     sentence = parse_sentence(source)
 
     with pytest.raises(ValueError):
-        tree.from_conllu_tokens(sentence.tokens)
+        conllu.tree_from_tokens(sentence.tokens)
 
 
 def test_tree_no_extra_nodes():
@@ -415,7 +416,7 @@ def test_tree_no_extra_nodes():
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
     sentence = parse_sentence(source)
-    st = tree.from_conllu_tokens(sentence.tokens)
+    st = conllu.tree_from_tokens(sentence.tokens)
 
     count = 0
     nodes = [st]
