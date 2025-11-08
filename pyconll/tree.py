@@ -366,7 +366,7 @@ def from_conllu_tokens(tokens: Sequence[Token]) -> Tree[Token]:
         tokens: The token objects to create a tree structure from.
 
     Returns:
-        The constructed Tree object which
+        The constructed Tree object.
     """
 
     def assert_val[K](val: Optional[K]) -> K:
