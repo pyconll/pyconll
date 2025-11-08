@@ -20,7 +20,6 @@ def test_string_output():
 
     sentences = conllu.parser.load_from_string(original)
 
-    # TODO: How does
     buffer = io.StringIO()
     conllu.serializer.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()

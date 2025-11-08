@@ -374,11 +374,11 @@ class TestVia:
     def test_via_complex_type(self):
         """Test via with a complex type."""
 
-        def parse_coords(s):
+        def parse_coords(s: str) -> tuple[float, float]:
             x, y = s.split(",")
             return (float(x), float(y))
 
-        def format_coords(coords):
+        def format_coords(coords: tuple[float, float]) -> str:
             return f"{coords[0]},{coords[1]}"
 
         desc = via(deserialize=parse_coords, serialize=format_coords)

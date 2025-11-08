@@ -9,7 +9,9 @@ from tests.unit.util import assert_token_members, parse_sentence
 
 def sentence_to_conll(sentence: Sentence[Token]) -> str:
     """
-    Convert a sentence into its serialized CoNLL representation.
+    Convert a sentence into its serialized CoNLL-U representation.
+
+    Mostly a more concise wrapper over the default CoNLL-U wrapper.
 
     Args:
         sentence: The sentence to serialize to its string representation.
