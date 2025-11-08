@@ -162,7 +162,7 @@ class Parser[T: TokenProtocol]:
         while line := resource.readline():
             line_num = i
             i += 1
-            if line in ("\n", "\r\n", ""):
+            if line.isspace() or line == "":
                 if not empty:
                     yield step_next_sentence()
                 continue

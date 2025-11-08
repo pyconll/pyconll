@@ -184,6 +184,23 @@ def test_invalid_conll():
         c = conll_parser.load_from_file(fixture_location("invalid.conll"))
 
 
+def test_extra_whitespace_conll():
+    """
+    Test that extra spacing on a newline separating two sentences can be handled.
+    """
+    sentences = conll_parser.load_from_file(fixture_location("extra_whitespace.conll"))
+
+    assert len(sentences) == 2
+    assert sentences[0].meta["sent_id"] == "fr-ud-dev_00001"
+    assert sentences[0].meta["text"] == "Aviator, un film sur la vie de Hughes."
+
+    assert sentences[1].meta["sent_id"] == "fr-ud-dev_00002"
+    assert (
+        sentences[1].meta["text"]
+        == "Les études durent six ans mais leur contenu diffère donc selon les Facultés."
+    )
+
+
 def test_custom_token_parsing():
     """
     Test that a custom token type can be used with the parser.
