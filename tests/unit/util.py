@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Optional
 
 from pyconll import conllu
-from pyconll.parser import Parser
-from pyconll.serializer import Serializer
 from pyconll.sentence import Sentence
 from pyconll.conllu import Token
 from pyconll.tree import Tree
@@ -116,16 +114,3 @@ def parse_sentence(lines: str) -> Sentence[Token]:
         raise RuntimeError("Expected exactly one sentence in the lines given.")
 
     return sentences[0]
-
-
-def sentence_to_conll(sentence: Sentence[Token]) -> str:
-    """
-    Convert a sentence into its serialized CoNLL representation.
-
-    Args:
-        sentence: The sentence to serialize to its string representation.
-
-    Returns:
-        The serialized representation.
-    """
-    return conllu.serializer.serialize_sentence(sentence)
