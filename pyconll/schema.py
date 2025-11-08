@@ -32,6 +32,32 @@ class SchemaDescriptor[T](ABC):
     """
 
     @abstractmethod
+    def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
+        """
+        Adds the deserialization method to the given namespace and returns the method name.
+
+        Args:
+            namespace: The codegen namespace to define the method in.
+
+        Returns:
+            The name of the method that was generated.
+        """
+
+    @abstractmethod
+    def serialize_codegen(self, namespace: dict[str, Any]) -> str:
+        """
+        Adds the serialization method to the given namespace and returns the method name.
+
+        Args:
+            namespace: The codegen namespace to define the method in.
+
+        Returns:
+            The name of the method that was generated.
+        """
+
+
+class BaseSchemaDescriptor[T](SchemaDescriptor[T]):
+    @abstractmethod
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         """
         The method that sub-classes need to implement to support deserialization code generation.
@@ -60,6 +86,7 @@ class SchemaDescriptor[T](ABC):
         Returns:
             The compiled python code that was generated for serialization of this schema.
         """
+
 
     def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
         """
@@ -123,7 +150,7 @@ def _serialize_sub_method_name[T](
 
 
 @dataclass(frozen=True, slots=True)
-class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
+class _NullableDescriptor[T](BaseSchemaDescriptor[Optional[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     empty_marker: str
 
@@ -152,7 +179,7 @@ class _NullableDescriptor[T](SchemaDescriptor[Optional[T]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
+class _ArrayDescriptor[T](BaseSchemaDescriptor[list[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
     empty_marker: str
@@ -189,7 +216,7 @@ class _ArrayDescriptor[T](SchemaDescriptor[list[T]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
+class _UniqueArrayDescriptor[T](BaseSchemaDescriptor[set[T]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
     empty_marker: str
@@ -236,7 +263,7 @@ class _UniqueArrayDescriptor[T](SchemaDescriptor[set[T]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
+class _FixedArrayDescriptor[T](BaseSchemaDescriptor[tuple[T, ...]]):
     mapper: type[T] | SchemaDescriptor[T]
     delimiter: str
     empty_marker: str
@@ -275,7 +302,7 @@ class _FixedArrayDescriptor[T](SchemaDescriptor[tuple[T, ...]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
+class _MappingDescriptor[K, V](BaseSchemaDescriptor[dict[K, V]]):
     kmapper: type[K] | SchemaDescriptor[K]
     vmapper: type[V] | SchemaDescriptor[V]
     pair_delimiter: str
@@ -343,32 +370,29 @@ class _MappingDescriptor[K, V](SchemaDescriptor[dict[K, V]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _CustomDescriptor[T](SchemaDescriptor[T]):
+class _ViaDescriptor[T](SchemaDescriptor[T]):
     deserialize: Callable[[str], T]
     serialize: Callable[[T], str]
 
-    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
-        var_name = unique_name_id(namespace, "_CustomDescriptor_Deserializer")
-        namespace[var_name] = self.deserialize
+    def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
+        if self.deserialize is str:
+            return ""
+        elif self.deserialize in (int, float):
+            return self.deserialize.__name__
+        else:
+            name = unique_name_id(namespace, "_ViaDescriptor_Deserializer")
+            namespace[name] = self.deserialize
+            return name
 
-        return process_ir(
-            t"""
-            def {method_name}(s):
-                return {var_name}(s)
-            """
-        )
-
-    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
-        var_name = unique_name_id(namespace, "_CustomDescriptor_Serializer")
-        namespace[var_name] = self.serialize
-
-        return process_ir(
-            t"""
-            def {method_name}(s):
-                return {var_name}(s)
-            """
-        )
-
+    def serialize_codegen(self, namespace: dict[str, Any]) -> str:
+        if self.serialize is str:
+            return "str"
+        elif self.serialize is repr:
+            return "repr"
+        else:
+            name = unique_name_id(namespace, "_ViaDescriptor_Serializer")
+            namespace[name] = self.serialize
+            return name
 
 def nullable[T](
     mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ""
@@ -480,11 +504,15 @@ def mapping[K, V](
     )
 
 
-def custom[T](
+def via[T](
     deserialize: Callable[[str], T], serialize: Callable[[T], str]
-) -> _CustomDescriptor[T]:
+) -> _ViaDescriptor[T]:
     """
     Describe a user-provided serialization scheme which uses arbitrary callables.
+
+    Other descriptors create symmetric (de)serialization schemes while this allows for asymmetric
+    definitions (that is reading in one thing and writing out another). This is a possible feature
+    that is not fully fleshed out, but could be better explored in the future.
 
     Args:
         deserialize: The callable to deserialize the string into the in-memory representation.
@@ -493,7 +521,7 @@ def custom[T](
     Returns:
         The SchemaDescriptor to use for compiling the structural Token parser.
     """
-    return _CustomDescriptor[T](deserialize, serialize)
+    return _ViaDescriptor[T](deserialize, serialize)
 
 
 def schema[T](desc: SchemaDescriptor[T]) -> T:
@@ -605,11 +633,9 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
 
     field_names: list[str] = []
     field_irs: list[str] = []
-    conll_irs: list[str] = []
     namespace = {
         s.__name__: s,
         "ParseError": ParseError,
-        "FormatError": FormatError,
     }
 
     for i, (name, type_hint) in enumerate(hints.items()):
@@ -619,10 +645,6 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
         deserialize_name = _compile_deserialize_schema_ir(namespace, attr, type_hint)
         field_ir = f"{name} = {deserialize_name}(fields[{i}])"
         field_irs.append(field_ir)
-
-        serialize_name = _compile_serialize_schema_ir(namespace, attr, type_hint)
-        conll_ir = f"{name} = {serialize_name}(self.{name})"
-        conll_irs.append(conll_ir)
 
     unique_token_name = unique_name_id(namespace, "Token")
     class_ir = process_ir(
