@@ -5,6 +5,7 @@ Module that collects various test related functionality.
 from pathlib import Path
 from typing import Optional
 
+from pyconll import conllu
 from pyconll.parser import Parser
 from pyconll.serializer import Serializer
 from pyconll.sentence import Sentence
@@ -109,8 +110,7 @@ def parse_sentence(lines: str) -> Sentence[Token]:
     Returns:
         The singular parsed Sentence that can be constructed from the line source.
     """
-    parser = Parser(Token)
-    sentences = parser.load_from_string(lines)
+    sentences = conllu.parser.load_from_string(lines)
 
     if len(sentences) != 1:
         raise RuntimeError("Expected exactly one sentence in the lines given.")
@@ -128,5 +128,4 @@ def sentence_to_conll(sentence: Sentence[Token]) -> str:
     Returns:
         The serialized representation.
     """
-    serializer = Serializer(Token)
-    return serializer.serialize_sentence(sentence)
+    return conllu.serializer.serialize_sentence(sentence)
