@@ -19,7 +19,7 @@ def make_relative(fn):
 
 setup(
     name = 'pyconll',
-    packages = ['pyconll', 'pyconll.unit', 'pyconll.tree'],
+    packages = ['pyconll'],
     version = parse.package_version(make_relative('pyconll/_version.py')),
     description = 'Read and manipulate CoNLL files',
     long_description = make_relative('README.md').read_text(),
