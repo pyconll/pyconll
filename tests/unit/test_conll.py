@@ -1,12 +1,7 @@
 import io
 
-from pyconll.parser import Parser
-from pyconll.serializer import Serializer
-from pyconll.conllu import Token
+from pyconll import conllu
 from tests.unit.util import fixture_location
-
-_conllu_parser = Parser(Token)
-_conllu_serializer = Serializer(Token)
 
 
 def test_string_output():
@@ -16,11 +11,11 @@ def test_string_output():
     fixture = fixture_location("basic.conll")
     original = fixture.read_text()
 
-    sentences = _conllu_parser.load_from_string(original)
+    sentences = conllu.parser.load_from_string(original)
 
     # TODO: How does
     buffer = io.StringIO()
-    _conllu_serializer.write_corpus(sentences, buffer)
+    conllu.serializer.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()
 
     assert original == serialized

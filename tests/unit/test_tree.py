@@ -1,6 +1,5 @@
 import pytest
 
-from pyconll import tree
 from pyconll.tree import Tree, _TreeBuilder
 from pyconll import conllu
 

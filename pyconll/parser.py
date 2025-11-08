@@ -10,13 +10,13 @@ import string
 from typing import Iterator, Optional
 
 from pyconll.exception import ParseError
-from pyconll.schema import TokenProtocol, compile_token_parser
+from pyconll.schema import TokenSchema, _compile_token_parser
 from pyconll.sentence import Sentence
 
 PathLike = str | bytes | os.PathLike
 
 
-class Parser[T: TokenProtocol]:
+class Parser[T: TokenSchema]:
     """
     A parser for CoNLL formatted data.
 
@@ -38,7 +38,19 @@ class Parser[T: TokenProtocol]:
         """
         self.comment_marker = comment_marker
         self.delimiter = delimiter
-        self.token_parser = compile_token_parser(token_type)
+        self.token_parser = _compile_token_parser(token_type)
+
+    def parse_token(self, buffer: str) -> T:
+        """
+        Parse a buffer into a Token.
+
+        Args:
+            buffer: The string to parse into a Token. No newline splitting is done on the input.
+
+        Returns:
+            The buffer parsed into the underlying Token type.
+        """
+        return self.token_parser(buffer, self.delimiter)
 
     def load_from_string(self, source: str) -> list[Sentence[T]]:
         """

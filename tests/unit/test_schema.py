@@ -3,24 +3,24 @@
 import sys
 import pytest
 from pyconll.schema import (
-    TokenProtocol,
-    compile_token_parser,
-    compile_token_serializer,
+    TokenSchema,
+    _compile_token_parser,
+    _compile_token_serializer,
     mapping,
     nullable,
-    schema,
+    field,
     via,
 )
 
 
 def test_simple_primitive_schema():
-    class SimpleToken(TokenProtocol):
+    class SimpleToken(TokenSchema):
         id: int
         name: str
         score: float
 
-    parser = compile_token_parser(SimpleToken)
-    serializer = compile_token_serializer(SimpleToken)
+    parser = _compile_token_parser(SimpleToken)
+    serializer = _compile_token_serializer(SimpleToken)
 
     raw_line = "3\tthe value of pi\t3.14"
     token = parser(raw_line, "\t")
@@ -33,40 +33,40 @@ def test_simple_primitive_schema():
 
 
 def test_invalid_primitive_schema():
-    class InvalidToken(TokenProtocol):
+    class InvalidToken(TokenSchema):
         id: int
         name: str
         scores: list[float]
 
     with pytest.raises(Exception):
-        compile_token_parser(InvalidToken)
+        _compile_token_parser(InvalidToken)
 
     with pytest.raises(Exception):
-        compile_token_serializer(InvalidToken)
+        _compile_token_serializer(InvalidToken)
 
 
 def test_invalid_schema_attribute():
-    class InvalidToken(TokenProtocol):
+    class InvalidToken(TokenSchema):
         id: int
         name: str
         scores: list[float] = lambda s: map(float, s.split(","))
 
     with pytest.raises(Exception):
-        compile_token_parser(InvalidToken)
+        _compile_token_parser(InvalidToken)
 
     with pytest.raises(Exception):
-        compile_token_serializer(InvalidToken)
+        _compile_token_serializer(InvalidToken)
 
 
 def test_via_descriptor_schema():
-    class MemoryEfficientToken(TokenProtocol):
+    class MemoryEfficientToken(TokenSchema):
         id: int
-        form: str = schema(via(sys.intern, str))
-        lemma: str = schema(via(sys.intern, str))
-        feats: dict[str, str] = schema(mapping(str, via(sys.intern, str), "|", "=", "_"))
+        form: str = field(via(sys.intern, str))
+        lemma: str = field(via(sys.intern, str))
+        feats: dict[str, str] = field(mapping(str, via(sys.intern, str), "|", "=", "_"))
 
-    parser = compile_token_parser(MemoryEfficientToken)
-    serializer = compile_token_serializer(MemoryEfficientToken)
+    parser = _compile_token_parser(MemoryEfficientToken)
+    serializer = _compile_token_serializer(MemoryEfficientToken)
 
     token_line1 = "3\tthe\tthe\t_"
     token_line2 = "4\tcats\tcat\tArticle=the|Definite=Yes"
@@ -82,12 +82,12 @@ def test_via_descriptor_schema():
 
 
 def test_via_descriptor_optimizations():
-    class ViaProtocol(TokenProtocol):
-        id: int = schema(via(int, str))
-        form: str = schema(via(str, repr))
+    class ViaProtocol(TokenSchema):
+        id: int = field(via(int, str))
+        form: str = field(via(str, repr))
 
-    parser = compile_token_parser(ViaProtocol)
-    serializer = compile_token_serializer(ViaProtocol)
+    parser = _compile_token_parser(ViaProtocol)
+    serializer = _compile_token_serializer(ViaProtocol)
 
     line = "3\tcat"
     token = parser(line, "\t")

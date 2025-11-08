@@ -8,13 +8,15 @@ import math
 from typing import Optional, Sequence
 
 from pyconll import tree
+from pyconll.parser import Parser
+from pyconll.serializer import Serializer
 from pyconll.schema import (
-    schema,
+    field,
     nullable,
     mapping,
     unique_array,
     fixed_array,
-    TokenProtocol,
+    TokenSchema,
     token_lifecycle,
 )
 from pyconll.tree import Tree
@@ -170,7 +172,7 @@ def _post_init(t: "Token") -> None:
 
 
 @token_lifecycle(post_init=_post_init)
-class Token(TokenProtocol):
+class Token(TokenSchema):
     """
     The prototypical CoNLL-U token definition. For reading CoNLL-U token files, use this as the
     Token schema. Similarly, if defining a different schema to read, use this as a reference for how
@@ -178,19 +180,19 @@ class Token(TokenProtocol):
     """
 
     id: str
-    _form: Optional[str] = schema(nullable(str, "_"))
-    lemma: Optional[str] = schema(nullable(str, "_"))
-    upos: Optional[str] = schema(nullable(str, "_"))
-    xpos: Optional[str] = schema(nullable(str, "_"))
-    feats: dict[str, set[str]] = schema(
+    _form: Optional[str] = field(nullable(str, "_"))
+    lemma: Optional[str] = field(nullable(str, "_"))
+    upos: Optional[str] = field(nullable(str, "_"))
+    xpos: Optional[str] = field(nullable(str, "_"))
+    feats: dict[str, set[str]] = field(
         mapping(str, unique_array(str, ",", "", str.lower), "|", "=", "_", lambda p: p[0].lower())
     )
-    head: Optional[str] = schema(nullable(str, "_"))
-    deprel: Optional[str] = schema(nullable(str, "_"))
-    deps: dict[str, tuple[str, ...]] = schema(
+    head: Optional[str] = field(nullable(str, "_"))
+    deprel: Optional[str] = field(nullable(str, "_"))
+    deps: dict[str, tuple[str, ...]] = field(
         mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
     )
-    misc: dict[str, Optional[set[str]]] = schema(
+    misc: dict[str, Optional[set[str]]] = field(
         mapping(
             str,
             nullable(unique_array(str, ",", "", str.lower)),
@@ -260,3 +262,15 @@ def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
         lambda k: assert_val(k.head),
         lambda k: k.is_empty_node() or k.is_multiword(),
     )
+
+
+parser = Parser(Token)
+"""
+The default Parser instance which can handle CoNLL-U objects directly.
+"""
+
+
+serializer = Serializer(Token)
+"""
+The default Serializer instance which can handle CoNLL-U objects directly.
+"""
