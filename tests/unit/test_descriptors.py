@@ -2,16 +2,12 @@
 Tests for schema descriptor factory methods.
 """
 
-import sys
 from typing import Any
 import pytest
 
 from pyconll.exception import ParseError
 from pyconll.schema import (
     SchemaDescriptor,
-    TokenProtocol,
-    compile_token_parser,
-    compile_token_serializer,
     nullable,
     array,
     fixed_array,

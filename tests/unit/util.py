@@ -1,13 +1,38 @@
 """
-Module for helping test Token related functionality.
+Module that collects various test related functionality.
 """
 
-import io
+from pathlib import Path
 from typing import Optional
+
 from pyconll.parser import Parser
-from pyconll.unit.sentence import Sentence
-from pyconll.unit.token import Token
 from pyconll.serializer import Serializer
+from pyconll.sentence import Sentence
+from pyconll.conllu import Token
+from pyconll.tree import Tree
+
+
+def fixture_location(name: str) -> Path:
+    """
+    Get the file location of the fixture with the given name.
+    """
+    return Path(__file__).parent / "fixtures" / name
+
+
+def assert_tree_structure[T](tree: Tree[T], children_paths: dict[tuple[int, ...], T]):
+    """
+    Assert a tree structure from tree node paths to values.
+
+    Args:
+        tree: The tree whose structure to inspect.
+        children_paths: A dictionary from child indices to token indices.
+    """
+    for path, value in children_paths.items():
+        cur = tree
+        for component in path:
+            cur = cur[component]
+
+        assert cur.data == value
 
 
 def assert_token_equivalence(token1: Token, token2: Token) -> None:
@@ -94,6 +119,14 @@ def parse_sentence(lines: str) -> Sentence[Token]:
 
 
 def sentence_to_conll(sentence: Sentence[Token]) -> str:
-    """ """
+    """
+    Convert a sentence into its serialized CoNLL representation.
+
+    Args:
+        sentence: The sentence to serialize to its string representation.
+
+    Returns:
+        The serialized representation.
+    """
     serializer = Serializer(Token)
     return serializer.serialize_sentence(sentence)

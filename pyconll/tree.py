@@ -1,17 +1,12 @@
 """
-Defines a TreeBuilder module that will actually create a Tree. This class is
-essentially a friend class of the Tree, so that the API of Tree can remain
-immutable while allowing efficient creation of a new Tree in an easy fluent way.
+A general immutable tree module. This module is used when parsing a serial sentence into a Tree
+structure.
 """
 
-from typing import Any, Generic, TypeVar
-
-from pyconll.tree.tree import Tree
-
-T = TypeVar("T")
+from typing import Any, Callable, Iterator, Optional, Sequence, overload
 
 
-class TreeBuilder(Generic[T]):
+class _TreeBuilder[T]:
     """
     A TreeBuilder is a utility to create arbitrary, immutable Trees. TreeBuilder
     works by traversing and creating a tree structure, and then providing an
@@ -210,3 +205,149 @@ class TreeBuilder(Generic[T]):
         """
         if self.root is None:
             raise ValueError("The TreeBuilder has not created a root for the Tree yet")
+
+
+class Tree[T]:
+    """
+    A tree node. This is the base representation for a tree, which can have many
+    children which are accessible via child index. The tree's structure is
+    immutable, so the data, parent, children cannot be changed once created.
+
+    As is this class is useless, and must be created with the TreeBuilder
+    module which is a sort of friend class of Tree to maintain its immutable
+    public contract.
+    """
+
+    def __init__(self, data: T) -> None:
+        """
+        Create a tree holding the value. Create a larger Tree, with TreeBuilder.
+
+        Args:
+            data: The data to put with the Tree node.
+        """
+        self._data: T = data
+        self._parent: Optional["Tree[T]"] = None
+        self._children: list["Tree[T]"] = []
+
+    @property
+    def data(self) -> T:
+        """
+        The data on the tree node. The property ensures it is readonly.
+
+        Returns:
+            The data stored on the Tree.
+        """
+        return self._data
+
+    @property
+    def parent(self) -> Optional["Tree[T]"]:
+        """
+        Provides the parent of the Tree. The property ensures it is readonly.
+
+        Returns:
+            A pointer to the parent Tree reference. None if there is no parent.
+        """
+        return self._parent
+
+    @overload
+    def __getitem__(self, key: int) -> "Tree[T]": ...
+
+    @overload
+    def __getitem__(self, key: slice) -> list["Tree[T]"]: ...
+
+    def __getitem__(self, key):
+        """
+        Get specific children from the Tree. This can be an integer or slice.
+
+        Args:
+            key: The indexer for the item.
+        """
+        return self._children[key]
+
+    def __iter__(self) -> Iterator["Tree[T]"]:
+        """
+        Provides an iterator over the children.
+        """
+        yield from self._children
+
+    def __len__(self) -> int:
+        """
+        Provides the number of direct children on the tree.
+
+        Returns:
+            The number of direct children on the tree.
+        """
+        return len(self._children)
+
+
+def _create_tree_helper[K, I](
+    builder: _TreeBuilder, node: K, to_id: Callable[[K], I], children_tokens: dict[I, list[K]]
+) -> None:
+    """
+    Method to help create a tree from a sentence given the root token.
+
+    Args:
+        builder: The TreeBuilder currently being used to create the Tree.
+        node: The current token we are constructing the tree at.
+        to_id: Callable that transforms a token into its id.
+        children_tokens: A dictionary from token id to children tokens.
+
+    Returns:
+        A Tree constructed given the sentence structure.
+    """
+    try:
+        tokens = children_tokens[to_id(node)]
+    except KeyError:
+        tokens = []
+
+    for token in tokens:
+        builder.add_child(data=token, move=True)
+        _create_tree_helper(builder, token, to_id, children_tokens)
+        builder.move_to_parent()
+
+
+def from_tokens[K, I](
+    tokens: Sequence[K],
+    starting_id: I,
+    to_id: Callable[[K], I],
+    to_head: Callable[[K], I],
+    skip: Optional[Callable[[K], bool]] = None,
+) -> Tree[K]:
+    """
+    The completely generic function to create a Tree structure for a sequence of Tokens.
+
+    This can be used for tokens other than the pre-defined CoNLL-U schema.
+
+    Args:
+        tokens: The tokens to create the tree from.
+        starting_id: The root token of the tree will be a child of this id.
+        to_id: The mapper from the token to its id.
+        to_head: The mapper from the token to the id of its parent.
+        skip: The optional guard to skip certain tokens that may not participate in the Tree
+            structure.
+    """
+    children_tokens: dict[I, list[K]] = {}
+
+    for token in tokens:
+        if skip is not None and skip(token):
+            continue
+
+        h = to_head(token)
+        try:
+            children_tokens[h].append(token)
+        except KeyError:
+            children_tokens[h] = [token]
+
+    builder: _TreeBuilder[K] = _TreeBuilder()
+    starters = children_tokens.get(starting_id)
+    if starters is None:
+        raise ValueError("The current sentence has no root token.")
+
+    if len(starters) != 1:
+        raise ValueError("There should be exactly one root token in a sentence.")
+
+    root_token = starters[0]
+    builder.create_root(root_token)
+    _create_tree_helper(builder, root_token, to_id, children_tokens)
+    root = builder.build()
+    return root

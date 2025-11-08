@@ -2,8 +2,8 @@ import io
 
 from pyconll.parser import Parser
 from pyconll.serializer import Serializer
-from pyconll.unit.token import Token
-from tests.util import fixture_location
+from pyconll.conllu import Token
+from tests.unit.util import fixture_location
 
 _conllu_parser = Parser(Token)
 _conllu_serializer = Serializer(Token)

@@ -6,7 +6,7 @@ import io
 from typing import Iterator
 
 from pyconll.schema import TokenProtocol, compile_token_serializer
-from pyconll.unit.sentence import Sentence
+from pyconll.sentence import Sentence
 
 
 class Serializer[T: TokenProtocol]:
