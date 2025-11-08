@@ -26,7 +26,7 @@ def package_version(path: str | Path) -> str:
 
     # Note that this regex version check is very simple and is not all encompassing
     # but works fine for the given use case and internal nature of the logic.
-    m = re.search("__version__\\s*=\\s*['\"]((\\d+\\.)+(\\d+))['\"]", contents)
+    m = re.search("__version__\\s*=\\s*['\"]((\\d+\\.)+(\\d+))(dev\\d+)?['\"]", contents)
 
     if not m:
         raise ValueError("There is no version string identified in the file contents.")
