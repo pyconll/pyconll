@@ -40,6 +40,18 @@ class Parser[T: TokenSchema]:
         self.delimiter = delimiter
         self.token_parser = _compile_token_parser(token_type)
 
+    def parse_token(self, buffer: str) -> T:
+        """
+        Parse a buffer into a Token.
+
+        Args:
+            buffer: The string to parse into a Token. No newline splitting is done on the input.
+
+        Returns:
+            The buffer parsed into the underlying Token type.
+        """
+        return self.token_parser(buffer, self.delimiter)
+
     def load_from_string(self, source: str) -> list[Sentence[T]]:
         """
         Parse a CoNLL-U formatted string into a list of sentences.
