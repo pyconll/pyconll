@@ -3,7 +3,7 @@ import pytest
 from pyconll import tree
 from pyconll.tree import Tree, _TreeBuilder
 
-from tests.util import assert_tree_structure, parse_sentence
+from tests.unit.util import assert_tree_structure, parse_sentence
 
 
 def test_minimal_tree_creation():

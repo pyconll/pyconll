@@ -1,7 +1,7 @@
 import pytest
 
 from pyconll.exception import FormatError
-from tests.util import assert_token_members, parse_sentence, sentence_to_conll
+from tests.unit.util import assert_token_members, parse_sentence, sentence_to_conll
 
 
 def test_simple_sentence_construction():
