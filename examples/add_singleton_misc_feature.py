@@ -6,16 +6,17 @@
 #
 
 import argparse
+import sys
 
-import pyconll
+from pyconll import conllu
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='The name of the file to transform')
 args = parser.parse_args()
 
-corpus = pyconll.load_from_file(args.filename)
+corpus = conllu.parser.load_from_file(args.filename)
 for sentence in corpus:
-    for token in sentence:
+    for token in sentence.tokens:
         if token.lemma.lower() == 'dog' and token.upos == 'VERB':
             # Note: This means that 'Polysemous' will be present as a singleton
             # in the token line. To remove 'Polysemous' from the token's
@@ -23,4 +24,4 @@ for sentence in corpus:
             token.misc['Polysemous'] = None
 
 # Print to standard out which can then be redirected.
-print(corpus.conll())
+conllu.serializer.write_corpus(corpus, sys.stdout)

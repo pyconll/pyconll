@@ -15,6 +15,7 @@ def test_simple_primitive_schema():
     """
     Test that a token schema with primitive types (int, str, float) compiles correctly.
     """
+
     class SimpleToken(TokenSchema):
         id: int
         name: str
@@ -37,6 +38,7 @@ def test_invalid_primitive_schema():
     """
     Test that a token schema with unsupported types (like bare list) raises an exception.
     """
+
     class InvalidToken(TokenSchema):
         id: int
         name: str
@@ -53,6 +55,7 @@ def test_invalid_schema_attribute():
     """
     Test that using a raw lambda instead of a field descriptor raises an exception.
     """
+
     class InvalidToken(TokenSchema):
         id: int
         name: str
@@ -69,6 +72,7 @@ def test_via_descriptor_schema():
     """
     Test that via descriptors work correctly for string interning and nested descriptors.
     """
+
     class MemoryEfficientToken(TokenSchema):
         id: int
         form: str = field(via(sys.intern, str))
@@ -95,6 +99,7 @@ def test_via_descriptor_optimizations():
     """
     Test that via descriptors with custom serialization functions work correctly.
     """
+
     class ViaProtocol(TokenSchema):
         id: int = field(via(int, str))
         form: str = field(via(str, repr))
