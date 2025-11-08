@@ -1,12 +1,14 @@
 from typing import Optional
-import pytest
-from pyconll import Parser
-from pyconll.schema import TokenProtocol, nullable
-from pyconll.sentence import Sentence
-from pyconll.conllu import Token
-from tests.unit.util import assert_token_equivalence, fixture_location
 
-conll_parser = Parser(Token)
+import pytest
+
+from pyconll import conllu
+from pyconll.conllu import Token
+from pyconll.parser import Parser
+from pyconll.schema import TokenSchema, nullable
+from pyconll.sentence import Sentence
+
+from tests.unit.util import assert_token_equivalence, fixture_location
 
 
 def test_load_from_string():
@@ -14,7 +16,7 @@ def test_load_from_string():
     Test that a CoNLL file can properly be loaded from a string.
     """
     contents = fixture_location("basic.conll").read_text("utf-8")
-    c = conll_parser.load_from_string(contents)
+    c = conllu.parser.load_from_string(contents)
 
     assert len(c) == 4
 
@@ -36,7 +38,7 @@ def test_load_from_file():
     """
     Test that a CoNLL file can properly be loaded from a filename.
     """
-    c = conll_parser.load_from_file(fixture_location("basic.conll"))
+    c = conllu.parser.load_from_file(fixture_location("basic.conll"))
     sent = c[1]
 
     assert len(c) == 4
@@ -48,7 +50,7 @@ def test_load_from_windows_newline_file():
     """
     Test that a CoNLL file can properly be loaded from a filename with windows newlines.
     """
-    c = conll_parser.load_from_file(fixture_location("newlines.conll"))
+    c = conllu.parser.load_from_file(fixture_location("newlines.conll"))
     sent = c[1]
 
     assert len(c) == 4
@@ -61,7 +63,7 @@ def test_no_ending_newline():
     """
     Test correct creation when the ending of the file ends in no newline.
     """
-    conll = conll_parser.load_from_file(fixture_location("no_newline.conll"))
+    conll = conllu.parser.load_from_file(fixture_location("no_newline.conll"))
 
     assert len(conll) == 3
 
@@ -79,7 +81,7 @@ def test_many_newlines():
     """
     Test correct Conll parsing when there are too many newlines.
     """
-    conll = conll_parser.load_from_file(fixture_location("many_newlines.conll"))
+    conll = conllu.parser.load_from_file(fixture_location("many_newlines.conll"))
 
     assert len(conll) == 4
 
@@ -101,7 +103,7 @@ def test_load_from_resource():
     Test that a CoNLL file can properly be loaded from a string.
     """
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
-        c = conll_parser.load_from_resource(f)
+        c = conllu.parser.load_from_resource(f)
         sent = c[1]
 
         assert len(c) == 4
@@ -115,11 +117,11 @@ def test_equivalence_across_load_operations():
     the underlying source is the same.
     """
     contents = fixture_location("long.conll").read_text("utf-8")
-    str_c = conll_parser.load_from_string(contents)
-    file_c = conll_parser.load_from_file(fixture_location("long.conll"))
+    str_c = conllu.parser.load_from_string(contents)
+    file_c = conllu.parser.load_from_file(fixture_location("long.conll"))
 
     with open(fixture_location("long.conll"), encoding="utf-8") as resource:
-        resource_c = conll_parser.load_from_resource(resource)
+        resource_c = conllu.parser.load_from_resource(resource)
 
     def assert_equivalent_conll_objs(
         conll1: list[Sentence[Token]], conll2: list[Sentence[Token]]
@@ -145,7 +147,7 @@ def test_iter_from_string():
     contents = fixture_location("basic.conll").read_text("utf-8")
 
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-    actual_ids = [sent.meta["sent_id"] for sent in conll_parser.iter_from_string(contents)]
+    actual_ids = [sent.meta["sent_id"] for sent in conllu.parser.iter_from_string(contents)]
 
     assert expected_ids == actual_ids
 
@@ -158,7 +160,7 @@ def test_iter_from_file():
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
     actual_ids = [
         sent.meta["sent_id"]
-        for sent in conll_parser.iter_from_file(fixture_location("basic.conll"))
+        for sent in conllu.parser.iter_from_file(fixture_location("basic.conll"))
     ]
 
     assert expected_ids == actual_ids
@@ -170,7 +172,7 @@ def test_iter_from_resource():
     """
     with open(fixture_location("basic.conll"), encoding="utf-8") as f:
         expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
-        actual_ids = [sent.meta["sent_id"] for sent in conll_parser.iter_from_resource(f)]
+        actual_ids = [sent.meta["sent_id"] for sent in conllu.parser.iter_from_resource(f)]
 
         assert expected_ids == actual_ids
 
@@ -180,14 +182,14 @@ def test_invalid_conll():
     Test that an invalid sentence results in an invalid Conll object.
     """
     with pytest.raises(ValueError):
-        c = conll_parser.load_from_file(fixture_location("invalid.conll"))
+        conllu.parser.load_from_file(fixture_location("invalid.conll"))
 
 
 def test_extra_whitespace_conll():
     """
     Test that extra spacing on a newline separating two sentences can be handled.
     """
-    sentences = conll_parser.load_from_file(fixture_location("extra_whitespace.conll"))
+    sentences = conllu.parser.load_from_file(fixture_location("extra_whitespace.conll"))
 
     assert len(sentences) == 2
     assert sentences[0].meta["sent_id"] == "fr-ud-dev_00001"
@@ -205,7 +207,7 @@ def test_custom_token_parsing():
     Test that a custom token type can be used with the parser.
     """
 
-    class TestToken(TokenProtocol):
+    class TestToken(TokenSchema):
         id: str
         category: int
         body: Optional[str] = nullable(str, "_")

@@ -3,18 +3,18 @@
 import sys
 import pytest
 from pyconll.schema import (
-    TokenProtocol,
+    TokenSchema,
     compile_token_parser,
     compile_token_serializer,
     mapping,
     nullable,
-    schema,
+    field,
     via,
 )
 
 
 def test_simple_primitive_schema():
-    class SimpleToken(TokenProtocol):
+    class SimpleToken(TokenSchema):
         id: int
         name: str
         score: float
@@ -33,7 +33,7 @@ def test_simple_primitive_schema():
 
 
 def test_invalid_primitive_schema():
-    class InvalidToken(TokenProtocol):
+    class InvalidToken(TokenSchema):
         id: int
         name: str
         scores: list[float]
@@ -46,7 +46,7 @@ def test_invalid_primitive_schema():
 
 
 def test_invalid_schema_attribute():
-    class InvalidToken(TokenProtocol):
+    class InvalidToken(TokenSchema):
         id: int
         name: str
         scores: list[float] = lambda s: map(float, s.split(","))
@@ -59,11 +59,11 @@ def test_invalid_schema_attribute():
 
 
 def test_via_descriptor_schema():
-    class MemoryEfficientToken(TokenProtocol):
+    class MemoryEfficientToken(TokenSchema):
         id: int
-        form: str = schema(via(sys.intern, str))
-        lemma: str = schema(via(sys.intern, str))
-        feats: dict[str, str] = schema(mapping(str, via(sys.intern, str), "|", "=", "_"))
+        form: str = field(via(sys.intern, str))
+        lemma: str = field(via(sys.intern, str))
+        feats: dict[str, str] = field(mapping(str, via(sys.intern, str), "|", "=", "_"))
 
     parser = compile_token_parser(MemoryEfficientToken)
     serializer = compile_token_serializer(MemoryEfficientToken)
@@ -82,9 +82,9 @@ def test_via_descriptor_schema():
 
 
 def test_via_descriptor_optimizations():
-    class ViaProtocol(TokenProtocol):
-        id: int = schema(via(int, str))
-        form: str = schema(via(str, repr))
+    class ViaProtocol(TokenSchema):
+        id: int = field(via(int, str))
+        form: str = field(via(str, repr))
 
     parser = compile_token_parser(ViaProtocol)
     serializer = compile_token_serializer(ViaProtocol)

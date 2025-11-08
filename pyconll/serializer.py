@@ -5,11 +5,11 @@ Module for serializing tokens and sentences of different schemas.
 import io
 from typing import Iterator
 
-from pyconll.schema import TokenProtocol, compile_token_serializer
+from pyconll.schema import TokenSchema, compile_token_serializer
 from pyconll.sentence import Sentence
 
 
-class Serializer[T: TokenProtocol]:
+class Serializer[T: TokenSchema]:
     """
     The actual serializer which is responsible for translating in-memory representations back to a
     string representation.

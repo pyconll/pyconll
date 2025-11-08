@@ -7,11 +7,11 @@ import pytest
 
 from pyconll.exception import ParseError
 from pyconll.schema import (
-    SchemaDescriptor,
+    FieldDescriptor,
     nullable,
     array,
     fixed_array,
-    schema,
+    field,
     unique_array,
     mapping,
     via,
@@ -22,7 +22,7 @@ def _get_base_namespace() -> dict[str, Any]:
     return {"ParseError": ParseError}
 
 
-def assert_conversions[T](desc: SchemaDescriptor[T], val: T, raw: str) -> None:
+def assert_conversions[T](desc: FieldDescriptor[T], val: T, raw: str) -> None:
     """
     Helper to test both serialization and deserialization.
 
@@ -38,7 +38,7 @@ def assert_conversions[T](desc: SchemaDescriptor[T], val: T, raw: str) -> None:
     assert namespace[ser_name](val) == raw
 
 
-def assert_deserialization[T](desc: SchemaDescriptor[T], raw: str, expected: T) -> None:
+def assert_deserialization[T](desc: FieldDescriptor[T], raw: str, expected: T) -> None:
     """
     Helper to test only deserialization.
 
@@ -52,7 +52,7 @@ def assert_deserialization[T](desc: SchemaDescriptor[T], raw: str, expected: T) 
     assert namespace[deser_name](raw) == expected
 
 
-def assert_serialization[T](desc: SchemaDescriptor[T], val: T, expected: str) -> None:
+def assert_serialization[T](desc: FieldDescriptor[T], val: T, expected: str) -> None:
     """
     Helper to test only serialization.
 
@@ -66,7 +66,7 @@ def assert_serialization[T](desc: SchemaDescriptor[T], val: T, expected: str) ->
     assert namespace[ser_name](val) == expected
 
 
-def assert_serialization_error[T](desc: SchemaDescriptor[T], val: T) -> None:
+def assert_serialization_error[T](desc: FieldDescriptor[T], val: T) -> None:
     """
     Helper to test that serialization fails.
 
@@ -80,7 +80,7 @@ def assert_serialization_error[T](desc: SchemaDescriptor[T], val: T) -> None:
         namespace[ser_name](val)
 
 
-def assert_deserialization_error[T](desc: SchemaDescriptor[T], raw: str) -> None:
+def assert_deserialization_error[T](desc: FieldDescriptor[T], raw: str) -> None:
     """
     Helper to test that deserialization fails.
 

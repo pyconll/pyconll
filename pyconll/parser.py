@@ -10,13 +10,13 @@ import string
 from typing import Iterator, Optional
 
 from pyconll.exception import ParseError
-from pyconll.schema import TokenProtocol, compile_token_parser
+from pyconll.schema import TokenSchema, compile_token_parser
 from pyconll.sentence import Sentence
 
 PathLike = str | bytes | os.PathLike
 
 
-class Parser[T: TokenProtocol]:
+class Parser[T: TokenSchema]:
     """
     A parser for CoNLL formatted data.
 

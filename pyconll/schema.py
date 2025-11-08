@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from _typeshed import SupportsRichComparison
 
 
-class SchemaDescriptor[T](ABC):
+class FieldDescriptor[T](ABC):
     """
     Base class to represent the different types of descriptors that can be defined for the Token
     fields. Each descriptor needs to be able to dynamically generate the relevant python code for
@@ -56,7 +56,7 @@ class SchemaDescriptor[T](ABC):
         """
 
 
-class BaseSchemaDescriptor[T](SchemaDescriptor[T]):
+class BaseFieldDescriptor[T](FieldDescriptor[T]):
     """
     A SchemaDescriptor to use for most scenarios where the descriptor has to generate code or an
     actual method.
@@ -125,9 +125,9 @@ class BaseSchemaDescriptor[T](SchemaDescriptor[T]):
 
 
 def _deserialize_sub_method_name[T](
-    namespace: dict[str, Any], mapper: type[T] | SchemaDescriptor[T]
+    namespace: dict[str, Any], mapper: type[T] | FieldDescriptor[T]
 ) -> str:
-    if isinstance(mapper, SchemaDescriptor):
+    if isinstance(mapper, FieldDescriptor):
         return mapper.deserialize_codegen(namespace)
 
     if mapper in (int, float):
@@ -140,9 +140,9 @@ def _deserialize_sub_method_name[T](
 
 
 def _serialize_sub_method_name[T](
-    namespace: dict[str, Any], mapper: type[T] | SchemaDescriptor[T]
+    namespace: dict[str, Any], mapper: type[T] | FieldDescriptor[T]
 ) -> str:
-    if isinstance(mapper, SchemaDescriptor):
+    if isinstance(mapper, FieldDescriptor):
         return mapper.serialize_codegen(namespace)
 
     if mapper in (int, float):
@@ -155,8 +155,8 @@ def _serialize_sub_method_name[T](
 
 
 @dataclass(frozen=True, slots=True)
-class _NullableDescriptor[T](BaseSchemaDescriptor[Optional[T]]):
-    mapper: type[T] | SchemaDescriptor[T]
+class _NullableDescriptor[T](BaseFieldDescriptor[Optional[T]]):
+    mapper: type[T] | FieldDescriptor[T]
     empty_marker: str
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
@@ -184,8 +184,8 @@ class _NullableDescriptor[T](BaseSchemaDescriptor[Optional[T]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _ArrayDescriptor[T](BaseSchemaDescriptor[list[T]]):
-    mapper: type[T] | SchemaDescriptor[T]
+class _ArrayDescriptor[T](BaseFieldDescriptor[list[T]]):
+    mapper: type[T] | FieldDescriptor[T]
     delimiter: str
     empty_marker: str
 
@@ -221,8 +221,8 @@ class _ArrayDescriptor[T](BaseSchemaDescriptor[list[T]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _UniqueArrayDescriptor[T](BaseSchemaDescriptor[set[T]]):
-    mapper: type[T] | SchemaDescriptor[T]
+class _UniqueArrayDescriptor[T](BaseFieldDescriptor[set[T]]):
+    mapper: type[T] | FieldDescriptor[T]
     delimiter: str
     empty_marker: str
     ordering_key: Optional[Callable[[T], "SupportsRichComparison"]]
@@ -268,8 +268,8 @@ class _UniqueArrayDescriptor[T](BaseSchemaDescriptor[set[T]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _FixedArrayDescriptor[T](BaseSchemaDescriptor[tuple[T, ...]]):
-    mapper: type[T] | SchemaDescriptor[T]
+class _FixedArrayDescriptor[T](BaseFieldDescriptor[tuple[T, ...]]):
+    mapper: type[T] | FieldDescriptor[T]
     delimiter: str
     empty_marker: str
 
@@ -307,9 +307,9 @@ class _FixedArrayDescriptor[T](BaseSchemaDescriptor[tuple[T, ...]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _MappingDescriptor[K, V](BaseSchemaDescriptor[dict[K, V]]):
-    kmapper: type[K] | SchemaDescriptor[K]
-    vmapper: type[V] | SchemaDescriptor[V]
+class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
+    kmapper: type[K] | FieldDescriptor[K]
+    vmapper: type[V] | FieldDescriptor[V]
     pair_delimiter: str
     kv_delimiter: str
     empty_marker: str
@@ -375,7 +375,7 @@ class _MappingDescriptor[K, V](BaseSchemaDescriptor[dict[K, V]]):
 
 
 @dataclass(frozen=True, slots=True)
-class _ViaDescriptor[T](SchemaDescriptor[T]):
+class _ViaDescriptor[T](FieldDescriptor[T]):
     deserialize: Callable[[str], T]
     serialize: Callable[[T], str]
 
@@ -402,7 +402,7 @@ class _ViaDescriptor[T](SchemaDescriptor[T]):
         return name
 
 def nullable[T](
-    mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ""
+    mapper: type[T] | FieldDescriptor[T], empty_marker: str = ""
 ) -> _NullableDescriptor[T]:
     """
     Describe a serialization schema for an optional value.
@@ -418,7 +418,7 @@ def nullable[T](
 
 
 def array[T](
-    el_mapper: type[T] | SchemaDescriptor[T], delimiter: str, empty_marker: str = ""
+    el_mapper: type[T] | FieldDescriptor[T], delimiter: str, empty_marker: str = ""
 ) -> _ArrayDescriptor[T]:
     """
     Describe a serialization schema for a list.
@@ -435,7 +435,7 @@ def array[T](
 
 
 def unique_array[T](
-    el_mapper: type[T] | SchemaDescriptor[T],
+    el_mapper: type[T] | FieldDescriptor[T],
     delimiter: str,
     empty_marker: str = "",
     ordering_key: Optional[Callable[[T], Any]] = None,
@@ -456,7 +456,7 @@ def unique_array[T](
 
 
 def fixed_array[T](
-    el_mapper: type[T] | SchemaDescriptor[T],
+    el_mapper: type[T] | FieldDescriptor[T],
     delimiter: str,
     empty_marker: str = "",
 ) -> _FixedArrayDescriptor[T]:
@@ -475,8 +475,8 @@ def fixed_array[T](
 
 
 def mapping[K, V](
-    kmapper: type[K] | SchemaDescriptor[K],
-    vmapper: type[V] | SchemaDescriptor[V],
+    kmapper: type[K] | FieldDescriptor[K],
+    vmapper: type[V] | FieldDescriptor[V],
     pair_delimiter: str,
     kv_delimiter: str,
     empty_marker: str = "",
@@ -531,7 +531,7 @@ def via[T](
     return _ViaDescriptor[T](deserialize, serialize)
 
 
-def schema[T](desc: SchemaDescriptor[T]) -> T:
+def field[T](desc: FieldDescriptor[T]) -> T:
     """
     Method to help with type-checking on structural Token definitions.
 
@@ -547,13 +547,13 @@ def schema[T](desc: SchemaDescriptor[T]) -> T:
     return cast(T, desc)
 
 
-class TokenProtocol(Protocol):
+class TokenSchema(Protocol):
     """
     All structural Token definitions must inherit from this protocol.
     """
 
 
-def token_lifecycle[T: TokenProtocol](
+def token_lifecycle[T: TokenSchema](
     post_init: Callable[[T], None],
 ) -> Callable[[type[T]], type[T]]:
     """
@@ -574,7 +574,7 @@ def token_lifecycle[T: TokenProtocol](
 
 
 def _compile_deserialize_schema_ir(
-    namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
+    namespace: dict[str, Any], attr: Optional[FieldDescriptor], type_hint: type
 ) -> str:
     if attr is None:
         # If there is no value on the protocol's attribute then the type hint is used directly. In
@@ -592,7 +592,7 @@ def _compile_deserialize_schema_ir(
             "define the schema via SchemaDescriptors."
         )
 
-    if isinstance(attr, SchemaDescriptor):
+    if isinstance(attr, FieldDescriptor):
         return attr.deserialize_codegen(namespace)
 
     raise RuntimeError(
@@ -601,7 +601,7 @@ def _compile_deserialize_schema_ir(
 
 
 def _compile_serialize_schema_ir(
-    namespace: dict[str, Any], attr: Optional[SchemaDescriptor], type_hint: type
+    namespace: dict[str, Any], attr: Optional[FieldDescriptor], type_hint: type
 ) -> str:
     if attr is None:
         # If there is no value on the protocol's attribute then the type hint is used directly. In
@@ -617,7 +617,7 @@ def _compile_serialize_schema_ir(
             "define the schema via SchemaDescriptors."
         )
 
-    if isinstance(attr, SchemaDescriptor):
+    if isinstance(attr, FieldDescriptor):
         return attr.serialize_codegen(namespace)
 
     raise RuntimeError(
@@ -625,7 +625,7 @@ def _compile_serialize_schema_ir(
     )
 
 
-def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S]:
+def compile_token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
     """
     Compile a TokenProtocol definition into a method that can parse a given line of it.
 
@@ -700,7 +700,7 @@ def compile_token_parser[S: TokenProtocol](s: type[S]) -> Callable[[str, str], S
 
     return parser
 
-def compile_token_serializer[S: TokenProtocol](s: type[S]) -> Callable[[S, str], str]:
+def compile_token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
     """
     Compile a TokenProtocol definition into a method that can serialize an instance.
 
