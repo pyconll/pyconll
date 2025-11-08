@@ -1,7 +1,6 @@
 """Tests that various (non CoNLL-U) Token protocols properly compile"""
 
 import sys
-from typing import Optional
 import pytest
 from pyconll.schema import (
     TokenProtocol,

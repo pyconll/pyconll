@@ -4,8 +4,7 @@ from pyconll import Parser
 from pyconll.schema import TokenProtocol, nullable
 from pyconll.unit.sentence import Sentence
 from pyconll.unit.token import Token
-from tests.util import fixture_location
-from tests.unit.util import assert_token_equivalence
+from tests.util import assert_token_equivalence, fixture_location
 
 conll_parser = Parser(Token)
 
