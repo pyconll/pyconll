@@ -1,13 +1,13 @@
 """
-Defines the Token type and parsing and output logic. A Token is the based unit
-in CoNLL-U and so the data and parsing in this module is central to the CoNLL-U
-format.
+Defines the Token type and parsing and output logic. A Token is the based unit in CoNLL-U and so the
+data and parsing in this module is central to the CoNLL-U format.
 """
 
 import functools
 import math
-from typing import Optional
+from typing import Optional, Sequence
 
+from pyconll import tree
 from pyconll.schema import (
     schema,
     nullable,
@@ -17,6 +17,7 @@ from pyconll.schema import (
     TokenProtocol,
     token_lifecycle,
 )
+from pyconll.tree import Tree
 
 
 @functools.total_ordering
@@ -157,7 +158,7 @@ class _TokenIdComparer:
         )
 
 
-def _conllu_post_init(t: "Token") -> None:
+def _post_init(t: "Token") -> None:
     """
     Post-initialization logic beyond per-field serialization needed to properly create Token.
 
@@ -168,7 +169,7 @@ def _conllu_post_init(t: "Token") -> None:
         t._form = t.lemma = "_"
 
 
-@token_lifecycle(post_init=_conllu_post_init)
+@token_lifecycle(post_init=_post_init)
 class Token(TokenProtocol):
     """
     The prototypical CoNLL-U token definition. For reading CoNLL-U token files, use this as the
@@ -231,3 +232,31 @@ class Token(TokenProtocol):
             True if this token is an empty node and False otherwise.
         """
         return "." in self.id
+
+
+def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
+    """
+    Create a tree from the default, pre-defined CoNLL-U tokens.
+
+    This follows the assumptions of the CoNLL-U format, such as that the root token has a parent id
+    of "0", and that empty and multiword tokens do not participate in the underlying tree structure.
+
+    Args:
+        tokens: The token objects to create a tree structure from.
+
+    Returns:
+        The constructed Tree object.
+    """
+
+    def assert_val[K](val: Optional[K]) -> K:
+        if val is None:
+            raise ValueError("The value cannot be None here.")
+        return val
+
+    return tree.from_tokens(
+        tokens,
+        "0",
+        lambda k: assert_val(k.id),
+        lambda k: assert_val(k.head),
+        lambda k: k.is_empty_node() or k.is_multiword(),
+    )

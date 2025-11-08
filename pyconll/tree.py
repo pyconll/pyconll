@@ -5,7 +5,7 @@ structure.
 
 from typing import Any, Callable, Iterator, Optional, Sequence, overload
 
-from pyconll.unit.token import Token
+from pyconll.conllu import Token
 
 
 class _TreeBuilder[T]:
@@ -353,31 +353,3 @@ def from_tokens[K, I](
     _create_tree_helper(builder, root_token, to_id, children_tokens)
     root = builder.build()
     return root
-
-
-def from_conllu_tokens(tokens: Sequence[Token]) -> Tree[Token]:
-    """
-    Create a tree from the default, pre-defined CoNLL-U tokens.
-
-    This follows the assumptions of the CoNLL-U format, such as that the root token has a parent id
-    of "0", and that empty and multiword tokens do not participate in the underlying tree structure.
-
-    Args:
-        tokens: The token objects to create a tree structure from.
-
-    Returns:
-        The constructed Tree object.
-    """
-
-    def assert_val[K](val: Optional[K]) -> K:
-        if val is None:
-            raise ValueError("The value cannot be None here.")
-        return val
-
-    return from_tokens(
-        tokens,
-        "0",
-        lambda k: assert_val(k.id),
-        lambda k: assert_val(k.head),
-        lambda k: k.is_empty_node() or k.is_multiword(),
-    )

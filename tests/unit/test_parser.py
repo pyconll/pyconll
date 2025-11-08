@@ -2,8 +2,8 @@ from typing import Optional
 import pytest
 from pyconll import Parser
 from pyconll.schema import TokenProtocol, nullable
-from pyconll.unit.sentence import Sentence
-from pyconll.unit.token import Token
+from pyconll.sentence import Sentence
+from pyconll.conllu import Token
 from tests.unit.util import assert_token_equivalence, fixture_location
 
 conll_parser = Parser(Token)

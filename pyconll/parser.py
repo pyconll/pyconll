@@ -11,7 +11,7 @@ from typing import Iterator, Optional
 
 from pyconll.exception import ParseError
 from pyconll.schema import TokenProtocol, compile_token_parser
-from pyconll.unit.sentence import Sentence
+from pyconll.sentence import Sentence
 
 PathLike = str | bytes | os.PathLike
 

@@ -14,7 +14,7 @@ import requests
 
 import pyconll
 from pyconll.parser import Parser
-from pyconll.unit.token import Token
+from pyconll.conllu import Token
 from pyconll.serializer import Serializer
 
 

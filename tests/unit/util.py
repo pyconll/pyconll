@@ -7,8 +7,8 @@ from typing import Optional
 
 from pyconll.parser import Parser
 from pyconll.serializer import Serializer
-from pyconll.unit.sentence import Sentence
-from pyconll.unit.token import Token
+from pyconll.sentence import Sentence
+from pyconll.conllu import Token
 
 
 def fixture_location(name: str) -> Path:
