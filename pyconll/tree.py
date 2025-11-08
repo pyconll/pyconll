@@ -371,7 +371,7 @@ def from_conllu_tokens(tokens: Sequence[Token]) -> Tree[Token]:
 
     def assert_val[K](val: Optional[K]) -> K:
         if val is None:
-            raise RuntimeError("The value cannot be None here.")
+            raise ValueError("The value cannot be None here.")
         return val
 
     return from_tokens(
