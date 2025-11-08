@@ -625,7 +625,7 @@ def _compile_serialize_schema_ir(
     )
 
 
-def compile_token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
+def _compile_token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
     """
     Compile a TokenProtocol definition into a method that can parse a given line of it.
 
@@ -700,7 +700,7 @@ def compile_token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
 
     return parser
 
-def compile_token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
+def _compile_token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
     """
     Compile a TokenProtocol definition into a method that can serialize an instance.
 
