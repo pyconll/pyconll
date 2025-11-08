@@ -1,3 +1,10 @@
+"""
+Tests for CoNLL-U corpus roundtrip consistency.
+
+These tests verify that reading a CoNLL-U file and then serializing it back
+produces identical output, ensuring format preservation.
+"""
+
 import io
 
 from pyconll import conllu
