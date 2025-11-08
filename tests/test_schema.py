@@ -81,6 +81,7 @@ def test_via_descriptor_schema():
     assert token_line1 == serializer(token1, "\t")
     assert token_line2 == serializer(token2, "\t")
 
+
 def test_via_descriptor_optimizations():
     class ViaProtocol(TokenProtocol):
         id: int = schema(via(int, str))

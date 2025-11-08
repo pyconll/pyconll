@@ -57,6 +57,11 @@ class SchemaDescriptor[T](ABC):
 
 
 class BaseSchemaDescriptor[T](SchemaDescriptor[T]):
+    """
+    A SchemaDescriptor to use for most scenarios where the descriptor has to generate code or an
+    actual method.
+    """
+
     @abstractmethod
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         """
@@ -377,22 +382,24 @@ class _ViaDescriptor[T](SchemaDescriptor[T]):
     def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
         if self.deserialize is str:
             return ""
-        elif self.deserialize in (int, float):
+
+        if self.deserialize in (int, float):
             return self.deserialize.__name__
-        else:
-            name = unique_name_id(namespace, "_ViaDescriptor_Deserializer")
-            namespace[name] = self.deserialize
-            return name
+
+        name = unique_name_id(namespace, "_ViaDescriptor_Deserializer")
+        namespace[name] = self.deserialize
+        return name
 
     def serialize_codegen(self, namespace: dict[str, Any]) -> str:
         if self.serialize is str:
             return "str"
-        elif self.serialize is repr:
+
+        if self.serialize is repr:
             return "repr"
-        else:
-            name = unique_name_id(namespace, "_ViaDescriptor_Serializer")
-            namespace[name] = self.serialize
-            return name
+
+        name = unique_name_id(namespace, "_ViaDescriptor_Serializer")
+        namespace[name] = self.serialize
+        return name
 
 def nullable[T](
     mapper: type[T] | SchemaDescriptor[T], empty_marker: str = ""
