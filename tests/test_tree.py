@@ -1,9 +1,8 @@
 import pytest
 
-from pyconll.tree.tree import Tree
-from pyconll.tree._treebuilder import TreeBuilder
+from pyconll.tree import Tree, _TreeBuilder
 
-from tests.tree.util import assert_tree_structure
+from tests.util import assert_tree_structure
 
 
 def test_minimal_tree_creation():
@@ -39,7 +38,7 @@ def test_get_children():
     """
     Test that we can properly retreive children from a tree by index.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
     builder.create_root(1)
     builder.add_child(7)
     builder.add_child(2, move=True)
@@ -55,7 +54,7 @@ def test_iter_children():
     """
     Test that we can properly iterate over the children of a tree.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
     builder.create_root(0)
 
     data = list(range(2, 15, 3))
@@ -71,7 +70,7 @@ def test_len_children():
     """
     Test that we can properly get the number of children.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
     builder.create_root(0)
 
     data = list(range(2, 15, 3))
@@ -94,7 +93,7 @@ def test_parent_assigment():
     """
     Test that children tree's parents are properly assigned.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
     builder.create_root(0)
     builder.add_child(2, move=True)
     builder.add_child(13)
@@ -113,7 +112,7 @@ def test_after_creation_copy():
     """
     Test that a single TreeBuilder can be used multiple times properly.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
     builder.create_root(0)
     builder.add_child(2, move=True)
     builder.add_child(13)
@@ -151,7 +150,7 @@ def test_cannot_operate_on_rootless():
     """
     Verify that operations do not work on a TreeBuilder when no root is created.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
 
     with pytest.raises(ValueError):
         builder.move_to_root()
@@ -167,7 +166,7 @@ def test_cannot_move_up_on_root():
     """
     Test that when at the root node, the builder cannot move up to a parent.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
 
     builder.create_root(0)
 
@@ -179,7 +178,7 @@ def test_cannot_move_out_of_range():
     """
     Test that the builder cannot move to a child that is out of index.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
 
     builder.create_root(0)
     builder.add_child(5)
@@ -192,7 +191,7 @@ def test_cannot_remove_out_of_range():
     """
     Test that the builder cannot remove a child it does not have.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
 
     builder.create_root(0)
     builder.add_child(5)
@@ -205,7 +204,7 @@ def test_on_copy_not_on_root():
     """
     Test that the current pointer is relatively correct after a copy operation.
     """
-    builder = TreeBuilder()
+    builder = _TreeBuilder()
     builder.create_root(0)
     builder.add_child(5)
     builder.add_child(6, move=True)
