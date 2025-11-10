@@ -373,6 +373,29 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
 
 
 @dataclass(frozen=True, slots=True)
+class _VarColsDescriptor[T](BaseFieldDescriptor[list[T]]):
+    mapper: type[T] | FieldDescriptor[T]
+
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
+        sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
+        return process_ir(
+            t"""
+            def {method_name}(col_iter):
+                return [{sub_method_name}(col) for col in col_iter]
+            """
+        )
+
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
+        sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
+        return process_ir(
+            t"""
+            def {method_name}(vals):
+                return [{sub_method_name}(v) for v in vals]
+            """
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class _ViaDescriptor[T](FieldDescriptor[T]):
     deserialize: Callable[[str], T]
     serialize: Callable[[T], str]
@@ -507,6 +530,19 @@ def mapping[K, V](
         ordering_key,
         use_compact_pair,
     )
+
+
+def varcols[T](mapper: type[T] | FieldDescriptor[T]) -> _VarColsDescriptor[T]:
+    """
+    Describe an entry that has a variable number of fields.
+
+    Args:
+        mapper: The nested mapper to describe the serialization schema for the targeted columns.
+
+    Returns:
+        The FieldDescriptor to use for compiling the structural Token parser.
+    """
+    return _VarColsDescriptor[T](mapper)
 
 
 def via[T](

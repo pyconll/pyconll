@@ -25,9 +25,8 @@ class Serializer[T: TokenSchema]:
             comment_marker: The prefix to use for comments or metadata.
             delimiter: The delimiter between Token columns.
         """
-        self.serializer = _compile.token_serializer(schema)
+        self.serializer = _compile.token_serializer(schema, delimiter)
         self.comment_marker = comment_marker
-        self.delimiter = delimiter
 
     def serialize_token(self, token: T) -> str:
         """
@@ -39,7 +38,7 @@ class Serializer[T: TokenSchema]:
         Returns:
             The serialized representation of the token.
         """
-        return self.serializer(token, self.delimiter)
+        return self.serializer(token)
 
     def serialize_sentence(self, sentence: Sentence[T]) -> str:
         """
@@ -76,7 +75,7 @@ class Serializer[T: TokenSchema]:
             writable.write(line)
 
         for token in sentence.tokens:
-            writable.write(self.serializer(token, self.delimiter))
+            writable.write(self.serializer(token))
             writable.write("\n")
 
     def write_corpus(self, corpus: Iterator[Sentence[T]], writable: io.TextIOBase) -> None:

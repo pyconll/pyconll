@@ -27,19 +27,27 @@ class Parser[T: TokenSchema]:
     """
 
     def __init__(
-        self, token_type: type[T], comment_marker: str = "#", delimiter: str = "\t"
+        self,
+        token_type: type[T],
+        comment_marker: str = "#",
+        delimiter: str = "\t",
+        collapse_delimiters: bool = False,
     ) -> None:
         """
         Initialize the parser.
 
         Args:
             token_type: The Token type to use for parsing.
-            comment_marker: The string that marks the beginning of comments. Defaults to '#'.
+            comment_marker: The character that marks the beginning of comments. Defaults to '#'.
             delimiter: The delimiter between the columns on a token line.
+            collapse_delimiter: Flag if sequential delimiters denote an empty value or should be
+                collapsed into one larger delimiter.
         """
+        if len(comment_marker) != 1:
+            raise ValueError("The comment marker is expected to only be one character.")
+
         self.comment_marker = comment_marker
-        self.delimiter = delimiter
-        self.token_parser = _compile.token_parser(token_type)
+        self.token_parser = _compile.token_parser(token_type, delimiter, collapse_delimiters)
 
     def parse_token(self, buffer: str) -> T:
         """
@@ -51,7 +59,7 @@ class Parser[T: TokenSchema]:
         Returns:
             The buffer parsed into the underlying Token type.
         """
-        return self.token_parser(buffer, self.delimiter)
+        return self.token_parser(buffer)
 
     def load_from_string(self, source: str) -> list[Sentence[T]]:
         """
@@ -175,7 +183,7 @@ class Parser[T: TokenSchema]:
         while line := resource.readline():
             line_num = i
             i += 1
-            if line.isspace() or line == "":
+            if line.isspace():
                 if not empty:
                     yield step_next_sentence()
                 continue
@@ -203,7 +211,7 @@ class Parser[T: TokenSchema]:
             else:
                 token_line_seen = True
                 try:
-                    token = self.token_parser(line, self.delimiter)
+                    token = self.token_parser(line)
                     tokens.append(token)
                 except ParseError as exc:
                     raise ParseError(

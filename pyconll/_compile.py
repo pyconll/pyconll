@@ -4,11 +4,12 @@
 Module for compiling TokenSchema definitions into efficient parser and serializer functions.
 """
 
+import re
 from typing import Any, Callable, Optional, cast, get_type_hints
 
 from pyconll.exception import FormatError, ParseError
 from pyconll._ir import unique_name_id, process_ir
-from pyconll.schema import FieldDescriptor, TokenSchema
+from pyconll.schema import _VarColsDescriptor, FieldDescriptor, TokenSchema
 
 
 def _compile_deserialize_schema_ir(
@@ -63,12 +64,15 @@ def _compile_serialize_schema_ir(
     )
 
 
-def token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
+def token_parser[S: TokenSchema](s: type[S], delimiter: str, collapse: bool) -> Callable[[str], S]:
     """
     Compile a TokenSchema definition into a method that can parse a given line of it.
 
     Args:
         s: The type to perform the compilation on.
+        delimiter: The delimiter that separates the columns of the lines.
+        collapse: Flag if delimiters that are next to each other should be collapsed for the
+            purposes of separating columns.
 
     Returns:
         The compiled method which can parse a string representation according to the Token
@@ -76,20 +80,11 @@ def token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
     """
     hints = get_type_hints(s)
 
-    field_names: list[str] = []
-    field_irs: list[str] = []
+    field_names: list[str] = list(hints.keys())
     namespace = {
         s.__name__: s,
         "ParseError": ParseError,
     }
-
-    for i, (name, type_hint) in enumerate(hints.items()):
-        field_names.append(name)
-        attr = getattr(s, name) if hasattr(s, name) else None
-
-        deserialize_name = _compile_deserialize_schema_ir(namespace, attr, type_hint)
-        field_ir = f"{name} = {deserialize_name}(fields[{i}])"
-        field_irs.append(field_ir)
 
     unique_token_name = unique_name_id(namespace, "Token")
     class_ir = process_ir(
@@ -106,18 +101,57 @@ def token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
     )
     exec(class_ir, namespace)  # pylint: disable=exec-used
 
+    has_var_cols = False
+    field_irs: list[str] = []
+    for i, (name, type_hint) in enumerate(hints.items()):
+        attr = getattr(s, name) if hasattr(s, name) else None
+
+        # This is pretty messy, since the function prototype for each descriptor type leaks through
+        # to this layer now, but changing it would require many more changes, so for now, keep this
+        # approach.
+        deserialize_name = _compile_deserialize_schema_ir(namespace, attr, type_hint)
+        if isinstance(attr, _VarColsDescriptor):
+            if has_var_cols:
+                raise RuntimeError("Invalid TokenSchema with more than one varcols field.")
+
+            has_var_cols = True
+            field_ir = f"{name} = {deserialize_name}(islice(cols, {i}, {i} + var_cols_len))"
+        else:
+            if not has_var_cols:
+                field_ir = f"{name} = {deserialize_name}(cols[{i}])"
+            else:
+                field_ir = f"{name} = {deserialize_name}(cols[{i} + var_cols_len - 1])"
+        field_irs.append(field_ir)
+
+    if has_var_cols:
+        var_cols_ir = t"var_cols_len = len(cols) - {(len(field_names), int)} + 1"
+        length_guard = (t"if len(cols) < {(len(field_names) - 1, int)}: raise ParseError(f'The "
+                        t"number of columns per token line must be at least "
+                        t"{(len(field_names), int)}. Invalid token: {{line!r}}')")
+    else:
+        var_cols_ir = t""
+        length_guard = (t"if len(cols) != {(len(field_names), int)}: raise ParseError(f'The number "
+                        t"of columns per token line must be {(len(field_names), int)}. Invalid "
+                        t"token: {{line!r}}')")
+
+    if collapse:
+        c = re.escape(delimiter) + "+"
+        cols_ir = t"cols = re.split({c!r}, line)"
+    else:
+        cols_ir = t"cols = line.split({delimiter!r})"
+
     compiled_parse_token = unique_name_id(namespace, "compiled_parse_token")
     parser_ir = process_ir(
         t"""
-        def {compiled_parse_token}(line, delimiter):
-            fields = line.split(delimiter)
+        from itertools import islice
+        import re
 
-            if len(fields) != {(len(field_names), int)}:
-                raise ParseError(f"The number of columns per token line must be "
-                                "{(len(field_names), int)}. Invalid token: {{line!r}}")
-
-            if fields[-1].endswith("\\n"):
-                fields[-1] = fields[-1][:-1]
+        def {compiled_parse_token}(line):
+            {cols_ir:t}
+            {length_guard:t}
+            {var_cols_ir:t}
+            if cols[-1].endswith("\\n"):
+                cols[-1] = cols[-1][:-1]
 
             try:
                 {"\n                ".join(field_irs)}
@@ -134,16 +168,17 @@ def token_parser[S: TokenSchema](s: type[S]) -> Callable[[str, str], S]:
     )
     exec(parser_ir, namespace)  # pylint: disable=exec-used
 
-    parser = cast(Callable[[str, str], S], namespace[compiled_parse_token])
+    parser = cast(Callable[[str], S], namespace[compiled_parse_token])
 
     return parser
 
-def token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
+def token_serializer[S: TokenSchema](s: type[S], delimiter: str) -> Callable[[S], str]:
     """
     Compile a TokenSchema definition into a method that can serialize an instance.
 
     Args:
         s: The type to perform the serialization compilation on.
+        delimiter: The delimiter to put between columns.
 
     Returns:
         The compiled method which can convert an instance of a Token schema into a string
@@ -151,7 +186,6 @@ def token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
     """
     hints = get_type_hints(s)
 
-    field_names: list[str] = []
     conll_irs: list[str] = []
     namespace = {
         s.__name__: s,
@@ -159,20 +193,23 @@ def token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
     }
 
     for name, type_hint in hints.items():
-        field_names.append(name)
         attr = getattr(s, name) if hasattr(s, name) else None
 
         serialize_name = _compile_serialize_schema_ir(namespace, attr, type_hint)
-        conll_ir = f"{name} = {serialize_name}(token.{name})"
+        if isinstance(attr, _VarColsDescriptor):
+            conll_ir = f"cols.extend({serialize_name}(token.{name}))"
+        else:
+            conll_ir = f"cols.append({serialize_name}(token.{name}))"
         conll_irs.append(conll_ir)
 
     serialize_token = unique_name_id(namespace, "serialize_token")
     serializer_ir = process_ir(
         t"""
-        def {serialize_token}(token, delimiter) -> str:
+        def {serialize_token}(token) -> str:
             try:
+                cols = []
                 {"\n                ".join(conll_irs)}
-                return f"{{ {'}\t{'.join(field_names)} }}"
+                return {delimiter!r}.join(cols)
             except FormatError as fexc:
                 raise fexc
             except Exception as exc:
@@ -181,5 +218,5 @@ def token_serializer[S: TokenSchema](s: type[S]) -> Callable[[S, str], str]:
 
     exec(serializer_ir, namespace)  # pylint: disable=exec-used
 
-    serializer = cast(Callable[[S, str], str], namespace[serialize_token])
+    serializer = cast(Callable[[S], str], namespace[serialize_token])
     return serializer

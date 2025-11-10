@@ -11,10 +11,10 @@ from pyconll.schema import (
     nullable,
     array,
     fixed_array,
-    field,
     unique_array,
     mapping,
     via,
+    varcols,
 )
 
 
@@ -22,7 +22,7 @@ def _get_base_namespace() -> dict[str, Any]:
     return {"ParseError": ParseError}
 
 
-def assert_conversions[T](desc: FieldDescriptor[T], val: T, raw: str) -> None:
+def assert_conversions[T, I](desc: FieldDescriptor[T], val: T, out: I) -> None:
     """
     Helper to test both serialization and deserialization.
 
@@ -34,8 +34,8 @@ def assert_conversions[T](desc: FieldDescriptor[T], val: T, raw: str) -> None:
     namespace = _get_base_namespace()
     deser_name = desc.deserialize_codegen(namespace)
     ser_name = desc.serialize_codegen(namespace)
-    assert namespace[deser_name](raw) == val
-    assert namespace[ser_name](val) == raw
+    assert namespace[deser_name](out) == val
+    assert namespace[ser_name](val) == out
 
 
 def assert_deserialization[T](desc: FieldDescriptor[T], raw: str, expected: T) -> None:
@@ -395,3 +395,45 @@ class TestVia:
         """Test via descriptor nested in an array descriptor."""
         desc = array(via(deserialize=lambda s: int(s) * 2, serialize=lambda x: str(x // 2)), "|")
         assert_conversions(desc, [2, 4, 6], "1|2|3")
+
+
+class TestVarCols:
+    """Tests for the varcols factory method."""
+
+    def test_varcols_str(self):
+        """Test varcols with string elements."""
+        desc = varcols(str)
+        assert_conversions(desc, ["a", "b", "c"], ["a", "b", "c"])
+
+    def test_varcols_int(self):
+        """Test varcols with int elements."""
+        desc = varcols(int)
+        assert_conversions(desc, [1, 2, 3], ["1", "2", "3"])
+        assert_conversions(desc, [10, 20, 30], ["10", "20", "30"])
+
+    def test_varcols_float(self):
+        """Test varcols with float elements."""
+        desc = varcols(float)
+        assert_conversions(desc, [1.5, 2.5, 3.5], ["1.5", "2.5", "3.5"])
+        assert_conversions(desc, [1.1, 2.2, 3.3], ["1.1", "2.2", "3.3"])
+
+    def test_varcols_empty(self):
+        """Test varcols with empty iterable."""
+        desc = varcols(str)
+        assert_conversions(desc, [], [])
+
+    def test_varcols_single_element(self):
+        """Test varcols with single element."""
+        desc = varcols(int)
+        assert_conversions(desc, [42], ["42"])
+
+    def test_varcols_with_nullable(self):
+        """Test varcols with nullable elements."""
+        desc = varcols(nullable(int, "_"))
+        assert_conversions(desc, [1, None, 3, 4], ["1", "_", "3", "4"])
+
+    def test_varcols_with_via(self):
+        """Test varcols with via descriptor elements."""
+        desc = varcols(via(deserialize=lambda s: int(s) * 2, serialize=lambda x: str(x // 2)))
+        assert_conversions(desc, [2, 4, 6], ["1", "2", "3"])
+        assert_conversions(desc, [20, 40, 60], ["10", "20", "30"])
