@@ -183,7 +183,7 @@ class Parser[T: TokenSchema]:
         while line := resource.readline():
             line_num = i
             i += 1
-            if line.isspace() or line == "":
+            if line.isspace():
                 if not empty:
                     yield step_next_sentence()
                 continue

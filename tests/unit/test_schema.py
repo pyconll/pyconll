@@ -231,3 +231,140 @@ def test_varcols_schema_multiple_varcols_error():
 
     with pytest.raises(RuntimeError, match="more than one varcols"):
         _compile.token_parser(InvalidToken, "\t", False)
+
+
+def test_collapse_repeated_delimiters_basic():
+    """
+    Test that repeated delimiters can be collapsed into a single delimiter.
+    """
+
+    class SimpleToken(TokenSchema):
+        id: int
+        name: str
+        value: float
+
+    parser = _compile.token_parser(SimpleToken, "\t", True)
+    serializer = _compile.token_serializer(SimpleToken, "\t")
+
+    # Line with multiple consecutive tabs
+    raw_line_with_repeats = "5\t\t\tword\t\t3.14"
+    token = parser(raw_line_with_repeats)
+
+    assert token.id == 5
+    assert token.name == "word"
+    assert token.value == 3.14
+
+    # Serialization uses single delimiter
+    assert serializer(token) == "5\tword\t3.14"
+
+
+def test_collapse_with_space_delimiter():
+    """
+    Test that collapse works with space as delimiter.
+    """
+
+    class SpaceDelimitedToken(TokenSchema):
+        word: str
+        count: int
+
+    parser = _compile.token_parser(SpaceDelimitedToken, " ", True)
+
+    # Multiple spaces between fields
+    raw_line = "hello    42"
+    token = parser(raw_line)
+
+    assert token.word == "hello"
+    assert token.count == 42
+
+
+def test_collapse_with_varcols():
+    """
+    Test that collapse works correctly with variable columns.
+    """
+
+    class VarColsToken(TokenSchema):
+        id: int
+        extras: list[str] = field(varcols(str))
+        status: str
+
+    parser = _compile.token_parser(VarColsToken, "\t", True)
+    serializer = _compile.token_serializer(VarColsToken, "\t")
+
+    # Line with repeated delimiters
+    raw_line = "1\t\ta\t\tb\t\tc\t\tdone"
+    token = parser(raw_line)
+
+    assert token.id == 1
+    assert token.extras == ["a", "b", "c"]
+    assert token.status == "done"
+
+    # Serialization normalizes to single delimiters
+    assert serializer(token) == "1\ta\tb\tc\tdone"
+
+
+def test_collapse_with_nullable_fields():
+    """
+    Test that collapse works with nullable field descriptors.
+    """
+
+    class NullableToken(TokenSchema):
+        name: str
+        score: Optional[int] = field(nullable(int, "_"))
+        value: Optional[float] = field(nullable(float, "N/A"))
+
+    parser = _compile.token_parser(NullableToken, "\t", True)
+    serializer = _compile.token_serializer(NullableToken, "\t")
+
+    # With repeated delimiters and null values
+    raw_line = "test\t\t_\t\tN/A"
+    token = parser(raw_line)
+
+    assert token.name == "test"
+    assert token.score is None
+    assert token.value is None
+
+    assert serializer(token) == "test\t_\tN/A"
+
+
+def test_collapse_varying_delimiter_counts():
+    """
+    Test collapse with different numbers of delimiters between columns.
+    """
+
+    class Token5Cols(TokenSchema):
+        a: str
+        b: str
+        c: str
+        d: str
+        e: str
+
+    parser = _compile.token_parser(Token5Cols, "|", True)
+
+    # Varying numbers of delimiters between fields
+    raw_line = "start|||||end||||middle|||x|||y"
+    token = parser(raw_line)
+
+    assert token.a == "start"
+    assert token.b == "end"
+    assert token.c == "middle"
+    assert token.d == "x"
+    assert token.e == "y"
+
+
+def test_collapse_with_mapping_descriptor():
+    """
+    Test that collapse works with mapping field descriptors.
+    """
+
+    class MappingToken(TokenSchema):
+        id: int
+        features: dict[str, str] = field(mapping(str, str, "|", "=", "_"))
+
+    parser = _compile.token_parser(MappingToken, "\t", True)
+
+    # Multiple tabs before the features column
+    raw_line = "10\t\t\tkey1=val1|key2=val2"
+    token = parser(raw_line)
+
+    assert token.id == 10
+    assert token.features == {"key1": "val1", "key2": "val2"}
