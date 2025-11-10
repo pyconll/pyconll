@@ -56,6 +56,7 @@ def test_middle_sentence_comment_fails():
     Test that a comment that appears in the middle of a sentence (after Tokens have already
     started), is not valid.
     """
+
     class TestToken(TokenSchema):
         id: str
         category: int

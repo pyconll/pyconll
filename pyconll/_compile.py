@@ -70,7 +70,7 @@ def token_parser[S: TokenSchema](s: type[S], delimiter: str, collapse: bool) -> 
 
     Args:
         s: The type to perform the compilation on.
-        delimiter: The delimiter that separates the columsn of the lines.
+        delimiter: The delimiter that separates the columns of the lines.
         collapse: Flag if delimiters that are next to each other should be collapsed for the
             purposes of separating columns.
 
@@ -150,7 +150,6 @@ def token_parser[S: TokenSchema](s: type[S], delimiter: str, collapse: bool) -> 
             {cols_ir:t}
             {length_guard:t}
             {var_cols_ir:t}
-
             if cols[-1].endswith("\\n"):
                 cols[-1] = cols[-1][:-1]
 
