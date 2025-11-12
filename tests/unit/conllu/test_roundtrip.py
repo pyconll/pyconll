@@ -7,7 +7,7 @@ produces identical output, ensuring format preservation.
 
 import io
 
-from pyconll import conllu
+from pyconll.conllu import conllu
 from tests.unit.util import fixture_location
 
 
@@ -18,10 +18,10 @@ def test_string_output():
     fixture = fixture_location("basic.conll")
     original = fixture.read_text()
 
-    sentences = conllu.Format.load_from_string(original)
+    sentences = conllu.load_from_string(original)
 
     buffer = io.StringIO()
-    conllu.Format.write_corpus(sentences, buffer)
+    conllu.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()
 
     assert original == serialized

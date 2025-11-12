@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from pyconll.sentence import Sentence
-from pyconll.conllu import Token, Format as conllu
+from pyconll.conllu import Token, conllu
 from pyconll.tree import Tree
 
 

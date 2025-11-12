@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll.conllu import Format as conllu
+from pyconll.conllu import conllu
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError

@@ -10,7 +10,7 @@
 import argparse
 import sys
 
-from pyconll.conllu import Format as conllu
+from pyconll.conllu import conllu
 
 COUNTRIES = set(('france', 'spain', 'germany'))
 

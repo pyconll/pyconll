@@ -8,7 +8,7 @@
 import argparse
 import sys
 
-from pyconll.conllu import Format as conllu
+from pyconll.conllu import conllu
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='The name of the file to transform')

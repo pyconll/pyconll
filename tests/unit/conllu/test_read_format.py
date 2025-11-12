@@ -8,7 +8,7 @@ different newline formats and whitespace handling.
 
 import pytest
 
-from pyconll.conllu import Token, Format as conllu
+from pyconll.conllu import Token, conllu
 from pyconll.sentence import Sentence
 
 from tests.unit.util import assert_token_equivalence, fixture_location
@@ -162,8 +162,7 @@ def test_iter_from_file():
     """
     expected_ids = [f"fr-ud-dev_0000{i}" for i in range(1, 5)]
     actual_ids = [
-        sent.meta["sent_id"]
-        for sent in conllu.iter_from_file(fixture_location("basic.conll"))
+        sent.meta["sent_id"] for sent in conllu.iter_from_file(fixture_location("basic.conll"))
     ]
 
     assert expected_ids == actual_ids

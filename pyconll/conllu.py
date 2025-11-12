@@ -263,7 +263,7 @@ def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
     )
 
 
-Format = Format(Token)
+conllu = Format(Token)  # pylint: disable=invalid-name
 """
 The default Format instance which can handle CoNLL-U objects directly.
 This provides both parsing and serialization capabilities in a single interface.

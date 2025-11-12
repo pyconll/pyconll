@@ -12,9 +12,7 @@ from urllib import parse
 import pytest
 import requests
 
-from pyconll.conllu import Format as conllu
-from pyconll.conllu import Token
-from pyconll.format import Format
+from pyconll.conllu import conllu
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -498,9 +496,7 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
             _test_treebank(conllu, path, skip_write)
 
 
-def _test_treebank[T](
-    format: Format[T], treebank_path: Path, skip_write: bool
-) -> None:
+def _test_treebank[T](format: Format[T], treebank_path: Path, skip_write: bool) -> None:
     """
     Test that the provided treebank can be parsed and written without error.
 

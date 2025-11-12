@@ -267,9 +267,7 @@ class WriteFormat[T: TokenSchema]:
     serialization operations are needed.
     """
 
-    def __init__(
-        self, schema: type[T], comment_marker: str = "#", delimiter: str = "\t"
-    ) -> None:
+    def __init__(self, schema: type[T], comment_marker: str = "#", delimiter: str = "\t") -> None:
         """
         Initialize the write format handler.
 
