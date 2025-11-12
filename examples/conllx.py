@@ -5,9 +5,8 @@
 
 import sys
 from typing import Optional
-from pyconll.parser import Parser
+from pyconll.format import Format
 from pyconll.schema import TokenSchema, nullable, unique_array
-from pyconll.serializer import Serializer
 
 
 class TokenX(TokenSchema):
@@ -22,9 +21,8 @@ class TokenX(TokenSchema):
     phead: Optional[int] = nullable(int, "_")
     pdeprel: Optional[str] = nullable(str, "_")
 
-parser = Parser(TokenX)
-serializer = Serializer(TokenX)
+conllx = Format(TokenX)
 
-sentences = parser.load_from_file("eng.conllx")
+sentences = conllx.load_from_file("eng.conllx")
 sentences[0].tokens[0].feats.add("first")
-serializer.write_corpus(sentences, sys.stdout)
+conllx.write_corpus(sentences, sys.stdout)

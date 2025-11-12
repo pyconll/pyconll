@@ -1,8 +1,8 @@
 """
-Tests for the generic Parser component.
+Tests for the generic ReadFormat component.
 
-These tests verify that the Parser can handle custom token schemas beyond
-the standard CoNLL-U format, demonstrating the parser's flexibility.
+These tests verify that the ReadFormat can handle custom token schemas beyond
+the standard CoNLL-U format, demonstrating the format reader's flexibility.
 """
 
 from typing import Optional
@@ -10,13 +10,13 @@ from typing import Optional
 import pytest
 
 from pyconll.exception import ParseError
-from pyconll.parser import Parser
+from pyconll.format import ReadFormat
 from pyconll.schema import TokenSchema, nullable
 
 
 def test_custom_token_parsing():
     """
-    Test that a custom token type can be used with the parser.
+    Test that a custom token type can be used with the read format.
     """
 
     class TestToken(TokenSchema):
@@ -24,7 +24,7 @@ def test_custom_token_parsing():
         category: int
         body: Optional[str] = nullable(str, "_")
 
-    p = Parser(TestToken)
+    p = ReadFormat(TestToken)
 
     source = (
         "1\t2\tSomething random.\n"
@@ -62,7 +62,7 @@ def test_middle_sentence_comment_fails():
         category: int
         body: Optional[str] = nullable(str, "_")
 
-    p = Parser(TestToken)
+    p = ReadFormat(TestToken)
 
     source = (
         "# comment1\n"

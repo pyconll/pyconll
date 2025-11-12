@@ -18,10 +18,10 @@ def test_string_output():
     fixture = fixture_location("basic.conll")
     original = fixture.read_text()
 
-    sentences = conllu.parser.load_from_string(original)
+    sentences = conllu.Format.load_from_string(original)
 
     buffer = io.StringIO()
-    conllu.serializer.write_corpus(sentences, buffer)
+    conllu.Format.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()
 
     assert original == serialized

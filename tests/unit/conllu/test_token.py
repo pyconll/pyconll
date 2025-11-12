@@ -1,6 +1,6 @@
 import pytest
 
-from pyconll import conllu
+from pyconll.conllu import Format as conllu
 from tests.unit.util import assert_token_members
 
 from pyconll.exception import ParseError, FormatError
@@ -9,7 +9,7 @@ from pyconll.conllu import Token
 
 def parse_token(line: str) -> Token:
     """
-    Parse a token line using the CoNLL-U parser.
+    Parse a token line using the CoNLL-U format.
 
     Args:
         line: The token line to parse.
@@ -17,12 +17,12 @@ def parse_token(line: str) -> Token:
     Returns:
         The parsed Token object.
     """
-    return conllu.parser.parse_token(line)
+    return conllu.parse_token(line)
 
 
 def serialize_token(token: Token) -> str:
     """
-    Serialize a token using the CoNLL-U serializer.
+    Serialize a token using the CoNLL-U format.
 
     Args:
         token: The token to serialize.
@@ -30,7 +30,7 @@ def serialize_token(token: Token) -> str:
     Returns:
         The serialized token line.
     """
-    return conllu.serializer.serialize_token(token)
+    return conllu.serialize_token(token)
 
 
 def test_construction():

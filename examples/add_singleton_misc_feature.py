@@ -8,13 +8,13 @@
 import argparse
 import sys
 
-from pyconll import conllu
+from pyconll.conllu import Format as conllu
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='The name of the file to transform')
 args = parser.parse_args()
 
-corpus = conllu.parser.load_from_file(args.filename)
+corpus = conllu.load_from_file(args.filename)
 for sentence in corpus:
     for token in sentence.tokens:
         if token.lemma.lower() == 'dog' and token.upos == 'VERB':
@@ -24,4 +24,4 @@ for sentence in corpus:
             token.misc['Polysemous'] = None
 
 # Print to standard out which can then be redirected.
-conllu.serializer.write_corpus(corpus, sys.stdout)
+conllu.write_corpus(corpus, sys.stdout)
