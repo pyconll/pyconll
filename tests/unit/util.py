@@ -5,9 +5,8 @@ Module that collects various test related functionality.
 from pathlib import Path
 from typing import Optional
 
-from pyconll import conllu
 from pyconll.sentence import Sentence
-from pyconll.conllu import Token
+from pyconll.conllu import Token, conllu
 from pyconll.tree import Tree
 
 
@@ -108,7 +107,7 @@ def parse_sentence(lines: str) -> Sentence[Token]:
     Returns:
         The singular parsed Sentence that can be constructed from the line source.
     """
-    sentences = conllu.parser.load_from_string(lines)
+    sentences = conllu.load_from_string(lines)
 
     if len(sentences) != 1:
         raise RuntimeError("Expected exactly one sentence in the lines given.")

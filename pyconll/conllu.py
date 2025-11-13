@@ -8,8 +8,7 @@ import math
 from typing import Optional, Sequence
 
 from pyconll import tree
-from pyconll.parser import Parser
-from pyconll.serializer import Serializer
+from pyconll.format import Format
 from pyconll.schema import (
     field,
     nullable,
@@ -264,13 +263,8 @@ def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
     )
 
 
-parser = Parser(Token)
+conllu = Format(Token)  # pylint: disable=invalid-name
 """
-The default Parser instance which can handle CoNLL-U objects directly.
-"""
-
-
-serializer = Serializer(Token)
-"""
-The default Serializer instance which can handle CoNLL-U objects directly.
+The default Format instance which can handle CoNLL-U objects directly.
+This provides both parsing and serialization capabilities in a single interface.
 """

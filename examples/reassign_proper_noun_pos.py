@@ -10,20 +10,20 @@
 import argparse
 import sys
 
-from pyconll import conllu
+from pyconll.conllu import conllu
 
-COUNTRIES = set(('france', 'spain', 'germany'))
+COUNTRIES = set(("france", "spain", "germany"))
 
 parser = argparse.ArgumentParser()
-parser.add_argument('filename', help='The name of the file to transform')
+parser.add_argument("filename", help="The name of the file to transform")
 args = parser.parse_args()
 
-corpus = conllu.parser.load_from_file(args.filename)
+corpus = conllu.load_from_file(args.filename)
 for sentence in corpus:
     for token in sentence.tokens:
         if token.form.lower() in COUNTRIES:
-            token.misc['COUNTRY'] = 'YES'
-            token.upos = 'PROPN'
+            token.misc["COUNTRY"] = "YES"
+            token.upos = "PROPN"
 
 # Print to standard out which can then be redirected.
-conllu.serializer.write_corpus(corpus, sys.stdout)
+conllu.write_corpus(corpus, sys.stdout)

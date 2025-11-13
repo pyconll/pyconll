@@ -1,7 +1,6 @@
 import pytest
 
-from pyconll import conllu
-from pyconll.conllu import Token
+from pyconll.conllu import Token, conllu
 from pyconll.exception import FormatError
 from pyconll.sentence import Sentence
 from tests.unit.util import assert_token_members, parse_sentence
@@ -19,7 +18,7 @@ def sentence_to_conll(sentence: Sentence[Token]) -> str:
     Returns:
         The serialized representation.
     """
-    return conllu.serializer.serialize_sentence(sentence)
+    return conllu.serialize_sentence(sentence)
 
 
 def test_simple_sentence_construction():

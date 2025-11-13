@@ -12,10 +12,7 @@ from urllib import parse
 import pytest
 import requests
 
-import pyconll
-from pyconll.parser import Parser
-from pyconll.conllu import Token
-from pyconll.serializer import Serializer
+from pyconll.conllu import conllu
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -489,8 +486,6 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
     skip_write: bool = pytestconfig.getoption("--corpora-skip-write")
 
     globs = corpus.glob("**/*.conllu")
-    parser = Parser(Token)
-    serializer = Serializer(Token)
 
     for path in globs:
         is_exp = any(path == corpus / exp for exp in exceptions)
@@ -498,31 +493,28 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
         if is_exp:
             logging.info("Skipping over %s because it is a known exception.", path)
         else:
-            _test_treebank(parser, serializer, path, skip_write)
+            _test_treebank(conllu, path, skip_write)
 
 
-def _test_treebank(
-    parser: Parser, serializer: Serializer, treebank_path: Path, skip_write: bool
-) -> None:
+def _test_treebank[T](format: Format[T], treebank_path: Path, skip_write: bool) -> None:
     """
     Test that the provided treebank can be parsed and written without error.
 
     Args:
-        parser: The parser to use to load the treebank into memory.
-        serializer: The object to use to serialize the treebank values to a string.
+        format: The format that the treebank is in.
         treebank_path: The path to the treebank file that is to be parsed and written.
         skip_write: Flag if the writing/serializing of the treebank should also be tested.
     """
 
     logging.info("Starting to parse %s", treebank_path)
 
-    treebank = parser.iter_from_file(treebank_path)
+    treebank = format.iter_from_file(treebank_path)
 
     count = 0
     with tempfile.TemporaryFile(mode="w", encoding="utf-8") as tmp_output_file:
         for sentence in treebank:
             count += len(sentence.tokens)
             if not skip_write:
-                serializer.write_sentence(sentence, tmp_output_file)
+                format.write_sentence(sentence, tmp_output_file)
                 tmp_output_file.write("\n")
         tmp_output_file.write(str(count))
