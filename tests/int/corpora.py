@@ -3,8 +3,8 @@ Registration of all corpora for testing. This works as a sort of cache key or re
 action workflows.
 """
 
-
 from dataclasses import dataclass
+
 
 @dataclass
 class CorporaRegistration:
@@ -16,6 +16,7 @@ class CorporaRegistration:
     url: str
     zip_hash: str
     contents_hash: str
+
 
 # This is the registration for the different corpora. It includes an id, and a
 # method of creation as a key-value pair. This registration structure allows
