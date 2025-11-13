@@ -8,6 +8,7 @@ on:
     branches:
       - master
       - dev
+  workflow_dispatch:
 
 jobs:
   unittest:
@@ -44,6 +45,10 @@ jobs:
         with:
           python-version: '3.14'
           cache: 'pip'
+      - uses: actions/cache@v4
+        with:
+          path: tests/int/_corpora_cache/
+          key: int-corpora-cache-${{ hashFiles('tests/int/corpora.py') }}
       - name: Run
         run: |
           pip install -r requirements.txt
