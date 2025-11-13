@@ -23,6 +23,11 @@ jobs:
       - name: Build pyconll distributables
         run: |
           python setup.py sdist bdist_wheel
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
 
   release:
     name: Release pyconll
@@ -34,6 +39,11 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
       - name: Publish packages from dist/*
         # Make sure the current git ref is tagged.
         if: startsWith(github.ref, 'refs/tags')
