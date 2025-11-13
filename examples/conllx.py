@@ -21,6 +21,7 @@ class TokenX(TokenSchema):
     phead: Optional[int] = nullable(int, "_")
     pdeprel: Optional[str] = nullable(str, "_")
 
+
 conllx = Format(TokenX, comment_marker="#", delimiter="\t")
 
 sentences = conllx.load_from_file("eng.conllx")
