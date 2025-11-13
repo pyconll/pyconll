@@ -27,6 +27,7 @@ jobs:
   release:
     name: Release pyconll
     runs-on: ubuntu-24.04
+    needs: build
     environment:
       name: pypi
       url: https://pypi.org/p/pyconll
