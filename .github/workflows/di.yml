@@ -20,7 +20,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: tests/int/_corpora_cache/artifacts
-          key: di-corpora-artifacts
+          key: di-corpora-artifacts-${{ hashFiles(tests/int/corpora.py) }}
       - name: Run
         run: |
           pip install -r requirements.txt
