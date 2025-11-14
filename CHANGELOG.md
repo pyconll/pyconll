@@ -5,9 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [4.0.0] - YYYY-MM-DD
+### Added
+- Add structural schema support via TokenSchema mechanism which allows for custom schema definitions.
+- Create Format, ReadFormat, and WriteFormat to define operations that can be done for a given structural schema.
+
 ### Changed
-- To support latest Python type hint syntax, move minimum supported version up to 3.14+ for new features.
-- Add dynamic schema support and move existing CoNLL-U parsing to the same mechanism
+- To support latest Python type hint syntax and features, move minimum supported version up to 3.14.
+
+### Removed
+- Remove Tree and string indexing functionality from Sentence. Tree functionality is moved to a new component.
 
 ## [3.3.1] - 2025-10-11
 ### Changed
