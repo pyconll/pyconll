@@ -33,7 +33,7 @@ author = 'Matias Grioni'
 copyright = '{}, {}'.format(_year, author)
 
 # The short X.Y version
-_v = Path("pyconll/_version").read_text().strip()
+_v = Path("../pyconll/_version").read_text().strip()
 version = _v
 # The full version, including alpha/beta/rc tags
 release = _v
