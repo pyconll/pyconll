@@ -1,4 +1,4 @@
-{% set version = load_setup_py_data(setup_file='setup.py').version %}
+{% set version = load_file_data("_version").strip() %}
 
 package:
   name: "pyconll"

@@ -32,7 +32,7 @@ datatest:
 	python -m pytest tests/int --corpora-skip-write --log-cli-level info
 
 build:
-	python setup.py sdist bdist_wheel
+	python -m build --sdist --wheel
 
 clean:
 	find . -path ./venv -prune -o -type d -name "__pycache__" -exec rm -rf {} +
