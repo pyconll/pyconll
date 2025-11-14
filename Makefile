@@ -2,15 +2,15 @@
 
 # Format python files in place, outputs error code if there are changes
 format:
-	python -m black pyconll/ util/ tests/ examples/
+	python -m black pyconll/ tests/ examples/
 
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.
 lint:
-	python -m pylint --rcfile .pylintrc --fail-under=9.93 pyconll/ util/ && \
+	python -m pylint --rcfile .pylintrc --fail-under=9.93 pyconll/ && \
 	codespell pyconll/ docs/ && \
-	python -m black --check --quiet pyconll/ util/ tests/ examples/ && \
-	python -m mypy pyconll/ util/
+	python -m black --check --quiet pyconll/ tests/ examples/ && \
+	python -m mypy pyconll/
 
 # Unit test scenario for fast CI builds and local testing
 unittest:
