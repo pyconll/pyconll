@@ -30,5 +30,6 @@ jobs:
           conda install conda-verify
           conda install anaconda-client
       - name: Build and upload conda package
+        if: startsWith(github.ref, 'refs/tags')
         run: |
           conda build --token ${{ secrets.CONDA_API_TOKEN }} --user pyconll meta.yaml

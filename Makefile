@@ -2,15 +2,15 @@
 
 # Format python files in place, outputs error code if there are changes
 format:
-	python -m black --config black.toml pyconll/ util/ tests/ examples/
+	python -m black pyconll/ tests/ examples/
 
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.
 lint:
-	python -m pylint --rcfile .pylintrc --fail-under=9.93 pyconll/ util/ && \
+	python -m pylint --rcfile .pylintrc --fail-under=9.93 pyconll/ && \
 	codespell pyconll/ docs/ && \
-	python -m black --check --quiet --config black.toml pyconll/ util/ tests/ examples/ && \
-	python -m mypy pyconll/ util/
+	python -m black --check --quiet pyconll/ tests/ examples/ && \
+	python -m mypy pyconll/
 
 # Unit test scenario for fast CI builds and local testing
 unittest:
@@ -32,7 +32,7 @@ datatest:
 	python -m pytest tests/int --corpora-skip-write --log-cli-level info
 
 build:
-	python setup.py sdist bdist_wheel
+	python -m build --sdist --wheel
 
 clean:
 	find . -path ./venv -prune -o -type d -name "__pycache__" -exec rm -rf {} +

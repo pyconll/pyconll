@@ -17,12 +17,11 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import datetime
+from pathlib import Path
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../'))
-from util import parse
-
 
 
 # -- Project information -----------------------------------------------------
@@ -34,7 +33,7 @@ author = 'Matias Grioni'
 copyright = '{}, {}'.format(_year, author)
 
 # The short X.Y version
-_v = parse.package_version('../pyconll/_version.py').strip()
+_v = Path("../pyconll/_version").read_text().strip()
 version = _v
 # The full version, including alpha/beta/rc tags
 release = _v
