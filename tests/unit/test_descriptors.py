@@ -362,6 +362,25 @@ class TestMapping:
         )
         assert_conversions(desc, {"a": {"x": 1, "y": 2}}, "a=x:1,y:2")
 
+    def test_mapping_compact_pair_roundtrip_error(self):
+        # NOTE: This test will be updated in a future change, but is marked here for validation that
+        # this doesn't introduce itself again.
+        """Test that the compact pair flag results in invalid round trips."""
+
+        desc = mapping(str, nullable(array(str, ",")), "|", "=", "_", use_compact_pair=True)
+        namespace = _get_base_namespace()
+        deser_name = desc.deserialize_codegen(namespace)
+        ser_name = desc.serialize_codegen(namespace)
+
+        buffer = "names=person1,person2|ages=45,40|Coworkers"
+        val = namespace[deser_name](buffer)
+        assert val["Coworkers"] is None
+        val["Coworkers"] = []
+
+        ser_name = desc.serialize_codegen(namespace)
+        serialized = namespace[ser_name](val)
+        assert serialized == buffer
+
 
 class TestVia:
     """Tests for the via factory method."""
