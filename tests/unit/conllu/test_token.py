@@ -391,7 +391,7 @@ def test_empty_set_format_error(conllu_format: Format[Token]):
     assert conll == formatted_line
 
 
-#def test_invalid_deps_component_error(conllu_format: Format[Token]):
+# def test_invalid_deps_component_error(conllu_format: Format[Token]):
 #    """
 #    Test that an error is thrown when all components of a dep value are None.
 #    """
