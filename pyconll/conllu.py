@@ -228,6 +228,11 @@ class Token(TokenSchema):
 
 
 class CompactToken(Token):
+    """
+    Has the same interface as Token but uses a more compact representation mechanism. Primarily via
+    interned strings since there are many repeated strings in a given conllu file.
+    """
+
     id: str = field(via(sys.intern, str))
     form: Optional[str] = field(nullable(str, "_"))
     lemma: Optional[str] = field(nullable(str, "_"))

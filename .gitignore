@@ -8,8 +8,9 @@ htmlcov/
 .coverage
 tests/int/_corpora_cache
 
-# Local env files
+# Local use files
 .python-version
+CLAUDE.md
 
 # Packaging files
 MANIFEST

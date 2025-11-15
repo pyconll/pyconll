@@ -116,14 +116,13 @@ Enhanced dependencies as head-to-relation mappings:
 
 .. code:: python
 
-    # Example: 5:4:nsubj
+    # Example: 4:nsubj
     token.deps = {
-        '5': ('4', 'nsubj')
+        '4': ('nsubj',)
     }
 
-    # The tuple has 4 elements for compatibility with the full
-    # enhanced dependencies specification, though typically only
-    # the first two (head and relation) are used
+    # The tuple is a fixed size per element but can vary between elements.
+    # In CoNLL-U, there is usually only two elements in this field.
 
 misc
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -7,21 +7,22 @@ produces identical output, ensuring format preservation.
 
 import io
 
-from pyconll.conllu import conllu
+from pyconll.conllu import Token
+from pyconll.format import Format
 from tests.unit.util import fixture_location
 
 
-def test_string_output():
+def test_string_output(conllu_format: Format[Token]):
     """
     Test that the strings are properly created.
     """
     fixture = fixture_location("basic.conll")
     original = fixture.read_text()
 
-    sentences = conllu.load_from_string(original)
+    sentences = conllu_format.load_from_string(original)
 
     buffer = io.StringIO()
-    conllu.write_corpus(sentences, buffer)
+    conllu_format.write_corpus(sentences, buffer)
     serialized = buffer.getvalue()
 
     assert original == serialized

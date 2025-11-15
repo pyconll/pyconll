@@ -97,6 +97,34 @@ class ReadFormat[T: TokenSchema]:
         """
         return self.token_parser(buffer)
 
+    def parse_sentence(self, buffer: str) -> Sentence[T]:
+        """
+        Parse a single sentence from the buffer.
+
+        If there is more than one sentence in the buffer an error is thrown.
+
+        Args:
+            buffer: The string to parse for a single sentence.
+
+        Returns:
+            The single sentence that was parsed out of the string.
+        """
+        it = self.iter_from_string(buffer)
+        sentence = next(it)
+
+        stopped = False
+        try:
+            next(it)
+        except StopIteration:
+            stopped = True
+
+        if not stopped:
+            raise RuntimeError(
+                "Expected only a single sentence from the buffer, but more than one was found."
+            )
+
+        return sentence
+
     def load_from_string(self, source: str) -> list[Sentence[T]]:
         """
         Parse a CoNLL formatted string into a list of sentences.
