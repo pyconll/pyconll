@@ -1,8 +1,14 @@
 token
 ===================================
 
-The Token module represents a CoNLL token annotation. In a CoNLL file, this is a non-empty, non-comment line. ``Token`` members correspond directly with the `Universal Dependencies CoNLL definition`__ and all members are stored as strings. This means ids are strings as well. These fields are: ``id``, ``form``, ``lemma``, ``upos``, ``xpos``, ``feats``, ``head``, ``deprel``, ``deps``, ``misc``. More information on these is found below.
+.. note::
+    For working with CoNLL-U tokens, see the conllu_ module which provides the standard ``Token`` class. This page describes the general concept of tokens in pyconll.
 
+In pyconll, tokens are defined using the ``TokenSchema`` protocol. The most common token type is the CoNLL-U ``Token`` from the ``pyconll.conllu`` module, which represents a CoNLL-U token annotation with 10 standard columns.
+
+For CoNLL-U specifically, token fields correspond directly with the `Universal Dependencies CoNLL-U format`__: ``id``, ``form``, ``lemma``, ``upos``, ``xpos``, ``feats``, ``head``, ``deprel``, ``deps``, ``misc``.
+
+.. _conllu: ../conllu.html
 __ https://universaldependencies.org/format#conll-u-format
 
 Fields
@@ -44,12 +50,13 @@ On the miscellaneous column, adding a singleton field is done with the following
     token.misc['SingletonFeature'] = None
 
 
-API
+CoNLL-U Token API
 ----------------------------------
-.. automodule:: pyconll.unit.token
-    :members:
-    :special-members:
-    :exclude-members: __dict__, __weakref__
 
+For the complete CoNLL-U Token implementation, see the conllu_ module documentation.
+
+You can also define custom token schemas - see the schema_ module for details on creating your own token types for different formats.
+
+.. _schema: ../schema.html
 
 __ https://universaldependencies.org/u/overview/enhanced-syntax.html

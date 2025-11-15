@@ -9,6 +9,7 @@ codespell==2.4.1
 coverage==7.11.0
 dill==0.4.0
 docutils==0.21.2
+guppy3 @ git+https://github.com/zhuyifei1999/guppy3.git@da86ab98abf20c57b9ead4d653157af8baaa8efd
 idna==3.10
 imagesize==1.4.1
 iniconfig==2.1.0

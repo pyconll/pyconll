@@ -5,6 +5,7 @@ data and parsing in this module is central to the CoNLL-U format.
 
 import functools
 import math
+import sys
 from typing import Optional, Sequence
 
 from pyconll import tree
@@ -17,6 +18,7 @@ from pyconll.schema import (
     fixed_array,
     TokenSchema,
     token_lifecycle,
+    via,
 )
 from pyconll.tree import Tree
 
@@ -166,8 +168,8 @@ def _post_init(t: "Token") -> None:
     Specifically, this handles the case where both the form and the lemma are underscore in which
     case the behavior should be to treat these as their raw values.
     """
-    if t._form is None and t.lemma is None:
-        t._form = t.lemma = "_"
+    if t.form is None and t.lemma is None:
+        t.form = t.lemma = "_"
 
 
 @token_lifecycle(post_init=_post_init)
@@ -179,7 +181,7 @@ class Token(TokenSchema):
     """
 
     id: str
-    _form: Optional[str] = field(nullable(str, "_"))
+    form: Optional[str] = field(nullable(str, "_"))
     lemma: Optional[str] = field(nullable(str, "_"))
     upos: Optional[str] = field(nullable(str, "_"))
     xpos: Optional[str] = field(nullable(str, "_"))
@@ -203,16 +205,6 @@ class Token(TokenSchema):
         )
     )
 
-    @property
-    def form(self) -> Optional[str]:
-        """
-        Provide the word form of this Token. This property is read only.
-
-        Returns:
-            The Token form.
-        """
-        return self._form
-
     def is_multiword(self) -> bool:
         """
         Checks if this Token is a multiword token.
@@ -233,6 +225,47 @@ class Token(TokenSchema):
             True if this token is an empty node and False otherwise.
         """
         return "." in self.id
+
+
+class CompactToken(Token):
+    id: str = field(via(sys.intern, str))
+    form: Optional[str] = field(nullable(str, "_"))
+    lemma: Optional[str] = field(nullable(str, "_"))
+    upos: Optional[str] = field(nullable(via(sys.intern, str), "_"))
+    xpos: Optional[str] = field(nullable(via(sys.intern, str), "_"))
+    feats: dict[str, set[str]] = field(
+        mapping(
+            via(sys.intern, str),
+            unique_array(via(sys.intern, str), ",", "", str.lower),
+            "|",
+            "=",
+            "_",
+            lambda p: p[0].lower(),
+        )
+    )
+    head: Optional[str] = field(nullable(via(sys.intern, str), "_"))
+    deprel: Optional[str] = field(nullable(via(sys.intern, str), "_"))
+    deps: dict[str, tuple[str, ...]] = field(
+        mapping(
+            via(sys.intern, str),
+            fixed_array(via(sys.intern, str), ":"),
+            "|",
+            ":",
+            "_",
+            lambda p: _TokenIdComparer(p[0]),
+        )
+    )
+    misc: dict[str, Optional[set[str]]] = field(
+        mapping(
+            via(sys.intern, str),
+            nullable(unique_array(via(sys.intern, str), ",", "", str.lower)),
+            "|",
+            "=",
+            "_",
+            lambda p: p[0].lower(),
+            True,
+        )
+    )
 
 
 def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
@@ -267,4 +300,11 @@ conllu = Format(Token)  # pylint: disable=invalid-name
 """
 The default Format instance which can handle CoNLL-U objects directly.
 This provides both parsing and serialization capabilities in a single interface.
+"""
+
+compact_conllu = Format(CompactToken)  # pylint: disable=invalid-name
+"""
+The Format instance which handles CoNLL-U but creates a more compact in-memory representation. This
+comes at a slight runtime penalty, but in practice the memory used is X% less. This instance
+provides both parsing and serialization capabilities in a single interface.
 """
