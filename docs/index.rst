@@ -35,19 +35,16 @@ For more information, the github_ project page has examples, tests, and source c
    :titlesonly:
 
    Getting Started <starting>
-
-   pyconll/format
-   pyconll/schema
-   pyconll/conllu
-   pyconll/unit/token
-   pyconll/unit/sentence
-   pyconll/tree/tree
-   pyconll/util
-   pyconll/exception
-
    Migration Guide <migration>
    README <readme>
-   changelog
+   CHANGELOG <changelog>
+   pyconll/conllu
+   pyconll/exception
+   pyconll/format
+   pyconll/schema
+   pyconll/sentence
+   pyconll/token
+   pyconll/tree
 
 
 .. _github: https://github.com/matgrioni/pyconll/

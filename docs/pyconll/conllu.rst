@@ -183,4 +183,4 @@ API
     :members:
     :exclude-members: __dict__, __weakref__
 
-.. _tree: tree/tree.html
+.. _tree: tree.html

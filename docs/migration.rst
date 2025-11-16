@@ -371,7 +371,7 @@ If you encounter issues during migration:
 
 - Check the updated documentation_
 - Review the examples_ in the repository
-- Ask questions on GitHub_ issues
+- Ask questions on GitHub_
 
 .. _schema: pyconll/schema.html
 .. _format: pyconll/format.html
