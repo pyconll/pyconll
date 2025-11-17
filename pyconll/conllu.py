@@ -179,6 +179,7 @@ class Token(TokenSchema):
     Token schema. Similarly, if defining a different schema to read, use this as a reference for how
     this can be done.
     """
+    __slots__ = ()
 
     id: str
     form: Optional[str] = field(nullable(str, "_"))
@@ -227,15 +228,17 @@ class Token(TokenSchema):
         return "." in self.id
 
 
+@token_lifecycle(post_init=_post_init)
 class CompactToken(Token):
     """
     Has the same interface as Token but uses a more compact representation mechanism. Primarily via
     interned strings since there are many repeated strings in a given conllu file.
     """
+    __slots__ = ()
 
     id: str = field(via(sys.intern, str))
-    form: Optional[str] = field(nullable(str, "_"))
-    lemma: Optional[str] = field(nullable(str, "_"))
+    form: Optional[str] = field(nullable(via(sys.intern, str), "_"))
+    lemma: Optional[str] = field(nullable(via(sys.intern, str), "_"))
     upos: Optional[str] = field(nullable(via(sys.intern, str), "_"))
     xpos: Optional[str] = field(nullable(via(sys.intern, str), "_"))
     feats: dict[str, set[str]] = field(
