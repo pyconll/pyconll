@@ -11,9 +11,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pyconll.conllu import compact_conllu, conllu, Token
 from pyconll.format import Format
 
+
 class FormatType(Enum):
-    STANDARD = auto(),
+    STANDARD = (auto(),)
     COMPACT = auto()
+
 
 @dataclass
 class Args:
@@ -22,13 +24,17 @@ class Args:
     loops_per_file: int
     total_loops: int
 
+
 @dataclass
 class ConlluBenchmark:
     duration: int
     token_count: int
     memory: int
 
-def kernel(files: list[Path], loops_per_file: int, format: Format[Token]) -> dict[str, ConlluBenchmark]:
+
+def kernel(
+    files: list[Path], loops_per_file: int, format: Format[Token]
+) -> dict[str, ConlluBenchmark]:
     results = {}
     for file in files:
         duration = 0
@@ -46,6 +52,7 @@ def kernel(files: list[Path], loops_per_file: int, format: Format[Token]) -> dic
 
     return results
 
+
 def main(args: Args) -> None:
     if args.format == FormatType.STANDARD:
         format = conllu
@@ -62,14 +69,29 @@ def main(args: Args) -> None:
 
     for conllu_key, benchmark in sorted(results.items(), key=lambda p: p[0]):
         tps = (benchmark.token_count * args.loops_per_file) / benchmark.duration
-        writer.writerow({"key": conllu_key, "tps": tps, "kb": (benchmark.memory / 1024)})
+        writer.writerow({"key": conllu_key, "tps": tps, "kb": benchmark.memory / 1024})
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--corpora", type=Path, required=True, help="The location from which to parse all CoNLL-U files.")
-    parser.add_argument("--format", type=lambda s: FormatType[s], required=True, help="The type of CoNLL-U format provider to use.")
-    parser.add_argument("--loops_per_file", type=int, required=True, help="The number of times to parse each file")
-    parser.add_argument("--total_loops", type=int, required=True, help="The number of times to loop over all files.")
+    parser.add_argument(
+        "--corpora",
+        type=Path,
+        required=True,
+        help="The location from which to parse all CoNLL-U files.",
+    )
+    parser.add_argument(
+        "--format",
+        type=lambda s: FormatType[s],
+        required=True,
+        help="The type of CoNLL-U format provider to use.",
+    )
+    parser.add_argument(
+        "--loops_per_file", type=int, required=True, help="The number of times to parse each file"
+    )
+    parser.add_argument(
+        "--total_loops", type=int, required=True, help="The number of times to loop over all files."
+    )
 
     args = parser.parse_args()
 

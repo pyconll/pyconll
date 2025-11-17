@@ -179,6 +179,7 @@ class Token(TokenSchema):
     Token schema. Similarly, if defining a different schema to read, use this as a reference for how
     this can be done.
     """
+
     id: str
     form: Optional[str] = field(nullable(str, "_"))
     lemma: Optional[str] = field(nullable(str, "_"))
@@ -232,6 +233,7 @@ class CompactToken(Token):
     Has the same interface as Token but uses a more compact representation mechanism. Primarily via
     interned strings since there are many repeated strings in a given conllu file.
     """
+
     id: str = field(via(sys.intern, str))
     form: Optional[str] = field(nullable(via(sys.intern, str), "_"))
     lemma: Optional[str] = field(nullable(via(sys.intern, str), "_"))
