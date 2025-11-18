@@ -392,15 +392,24 @@ def test_extra_primitives():
     Test that extra primitives can be added on the Token class definition.
     """
 
-    @tokenspec(extra_primitives=[set[str]])
+    class MyClass:
+        def __init__(self, s: str) -> None:
+            self.values = set(s.split(","))
+
+        def __str__(self) -> str:
+            return ",".join(sorted(self.values))
+
+    @tokenspec(extra_primitives=[MyClass])
     class WeirdToken:
         id: int
-        chars: set[str]
+        chars: MyClass
 
     parser = _compile.token_parser(WeirdToken, "\t", False)
+    serializer = _compile.token_serializer(WeirdToken, "\t")
 
-    raw_line = "10\tabcdefg"
+    raw_line = "10\ta,b,c,d,e,f,g"
 
     token = parser(raw_line)
 
-    assert (token.id, token.chars) == (10, {"a", "b", "c", "d", "e", "f", "g"})
+    assert (token.id, token.chars.values) == (10, {"a", "b", "c", "d", "e", "f", "g"})
+    assert serializer(token) == raw_line
