@@ -73,7 +73,7 @@ def _compile_token_sub_class[S](
 ):
 
     slots_ir = t"""__slots__ = (\"{"\", \"".join(field_names)}\",)""" if slots else t""
-    post_init_ir = t"self.post_init()" if hasattr(s, "__post_init__") else t""
+    post_init_ir = t"self.__post_init__()" if hasattr(s, "__post_init__") else t""
 
     class_ir = process_ir(t"""
         class {sub_class_name}({s.__name__}):
