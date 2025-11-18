@@ -10,7 +10,7 @@ from types import CodeType
 from typing import (
     Any,
     Callable,
-    Protocol,
+    Iterable,
     cast,
     Optional,
     TYPE_CHECKING,
@@ -90,7 +90,6 @@ class BaseFieldDescriptor[T](FieldDescriptor[T]):
             The compiled python code that was generated for serialization of this field.
         """
 
-
     def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
         """
         Adds the deserialization method to the given namespace and returns the method name.
@@ -159,26 +158,22 @@ class _NullableDescriptor[T](BaseFieldDescriptor[Optional[T]]):
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return None
                 return {sub_method_name}(s)
-            """
-        )
+            """)
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(val):
                 if val is None:
                     return {self.empty_marker!r}
 
                 return {sub_method_name}(val)
-            """
-        )
+            """)
 
 
 @dataclass(frozen=True, slots=True)
@@ -194,13 +189,11 @@ class _ArrayDescriptor[T](BaseFieldDescriptor[list[T]]):
         else:
             result_ir = t"[{sub_method_name}(el) for el in s.split({self.delimiter!r})]"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return []
-                return {result_ir:t}"""  # pylint: disable=f-string-without-interpolation
-        )
+                return {result_ir:t}""")
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
@@ -209,13 +202,11 @@ class _ArrayDescriptor[T](BaseFieldDescriptor[list[T]]):
         else:
             gen_ir = t"{sub_method_name}(el) for el in vs"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(vs):
                 if not vs:
                     return {self.empty_marker!r}
-                return {self.delimiter!r}.join({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
-        )
+                return {self.delimiter!r}.join({gen_ir:t})""")
 
 
 @dataclass(frozen=True, slots=True)
@@ -232,13 +223,11 @@ class _UniqueArrayDescriptor[T](BaseFieldDescriptor[set[T]]):
         else:
             return_ir = t"{{ {sub_method_name}(el) for el in s.split({self.delimiter!r}) }}"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return set()
-                return {return_ir:t}"""  # pylint: disable=f-string-without-interpolation
-        )
+                return {return_ir:t}""")
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
@@ -253,16 +242,14 @@ class _UniqueArrayDescriptor[T](BaseFieldDescriptor[set[T]]):
         if not sub_method_name:
             gen_ir = values_ir
         else:
-            gen_ir = t"{sub_method_name}(el) for el in {values_ir:t}"  # pylint: disable=f-string-without-interpolation
+            gen_ir = t"{sub_method_name}(el) for el in {values_ir:t}"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(vs):
                 if not vs:
                     return {self.empty_marker!r}
                 
-                return {self.delimiter!r}.join({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
-        )
+                return {self.delimiter!r}.join({gen_ir:t})""")
 
 
 @dataclass(frozen=True, slots=True)
@@ -278,14 +265,12 @@ class _FixedArrayDescriptor[T](BaseFieldDescriptor[tuple[T, ...]]):
         else:
             gen_ir = t"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return ()
 
-                return tuple({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
-        )
+                return tuple({gen_ir:t})""")
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
@@ -294,14 +279,12 @@ class _FixedArrayDescriptor[T](BaseFieldDescriptor[tuple[T, ...]]):
         else:
             gen_ir = t"{sub_method_name}(el) for el in tup"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(tup):
                 if not tup:
                     return {self.empty_marker!r}
 
-                return {self.delimiter!r}.join({gen_ir:t})"""  # pylint: disable=f-string-without-interpolation
-        )
+                return {self.delimiter!r}.join({gen_ir:t})""")
 
 
 @dataclass(frozen=True, slots=True)
@@ -317,8 +300,7 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         key_sub_method_name = _deserialize_sub_method_name(namespace, self.kmapper)
         value_sub_method_name = _deserialize_sub_method_name(namespace, self.vmapper)
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return {{}}
@@ -337,8 +319,7 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
                     d[{key_sub_method_name}(avs[0])] = {value_sub_method_name}(avs[1])
 
                 return d
-            """
-        )
+            """)
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         key_sub_method_name = _serialize_sub_method_name(namespace, self.kmapper)
@@ -351,14 +332,13 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
         else:
             items_ir = t"items = mapping.items()"
 
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(mapping):
                 if not mapping:
                     return {self.empty_marker!r}
 
-                {items_ir:t}"""  # pylint: disable=f-string-without-interpolation
-            t"""
+                {items_ir:t}
+
                 transformed = []
                 for (key, value) in items:
                     value_str = {value_sub_method_name}(value)
@@ -368,8 +348,7 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
                         transformed.append(({key_sub_method_name}(key), value_str))
                 gen_expr = ({self.kv_delimiter!r}.join(t) for t in transformed)
                 return {self.pair_delimiter!r}.join(gen_expr)
-            """
-        )
+            """)
 
 
 @dataclass(frozen=True, slots=True)
@@ -378,21 +357,17 @@ class _VarColsDescriptor[T](BaseFieldDescriptor[list[T]]):
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(col_iter):
                 return [{sub_method_name}(col) for col in col_iter]
-            """
-        )
+            """)
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
-        return process_ir(
-            t"""
+        return process_ir(t"""
             def {method_name}(vals):
                 return [{sub_method_name}(v) for v in vals]
-            """
-        )
+            """)
 
 
 @dataclass(frozen=True, slots=True)
@@ -421,6 +396,7 @@ class _ViaDescriptor[T](FieldDescriptor[T]):
         name = unique_name_id(namespace, "_ViaDescriptor_Serializer")
         namespace[name] = self.serialize
         return name
+
 
 def nullable[T](
     mapper: type[T] | FieldDescriptor[T], empty_marker: str = ""
@@ -545,9 +521,7 @@ def varcols[T](mapper: type[T] | FieldDescriptor[T]) -> _VarColsDescriptor[T]:
     return _VarColsDescriptor[T](mapper)
 
 
-def via[T](
-    deserialize: Callable[[str], T], serialize: Callable[[T], str]
-) -> _ViaDescriptor[T]:
+def via[T](deserialize: Callable[[str], T], serialize: Callable[[T], str]) -> _ViaDescriptor[T]:
     """
     Describe a user-provided serialization scheme which uses arbitrary callables.
 
@@ -581,27 +555,42 @@ def field[T](desc: FieldDescriptor[T]) -> T:
     return cast(T, desc)
 
 
-class TokenSchema(Protocol):
-    """
-    All structural Token definitions must inherit from this protocol.
-    """
+@dataclass(frozen=True, slots=True)
+class _SpecData:
+    slots: bool
+    primitive_types: set[type]
 
 
-def token_lifecycle[S: TokenSchema](
-    post_init: Callable[[S], None],
-) -> Callable[[type[S]], type[S]]:
+def tokenspec(
+    cls: Optional[type] = None,
+    /,
+    *,
+    slots: bool = False,
+    primitive_types: Optional[Iterable[type]] = None,
+) -> Callable[[type], type] | type:
     """
-    Annotate different hooks of a Token's lifecycle as it is parsed without polluting the protocol.
+    Annotate a Token's class for different aspects.
 
     Args:
-        post_init: Manipulate the Token after creation. For example to handle interdependent fields.
+        cls: The class to decorate as a token specification.
+        slots: Flag if the generated class should use slots for member storage.
+        primitive_types: Types that should be explicitly considered as "primitives". What this means
+            is that during compilation of parsing and serialization code, these types will be
+            treated like str, int, and float. The in-memory representations can be constructed
+            directly from strings and the str operator can be used directly on them.
 
     Returns:
-        The decorated class instance to support Token lifecycle operations.
+        The decorated class instance that can be used with Format operations.
     """
 
-    def decorator(cls: type[S]) -> type[S]:
-        setattr(cls, "__post_init", post_init)
+    def decorator(cls: type) -> type:
+        if hasattr(cls, "__pyc_spec_data"):
+            raise RuntimeError(f"@tokenspec was used already used on {cls.__name__}.")
+        extra_primitives = set(primitive_types) if primitive_types else set()
+        setattr(cls, "__pyc_spec_data", _SpecData(slots, extra_primitives))
         return cls
 
-    return decorator
+    if cls is None:
+        return decorator
+
+    return decorator(cls)

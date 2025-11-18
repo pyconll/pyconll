@@ -7,7 +7,7 @@ format:
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.
 lint:
-	python -m pylint --rcfile .pylintrc --fail-under=9.93 pyconll/ && \
+	python -m pylint --rcfile .pylintrc pyconll/ && \
 	codespell pyconll/ docs/ scripts/ && \
 	python -m black --check --quiet pyconll/ tests/ examples/ scripts/ && \
 	python -m mypy pyconll/

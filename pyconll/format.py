@@ -18,7 +18,6 @@ from typing import Iterator, Optional
 
 from pyconll import _compile
 from pyconll.exception import ParseError
-from pyconll.schema import TokenSchema
 from pyconll.sentence import Sentence
 
 PathLike = str | bytes | os.PathLike
@@ -53,7 +52,7 @@ def _pair_down_whitespace(
     return line[start_idx:end_idx]
 
 
-class ReadFormat[T: TokenSchema]:
+class ReadFormat[T]:
     """
     A read-only interface for parsing CoNLL formatted data.
 
@@ -286,7 +285,7 @@ class ReadFormat[T: TokenSchema]:
             yield step_next_sentence()
 
 
-class WriteFormat[T: TokenSchema]:
+class WriteFormat[T]:
     """
     A write-only interface for serializing CoNLL formatted data.
 
@@ -373,7 +372,7 @@ class WriteFormat[T: TokenSchema]:
             writable.write("\n")
 
 
-class Format[T: TokenSchema](ReadFormat[T], WriteFormat[T]):
+class Format[T](ReadFormat[T], WriteFormat[T]):
     """
     A unified interface for both parsing and serializing CoNLL formatted data.
 

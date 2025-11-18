@@ -6,10 +6,11 @@
 import sys
 from typing import Optional
 from pyconll.format import Format
-from pyconll.schema import TokenSchema, nullable, unique_array
+from pyconll.schema import tokenspec, nullable, unique_array
 
 
-class TokenX(TokenSchema):
+@tokenspec
+class TokenX:
     id: int
     form: str
     lemma: str

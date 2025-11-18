@@ -5,10 +5,8 @@ Defines the Sentence type and the associated parsing and output logic.
 from collections import OrderedDict
 from typing import Optional
 
-from pyconll.schema import TokenSchema
 
-
-class Sentence[T: TokenSchema]:
+class Sentence[T]:
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
 

@@ -36,7 +36,6 @@ pyconll = ["py.typed", "_version"]
 line-length = 100
 target-version = ["py314"]
 preview = true
-extend-exclude = 'pyconll/(\_compile|schema)\.py'
 
 [build-system]
 requires = ["setuptools", "util"]

@@ -16,8 +16,7 @@ from pyconll.schema import (
     mapping,
     unique_array,
     fixed_array,
-    TokenSchema,
-    token_lifecycle,
+    tokenspec,
     via,
 )
 from pyconll.tree import Tree
@@ -161,19 +160,58 @@ class _TokenIdComparer:
         )
 
 
-def _post_init(t: "Token") -> None:
+@tokenspec
+class Token:
     """
-    Post-initialization logic beyond per-field serialization needed to properly create Token.
+    The base Token definition which will be used for both the Standard and Compact implementations.
 
-    Specifically, this handles the case where both the form and the lemma are underscore in which
-    case the behavior should be to treat these as their raw values.
+    This defines the attributes and any behavior on the CoNLL-U data model.
     """
-    if t.form is None and t.lemma is None:
-        t.form = t.lemma = "_"
+
+    id: str
+    form: Optional[str]
+    lemma: Optional[str]
+    upos: Optional[str]
+    xpos: Optional[str]
+    feats: dict[str, set[str]]
+    head: Optional[str]
+    deprel: Optional[str]
+    deps: dict[str, tuple[str, ...]]
+    misc: dict[str, Optional[set[str]]]
+
+    def __post_init__(self) -> None:
+        """
+        Post-initialization logic beyond per-field serialization needed to properly create Token.
+
+        Specifically, this handles the case where both the form and lemma are underscore in which
+        case the behavior should be to treat these as their raw values.
+        """
+        if self.form is None and self.lemma is None:
+            self.form = self.lemma = "_"
+
+    def is_multiword(self) -> bool:
+        """
+        Checks if this Token is a multiword token.
+
+        Returns:
+            True if this token is a multiword token, and False otherwise.
+        """
+        return "-" in self.id
+
+    def is_empty_node(self) -> bool:
+        """
+        Checks if this Token is an empty node, used for ellipsis annotation.
+
+        Note that this is separate from any field being empty, rather it means
+        the id has a period in it.
+
+        Returns:
+            True if this token is an empty node and False otherwise.
+        """
+        return "." in self.id
 
 
-@token_lifecycle(post_init=_post_init)
-class Token(TokenSchema):
+class StandardToken(Token):
     """
     The prototypical CoNLL-U token definition. For reading CoNLL-U token files, use this as the
     Token schema. Similarly, if defining a different schema to read, use this as a reference for how
@@ -205,29 +243,7 @@ class Token(TokenSchema):
         )
     )
 
-    def is_multiword(self) -> bool:
-        """
-        Checks if this Token is a multiword token.
 
-        Returns:
-            True if this token is a multiword token, and False otherwise.
-        """
-        return "-" in self.id
-
-    def is_empty_node(self) -> bool:
-        """
-        Checks if this Token is an empty node, used for ellipsis annotation.
-
-        Note that this is separate from any field being empty, rather it means
-        the id has a period in it.
-
-        Returns:
-            True if this token is an empty node and False otherwise.
-        """
-        return "." in self.id
-
-
-@token_lifecycle(post_init=_post_init)
 class CompactToken(Token):
     """
     Has the same interface as Token but uses a more compact representation mechanism. Primarily via
@@ -302,7 +318,7 @@ def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
     )
 
 
-conllu = Format(Token)  # pylint: disable=invalid-name
+conllu = Format(StandardToken)  # pylint: disable=invalid-name
 """
 The default Format instance which can handle CoNLL-U objects directly.
 This provides both parsing and serialization capabilities in a single interface.
