@@ -14,6 +14,7 @@ from typing import (
     cast,
     Optional,
     TYPE_CHECKING,
+    overload,
 )
 
 from pyconll._ir import unique_name_id, process_ir
@@ -559,6 +560,26 @@ def field[T](desc: FieldDescriptor[T]) -> T:
 class _SpecData:
     slots: bool
     extra_primitives: set[type]
+
+
+@overload
+def tokenspec[T: type](
+    cls: T,
+    /,
+    *,
+    slots: bool = False,
+    extra_primitives: Optional[Iterable[type]] = None,
+) -> T: ...
+
+
+@overload
+def tokenspec[T: type](
+    cls: None = None,
+    /,
+    *,
+    slots: bool = False,
+    extra_primitives: Optional[Iterable[type]] = None,
+) -> Callable[[T], T]: ...
 
 
 def tokenspec(
