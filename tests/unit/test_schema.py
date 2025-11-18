@@ -403,4 +403,4 @@ def test_extra_primitives():
 
     token = parser(raw_line)
 
-    assert (token.id, token.chars) == (10, { "a", "b", "c", "d", "e", "f", "g"})
+    assert (token.id, token.chars) == (10, {"a", "b", "c", "d", "e", "f", "g"})

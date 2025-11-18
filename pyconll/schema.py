@@ -584,10 +584,10 @@ def tokenspec(
     """
 
     def decorator(cls: type) -> type:
-        if hasattr(cls, "__pyc_spec_data"):
+        if hasattr(cls, "__pyconll_spec_data"):
             raise RuntimeError(f"@tokenspec was used already used on {cls.__name__}.")
         extra = set(extra_primitives) if extra_primitives else set()
-        setattr(cls, "__pyc_spec_data", _SpecData(slots, extra))
+        setattr(cls, "__pyconll_spec_data", _SpecData(slots, extra))
         return cls
 
     if cls is None:

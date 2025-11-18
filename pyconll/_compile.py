@@ -103,9 +103,9 @@ def token_parser[S](s: type[S], delimiter: str, collapse: bool) -> Callable[[str
         The compiled method which can parse a string representation according to the Token
         definition.
     """
-    if not hasattr(s, "__pyc_spec_data"):
+    if not hasattr(s, "__pyconll_spec_data"):
         raise RuntimeError("The type provided for compilation was not defined with @tokenspec.")
-    spec_data: _SpecData = getattr(s, "__pyc_spec_data")
+    spec_data: _SpecData = getattr(s, "__pyconll_spec_data")
 
     namespace = {s.__name__: s, "ParseError": ParseError}
     for p in spec_data.extra_primitives:
@@ -207,9 +207,9 @@ def token_serializer[S](s: type[S], delimiter: str) -> Callable[[S], str]:
         The compiled method which can convert an instance of a Token schema into a string
         representation.
     """
-    if not hasattr(s, "__pyc_spec_data"):
+    if not hasattr(s, "__pyconll_spec_data"):
         raise RuntimeError("The type provided for compilation was not defined with @tokenspec.")
-    spec_data: _SpecData = getattr(s, "__pyc_spec_data")
+    spec_data: _SpecData = getattr(s, "__pyconll_spec_data")
 
     namespace = {s.__name__: s, "FormatError": FormatError}
     for p in spec_data.extra_primitives:
