@@ -385,3 +385,22 @@ def test_collapse_with_mapping_descriptor():
 
     assert token.id == 10
     assert token.features == {"key1": "val1", "key2": "val2"}
+
+
+def test_extra_primitives():
+    """
+    Test that extra primitives can be added on the Token class definition.
+    """
+
+    @tokenspec(extra_primitives=[set[str]])
+    class WeirdToken:
+        id: int
+        chars: set[str]
+
+    parser = _compile.token_parser(WeirdToken, "\t", False)
+
+    raw_line = "10\tabcdefg"
+
+    token = parser(raw_line)
+
+    assert (token.id, token.chars) == (10, { "a", "b", "c", "d", "e", "f", "g"})

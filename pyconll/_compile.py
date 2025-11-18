@@ -108,7 +108,7 @@ def token_parser[S](s: type[S], delimiter: str, collapse: bool) -> Callable[[str
     spec_data: _SpecData = getattr(s, "__pyc_spec_data")
 
     namespace = {s.__name__: s, "ParseError": ParseError}
-    for p in spec_data.primitive_types:
+    for p in spec_data.extra_primitives:
         namespace[p.__name__] = p
 
     if spec_data.slots:
@@ -129,7 +129,7 @@ def token_parser[S](s: type[S], delimiter: str, collapse: bool) -> Callable[[str
         # to this layer now, but changing it would require many more changes, so for now, keep this
         # approach.
         deserialize_name = _compile_deserialize_schema_ir(
-            namespace, spec_data.primitive_types, attr, type_hint
+            namespace, spec_data.extra_primitives, attr, type_hint
         )
         if isinstance(attr, _VarColsDescriptor):
             if has_var_cols:
@@ -212,7 +212,7 @@ def token_serializer[S](s: type[S], delimiter: str) -> Callable[[S], str]:
     spec_data: _SpecData = getattr(s, "__pyc_spec_data")
 
     namespace = {s.__name__: s, "FormatError": FormatError}
-    for p in spec_data.primitive_types:
+    for p in spec_data.extra_primitives:
         namespace[p.__name__] = p
 
     conll_irs: list[str] = []
@@ -221,7 +221,7 @@ def token_serializer[S](s: type[S], delimiter: str) -> Callable[[S], str]:
         attr = getattr(s, name) if hasattr(s, name) else None
 
         serialize_name = _compile_serialize_schema_ir(
-            namespace, spec_data.primitive_types, attr, type_hint
+            namespace, spec_data.extra_primitives, attr, type_hint
         )
         if isinstance(attr, _VarColsDescriptor):
             conll_ir = f"cols.extend({serialize_name}(token.{name}))"

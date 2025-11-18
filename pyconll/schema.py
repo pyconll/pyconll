@@ -558,7 +558,7 @@ def field[T](desc: FieldDescriptor[T]) -> T:
 @dataclass(frozen=True, slots=True)
 class _SpecData:
     slots: bool
-    primitive_types: set[type]
+    extra_primitives: set[type]
 
 
 def tokenspec(
@@ -566,7 +566,7 @@ def tokenspec(
     /,
     *,
     slots: bool = False,
-    primitive_types: Optional[Iterable[type]] = None,
+    extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[type], type] | type:
     """
     Annotate a Token's class for different aspects.
@@ -574,10 +574,10 @@ def tokenspec(
     Args:
         cls: The class to decorate as a token specification.
         slots: Flag if the generated class should use slots for member storage.
-        primitive_types: Types that should be explicitly considered as "primitives". What this means
-            is that during compilation of parsing and serialization code, these types will be
-            treated like str, int, and float. The in-memory representations can be constructed
-            directly from strings and the str operator can be used directly on them.
+        extra_primitives: Types that should be considered as "primitives" in addition to int, float,
+            and str. What this means is that during compilation of parsing and serialization code,
+            these types will construct the in-memory representations directly by the type
+            constructor and the str operator will be for serialization.
 
     Returns:
         The decorated class instance that can be used with Format operations.
@@ -586,8 +586,8 @@ def tokenspec(
     def decorator(cls: type) -> type:
         if hasattr(cls, "__pyc_spec_data"):
             raise RuntimeError(f"@tokenspec was used already used on {cls.__name__}.")
-        extra_primitives = set(primitive_types) if primitive_types else set()
-        setattr(cls, "__pyc_spec_data", _SpecData(slots, extra_primitives))
+        extra = set(extra_primitives) if extra_primitives else set()
+        setattr(cls, "__pyc_spec_data", _SpecData(slots, extra))
         return cls
 
     if cls is None:
