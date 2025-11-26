@@ -68,68 +68,59 @@ def _compile_serialize_schema_ir(
     )
 
 
-def _compile_token_sub_class[S](
-    s: type[S], sub_class_name: str, slots: bool, field_names: list[str], namespace: dict[str, Any]
-):
-
-    slots_ir = t"""__slots__ = (\"{"\", \"".join(field_names)}\",)""" if slots else t""
-    post_init_ir = t"self.__post_init__()" if hasattr(s, "__post_init__") else t""
-
-    class_ir = process_ir(t"""
-        class {sub_class_name}({s.__name__}):
-            {slots_ir:t}
-
-            def __init__(self, {", ".join(field_names)}) -> None:
-                {"\n                ".join(f"self.{fn} = {fn}" for fn in field_names)}
-                {post_init_ir:t}
-
-            def __repr__(self) -> str:
-                return f"{s.__name__}({", ".join([f"{{self.{fn}!r}}" for fn in field_names])})"
-        """)
-    exec(class_ir, namespace)  # pylint: disable=exec-used
-
-
-def token_parser[S](s: type[S], delimiter: str, collapse: bool) -> Callable[[str], S]:
+def token_parser[T](
+    t: type[T],
+    delimiter: str,
+    collapse: bool = False,
+    field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+    extra_primitives: Optional[set[type]] = None,
+) -> Callable[[str], T]:
     """
     Compile a class definition into a method that can parse a given line of it.
 
     Args:
-        s: The type to perform the compilation on.
+        t: The type to perform the compilation on.
         delimiter: The delimiter that separates the columns of the lines.
         collapse: Flag if delimiters that are next to each other should be collapsed for the
             purposes of separating columns.
+        field_overrides: Any explicit mapping from attribute name to field descriptor either to
+            override existing values or provide the initial mapping.
+        extra_primitives: Any extra types which can use raw string construction and serialization.
+            This takes precedence over what is given on the decorator.
 
     Returns:
         The compiled method which can parse a string representation according to the Token
         definition.
     """
-    if not hasattr(s, "__pyconll_spec_data"):
+    if not hasattr(t, "__pyconll_spec_data"):
         raise RuntimeError("The type provided for compilation was not defined with @tokenspec.")
-    spec_data: _SpecData = getattr(s, "__pyconll_spec_data")
+    spec_data: _SpecData = getattr(t, "__pyconll_spec_data")
+    field_overrides = field_overrides or {}
+    extra_primitives = (
+        extra_primitives if extra_primitives is not None else spec_data.extra_primitives
+    )
 
-    namespace = {s.__name__: s, "ParseError": ParseError}
-    for p in spec_data.extra_primitives:
-        namespace[p.__name__] = p
+    namespace = {p.__name__: p for p in extra_primitives}
+    namespace.update({t.__name__: t, "ParseError": ParseError})
 
-    if spec_data.slots:
-        setattr(s, "__slots__", ())
-
-    hints = get_type_hints(s)
+    hints = get_type_hints(t)
     field_names: list[str] = list(hints.keys())
-
-    unique_token_name = unique_name_id(namespace, "Token")
-    _compile_token_sub_class(s, unique_token_name, spec_data.slots, field_names, namespace)
 
     has_var_cols = False
     field_irs: list[str] = []
     for i, (name, type_hint) in enumerate(hints.items()):
-        attr = getattr(s, name) if hasattr(s, name) else None
+        if name in field_overrides:
+            attr = field_overrides[name]
+        elif hasattr(t, name):
+            attr = getattr(t, name)
+        else:
+            attr = None
 
         # This is pretty messy, since the function prototype for each descriptor type leaks through
         # to this layer now, but changing it would require many more changes, so for now, keep this
         # approach.
         deserialize_name = _compile_deserialize_schema_ir(
-            namespace, spec_data.extra_primitives, attr, type_hint
+            namespace, extra_primitives, attr, type_hint
         )
         if isinstance(attr, _VarColsDescriptor):
             if has_var_cols:
@@ -185,44 +176,59 @@ def token_parser[S](s: type[S], delimiter: str, collapse: bool) -> Callable[[str
                 raise ParseError("Unable to deserialize representation during Token "
                                  " construction.") from exc
 
-            new_token = {unique_token_name}({",".join(field_names)})
+            new_token = {t.__name__}({",".join(field_names)})
             return new_token
         """)
     exec(parser_ir, namespace)  # pylint: disable=exec-used
 
-    parser = cast(Callable[[str], S], namespace[compiled_parse_token])
+    parser = cast(Callable[[str], T], namespace[compiled_parse_token])
 
     return parser
 
 
-def token_serializer[S](s: type[S], delimiter: str) -> Callable[[S], str]:
+def token_serializer[T](
+    t: type[T],
+    delimiter: str,
+    field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+    extra_primitives: Optional[set[type]] = None,
+) -> Callable[[T], str]:
     """
     Compile a class definition into a method that can serialize an instance.
 
     Args:
-        s: The type to perform the serialization compilation on.
+        t: The type to perform the serialization compilation on.
         delimiter: The delimiter to put between columns.
+        field_overrides: Any explicit mapping from attribute name to field descriptor either to
+            override existing values or provide the initial mapping.
+        extra_primitives: Any extra types which can use raw string construction and serialization.
+            This takes precedence over what is given on the decorator.
 
     Returns:
         The compiled method which can convert an instance of a Token schema into a string
         representation.
     """
-    if not hasattr(s, "__pyconll_spec_data"):
+    if not hasattr(t, "__pyconll_spec_data"):
         raise RuntimeError("The type provided for compilation was not defined with @tokenspec.")
-    spec_data: _SpecData = getattr(s, "__pyconll_spec_data")
+    spec_data: _SpecData = getattr(t, "__pyconll_spec_data")
+    field_overrides = field_overrides or {}
+    extra_primitives = (
+        extra_primitives if extra_primitives is not None else spec_data.extra_primitives
+    )
 
-    namespace = {s.__name__: s, "FormatError": FormatError}
-    for p in spec_data.extra_primitives:
-        namespace[p.__name__] = p
+    namespace = { p.__name__: p for p in extra_primitives }
+    namespace.update({ t.__name__: t, "FormatError": FormatError })
 
     conll_irs: list[str] = []
-    hints = get_type_hints(s)
+    hints = get_type_hints(t)
     for name, type_hint in hints.items():
-        attr = getattr(s, name) if hasattr(s, name) else None
+        if name in field_overrides:
+            attr = field_overrides[name]
+        elif hasattr(t, name):
+            attr = getattr(t, name)
+        else:
+            attr = None
 
-        serialize_name = _compile_serialize_schema_ir(
-            namespace, spec_data.extra_primitives, attr, type_hint
-        )
+        serialize_name = _compile_serialize_schema_ir(namespace, extra_primitives, attr, type_hint)
         if isinstance(attr, _VarColsDescriptor):
             conll_ir = f"cols.extend({serialize_name}(token.{name}))"
         else:
@@ -244,5 +250,5 @@ def token_serializer[S](s: type[S], delimiter: str) -> Callable[[S], str]:
 
     exec(serializer_ir, namespace)  # pylint: disable=exec-used
 
-    serializer = cast(Callable[[S], str], namespace[serialize_token])
+    serializer = cast(Callable[[T], str], namespace[serialize_token])
     return serializer

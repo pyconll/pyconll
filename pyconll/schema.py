@@ -6,6 +6,7 @@ Module for structural Token parsing schema components and building blocks.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from string.templatelib import Template
 from types import CodeType
 from typing import (
     Any,
@@ -14,6 +15,7 @@ from typing import (
     cast,
     Optional,
     TYPE_CHECKING,
+    get_type_hints,
     overload,
 )
 
@@ -558,7 +560,6 @@ def field[T](desc: FieldDescriptor[T]) -> T:
 
 @dataclass(frozen=True, slots=True)
 class _SpecData:
-    slots: bool
     extra_primitives: set[type]
 
 
@@ -568,6 +569,7 @@ def tokenspec[T: type](
     /,
     *,
     slots: bool = False,
+    gen_repr: bool = False,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> T: ...
 
@@ -578,6 +580,7 @@ def tokenspec[T: type](
     /,
     *,
     slots: bool = False,
+    gen_repr: bool = False,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[T], T]: ...
 
@@ -587,6 +590,7 @@ def tokenspec(
     /,
     *,
     slots: bool = False,
+    gen_repr: bool = False,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[type], type] | type:
     """
@@ -595,6 +599,7 @@ def tokenspec(
     Args:
         cls: The class to decorate as a token specification.
         slots: Flag if the generated class should use slots for member storage.
+        gen_repr: Flag if a repr method should be generated.
         extra_primitives: Types that should be considered as "primitives" in addition to int, float,
             and str. What this means is that during compilation of parsing and serialization code,
             these types will construct the in-memory representations directly by the type
@@ -608,7 +613,38 @@ def tokenspec(
         if hasattr(cls, "__pyconll_spec_data"):
             raise RuntimeError(f"@tokenspec was used already used on {cls.__name__}.")
         extra = set(extra_primitives) if extra_primitives else set()
-        setattr(cls, "__pyconll_spec_data", _SpecData(slots, extra))
+        setattr(cls, "__pyconll_spec_data", _SpecData(extra))
+
+        namespace: dict[str, Any] = {}
+
+        def def_method(name: str, temp: Template) -> None:
+            ir = process_ir(temp)
+            exec(ir, namespace)  # pylint: disable=exec-used
+            setattr(cls, name, namespace[name])
+
+        hints = get_type_hints(cls)
+        field_names: list[str] = list(hints.keys())
+
+        if slots:
+            setattr(cls, "__slots__", field_names)
+
+        post_init_ir = t"self.__post_init__()" if hasattr(cls, "__post_init__") else t""
+        def_method(
+            "__init__",
+            t"""
+            def __init__(self, {", ".join(field_names)}) -> None:
+                {"\n                ".join(f"self.{fn} = {fn}" for fn in field_names)}
+                {post_init_ir:t}""",
+        )
+        if gen_repr:
+            def_method(
+                "__repr__",
+                t"""
+                def __repr__(self) -> str:
+                    return f"{cls.__name__}({", ".join([f"{{self.{n}!r}}" for n in field_names])})"
+                """,
+            )
+
         return cls
 
     if cls is None:

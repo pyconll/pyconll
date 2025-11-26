@@ -11,7 +11,7 @@ from typing import Optional, Sequence
 from pyconll import tree
 from pyconll.format import Format
 from pyconll.schema import (
-    field,
+    FieldDescriptor,
     nullable,
     mapping,
     unique_array,
@@ -160,7 +160,7 @@ class _TokenIdComparer:
         )
 
 
-@tokenspec
+@tokenspec(slots=True, gen_repr=True)
 class Token:
     """
     The base Token definition which will be used for both the Standard and Compact implementations.
@@ -211,83 +211,63 @@ class Token:
         return "." in self.id
 
 
-class StandardToken(Token):
-    """
-    The prototypical CoNLL-U token definition. For reading CoNLL-U token files, use this as the
-    Token schema. Similarly, if defining a different schema to read, use this as a reference for how
-    this can be done.
-    """
-
-    id: str
-    form: Optional[str] = field(nullable(str, "_"))
-    lemma: Optional[str] = field(nullable(str, "_"))
-    upos: Optional[str] = field(nullable(str, "_"))
-    xpos: Optional[str] = field(nullable(str, "_"))
-    feats: dict[str, set[str]] = field(
-        mapping(str, unique_array(str, ",", "", str.lower), "|", "=", "_", lambda p: p[0].lower())
-    )
-    head: Optional[str] = field(nullable(str, "_"))
-    deprel: Optional[str] = field(nullable(str, "_"))
-    deps: dict[str, tuple[str, ...]] = field(
-        mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0]))
-    )
-    misc: dict[str, Optional[set[str]]] = field(
-        mapping(
-            str,
-            nullable(unique_array(str, ",", "", str.lower)),
-            "|",
-            "=",
-            "_",
-            lambda p: p[0].lower(),
-            True,
-        )
-    )
+_standard_token_fields: dict[str, FieldDescriptor] = {
+    "form": nullable(str, "_"),
+    "lemma": nullable(str, "_"),
+    "upos": nullable(str, "_"),
+    "xpos": nullable(str, "_"),
+    "feats": mapping(
+        str, unique_array(str, ",", "", str.lower), "|", "=", "_", lambda p: p[0].lower()
+    ),
+    "head": nullable(str, "_"),
+    "deprel": nullable(str, "_"),
+    "deps": mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0])),
+    "misc": mapping(
+        str,
+        nullable(unique_array(str, ",", "", str.lower)),
+        "|",
+        "=",
+        "_",
+        lambda p: p[0].lower(),
+        True,
+    ),
+}
 
 
-class CompactToken(Token):
-    """
-    Has the same interface as Token but uses a more compact representation mechanism. Primarily via
-    interned strings since there are many repeated strings in a given conllu file.
-    """
-
-    id: str = field(via(sys.intern, str))
-    form: Optional[str] = field(nullable(via(sys.intern, str), "_"))
-    lemma: Optional[str] = field(nullable(via(sys.intern, str), "_"))
-    upos: Optional[str] = field(nullable(via(sys.intern, str), "_"))
-    xpos: Optional[str] = field(nullable(via(sys.intern, str), "_"))
-    feats: dict[str, set[str]] = field(
-        mapping(
-            via(sys.intern, str),
-            unique_array(via(sys.intern, str), ",", "", str.lower),
-            "|",
-            "=",
-            "_",
-            lambda p: p[0].lower(),
-        )
-    )
-    head: Optional[str] = field(nullable(via(sys.intern, str), "_"))
-    deprel: Optional[str] = field(nullable(via(sys.intern, str), "_"))
-    deps: dict[str, tuple[str, ...]] = field(
-        mapping(
-            via(sys.intern, str),
-            fixed_array(via(sys.intern, str), ":"),
-            "|",
-            ":",
-            "_",
-            lambda p: _TokenIdComparer(p[0]),
-        )
-    )
-    misc: dict[str, Optional[set[str]]] = field(
-        mapping(
-            via(sys.intern, str),
-            nullable(unique_array(via(sys.intern, str), ",", "", str.lower)),
-            "|",
-            "=",
-            "_",
-            lambda p: p[0].lower(),
-            True,
-        )
-    )
+_compact_token_fields: dict[str, FieldDescriptor] = {
+    "id": via(sys.intern, str),
+    "form": nullable(via(sys.intern, str), "_"),
+    "lemma": nullable(via(sys.intern, str), "_"),
+    "upos": nullable(via(sys.intern, str), "_"),
+    "xpos": nullable(via(sys.intern, str), "_"),
+    "feats": mapping(
+        via(sys.intern, str),
+        unique_array(via(sys.intern, str), ",", "", str.lower),
+        "|",
+        "=",
+        "_",
+        lambda p: p[0].lower(),
+    ),
+    "head": nullable(via(sys.intern, str), "_"),
+    "deprel": nullable(via(sys.intern, str), "_"),
+    "deps": mapping(
+        via(sys.intern, str),
+        fixed_array(via(sys.intern, str), ":"),
+        "|",
+        ":",
+        "_",
+        lambda p: _TokenIdComparer(p[0]),
+    ),
+    "misc": mapping(
+        via(sys.intern, str),
+        nullable(unique_array(via(sys.intern, str), ",", "", str.lower)),
+        "|",
+        "=",
+        "_",
+        lambda p: p[0].lower(),
+        True,
+    ),
+}
 
 
 def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
@@ -318,13 +298,15 @@ def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
     )
 
 
-conllu = Format(StandardToken)  # pylint: disable=invalid-name
+conllu = Format(Token, field_overrides=_standard_token_fields)  # pylint: disable=invalid-name
 """
 The default Format instance which can handle CoNLL-U objects directly.
 This provides both parsing and serialization capabilities in a single interface.
 """
 
-compact_conllu = Format(CompactToken)  # pylint: disable=invalid-name
+compact_conllu = Format(
+    Token, field_overrides=_compact_token_fields
+)  # pylint: disable=invalid-name
 """
 The Format instance which handles CoNLL-U but creates a more compact in-memory representation. This
 comes at a slight runtime penalty, but in practice the memory used is X% less. This instance
