@@ -5,6 +5,7 @@ Module for compiling token specification definitions into efficient parser and s
 """
 
 import re
+from types import MemberDescriptorType
 from typing import Any, Callable, Optional, cast, get_type_hints
 
 from pyconll.exception import FormatError, ParseError
@@ -18,7 +19,7 @@ def _compile_deserialize_schema_ir(
     attr: Optional[FieldDescriptor],
     type_hint: type,
 ) -> str:
-    if attr is None:
+    if attr is None or isinstance(attr, MemberDescriptorType):
         # If there is no value on the protocol's attribute then the type hint is used directly. In
         # this case, only str, int, and float should really be handled, since all other types, will
         # have more ambiguous (de)serialization semantics that needs to be explicitly defined.
@@ -46,7 +47,7 @@ def _compile_serialize_schema_ir(
     attr: Optional[FieldDescriptor],
     type_hint: type,
 ) -> str:
-    if attr is None:
+    if attr is None or isinstance(attr, MemberDescriptorType):
         # If there is no value on the protocol's attribute then the type hint is used directly. In
         # this case, only str, int, and float should really be handled, since all other types, will
         # have more ambiguous (de)serialization semantics that needs to be explicitly defined.
@@ -215,8 +216,8 @@ def token_serializer[T](
         extra_primitives if extra_primitives is not None else spec_data.extra_primitives
     )
 
-    namespace = { p.__name__: p for p in extra_primitives }
-    namespace.update({ t.__name__: t, "FormatError": FormatError })
+    namespace = {p.__name__: p for p in extra_primitives}
+    namespace.update({t.__name__: t, "FormatError": FormatError})
 
     conll_irs: list[str] = []
     hints = get_type_hints(t)

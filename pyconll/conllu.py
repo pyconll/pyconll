@@ -168,6 +168,8 @@ class Token:
     This defines the attributes and any behavior on the CoNLL-U data model.
     """
 
+    __slots__ = ("id", "form", "lemma", "upos", "xpos", "feats", "head", "deprel", "deps", "misc")
+
     id: str
     form: Optional[str]
     lemma: Optional[str]

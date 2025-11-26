@@ -10,7 +10,7 @@ lint:
 	python -m pylint --rcfile .pylintrc pyconll/ && \
 	codespell pyconll/ docs/ scripts/ && \
 	python -m black --check --quiet pyconll/ tests/ examples/ scripts/ && \
-	python -m mypy pyconll/
+	python -m mypy pyconll/ scripts/
 
 # Unit test scenario for fast CI builds and local testing
 unittest:
