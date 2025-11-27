@@ -2,6 +2,7 @@ import argparse
 import csv
 from dataclasses import dataclass
 from enum import auto, Enum
+import logging
 from pathlib import Path
 import sys
 import time
@@ -15,7 +16,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pyconll.conllu import compact_conllu, conllu, Token
 from pyconll.format import Format
 
-hp = hpy()
+logging.basicConfig(level=logging.INFO)
+
+EXCLUSION_NAMES: set[str] = {
+    "cs_pdtc-ud-train.conllu",
+    "de_hdt-ud-train.conllu",
+    "ru_taiga-ud-train.conllu",
+    "ru_syntagrus-ud-train.conllu",
+}
 
 
 class ParserType(Enum):
@@ -30,6 +38,7 @@ class Args:
     parser: Format[Token]
     loops_per_file: int
     total_loops: int
+    output_csv: Path
 
 
 @dataclass
@@ -45,6 +54,7 @@ def kernel(
     results = {}
     for file in files:
         duration = 0.0
+        logging.info("Starting runtime performance measuring loop for %s", file)
         for _ in range(loops_per_file):
             start = time.perf_counter()
             corpus = parser(file)
@@ -52,9 +62,13 @@ def kernel(
 
             duration += end - start
 
+        logging.info("Starting memory usage measurment for %s", file)
+        hp = hpy()
         hp.setrelheap()
         corpus = parser(file)
         h = hp.heap()
+
+        logging.info("Finished measurements for %s", file)
 
         results[file.stem] = ConlluBenchmark(duration, file.stat().st_size, h.size)
 
@@ -71,20 +85,28 @@ def main(args: Args) -> None:
 
         def parser(p):
             with open(p, encoding="utf-8") as f:
-                return alt.parse(f)
+                text = f.read()
+                return alt.parse(text)
 
     else:
         raise RuntimeError(f"{args.parser} is not a properly handled format type.")
 
-    files = sorted(args.corpora.glob("**/*.conllu"))
+    files = filter(lambda f: f.name not in EXCLUSION_NAMES, sorted(args.corpora.glob("**/*.conllu")))
     results = kernel(files, args.loops_per_file, parser)
 
-    writer = csv.DictWriter(sys.stdout, ["key", "bps", "kb"])
+    writer = csv.DictWriter(sys.stdout, ["key", "kbps", "in_memory_kb", "disk_kb"])
     writer.writeheader()
 
     for conllu_key, benchmark in sorted(results.items(), key=lambda p: p[0]):
         bps = (benchmark.file_size * args.loops_per_file) / benchmark.duration
-        writer.writerow({"key": conllu_key, "bps": bps, "kb": benchmark.memory / 1024})
+        writer.writerow(
+            {
+                "key": conllu_key,
+                "bps": bps / 1024,
+                "in_memory_kb": benchmark.memory / 1024,
+                "disk_kb": benchmark.file_size / 1024,
+            }
+        )
 
 
 if __name__ == "__main__":
@@ -107,7 +129,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--total_loops", type=int, required=True, help="The number of times to loop over all files."
     )
+    parser.add_argument(
+        "--output_csv", type=Path, required=True, help="The location to write the csv output to."
+    )
 
     args = parser.parse_args()
 
-    main(Args(args.corpora, args.parser, args.loops_per_file, args.total_loops))
+    main(Args(args.corpora, args.parser, args.loops_per_file, args.total_loops, args.output_csv))
