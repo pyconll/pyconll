@@ -5,7 +5,6 @@ Module for compiling token specification definitions into efficient parser and s
 """
 
 import re
-from types import MemberDescriptorType
 from typing import Any, Callable, Optional, cast, get_type_hints
 
 from pyconll.exception import FormatError, ParseError
@@ -19,7 +18,7 @@ def _compile_deserialize_schema_ir(
     attr: Optional[FieldDescriptor],
     type_hint: type,
 ) -> str:
-    if attr is None or isinstance(attr, MemberDescriptorType):
+    if attr is None:
         # If there is no value on the protocol's attribute then the type hint is used directly. In
         # this case, only str, int, and float should really be handled, since all other types, will
         # have more ambiguous (de)serialization semantics that needs to be explicitly defined.
@@ -30,7 +29,7 @@ def _compile_deserialize_schema_ir(
 
         raise RuntimeError(
             "Only str, int, and float are directly supported for column schemas. For other types, "
-            "define the field via FieldDescriptors or add it as a primitive via @tokenspec."
+            "define the field via FieldDescriptors or register it as a primitive type."
         )
 
     if isinstance(attr, FieldDescriptor):
@@ -47,7 +46,7 @@ def _compile_serialize_schema_ir(
     attr: Optional[FieldDescriptor],
     type_hint: type,
 ) -> str:
-    if attr is None or isinstance(attr, MemberDescriptorType):
+    if attr is None:
         # If there is no value on the protocol's attribute then the type hint is used directly. In
         # this case, only str, int, and float should really be handled, since all other types, will
         # have more ambiguous (de)serialization semantics that needs to be explicitly defined.
@@ -58,7 +57,7 @@ def _compile_serialize_schema_ir(
 
         raise RuntimeError(
             "Only str, int, and float are directly supported for column schemas. For other types, "
-            "define the field via FieldDescriptors or add it as a primitive via @tokenspec."
+            "define the field via FieldDescriptors or register it as a primitive type."
         )
 
     if isinstance(attr, FieldDescriptor):
@@ -73,7 +72,7 @@ def token_parser[T](
     t: type[T],
     delimiter: str,
     collapse: bool = False,
-    field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+    field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
     extra_primitives: Optional[set[type]] = None,
 ) -> Callable[[str], T]:
     """
@@ -84,8 +83,8 @@ def token_parser[T](
         delimiter: The delimiter that separates the columns of the lines.
         collapse: Flag if delimiters that are next to each other should be collapsed for the
             purposes of separating columns.
-        field_overrides: Any explicit mapping from attribute name to field descriptor either to
-            override existing values or provide the initial mapping.
+        field_descriptors: Optional descriptor mapping from attribute name to descriptor to be used
+            with precedence over type information if provided.
         extra_primitives: Any extra types which can use raw string construction and serialization.
             This takes precedence over what is given on the decorator.
 
@@ -96,7 +95,6 @@ def token_parser[T](
     if not hasattr(t, "__pyconll_spec_data"):
         raise RuntimeError("The type provided for compilation was not defined with @tokenspec.")
     spec_data: _SpecData = getattr(t, "__pyconll_spec_data")
-    field_overrides = field_overrides or {}
     extra_primitives = (
         extra_primitives if extra_primitives is not None else spec_data.extra_primitives
     )
@@ -110,12 +108,10 @@ def token_parser[T](
     has_var_cols = False
     field_irs: list[str] = []
     for i, (name, type_hint) in enumerate(hints.items()):
-        if name in field_overrides:
-            attr = field_overrides[name]
-        elif hasattr(t, name):
-            attr = getattr(t, name)
+        if field_descriptors is not None:
+            attr = field_descriptors[name]
         else:
-            attr = None
+            attr = spec_data.fields.get(name, None)
 
         # This is pretty messy, since the function prototype for each descriptor type leaks through
         # to this layer now, but changing it would require many more changes, so for now, keep this
@@ -190,7 +186,7 @@ def token_parser[T](
 def token_serializer[T](
     t: type[T],
     delimiter: str,
-    field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+    field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
     extra_primitives: Optional[set[type]] = None,
 ) -> Callable[[T], str]:
     """
@@ -199,8 +195,8 @@ def token_serializer[T](
     Args:
         t: The type to perform the serialization compilation on.
         delimiter: The delimiter to put between columns.
-        field_overrides: Any explicit mapping from attribute name to field descriptor either to
-            override existing values or provide the initial mapping.
+        field_descriptors: Optional descriptor mapping from attribute name to descriptor to be used
+            with precedence over type information if provided.
         extra_primitives: Any extra types which can use raw string construction and serialization.
             This takes precedence over what is given on the decorator.
 
@@ -211,7 +207,6 @@ def token_serializer[T](
     if not hasattr(t, "__pyconll_spec_data"):
         raise RuntimeError("The type provided for compilation was not defined with @tokenspec.")
     spec_data: _SpecData = getattr(t, "__pyconll_spec_data")
-    field_overrides = field_overrides or {}
     extra_primitives = (
         extra_primitives if extra_primitives is not None else spec_data.extra_primitives
     )
@@ -220,14 +215,13 @@ def token_serializer[T](
     namespace.update({t.__name__: t, "FormatError": FormatError})
 
     conll_irs: list[str] = []
+
     hints = get_type_hints(t)
     for name, type_hint in hints.items():
-        if name in field_overrides:
-            attr = field_overrides[name]
-        elif hasattr(t, name):
-            attr = getattr(t, name)
+        if field_descriptors is not None:
+            attr = field_descriptors[name]
         else:
-            attr = None
+            attr = spec_data.fields.get(name, None)
 
         serialize_name = _compile_serialize_schema_ir(namespace, extra_primitives, attr, type_hint)
         if isinstance(attr, _VarColsDescriptor):

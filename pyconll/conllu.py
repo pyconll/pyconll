@@ -14,9 +14,9 @@ from pyconll.schema import (
     FieldDescriptor,
     nullable,
     mapping,
+    tokenspec,
     unique_array,
     fixed_array,
-    tokenspec,
     via,
 )
 from pyconll.tree import Tree
@@ -168,8 +168,6 @@ class Token:
     This defines the attributes and any behavior on the CoNLL-U data model.
     """
 
-    __slots__ = ("id", "form", "lemma", "upos", "xpos", "feats", "head", "deprel", "deps", "misc")
-
     id: str
     form: Optional[str]
     lemma: Optional[str]
@@ -213,7 +211,8 @@ class Token:
         return "." in self.id
 
 
-_standard_token_fields: dict[str, FieldDescriptor] = {
+_standard_token_fields: dict[str, Optional[FieldDescriptor]] = {
+    "id": None,
     "form": nullable(str, "_"),
     "lemma": nullable(str, "_"),
     "upos": nullable(str, "_"),
@@ -236,7 +235,7 @@ _standard_token_fields: dict[str, FieldDescriptor] = {
 }
 
 
-_compact_token_fields: dict[str, FieldDescriptor] = {
+_compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
     "id": via(sys.intern, str),
     "form": nullable(via(sys.intern, str), "_"),
     "lemma": nullable(via(sys.intern, str), "_"),
@@ -300,14 +299,14 @@ def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
     )
 
 
-conllu = Format(Token, field_overrides=_standard_token_fields)  # pylint: disable=invalid-name
+conllu = Format(Token, field_descriptors=_standard_token_fields)  # pylint: disable=invalid-name
 """
 The default Format instance which can handle CoNLL-U objects directly.
 This provides both parsing and serialization capabilities in a single interface.
 """
 
 compact_conllu = Format(
-    Token, field_overrides=_compact_token_fields
+    Token, field_descriptors=_compact_token_fields
 )  # pylint: disable=invalid-name
 """
 The Format instance which handles CoNLL-U but creates a more compact in-memory representation. This

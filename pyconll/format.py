@@ -68,7 +68,7 @@ class ReadFormat[T]:
         comment_marker: str = "#",
         delimiter: str = "\t",
         collapse_delimiters: bool = False,
-        field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+        field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
         extra_primitives: Optional[set[type]] = None,
     ) -> None:
         """
@@ -80,11 +80,11 @@ class ReadFormat[T]:
             delimiter: The delimiter between the columns on a token line. Defaults to tab.
             collapse_delimiters: Flag if sequential delimiters denote an empty value or should be
                 collapsed into one larger delimiter. Defaults to False.
-            field_overrides: The descriptors for the fields on the schema as a mapping from the
-                field name to the descriptor instance. Overrides anything provided on the schema
-                itself, if there are any such attributes.
+            field_descriptors: The descriptors for the fields on the schema as a mapping from the
+                field name to the descriptor instance. For primitive types, use None as the
+                descriptor. This takes precedence over anything on the type itself.
             extra_primitives: The set of types to consider as primitives (default construction and
-                the str() operator are appropriate). This takes precedence over what is given in the
+                the str() operator are appropriate). This takes precedence over what is given on the
                 tokenspec decorator.
         """
         if len(comment_marker) != 1:
@@ -92,7 +92,7 @@ class ReadFormat[T]:
 
         self.comment_marker = comment_marker
         self.token_parser = _compile.token_parser(
-            schema, delimiter, collapse_delimiters, field_overrides, extra_primitives
+            schema, delimiter, collapse_delimiters, field_descriptors, extra_primitives
         )
 
     def parse_token(self, buffer: str) -> T:
@@ -310,7 +310,7 @@ class WriteFormat[T]:
         schema: type[T],
         comment_marker: str = "#",
         delimiter: str = "\t",
-        field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+        field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
         extra_primitives: Optional[set[type]] = None,
     ) -> None:
         """
@@ -320,15 +320,15 @@ class WriteFormat[T]:
             schema: The Token type to use for serialization.
             comment_marker: The prefix to use for comments or metadata. Defaults to '#'.
             delimiter: The delimiter between Token columns. Defaults to tab.
-            field_overrides: The descriptors for the fields on the schema as a mapping from the
-                field name to the descriptor instance. Overrides anything provided on the schema
-                itself, if there are any such attributes.
+            field_descriptors: The descriptors for the fields on the schema as a mapping from the
+                field name to the descriptor instance. For primitive types, use None as the
+                descriptor. This takes precedence over anything on the type itself.
             extra_primitives: The set of types to consider as primitives (default construction and
-                the str() operator are appropriate). This takes precedence over what is given in the
+                the str() operator are appropriate). This takes precedence over what is given on the
                 tokenspec decorator.
         """
         self.serializer = _compile.token_serializer(
-            schema, delimiter, field_overrides, extra_primitives
+            schema, delimiter, field_descriptors, extra_primitives
         )
         self.comment_marker = comment_marker
 
@@ -417,7 +417,7 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
         comment_marker: str = "#",
         delimiter: str = "\t",
         collapse_delimiters: bool = False,
-        field_overrides: Optional[dict[str, FieldDescriptor]] = None,
+        field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
         extra_primitives: Optional[set[type]] = None,
     ) -> None:
         """
@@ -429,9 +429,9 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
             delimiter: The delimiter between the columns on a token line. Defaults to tab.
             collapse_delimiters: Flag if sequential delimiters denote an empty value or should be
                 collapsed into one larger delimiter. Defaults to False.
-            field_overrides: The descriptors for the fields on the schema as a mapping from the
-                field name to the descriptor instance. Overrides anything provided on the schema
-                itself, if there are any such attributes.
+            field_descriptors: The descriptors for the fields on the schema as a mapping from the
+                field name to the descriptor instance. For primitive types, use None as the
+                descriptor. This takes precedence over anything on the type itself.
             extra_primitives: The set of types to consider as primitives (default construction and
                 the str() operator are appropriate). This takes precedence over what is given on the
                 tokenspec decorator.
@@ -442,9 +442,9 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
             comment_marker,
             delimiter,
             collapse_delimiters,
-            field_overrides,
+            field_descriptors,
             extra_primitives,
         )
         WriteFormat.__init__(
-            self, schema, comment_marker, delimiter, field_overrides, extra_primitives
+            self, schema, comment_marker, delimiter, field_descriptors, extra_primitives
         )

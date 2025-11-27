@@ -560,6 +560,7 @@ def field[T](desc: FieldDescriptor[T]) -> T:
 
 @dataclass(frozen=True, slots=True)
 class _SpecData:
+    fields: dict[str, Any]
     extra_primitives: set[type]
 
 
@@ -568,8 +569,8 @@ def tokenspec[T: type](
     cls: T,
     /,
     *,
-    slots: bool = False,
-    gen_repr: bool = False,
+    slots: bool = True,
+    gen_repr: bool = True,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> T: ...
 
@@ -579,8 +580,8 @@ def tokenspec[T: type](
     cls: None = None,
     /,
     *,
-    slots: bool = False,
-    gen_repr: bool = False,
+    slots: bool = True,
+    gen_repr: bool = True,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[T], T]: ...
 
@@ -589,8 +590,8 @@ def tokenspec(
     cls: Optional[type] = None,
     /,
     *,
-    slots: bool = False,
-    gen_repr: bool = False,
+    slots: bool = True,
+    gen_repr: bool = True,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[type], type] | type:
     """
@@ -610,23 +611,44 @@ def tokenspec(
     """
 
     def decorator(cls: type) -> type:
+        def copy_with_slots(slots: list[str], cls: type) -> type:
+            lookup_slots: set[str] = set(slots)
+
+            new_dict = {
+                k: v
+                for k, v in cls.__dict__.items()
+                if k not in lookup_slots and k not in ("__dict__", "__weakref__")
+            }
+            new_dict["__slots__"] = tuple(field_names)
+
+            # Build new class object
+            new_cls = type(cls.__name__, cls.__bases__, new_dict)
+
+            # Preserve metadata
+            new_cls.__module__ = cls.__module__
+            new_cls.__qualname__ = cls.__qualname__
+            new_cls.__doc__ = cls.__doc__
+
+            return new_cls
+
+        hints = get_type_hints(cls)
+        fields = { n: getattr(cls, n) for n in hints if hasattr(cls, n) }
+        field_names: list[str] = list(hints.keys())
+
+        if slots:
+            cls = copy_with_slots(field_names, cls)
+
         if hasattr(cls, "__pyconll_spec_data"):
             raise RuntimeError(f"@tokenspec was used already used on {cls.__name__}.")
         extra = set(extra_primitives) if extra_primitives else set()
-        setattr(cls, "__pyconll_spec_data", _SpecData(extra))
-
-        namespace: dict[str, Any] = {}
+        setattr(cls, "__pyconll_spec_data", _SpecData(fields, extra))
 
         def def_method(name: str, temp: Template) -> None:
             ir = process_ir(temp)
             exec(ir, namespace)  # pylint: disable=exec-used
             setattr(cls, name, namespace[name])
 
-        hints = get_type_hints(cls)
-        field_names: list[str] = list(hints.keys())
-
-        if slots:
-            setattr(cls, "__slots__", field_names)
+        namespace: dict[str, Any] = {}
 
         post_init_ir = t"self.__post_init__()" if hasattr(cls, "__post_init__") else t""
         def_method(

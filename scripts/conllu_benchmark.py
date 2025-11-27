@@ -17,6 +17,7 @@ from pyconll.format import Format
 
 hp = hpy()
 
+
 class ParserType(Enum):
     STANDARD = (auto(),)
     COMPACT = (auto(),)
