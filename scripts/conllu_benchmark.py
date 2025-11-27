@@ -34,7 +34,7 @@ class Args:
 
 @dataclass
 class ConlluBenchmark:
-    duration: int
+    duration: float
     file_size: int
     memory: int
 
@@ -63,11 +63,11 @@ def kernel(
 
 def main(args: Args) -> None:
     parser: Callable[[Path], list]
-    if args.format == ParserType.STANDARD:
+    if args.parser == ParserType.STANDARD:
         parser = lambda p: conllu.load_from_file(p)
-    elif args.format == ParserType.COMPACT:
+    elif args.parser == ParserType.COMPACT:
         parser = lambda p: compact_conllu.load_from_file(p)
-    elif args.format == ParserType.ALTERNATIVE:
+    elif args.parser == ParserType.ALTERNATIVE:
 
         def parser(p):
             with open(p, encoding="utf-8") as f:

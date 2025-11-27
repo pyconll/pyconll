@@ -632,7 +632,7 @@ def tokenspec(
             return new_cls
 
         hints = get_type_hints(cls)
-        fields = { n: getattr(cls, n) for n in hints if hasattr(cls, n) }
+        fields = {n: getattr(cls, n) for n in hints if hasattr(cls, n)}
         field_names: list[str] = list(hints.keys())
 
         if slots:
