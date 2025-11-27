@@ -12,6 +12,7 @@ from pyconll._ir import unique_name_id, process_ir
 from pyconll.schema import _SpecData, _VarColsDescriptor, FieldDescriptor
 
 
+_deserialize_cache = {}
 def _compile_deserialize_schema_ir(
     namespace: dict[str, Any],
     extra_primitives: set[type],
@@ -33,7 +34,14 @@ def _compile_deserialize_schema_ir(
         )
 
     if isinstance(attr, FieldDescriptor):
-        return attr.deserialize_codegen(namespace)
+        if attr in _deserialize_cache:
+            (old_name, old_method) = _deserialize_cache[attr]
+            namespace[old_name] = old_method
+            return old_name
+
+        new_method_name = attr.deserialize_codegen(namespace)
+        _deserialize_cache[attr] = (new_method_name, namespace[new_method_name])
+        return new_method_name
 
     raise RuntimeError(
         "Attributes for column schemas must either be unassigned (None) or a FieldDescriptor."
@@ -170,7 +178,7 @@ def token_parser[T](
             except ParseError as rexc:
                 raise rexc
             except Exception as exc:
-                raise ParseError("Unable to deserialize representation during Token "
+                raise ParseError("Unable to deserialize representation during Token"
                                  " construction.") from exc
 
             new_token = {t.__name__}({",".join(field_names)})

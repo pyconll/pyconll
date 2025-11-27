@@ -263,17 +263,14 @@ class _FixedArrayDescriptor[T](BaseFieldDescriptor[tuple[T, ...]]):
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
-        if not sub_method_name:
-            gen_ir = t"s.split({self.delimiter!r})"
-        else:
-            gen_ir = t"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
+        gen_ir = t"{sub_method_name}(el) for el in s.split({self.delimiter!r})"
 
         return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return ()
 
-                return tuple({gen_ir:t})""")
+                return tuple([{gen_ir:t}])""")
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _serialize_sub_method_name(namespace, self.mapper)
@@ -379,23 +376,11 @@ class _ViaDescriptor[T](FieldDescriptor[T]):
     serialize: Callable[[T], str]
 
     def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
-        if self.deserialize is str:
-            return ""
-
-        if self.deserialize in (int, float):
-            return self.deserialize.__name__
-
         name = unique_name_id(namespace, "_ViaDescriptor_Deserializer")
         namespace[name] = self.deserialize
         return name
 
     def serialize_codegen(self, namespace: dict[str, Any]) -> str:
-        if self.serialize is str:
-            return "str"
-
-        if self.serialize is repr:
-            return "repr"
-
         name = unique_name_id(namespace, "_ViaDescriptor_Serializer")
         namespace[name] = self.serialize
         return name
