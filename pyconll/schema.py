@@ -569,8 +569,8 @@ def tokenspec[T: type](
     cls: T,
     /,
     *,
-    slots: bool = True,
-    gen_repr: bool = True,
+    slots: bool = False,
+    gen_repr: bool = False,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> T: ...
 
@@ -580,8 +580,8 @@ def tokenspec[T: type](
     cls: None = None,
     /,
     *,
-    slots: bool = True,
-    gen_repr: bool = True,
+    slots: bool = False,
+    gen_repr: bool = False,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[T], T]: ...
 
@@ -590,8 +590,8 @@ def tokenspec(
     cls: Optional[type] = None,
     /,
     *,
-    slots: bool = True,
-    gen_repr: bool = True,
+    slots: bool = False,
+    gen_repr: bool = False,
     extra_primitives: Optional[Iterable[type]] = None,
 ) -> Callable[[type], type] | type:
     """
