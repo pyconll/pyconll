@@ -211,17 +211,18 @@ class Token:
         return "." in self.id
 
 
+_nullable = nullable(str, "_")
 _standard_token_fields: dict[str, Optional[FieldDescriptor]] = {
     "id": None,
-    "form": nullable(str, "_"),
-    "lemma": nullable(str, "_"),
-    "upos": nullable(str, "_"),
-    "xpos": nullable(str, "_"),
+    "form": _nullable,
+    "lemma": _nullable,
+    "upos": _nullable,
+    "xpos": _nullable,
     "feats": mapping(
         str, unique_array(str, ",", "", str.lower), "|", "=", "_", lambda p: p[0].lower()
     ),
-    "head": nullable(str, "_"),
-    "deprel": nullable(str, "_"),
+    "head": _nullable,
+    "deprel": _nullable,
     "deps": mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0])),
     "misc": mapping(
         str,
@@ -235,33 +236,35 @@ _standard_token_fields: dict[str, Optional[FieldDescriptor]] = {
 }
 
 
+_intern: FieldDescriptor[str] = via(sys.intern, str)
+_intern_nullable: FieldDescriptor[Optional[str]] = nullable(_intern, "_")
 _compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
-    "id": via(sys.intern, str),
-    "form": nullable(via(sys.intern, str), "_"),
-    "lemma": nullable(via(sys.intern, str), "_"),
-    "upos": nullable(via(sys.intern, str), "_"),
-    "xpos": nullable(via(sys.intern, str), "_"),
+    "id": _intern,
+    "form": _intern_nullable,
+    "lemma": _intern_nullable,
+    "upos": _intern_nullable,
+    "xpos": _intern_nullable,
     "feats": mapping(
-        via(sys.intern, str),
-        unique_array(via(sys.intern, str), ",", "", str.lower),
+        _intern,
+        unique_array(_intern, ",", "", str.lower),
         "|",
         "=",
         "_",
         lambda p: p[0].lower(),
     ),
-    "head": nullable(via(sys.intern, str), "_"),
-    "deprel": nullable(via(sys.intern, str), "_"),
+    "head": _intern_nullable,
+    "deprel": _intern_nullable,
     "deps": mapping(
-        via(sys.intern, str),
-        fixed_array(via(sys.intern, str), ":"),
+        _intern,
+        fixed_array(_intern, ":"),
         "|",
         ":",
         "_",
         lambda p: _TokenIdComparer(p[0]),
     ),
     "misc": mapping(
-        via(sys.intern, str),
-        nullable(unique_array(via(sys.intern, str), ",", "", str.lower)),
+        _intern,
+        nullable(unique_array(_intern, ",", "", str.lower)),
         "|",
         "=",
         "_",

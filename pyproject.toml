@@ -23,6 +23,9 @@ homepage = "https://pyconll.github.io"
 source = "https://github.com/pyconll/pyconll"
 documentation = "https://pyconll.readthedocs.io/en/stable/"
 
+[tool.mypy]
+disable_error_code = ["import-untyped"]
+
 [tool.setuptools]
 packages = ["pyconll"]
 
