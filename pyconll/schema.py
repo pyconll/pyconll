@@ -300,6 +300,7 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         key_sub_method_name = _deserialize_sub_method_name(namespace, self.kmapper)
         value_sub_method_name = _deserialize_sub_method_name(namespace, self.vmapper)
+
         return process_ir(t"""
             def {method_name}(s):
                 if s == {self.empty_marker!r}:

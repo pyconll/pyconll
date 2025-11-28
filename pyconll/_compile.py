@@ -75,7 +75,6 @@ def _compile_serialize_schema_ir(
         "Attributes for column schemas must either be unassigned (None) or a FieldDescriptor."
     )
 
-
 def token_parser[T](
     t: type[T],
     delimiter: str,
@@ -132,13 +131,19 @@ def token_parser[T](
                 raise RuntimeError("Invalid Token specification with more than one varcols field.")
 
             has_var_cols = True
-            field_ir = f"{name} = {deserialize_name}(islice(cols, {i}, {i} + var_cols_len))"
+            field_ir = f"{deserialize_name}(islice(cols, {i}, {i} + var_cols_len))"
         else:
             if not has_var_cols:
-                field_ir = f"{name} = {deserialize_name}(cols[{i}])"
+                field_ir = f"{deserialize_name}(cols[{i}])"
             else:
-                field_ir = f"{name} = {deserialize_name}(cols[{i} + var_cols_len - 1])"
+                field_ir = f"{deserialize_name}(cols[{i} + var_cols_len - 1])"
         field_irs.append(field_ir)
+
+    if collapse:
+        c = re.escape(delimiter) + "+"
+        cols_ir = t"cols = re.split({c!r}, line)"
+    else:
+        cols_ir = t"cols = line.split({delimiter!r})"
 
     if has_var_cols:
         var_cols_ir = t"var_cols_len = len(cols) - {(len(field_names), int)} + 1"
@@ -155,12 +160,6 @@ def token_parser[T](
             t"token: {{line!r}}')"
         )
 
-    if collapse:
-        c = re.escape(delimiter) + "+"
-        cols_ir = t"cols = re.split({c!r}, line)"
-    else:
-        cols_ir = t"cols = line.split({delimiter!r})"
-
     compiled_parse_token = unique_name_id(namespace, "compiled_parse_token")
     parser_ir = process_ir(t"""
         from itertools import islice
@@ -174,15 +173,12 @@ def token_parser[T](
                 cols[-1] = cols[-1][:-1]
 
             try:
-                {"\n                ".join(field_irs)}
+                return {t.__name__}({",".join(field_irs)})
             except ParseError as rexc:
                 raise rexc
             except Exception as exc:
                 raise ParseError("Unable to deserialize representation during Token"
                                  " construction.") from exc
-
-            new_token = {t.__name__}({",".join(field_names)})
-            return new_token
         """)
     exec(parser_ir, namespace)  # pylint: disable=exec-used
 
