@@ -11,8 +11,9 @@ from pyconll.exception import FormatError, ParseError
 from pyconll._ir import unique_name_id, process_ir
 from pyconll.schema import _SpecData, _VarColsDescriptor, FieldDescriptor
 
-
 _deserialize_cache = {}
+
+
 def _compile_deserialize_schema_ir(
     namespace: dict[str, Any],
     extra_primitives: set[type],
@@ -74,6 +75,7 @@ def _compile_serialize_schema_ir(
     raise RuntimeError(
         "Attributes for column schemas must either be unassigned (None) or a FieldDescriptor."
     )
+
 
 def token_parser[T](
     t: type[T],

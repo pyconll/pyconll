@@ -104,6 +104,7 @@ def main(args: Args) -> None:
 
     measure: Callable[[str, Callable[[str], list]], float]
     if args.measurement == MeasurementType.RUNTIME:
+
         def measure(text: str, parse: Callable[[str], list]) -> float:
             start = time.perf_counter()
             corpus = parse(text)
@@ -112,9 +113,12 @@ def main(args: Args) -> None:
             del corpus
 
             return end - start
+
     elif args.measurement == MeasurementType.MEMORY:
+
         def measure(text: str, parse: Callable[[str], list]) -> float:
             from guppy import hpy
+
             hp = hpy()
             hp.setrelheap()
             corpus = parse(text)
@@ -158,15 +162,9 @@ def main(args: Args) -> None:
 
         for conllu_file, values in sorted(results.items(), key=lambda p: p[0]):
             disk_kb = conllu_file.stat().st_size / 1024
-            cols = { f"measurement_{i}": convert(conllu_file, v) for i, v in enumerate(values) }
+            cols = {f"measurement_{i}": convert(conllu_file, v) for i, v in enumerate(values)}
 
-            writer.writerow(
-                {
-                    "key": conllu_file.stem,
-                    "disk_kb": disk_kb,
-                    **cols
-                }
-            )
+            writer.writerow({"key": conllu_file.stem, "disk_kb": disk_kb, **cols})
 
 
 if __name__ == "__main__":
@@ -187,7 +185,7 @@ if __name__ == "__main__":
         "--measurement",
         type=lambda s: MeasurementType[s],
         required=True,
-        help="The type of measurement to make on the parsing."
+        help="The type of measurement to make on the parsing.",
     )
     parser.add_argument(
         "--loops_per_file", type=int, required=True, help="The number of times to parse each file"
@@ -210,7 +208,7 @@ if __name__ == "__main__":
         "--reporting_unit",
         type=lambda s: ReportingUnit[s],
         required=True,
-        help="The way to choose to display the measurement value in the final results."
+        help="The way to choose to display the measurement value in the final results.",
     )
     parser.add_argument(
         "--output_csv", type=Path, required=True, help="The location to write the csv output to."
