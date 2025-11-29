@@ -11,7 +11,7 @@ import pytest
 
 from pyconll.exception import ParseError
 from pyconll.format import ReadFormat
-from pyconll.schema import TokenSchema, nullable
+from pyconll.schema import tokenspec, nullable
 
 
 def test_custom_token_parsing():
@@ -19,7 +19,8 @@ def test_custom_token_parsing():
     Test that a custom token type can be used with the read format.
     """
 
-    class TestToken(TokenSchema):
+    @tokenspec
+    class TestToken:
         id: str
         category: int
         body: Optional[str] = nullable(str, "_")
@@ -57,7 +58,8 @@ def test_middle_sentence_comment_fails():
     started), is not valid.
     """
 
-    class TestToken(TokenSchema):
+    @tokenspec
+    class TestToken:
         id: str
         category: int
         body: Optional[str] = nullable(str, "_")

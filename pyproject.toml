@@ -23,6 +23,9 @@ homepage = "https://pyconll.github.io"
 source = "https://github.com/pyconll/pyconll"
 documentation = "https://pyconll.readthedocs.io/en/stable/"
 
+[tool.mypy]
+disable_error_code = ["import-untyped"]
+
 [tool.setuptools]
 packages = ["pyconll"]
 
@@ -36,7 +39,6 @@ pyconll = ["py.typed", "_version"]
 line-length = 100
 target-version = ["py314"]
 preview = true
-extend-exclude = 'pyconll/(\_compile|schema)\.py'
 
 [build-system]
 requires = ["setuptools", "util"]

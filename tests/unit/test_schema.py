@@ -4,12 +4,12 @@ import sys
 from typing import Optional
 import pytest
 from pyconll.schema import (
-    TokenSchema,
-    mapping,
     field,
-    via,
-    varcols,
+    mapping,
     nullable,
+    tokenspec,
+    varcols,
+    via,
 )
 from pyconll import _compile
 
@@ -19,7 +19,8 @@ def test_simple_primitive_schema():
     Test that a token schema with primitive types (int, str, float) compiles correctly.
     """
 
-    class SimpleToken(TokenSchema):
+    @tokenspec
+    class SimpleToken:
         id: int
         name: str
         score: float
@@ -42,7 +43,8 @@ def test_invalid_primitive_schema():
     Test that a token schema with unsupported types (like bare list) raises an exception.
     """
 
-    class InvalidToken(TokenSchema):
+    @tokenspec
+    class InvalidToken:
         id: int
         name: str
         scores: list[float]
@@ -59,7 +61,8 @@ def test_invalid_schema_attribute():
     Test that using a raw lambda instead of a field descriptor raises an exception.
     """
 
-    class InvalidToken(TokenSchema):
+    @tokenspec
+    class InvalidToken:
         id: int
         name: str
         scores: list[float] = lambda s: map(float, s.split(","))
@@ -76,7 +79,8 @@ def test_via_descriptor_schema():
     Test that via descriptors work correctly for string interning and nested descriptors.
     """
 
-    class MemoryEfficientToken(TokenSchema):
+    @tokenspec
+    class MemoryEfficientToken:
         id: int
         form: str = field(via(sys.intern, str))
         lemma: str = field(via(sys.intern, str))
@@ -103,7 +107,8 @@ def test_via_descriptor_optimizations():
     Test that via descriptors with custom serialization functions work correctly.
     """
 
-    class ViaProtocol(TokenSchema):
+    @tokenspec
+    class ViaProtocol:
         id: int = field(via(int, str))
         form: str = field(via(str, repr))
 
@@ -121,7 +126,8 @@ def test_varcols_schema_str():
     Test that a token schema with varcols for strings compiles correctly.
     """
 
-    class VarColsToken(TokenSchema):
+    @tokenspec
+    class VarColsToken:
         id: int
         name: str
         extra: list[str] = field(varcols(str))
@@ -143,7 +149,8 @@ def test_varcols_schema_int():
     Test that a token schema with varcols for ints compiles correctly.
     """
 
-    class VarColsIntToken(TokenSchema):
+    @tokenspec
+    class VarColsIntToken:
         prefix: str
         values: list[int] = field(varcols(int))
 
@@ -163,7 +170,8 @@ def test_varcols_schema_empty():
     Test that a token schema with varcols handles zero variable columns.
     """
 
-    class VarColsToken(TokenSchema):
+    @tokenspec
+    class VarColsToken:
         id: int
         extras: list[str] = field(varcols(str))
 
@@ -183,7 +191,8 @@ def test_varcols_schema_with_nullable():
     Test that a token schema with varcols and nullable elements compiles correctly.
     """
 
-    class VarColsNullableToken(TokenSchema):
+    @tokenspec
+    class VarColsNullableToken:
         name: str
         scores: list[Optional[int]] = field(varcols(nullable(int, "_")))
 
@@ -203,7 +212,8 @@ def test_varcols_schema_with_trailing_fixed_cols():
     Test that a token schema with varcols followed by fixed columns compiles correctly.
     """
 
-    class VarColsWithTrailingToken(TokenSchema):
+    @tokenspec
+    class VarColsWithTrailingToken:
         id: int
         middle: list[str] = field(varcols(str))
         status: str
@@ -225,7 +235,8 @@ def test_varcols_schema_multiple_varcols_error():
     Test that a token schema with multiple varcols fields raises an error.
     """
 
-    class InvalidToken(TokenSchema):
+    @tokenspec
+    class InvalidToken:
         first: list[str] = field(varcols(str))
         second: list[int] = field(varcols(int))
 
@@ -238,7 +249,8 @@ def test_collapse_repeated_delimiters_basic():
     Test that repeated delimiters can be collapsed into a single delimiter.
     """
 
-    class SimpleToken(TokenSchema):
+    @tokenspec
+    class SimpleToken:
         id: int
         name: str
         value: float
@@ -263,7 +275,8 @@ def test_collapse_with_space_delimiter():
     Test that collapse works with space as delimiter.
     """
 
-    class SpaceDelimitedToken(TokenSchema):
+    @tokenspec
+    class SpaceDelimitedToken:
         word: str
         count: int
 
@@ -282,7 +295,8 @@ def test_collapse_with_varcols():
     Test that collapse works correctly with variable columns.
     """
 
-    class VarColsToken(TokenSchema):
+    @tokenspec
+    class VarColsToken:
         id: int
         extras: list[str] = field(varcols(str))
         status: str
@@ -307,7 +321,8 @@ def test_collapse_with_nullable_fields():
     Test that collapse works with nullable field descriptors.
     """
 
-    class NullableToken(TokenSchema):
+    @tokenspec
+    class NullableToken:
         name: str
         score: Optional[int] = field(nullable(int, "_"))
         value: Optional[float] = field(nullable(float, "N/A"))
@@ -331,7 +346,8 @@ def test_collapse_varying_delimiter_counts():
     Test collapse with different numbers of delimiters between columns.
     """
 
-    class Token5Cols(TokenSchema):
+    @tokenspec
+    class Token5Cols:
         a: str
         b: str
         c: str
@@ -356,7 +372,8 @@ def test_collapse_with_mapping_descriptor():
     Test that collapse works with mapping field descriptors.
     """
 
-    class MappingToken(TokenSchema):
+    @tokenspec
+    class MappingToken:
         id: int
         features: dict[str, str] = field(mapping(str, str, "|", "=", "_"))
 
@@ -368,3 +385,31 @@ def test_collapse_with_mapping_descriptor():
 
     assert token.id == 10
     assert token.features == {"key1": "val1", "key2": "val2"}
+
+
+def test_extra_primitives():
+    """
+    Test that extra primitives can be added on the Token class definition.
+    """
+
+    class MyClass:
+        def __init__(self, s: str) -> None:
+            self.values = set(s.split(","))
+
+        def __str__(self) -> str:
+            return ",".join(sorted(self.values))
+
+    @tokenspec(extra_primitives=[MyClass])
+    class WeirdToken:
+        id: int
+        chars: MyClass
+
+    parser = _compile.token_parser(WeirdToken, "\t", False)
+    serializer = _compile.token_serializer(WeirdToken, "\t")
+
+    raw_line = "10\ta,b,c,d,e,f,g"
+
+    token = parser(raw_line)
+
+    assert (token.id, token.chars.values) == (10, {"a", "b", "c", "d", "e", "f", "g"})
+    assert serializer(token) == raw_line

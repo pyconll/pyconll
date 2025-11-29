@@ -18,7 +18,7 @@ from typing import Iterator, Optional
 
 from pyconll import _compile
 from pyconll.exception import ParseError
-from pyconll.schema import TokenSchema
+from pyconll.schema import FieldDescriptor
 from pyconll.sentence import Sentence
 
 PathLike = str | bytes | os.PathLike
@@ -53,7 +53,7 @@ def _pair_down_whitespace(
     return line[start_idx:end_idx]
 
 
-class ReadFormat[T: TokenSchema]:
+class ReadFormat[T]:
     """
     A read-only interface for parsing CoNLL formatted data.
 
@@ -68,6 +68,8 @@ class ReadFormat[T: TokenSchema]:
         comment_marker: str = "#",
         delimiter: str = "\t",
         collapse_delimiters: bool = False,
+        field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
+        extra_primitives: Optional[set[type]] = None,
     ) -> None:
         """
         Initialize the read format handler.
@@ -78,12 +80,20 @@ class ReadFormat[T: TokenSchema]:
             delimiter: The delimiter between the columns on a token line. Defaults to tab.
             collapse_delimiters: Flag if sequential delimiters denote an empty value or should be
                 collapsed into one larger delimiter. Defaults to False.
+            field_descriptors: The descriptors for the fields on the schema as a mapping from the
+                field name to the descriptor instance. For primitive types, use None as the
+                descriptor. This takes precedence over anything on the type itself.
+            extra_primitives: The set of types to consider as primitives (default construction and
+                the str() operator are appropriate). This takes precedence over what is given on the
+                tokenspec decorator.
         """
         if len(comment_marker) != 1:
             raise ValueError("The comment marker is expected to only be one character.")
 
         self.comment_marker = comment_marker
-        self.token_parser = _compile.token_parser(schema, delimiter, collapse_delimiters)
+        self.token_parser = _compile.token_parser(
+            schema, delimiter, collapse_delimiters, field_descriptors, extra_primitives
+        )
 
     def parse_token(self, buffer: str) -> T:
         """
@@ -286,7 +296,7 @@ class ReadFormat[T: TokenSchema]:
             yield step_next_sentence()
 
 
-class WriteFormat[T: TokenSchema]:
+class WriteFormat[T]:
     """
     A write-only interface for serializing CoNLL formatted data.
 
@@ -295,7 +305,14 @@ class WriteFormat[T: TokenSchema]:
     serialization operations are needed.
     """
 
-    def __init__(self, schema: type[T], comment_marker: str = "#", delimiter: str = "\t") -> None:
+    def __init__(
+        self,
+        schema: type[T],
+        comment_marker: str = "#",
+        delimiter: str = "\t",
+        field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
+        extra_primitives: Optional[set[type]] = None,
+    ) -> None:
         """
         Initialize the write format handler.
 
@@ -303,8 +320,16 @@ class WriteFormat[T: TokenSchema]:
             schema: The Token type to use for serialization.
             comment_marker: The prefix to use for comments or metadata. Defaults to '#'.
             delimiter: The delimiter between Token columns. Defaults to tab.
+            field_descriptors: The descriptors for the fields on the schema as a mapping from the
+                field name to the descriptor instance. For primitive types, use None as the
+                descriptor. This takes precedence over anything on the type itself.
+            extra_primitives: The set of types to consider as primitives (default construction and
+                the str() operator are appropriate). This takes precedence over what is given on the
+                tokenspec decorator.
         """
-        self.serializer = _compile.token_serializer(schema, delimiter)
+        self.serializer = _compile.token_serializer(
+            schema, delimiter, field_descriptors, extra_primitives
+        )
         self.comment_marker = comment_marker
 
     def serialize_token(self, token: T) -> str:
@@ -373,7 +398,7 @@ class WriteFormat[T: TokenSchema]:
             writable.write("\n")
 
 
-class Format[T: TokenSchema](ReadFormat[T], WriteFormat[T]):
+class Format[T](ReadFormat[T], WriteFormat[T]):
     """
     A unified interface for both parsing and serializing CoNLL formatted data.
 
@@ -392,6 +417,8 @@ class Format[T: TokenSchema](ReadFormat[T], WriteFormat[T]):
         comment_marker: str = "#",
         delimiter: str = "\t",
         collapse_delimiters: bool = False,
+        field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
+        extra_primitives: Optional[set[type]] = None,
     ) -> None:
         """
         Initialize the format handler with both read and write capabilities.
@@ -402,6 +429,22 @@ class Format[T: TokenSchema](ReadFormat[T], WriteFormat[T]):
             delimiter: The delimiter between the columns on a token line. Defaults to tab.
             collapse_delimiters: Flag if sequential delimiters denote an empty value or should be
                 collapsed into one larger delimiter. Defaults to False.
+            field_descriptors: The descriptors for the fields on the schema as a mapping from the
+                field name to the descriptor instance. For primitive types, use None as the
+                descriptor. This takes precedence over anything on the type itself.
+            extra_primitives: The set of types to consider as primitives (default construction and
+                the str() operator are appropriate). This takes precedence over what is given on the
+                tokenspec decorator.
         """
-        ReadFormat.__init__(self, schema, comment_marker, delimiter, collapse_delimiters)
-        WriteFormat.__init__(self, schema, comment_marker, delimiter)
+        ReadFormat.__init__(
+            self,
+            schema,
+            comment_marker,
+            delimiter,
+            collapse_delimiters,
+            field_descriptors,
+            extra_primitives,
+        )
+        WriteFormat.__init__(
+            self, schema, comment_marker, delimiter, field_descriptors, extra_primitives
+        )
