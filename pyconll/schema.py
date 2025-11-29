@@ -377,12 +377,12 @@ class _ViaDescriptor[T](FieldDescriptor[T]):
     serialize: Callable[[T], str]
 
     def deserialize_codegen(self, namespace: dict[str, Any]) -> str:
-        name = unique_name_id(namespace, "_ViaDescriptor_Deserializer")
+        name = unique_name_id(namespace, f"deserialize_{self.__class__.__name__}")
         namespace[name] = self.deserialize
         return name
 
     def serialize_codegen(self, namespace: dict[str, Any]) -> str:
-        name = unique_name_id(namespace, "_ViaDescriptor_Serializer")
+        name = unique_name_id(namespace, f"serialize_{self.__class__.__name__}")
         namespace[name] = self.serialize
         return name
 
