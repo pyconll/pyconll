@@ -61,7 +61,7 @@ def kernel(
     coverage: float,
     exclusions: set[str],
 ) -> dict[Path, list[float]]:
-    results = {}
+    results: dict[Path, list[float]] = {}
     for file in files:
         hasher = hashlib.blake2b(str(file).encode(), digest_size=8)
         stamp = int.from_bytes(hasher.digest())
@@ -71,7 +71,7 @@ def kernel(
 
         if file.name in exclusions:
             logging.info("Skipping %s because it is excluded for this parser.", file)
-            results[file.stem] = []
+            results[file] = []
             continue
 
         text = file.read_text(encoding="utf-8")

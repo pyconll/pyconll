@@ -11,7 +11,7 @@ from pyconll.exception import FormatError, ParseError
 from pyconll._ir import unique_name_id, process_ir
 from pyconll.schema import _SpecData, _VarColsDescriptor, FieldDescriptor
 
-_deserialize_cache = {}
+_deserialize_cache: dict[FieldDescriptor, tuple[str, Any]] = {}
 
 
 def _compile_deserialize_schema_ir(

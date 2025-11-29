@@ -598,7 +598,11 @@ def tokenspec(
 
     def assert_absent(cls: type, attr: str, msg: Optional[str] = None, mro: bool = False) -> None:
         if (mro and hasattr(cls, attr)) or (not mro and attr in cls.__dict__):
-            msg = msg if msg is not None else f"Class {cls.__name__} is not expected to have attribute {attr}."
+            msg = (
+                msg
+                if msg is not None
+                else f"Class {cls.__name__} is not expected to have attribute {attr}."
+            )
             raise RuntimeError(msg)
 
     def decorator(cls: type) -> type:
@@ -630,7 +634,9 @@ def tokenspec(
         if slots:
             cls = copy_with_slots(field_names, cls)
 
-        assert_absent(cls, "__pyconll_spec_data", f"@tokenspec was used already used on {cls.__name__}", True)
+        assert_absent(
+            cls, "__pyconll_spec_data", f"@tokenspec was used already used on {cls.__name__}", True
+        )
         extra = set(extra_primitives) if extra_primitives else set()
         setattr(cls, "__pyconll_spec_data", _SpecData(fields, extra))
 
