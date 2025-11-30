@@ -12,6 +12,7 @@ from pyconll import tree
 from pyconll.format import Format
 from pyconll.schema import (
     FieldDescriptor,
+    mapping_ext,
     nullable,
     mapping,
     tokenspec,
@@ -224,14 +225,14 @@ _standard_token_fields: dict[str, Optional[FieldDescriptor]] = {
     "head": _nullable,
     "deprel": _nullable,
     "deps": mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0])),
-    "misc": mapping(
+    "misc": mapping_ext(
         str,
-        nullable(unique_array(str, ",", "", str.lower)),
+        unique_array(str, ",", "", str.lower),
+        None,
         "|",
         "=",
         "_",
         lambda p: p[0].lower(),
-        True,
     ),
 }
 
@@ -262,14 +263,14 @@ _compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
         "_",
         lambda p: _TokenIdComparer(p[0]),
     ),
-    "misc": mapping(
+    "misc": mapping_ext(
         _intern,
-        nullable(unique_array(_intern, ",", "", str.lower)),
+        unique_array(_intern, ",", "", str.lower),
+        None,
         "|",
         "=",
         "_",
         lambda p: p[0].lower(),
-        True,
     ),
 }
 
