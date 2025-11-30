@@ -237,7 +237,7 @@ _standard_token_fields: dict[str, Optional[FieldDescriptor]] = {
 }
 
 
-_intern: FieldDescriptor[str] = via(sys.intern, str)
+_intern: FieldDescriptor[str] = via(sys.intern)
 _intern_nullable: FieldDescriptor[Optional[str]] = nullable(_intern, "_")
 _compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
     "id": _intern,

@@ -596,7 +596,9 @@ def varcols[T](mapper: type[T] | FieldDescriptor[T]) -> _VarColsDescriptor[T]:
     return _VarColsDescriptor[T](mapper)
 
 
-def via[T](deserialize: Callable[[str], T], serialize: Callable[[T], str]) -> _ViaDescriptor[T]:
+def via[T](
+    deserialize: Callable[[str], T], serialize: Callable[[T], str] = str
+) -> _ViaDescriptor[T]:
     """
     Describe a user-provided serialization scheme which uses arbitrary callables.
 
