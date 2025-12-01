@@ -390,5 +390,5 @@ provides both parsing and serialization capabilities in a single interface.
 
 type ConlluFormat = Format[Token, Sentence]
 """
-A type alias for the format instances
+A type alias for the format instances which can read and write CoNLL-U files.
 """
