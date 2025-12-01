@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from enum import auto, Enum
 import gc
 import hashlib
+import io
 import logging
 from pathlib import Path
 import sys
 import time
-from typing import Callable
+from typing import Any, Callable
 
 import conllu as alt
 
@@ -21,8 +22,11 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 class ParserType(Enum):
     STANDARD = (auto(),)
+    STANDARD_ITER = (auto(),)
     COMPACT = (auto(),)
-    ALTERNATIVE = auto()
+    COMPACT_ITER = (auto(),)
+    ALTERNATIVE = (auto(),)
+    ALTERNATIVE_ITER = auto()
 
 
 class MeasurementType(Enum):
@@ -48,15 +52,13 @@ class Args:
     output_csv: Path
 
 
-EXCLUSIONS_BY_PARSER: dict[ParserType, set[str]] = {
-    ParserType.STANDARD: {"cs_pdtc-ud-train.conllu"}
-}
+EXCLUSIONS_BY_PARSER: dict[ParserType, set[str]] = {}
 
 
 def kernel(
     files: list[Path],
     loops_per_file: int,
-    parser: Callable[[str], list],
+    parser: Callable[[str], Any],
     measure: Callable[[str, Callable[[str], list]], float],
     coverage: float,
     exclusions: set[str],
@@ -92,25 +94,37 @@ def kernel(
 
 
 def main(args: Args) -> None:
-    parser: Callable[[str], list]
+    if args.output_csv.exists():
+        logging.error("The path %s already exists and will not be overwritten.", args.output_csv)
+        return
+
+    parser: Callable[[str], Any]
     if args.parser == ParserType.STANDARD:
         parser = lambda s: conllu.load_from_string(s)
+    elif args.parser == ParserType.STANDARD_ITER:
+        parser = lambda s: sum(len(sentence.tokens) for sentence in conllu.iter_from_string(s))
     elif args.parser == ParserType.COMPACT:
         parser = lambda s: compact_conllu.load_from_string(s)
+    elif args.parser == ParserType.COMPACT_ITER:
+        parser = lambda s: sum(
+            len(sentence.tokens) for sentence in compact_conllu.iter_from_string(s)
+        )
     elif args.parser == ParserType.ALTERNATIVE:
         parser = lambda s: alt.parse(s)
+    elif args.parser == ParserType.ALTERNATIVE_ITER:
+        parser = lambda s: sum(len(tokenlist) for tokenlist in alt.parse_incr(io.StringIO(s)))
     else:
         raise RuntimeError(f"{args.parser} is not a properly handled format type.")
 
-    measure: Callable[[str, Callable[[str], list]], float]
+    measure: Callable[[str, Callable[[str], Any]], float]
     if args.measurement == MeasurementType.RUNTIME:
 
         def measure(text: str, parse: Callable[[str], list]) -> float:
             start = time.perf_counter()
-            corpus = parse(text)
+            parsed = parse(text)
             end = time.perf_counter()
 
-            del corpus
+            del parsed
 
             return end - start
 

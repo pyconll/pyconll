@@ -8,6 +8,7 @@ import pytest
 from pyconll.exception import ParseError
 from pyconll.schema import (
     FieldDescriptor,
+    mapping_ext,
     nullable,
     array,
     fixed_array,
@@ -286,25 +287,17 @@ class TestMapping:
         assert_deserialization_error(desc, "b=")
         assert_deserialization_error(desc, "z")
 
-    def test_mapping_str_nullable_str_compact_pair(self):
-        """Test mapping with str:Optional[str]."""
-        desc = mapping(str, nullable(str), "|", "=", "_", None, True)
-        assert_conversions(desc, {"": None}, "")
-        assert_conversions(desc, {"a": None}, "a")
-        assert_conversions(desc, {"a": "$"}, "a=$")
+    def test_mapping_singleton_error(self):
+        """Test that deserialization fails when faced with a singleton but empty string is okay."""
+        desc = mapping(str, nullable(str), "|", "=")
+        assert_conversions(desc, {"a": None}, "a=")
+        assert_deserialization_error(desc, "a|b=value")
 
-    def test_mapping_str_nullable_str_with_custom_marker_compact_pair(self):
+    def test_mapping_str_nullable_str_with_custom_marker(self):
         """Test mapping with str:Optional[str]."""
-        desc = mapping(str, nullable(str, "_"), "|", "=", "_", None, True)
+        desc = mapping(str, nullable(str, "_"), "|", "=", "_", None)
         assert_conversions(desc, {"": None}, "=_")
-        assert_conversions(desc, {"a": ""}, "a")
-        assert_conversions(desc, {"a": "$"}, "a=$")
-
-    def test_mapping_str_int_compact_pair(self):
-        """Test mapping with str:str and ordering key."""
-        desc = mapping(str, str, "|", "=", "_", None, True)
-        assert_conversions(desc, {"": ""}, "")
-        assert_conversions(desc, {"a": ""}, "a")
+        assert_conversions(desc, {"a": ""}, "a=")
         assert_conversions(desc, {"a": "$"}, "a=$")
 
     def test_mapping_str_str_with_ordering(self):
@@ -330,16 +323,6 @@ class TestMapping:
         desc = mapping(str, str, "|", "=", empty_marker="_", ordering_key=lambda x: x[0])
         assert_conversions(desc, {}, "_")
 
-    def test_mapping_with_compact_pair(self):
-        """Test mapping with use_compact_pair for empty values."""
-        desc = mapping(str, str, "|", "=", use_compact_pair=True, ordering_key=lambda x: x[0])
-        assert_conversions(desc, {"a": "", "b": "value"}, "a|b=value")
-
-    def test_mapping_without_compact_pair_error(self):
-        """Test that deserialization fails without use_compact_pair when no delimiter."""
-        desc = mapping(str, str, "|", "=", use_compact_pair=False)
-        assert_deserialization_error(desc, "a|b=value")
-
     def test_mapping_with_array_values(self):
         """Test mapping with array values."""
         desc = mapping(str, array(int, ","), "|", ":", ordering_key=lambda x: x[0])
@@ -362,24 +345,33 @@ class TestMapping:
         )
         assert_conversions(desc, {"a": {"x": 1, "y": 2}}, "a=x:1,y:2")
 
-    def test_mapping_compact_pair_roundtrip_error(self):
-        # NOTE: This test will be updated in a future change, but is marked here for validation that
-        # this doesn't introduce itself again.
-        """Test that the compact pair flag results in invalid round trips."""
 
-        desc = mapping(str, nullable(array(str, ",")), "|", "=", "_", use_compact_pair=True)
-        namespace = _get_base_namespace()
-        deser_name = desc.deserialize_codegen(namespace)
-        ser_name = desc.serialize_codegen(namespace)
+class TestMappingExt:
 
-        buffer = "names=person1,person2|ages=45,40|Coworkers"
-        val = namespace[deser_name](buffer)
-        assert val["Coworkers"] is None
-        val["Coworkers"] = []
+    def test_mapping_with_none_singleton(self):
+        """Test the mapping extension with none for singleton for empty values."""
+        desc = mapping_ext(str, str, None, "|", "=", ordering_key=lambda x: x[0])
+        assert_conversions(desc, {"a": None, "b": "value", "c": ""}, "a|b=value|c=")
 
-        ser_name = desc.serialize_codegen(namespace)
-        serialized = namespace[ser_name](val)
-        assert serialized == buffer
+    def test_mapping_str_nullable_str_singleton(self):
+        """Test mapping with str:Optional[str]."""
+        desc = mapping_ext(str, str, None, "|", "=", "_", None)
+        assert_conversions(desc, {"": None}, "")
+        assert_conversions(desc, {"a": None}, "a")
+        assert_conversions(desc, {"b": ""}, "b=")
+        assert_conversions(desc, {"a": "$"}, "a=$")
+
+    def test_mapping_singleton_roundtrips(self):
+        """Test that the singleton usage properly round trips."""
+        desc = mapping_ext(str, array(str, ","), None, "|", "=", "_", lambda p: p)
+        val = {"names": ["person1", "person2"], "ages": ["45", "40"], "z": None}
+        buffer = "ages=45,40|names=person1,person2|z"
+
+        assert_conversions(desc, val, buffer)
+
+        val["z"] = []
+        buffer += "="
+        assert_conversions(desc, val, buffer)
 
 
 class TestVia:

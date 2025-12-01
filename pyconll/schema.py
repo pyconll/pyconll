@@ -295,7 +295,6 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
     kv_delimiter: str
     empty_marker: str
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
-    use_compact_pair: bool
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         key_sub_method_name = _deserialize_sub_method_name(namespace, self.kmapper)
@@ -311,12 +310,8 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
                 for pair in pairs:
                     avs = pair.split({self.kv_delimiter!r}, 1)
                     if len(avs) == 1:
-                        if {(self.use_compact_pair, bool)!r}:
-                            avs.append("")
-                        else:
-                            raise ParseError(f"Could not parse one of the pairs in {{s}} which did "
-                                              "not have an attribute-value delimiter.")
-
+                        raise ParseError(f"Could not parse one of the pairs in {{s}} which did "
+                                          "not have an attribute-value delimiter.")
                     d[{key_sub_method_name}(avs[0])] = {value_sub_method_name}(avs[1])
 
                 return d
@@ -342,11 +337,75 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
 
                 transformed = []
                 for (key, value) in items:
-                    value_str = {value_sub_method_name}(value)
-                    if {(self.use_compact_pair, bool)!r} and value_str == "":
-                        transformed.append(({key_sub_method_name}(key),))
+                    transformed.append(({key_sub_method_name}(key), {value_sub_method_name}(value)))
+                gen_expr = ({self.kv_delimiter!r}.join(t) for t in transformed)
+                return {self.pair_delimiter!r}.join(gen_expr)
+            """)
+
+
+@dataclass(frozen=True, slots=True)
+class _MappingExtDescriptor[K, V, S](BaseFieldDescriptor[dict[K, V | S]]):
+    kmapper: type[K] | FieldDescriptor[K]
+    vmapper: type[V] | FieldDescriptor[V]
+    singleton: S
+    pair_delimiter: str
+    kv_delimiter: str
+    empty_marker: str
+    ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]]
+
+    def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
+        key_sub_method_name = _deserialize_sub_method_name(namespace, self.kmapper)
+        value_sub_method_name = _deserialize_sub_method_name(namespace, self.vmapper)
+
+        singleton_name = unique_name_id(namespace, "mapping_ext_singleton")
+        namespace[singleton_name] = self.singleton
+
+        return process_ir(t"""
+            def {method_name}(s):
+                if s == {self.empty_marker!r}:
+                    return {{}}
+
+                d = {{}}
+                pairs = s.split({self.pair_delimiter!r})
+                for pair in pairs:
+                    avs = pair.split({self.kv_delimiter!r}, 1)
+                    if len(avs) == 1:
+                        value = {singleton_name}
                     else:
-                        transformed.append(({key_sub_method_name}(key), value_str))
+                        value = {value_sub_method_name}(avs[1])
+
+                    d[{key_sub_method_name}(avs[0])] = value
+
+                return d
+            """)
+
+    def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
+        key_sub_method = _serialize_sub_method_name(namespace, self.kmapper)
+        value_sub_method = _serialize_sub_method_name(namespace, self.vmapper)
+
+        singleton_name = unique_name_id(namespace, "mapping_ext_singleton")
+        namespace[singleton_name] = self.singleton
+
+        if self.ordering_key is not None:
+            ordering_key_id = unique_name_id(namespace, "_MappingDescriptor_ordering_key")
+            namespace[ordering_key_id] = self.ordering_key
+            items_ir = t"items = sorted(mapping.items(), key={ordering_key_id})"
+        else:
+            items_ir = t"items = mapping.items()"
+
+        return process_ir(t"""
+            def {method_name}(mapping):
+                if not mapping:
+                    return {self.empty_marker!r}
+
+                {items_ir:t}
+
+                transformed = []
+                for (key, value) in items:
+                    if value == {singleton_name}:
+                        transformed.append(({key_sub_method}(key),))
+                    else:
+                        transformed.append(({key_sub_method}(key), {value_sub_method}(value)))
                 gen_expr = ({self.kv_delimiter!r}.join(t) for t in transformed)
                 return {self.pair_delimiter!r}.join(gen_expr)
             """)
@@ -467,7 +526,6 @@ def mapping[K, V](
     kv_delimiter: str,
     empty_marker: str = "",
     ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]] = None,
-    use_compact_pair: bool = False,
 ) -> _MappingDescriptor[K, V]:
     """
     Describe a serialization scheme for a dictionary.
@@ -479,21 +537,52 @@ def mapping[K, V](
         kv_delimiter: The string to delimit the key and value within a single pair.
         empty_marker: The string representation which maps to an empty dict.
         ordering_key: If provided, describes the order in which the dict entries are serialized.
-        use_compact_pair: A compact pair is one in which if the serialized value is an empty string
-            then the key-value delimiter is not present. If set, this allows for compact pairs in
-            deserialization and prefers compact pairs in serialization.
 
     Returns:
         The FieldDescriptor to use for compiling the structural Token parser.
     """
-    return _MappingDescriptor[K, V](
+    return _MappingDescriptor(
         kmapper,
         vmapper,
         pair_delimiter,
         kv_delimiter,
         empty_marker,
         ordering_key,
-        use_compact_pair,
+    )
+
+
+def mapping_ext[K, V, S](
+    kmapper: type[K] | FieldDescriptor[K],
+    vmapper: type[V] | FieldDescriptor[V],
+    singleton: S,
+    pair_delimiter: str,
+    kv_delimiter: str,
+    empty_marker: str = "",
+    ordering_key: Optional[Callable[[tuple[K, V]], "SupportsRichComparison"]] = None,
+) -> _MappingExtDescriptor[K, V, S]:
+    """
+    Describe a serialization scheme for a dictionary with various extensions over the default.
+
+    Args:
+        kmapper: The nested mapper to describe the serialization scheme for keys in the map.
+        vmapper: The nested mapper to describe the serialization scheme for values in the map.
+        singleton: The value to use as the singleton marker.
+        pair_delimiter: The string to delimit key-value pairs in the serialized representation.
+        kv_delimiter: The string to delimit the key and value within a single pair.
+        empty_marker: The string representation which maps to an empty dict.
+        ordering_key: If provided, describes the order in which the dict entries are serialized.
+
+    Returns:
+        The FieldDescriptor to use for compiling the structural Token parser.
+    """
+    return _MappingExtDescriptor[K, V, S](
+        kmapper,
+        vmapper,
+        singleton,
+        pair_delimiter,
+        kv_delimiter,
+        empty_marker,
+        ordering_key,
     )
 
 
@@ -510,7 +599,9 @@ def varcols[T](mapper: type[T] | FieldDescriptor[T]) -> _VarColsDescriptor[T]:
     return _VarColsDescriptor[T](mapper)
 
 
-def via[T](deserialize: Callable[[str], T], serialize: Callable[[T], str]) -> _ViaDescriptor[T]:
+def via[T](
+    deserialize: Callable[[str], T], serialize: Callable[[T], str] = str
+) -> _ViaDescriptor[T]:
     """
     Describe a user-provided serialization scheme which uses arbitrary callables.
 
