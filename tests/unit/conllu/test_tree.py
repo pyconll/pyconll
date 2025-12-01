@@ -7,11 +7,10 @@ import pytest
 from tests.unit.util import assert_tree_structure
 
 from pyconll import conllu
-from pyconll.conllu import Token
-from pyconll.format import Format
+from pyconll.conllu import ConlluFormat
 
 
-def test_to_tree_standard_sentence(conllu_format: Format[Token]):
+def test_to_tree_standard_sentence(conllu_format: ConlluFormat):
     """
     Test that a normal sentence can be parsed properly.
     """
@@ -24,7 +23,7 @@ def test_to_tree_standard_sentence(conllu_format: Format[Token]):
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = conllu_format.parse_sentence(source)
-    st = conllu.tree_from_tokens(sentence.tokens)
+    st = sentence.to_tree()
 
     assert_tree_structure(
         st,
@@ -37,7 +36,7 @@ def test_to_tree_standard_sentence(conllu_format: Format[Token]):
     )
 
 
-def test_to_tree_token_with_no_head(conllu_format: Format[Token]):
+def test_to_tree_token_with_no_head(conllu_format: ConlluFormat):
     """
     Test that a sentence with a token with no head results in error.
     """
@@ -51,10 +50,10 @@ def test_to_tree_token_with_no_head(conllu_format: Format[Token]):
     )
     sentence = conllu_format.parse_sentence(source)
     with pytest.raises(ValueError):
-        conllu.tree_from_tokens(sentence.tokens)
+        st = sentence.to_tree()
 
 
-def test_to_tree_empty_node_exception(conllu_format: Format[Token]):
+def test_to_tree_empty_node_exception(conllu_format: ConlluFormat):
     """
     Test tree parsing for sentence with an empty node.
     """
@@ -68,7 +67,7 @@ def test_to_tree_empty_node_exception(conllu_format: Format[Token]):
         "4	?	?	PUNCT	_	_	3	punct	_	_\n"
     )
     sentence = conllu_format.parse_sentence(source)
-    st = conllu.tree_from_tokens(sentence.tokens)
+    st = sentence.to_tree()
 
     assert_tree_structure(
         st,
@@ -81,7 +80,7 @@ def test_to_tree_empty_node_exception(conllu_format: Format[Token]):
     )
 
 
-def test_to_tree_no_root_token(conllu_format: Format[Token]):
+def test_to_tree_no_root_token(conllu_format: ConlluFormat):
     """
     Test that a sentence with no root token results in error.
     """
@@ -95,10 +94,10 @@ def test_to_tree_no_root_token(conllu_format: Format[Token]):
     )
     sentence = conllu_format.parse_sentence(source)
     with pytest.raises(ValueError):
-        conllu.tree_from_tokens(sentence.tokens)
+        sentence.to_tree()
 
 
-def test_to_tree_multiword_present(conllu_format: Format[Token]):
+def test_to_tree_multiword_present(conllu_format: ConlluFormat):
     """
     Test that a normal sentence can be parsed properly.
     """
@@ -114,7 +113,7 @@ def test_to_tree_multiword_present(conllu_format: Format[Token]):
         "6	?	?	PUNCT	_	_	5	punct	_	_\n"
     )
     sentence = conllu_format.parse_sentence(source)
-    st = conllu.tree_from_tokens(sentence.tokens)
+    st = sentence.to_tree()
 
     assert_tree_structure(
         st,
@@ -129,7 +128,7 @@ def test_to_tree_multiword_present(conllu_format: Format[Token]):
     )
 
 
-def test_to_tree_multi_level(conllu_format: Format[Token]):
+def test_to_tree_multi_level(conllu_format: ConlluFormat):
     """
     Test a sentence with several levels of dependencies deep is properly parsed.
     """
@@ -152,7 +151,7 @@ def test_to_tree_multi_level(conllu_format: Format[Token]):
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
     sentence = conllu_format.parse_sentence(source)
-    st = conllu.tree_from_tokens(sentence.tokens)
+    st = sentence.to_tree()
 
     assert_tree_structure(
         st,
@@ -175,7 +174,7 @@ def test_to_tree_multi_level(conllu_format: Format[Token]):
     )
 
 
-def test_tree_empty_sentence(conllu_format: Format[Token]):
+def test_tree_empty_sentence(conllu_format: ConlluFormat):
     """
     Test that an empty sentence throws an error on Tree creation.
     """
@@ -183,10 +182,10 @@ def test_tree_empty_sentence(conllu_format: Format[Token]):
     sentence = conllu_format.parse_sentence(source)
 
     with pytest.raises(ValueError):
-        conllu.tree_from_tokens(sentence.tokens)
+        sentence.to_tree()
 
 
-def test_tree_no_extra_nodes(conllu_format: Format[Token]):
+def test_tree_no_extra_nodes(conllu_format: ConlluFormat):
     """
     Test that there are the right amount of nodes in the tree.
     """
@@ -209,7 +208,7 @@ def test_tree_no_extra_nodes(conllu_format: Format[Token]):
         "14	.	.	PUNCT	_	_	3	punct	_	_"
     )
     sentence = conllu_format.parse_sentence(source)
-    st = conllu.tree_from_tokens(sentence.tokens)
+    st = sentence.to_tree()
 
     count = 0
     nodes = [st]

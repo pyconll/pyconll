@@ -1,8 +1,7 @@
 import pytest
 
-from pyconll.conllu import Token, conllu
+from pyconll.conllu import Sentence, Token, conllu
 from pyconll.exception import FormatError
-from pyconll.sentence import Sentence
 from tests.unit.util import assert_token_members, parse_sentence
 
 

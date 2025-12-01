@@ -2,12 +2,11 @@ import pytest
 
 from tests.unit.util import assert_token_members
 
-from pyconll.conllu import Token
-from pyconll.format import Format
-from pyconll.exception import ParseError, FormatError
+from pyconll.conllu import ConlluFormat
+from pyconll.exception import ParseError
 
 
-def test_construction(conllu_format: Format[Token]):
+def test_construction(conllu_format: ConlluFormat):
     """
     Test the normal construction of a general token.
     """
@@ -29,7 +28,7 @@ def test_construction(conllu_format: Format[Token]):
     )
 
 
-def test_construction_no_newline(conllu_format: Format[Token]):
+def test_construction_no_newline(conllu_format: ConlluFormat):
     """
     Test the construction of a token with no newline at the end of the line.
     """
@@ -51,7 +50,7 @@ def test_construction_no_newline(conllu_format: Format[Token]):
     )
 
 
-def test_only_form_and_lemma(conllu_format: Format[Token]):
+def test_only_form_and_lemma(conllu_format: ConlluFormat):
     """
     Test construction when token line only has a form and lemma.
     """
@@ -63,7 +62,7 @@ def test_only_form_and_lemma(conllu_format: Format[Token]):
     )
 
 
-def test_multiple_features_modify(conllu_format: Format[Token]):
+def test_multiple_features_modify(conllu_format: ConlluFormat):
     """
     Test modification of features.
     """
@@ -112,7 +111,7 @@ def test_multiple_features_modify(conllu_format: Format[Token]):
     )
 
 
-def test_deps_construction(conllu_format: Format[Token]):
+def test_deps_construction(conllu_format: ConlluFormat):
     """
     Test construction of a token when the deps field is present.
     """
@@ -134,7 +133,7 @@ def test_deps_construction(conllu_format: Format[Token]):
     )
 
 
-def test_multiword_construction(conllu_format: Format[Token]):
+def test_multiword_construction(conllu_format: ConlluFormat):
     """
     Test the creation of a token that is a multiword token line.
     """
@@ -145,7 +144,7 @@ def test_multiword_construction(conllu_format: Format[Token]):
     assert token.is_multiword()
 
 
-def test_to_string(conllu_format: Format[Token]):
+def test_to_string(conllu_format: ConlluFormat):
     """
     Test if a token's string representation is accurate.
     """
@@ -155,7 +154,7 @@ def test_to_string(conllu_format: Format[Token]):
     assert conllu_format.serialize_token(token) == token_line
 
 
-def test_modify_unit_field_to_string(conllu_format: Format[Token]):
+def test_modify_unit_field_to_string(conllu_format: ConlluFormat):
     """
     Test a token's string representation after changing one of it's fields.
     """
@@ -169,7 +168,7 @@ def test_modify_unit_field_to_string(conllu_format: Format[Token]):
     assert conllu_format.serialize_token(token) == new_token_line
 
 
-def test_modify_dict_field_to_string(conllu_format: Format[Token]):
+def test_modify_dict_field_to_string(conllu_format: ConlluFormat):
     """
     Test a token's string representation after adding a feature.
     """
@@ -183,7 +182,7 @@ def test_modify_dict_field_to_string(conllu_format: Format[Token]):
     assert conllu_format.serialize_token(token) == new_token_line
 
 
-def test_remove_feature_to_string(conllu_format: Format[Token]):
+def test_remove_feature_to_string(conllu_format: ConlluFormat):
     """
     Test a token's string representation after removing a feature completely.
     """
@@ -197,7 +196,7 @@ def test_remove_feature_to_string(conllu_format: Format[Token]):
     assert conllu_format.serialize_token(token) == new_token_line
 
 
-def test_underscore_construction(conllu_format: Format[Token]):
+def test_underscore_construction(conllu_format: ConlluFormat):
     """
     Test construction of token without empty assumption and no form or lemma.
     """
@@ -209,7 +208,7 @@ def test_underscore_construction(conllu_format: Format[Token]):
     )
 
 
-def test_empty_form_present_lemma(conllu_format: Format[Token]):
+def test_empty_form_present_lemma(conllu_format: ConlluFormat):
     """
     Test construction of token without empty assumption and no form but a present lemma.
     """
@@ -221,7 +220,7 @@ def test_empty_form_present_lemma(conllu_format: Format[Token]):
     )
 
 
-def test_empty_lemma_present_form(conllu_format: Format[Token]):
+def test_empty_lemma_present_form(conllu_format: ConlluFormat):
     """
     Test construction of token without empty assumption and no lemma but a present form.
     """
@@ -233,7 +232,7 @@ def test_empty_lemma_present_form(conllu_format: Format[Token]):
     )
 
 
-def test_improper_source(conllu_format: Format[Token]):
+def test_improper_source(conllu_format: ConlluFormat):
     """
     Test that when an input without 10 delimited columns raises a ParseError.
     """
@@ -243,7 +242,7 @@ def test_improper_source(conllu_format: Format[Token]):
         token = conllu_format.parse_token(token_line)
 
 
-def test_misc_parsing(conllu_format: Format[Token]):
+def test_misc_parsing(conllu_format: ConlluFormat):
     """
     Test that a misc field is properly parsed in all of its cases.
     """
@@ -262,7 +261,7 @@ def test_misc_parsing(conllu_format: Format[Token]):
     assert token.misc["Independent"] == set(("P", "Q"))
 
 
-def test_deps_parsing(conllu_format: Format[Token]):
+def test_deps_parsing(conllu_format: ConlluFormat):
     """
     Test that the deps field is properly parsed.
     """
@@ -276,7 +275,7 @@ def test_deps_parsing(conllu_format: Format[Token]):
     assert conllu_format.serialize_token(token) == token_line
 
 
-def test_invalid_token(conllu_format: Format[Token]):
+def test_invalid_token(conllu_format: ConlluFormat):
     """
     Test that a token is identified as invalid.
     """
@@ -286,7 +285,7 @@ def test_invalid_token(conllu_format: Format[Token]):
         token = conllu_format.parse_token(token_line)
 
 
-def test_invalid_token_feats(conllu_format: Format[Token]):
+def test_invalid_token_feats(conllu_format: ConlluFormat):
     """
     Test that the features field must have an attribute value form.
     """
@@ -299,7 +298,7 @@ def test_invalid_token_feats(conllu_format: Format[Token]):
         token = conllu_format.parse_token(token_line)
 
 
-def test_invalid_token_deps(conllu_format: Format[Token]):
+def test_invalid_token_deps(conllu_format: ConlluFormat):
     """
     Test that there is no singleton parsing in the misc field.
     """
@@ -309,7 +308,7 @@ def test_invalid_token_deps(conllu_format: Format[Token]):
     assert token.misc["SpaceAfter"] == set(("No",))
 
 
-def test_enhanced_deps_parsing(conllu_format: Format[Token]):
+def test_enhanced_deps_parsing(conllu_format: ConlluFormat):
     """
     Test that the enhanced deps field is parsed properly.
     """
@@ -323,7 +322,7 @@ def test_enhanced_deps_parsing(conllu_format: Format[Token]):
     assert token.deps["4"] == ("root",)
 
 
-def test_enhanced_deps_parsing_invalid(conllu_format: Format[Token]):
+def test_enhanced_deps_parsing_invalid(conllu_format: ConlluFormat):
     """
     Test that an error is thrown when the enhanced deps is invalid.
     """
@@ -332,7 +331,7 @@ def test_enhanced_deps_parsing_invalid(conllu_format: Format[Token]):
         token = conllu_format.parse_token(token_line)
 
 
-def test_misc_parsing_output(conllu_format: Format[Token]):
+def test_misc_parsing_output(conllu_format: ConlluFormat):
     """
     Test that the misc field is properly output in CoNLL-U format.
     """
@@ -356,7 +355,7 @@ def test_misc_parsing_output(conllu_format: Format[Token]):
     assert expected_output == conllu_format.serialize_token(token)
 
 
-def test_del_values(conllu_format: Format[Token]):
+def test_del_values(conllu_format: ConlluFormat):
     """
     Test that values and features can be deleted from different token columns.
     """
@@ -373,7 +372,7 @@ def test_del_values(conllu_format: Format[Token]):
     assert expected == conllu_format.serialize_token(token)
 
 
-def test_empty_set_format_error(conllu_format: Format[Token]):
+def test_empty_set_format_error(conllu_format: ConlluFormat):
     """
     Test that outputting an empty collection for the values of a column errors.
     """
@@ -406,7 +405,7 @@ def test_empty_set_format_error(conllu_format: Format[Token]):
 #        conllu_format.serialize_token(token)
 
 
-def test_all_deps_components(conllu_format: Format[Token]):
+def test_all_deps_components(conllu_format: ConlluFormat):
     """
     Test that deps can be parsed properly when all items are provided.
     """
@@ -419,7 +418,7 @@ def test_all_deps_components(conllu_format: Format[Token]):
     assert token.deps["2"] == ("nsubj", "another", "and", "another")
 
 
-def test_empty_deps(conllu_format: Format[Token]):
+def test_empty_deps(conllu_format: ConlluFormat):
     """
     Test that the deps for a field cannot be empty.
     """
@@ -441,7 +440,7 @@ def test_empty_deps(conllu_format: Format[Token]):
     )
 
 
-def test_no_empty_deps(conllu_format: Format[Token]):
+def test_no_empty_deps(conllu_format: ConlluFormat):
     """
     Test that the deps for a field cannot be empty.
     """
@@ -451,7 +450,7 @@ def test_no_empty_deps(conllu_format: Format[Token]):
         token = conllu_format.parse_token(token_line)
 
 
-def test_feats_keep_case_insensitive_order(conllu_format: Format[Token]):
+def test_feats_keep_case_insensitive_order(conllu_format: ConlluFormat):
     """
     Test that the features are kept sorted via case insensitive attributes.
     """
@@ -462,7 +461,7 @@ def test_feats_keep_case_insensitive_order(conllu_format: Format[Token]):
     assert conll == token_line
 
 
-def test_feats_induce_case_insensitive_order(conllu_format: Format[Token]):
+def test_feats_induce_case_insensitive_order(conllu_format: ConlluFormat):
     """
     Test that case insensitive sorting of feature attributes is induced.
     """
@@ -475,7 +474,7 @@ def test_feats_induce_case_insensitive_order(conllu_format: Format[Token]):
     assert conll == formatted_line
 
 
-def test_deps_sort_order(conllu_format: Format[Token]):
+def test_deps_sort_order(conllu_format: ConlluFormat):
     """
     Test that the enhanced dependencies order is properly sorted.
     """
@@ -491,7 +490,7 @@ def test_deps_sort_order(conllu_format: Format[Token]):
     assert conll == formatted_line
 
 
-def test_deps_sort_order_mwt(conllu_format: Format[Token]):
+def test_deps_sort_order_mwt(conllu_format: ConlluFormat):
     """
     Test that the enhanced dependencies order is properly sorted when using a multi-word token.
     """
@@ -507,7 +506,7 @@ def test_deps_sort_order_mwt(conllu_format: Format[Token]):
     assert conll == formatted_line
 
 
-def test_deps_sort_order_double_digits(conllu_format: Format[Token]):
+def test_deps_sort_order_double_digits(conllu_format: ConlluFormat):
     """
     Test that enhanced dependencies are sorted via numeric index and not string.
     """
@@ -523,7 +522,7 @@ def test_deps_sort_order_double_digits(conllu_format: Format[Token]):
     assert conll == formatted_line
 
 
-def test_deps_sort_order_decimal(conllu_format: Format[Token]):
+def test_deps_sort_order_decimal(conllu_format: ConlluFormat):
     """
     Test that enhanced dependencies are sorted properly for ranges.
     """
@@ -543,7 +542,7 @@ def test_deps_sort_order_decimal(conllu_format: Format[Token]):
     assert conll == formatted_line
 
 
-def test_empty_node(conllu_format: Format[Token]):
+def test_empty_node(conllu_format: ConlluFormat):
     """
     Test the construction of an empty node token.
     """
