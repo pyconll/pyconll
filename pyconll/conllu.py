@@ -371,7 +371,7 @@ class Sentence(SentenceBase[Token]):
         )
 
 
-conllu = Format(
+fast_conllu = Format(
     Token, Sentence, field_descriptors=_standard_token_fields
 )  # pylint: disable=invalid-name
 """
@@ -379,7 +379,7 @@ The default Format instance which can handle CoNLL-U objects directly.
 This provides both parsing and serialization capabilities in a single interface.
 """
 
-compact_conllu = Format(
+conllu = Format(
     Token, Sentence, field_descriptors=_compact_token_fields
 )  # pylint: disable=invalid-name
 """
@@ -389,3 +389,6 @@ provides both parsing and serialization capabilities in a single interface.
 """
 
 type ConlluFormat = Format[Token, Sentence]
+"""
+A type alias for the format instances
+"""
