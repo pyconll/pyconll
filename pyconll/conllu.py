@@ -346,8 +346,9 @@ class Sentence(SentenceBase[Token]):
         """
         Create a tree from the default, pre-defined CoNLL-U tokens.
 
-        This follows the assumptions of the CoNLL-U format, such as that the root token has a parent id
-        of "0", and that empty and multiword tokens do not participate in the underlying tree structure.
+        This follows the assumptions of the CoNLL-U format, such as that the root token has a parent
+        id of "0", and that empty and multiword tokens do not participate in the underlying tree
+        structure.
 
         Args:
             tokens: The token objects to create a tree structure from.
@@ -368,6 +369,7 @@ class Sentence(SentenceBase[Token]):
             lambda k: assert_val(k.head),
             lambda k: k.is_empty_node() or k.is_multiword(),
         )
+
 
 conllu = Format(
     Token, Sentence, field_descriptors=_standard_token_fields

@@ -114,6 +114,7 @@ def parse_sentence(lines: str) -> Sentence[Token]:
 
     return sentences[0]
 
+
 class InMemorySentence[T](SentenceBase[T]):
     __slots__ = ["meta", "tokens"]
 

@@ -125,9 +125,7 @@ def test_equivalence_across_load_operations(conllu_format: ConlluFormat):
     with open(fixture_location("long.conll"), encoding="utf-8") as resource:
         resource_c = conllu_format.load_from_resource(resource)
 
-    def assert_equivalent_conll_objs(
-        conll1: list[Sentence], conll2: list[Sentence]
-    ) -> None:
+    def assert_equivalent_conll_objs(conll1: list[Sentence], conll2: list[Sentence]) -> None:
         assert len(conll1) == len(conll1)
         for i in range(len(conll1)):
             assert conll1[i].meta["sent_id"] == conll2[i].meta["sent_id"]

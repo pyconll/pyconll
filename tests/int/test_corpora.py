@@ -375,7 +375,9 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
             _test_treebank(conllu, path, skip_write)
 
 
-def _test_treebank[T, S: SentenceBase](format: Format[T, S], treebank_path: Path, skip_write: bool) -> None:
+def _test_treebank[T, S: SentenceBase](
+    format: Format[T, S], treebank_path: Path, skip_write: bool
+) -> None:
     """
     Test that the provided treebank can be parsed and written without error.
 
