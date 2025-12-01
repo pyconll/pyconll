@@ -48,7 +48,9 @@ def _compile_deserialize_schema_ir(
         "Attributes for column schemas must either be unassigned (None) or a FieldDescriptor."
     )
 
+
 _serialize_cache: dict[FieldDescriptor, tuple[str, Any]] = {}
+
 
 def _compile_serialize_schema_ir(
     namespace: dict[str, Any],

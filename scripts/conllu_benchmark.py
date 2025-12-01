@@ -52,8 +52,7 @@ class Args:
     output_csv: Path
 
 
-EXCLUSIONS_BY_PARSER: dict[ParserType, set[str]] = {
-}
+EXCLUSIONS_BY_PARSER: dict[ParserType, set[str]] = {}
 
 
 def kernel(
@@ -107,7 +106,9 @@ def main(args: Args) -> None:
     elif args.parser == ParserType.COMPACT:
         parser = lambda s: compact_conllu.load_from_string(s)
     elif args.parser == ParserType.COMPACT_ITER:
-        parser = lambda s: sum(len(sentence.tokens) for sentence in compact_conllu.iter_from_string(s))
+        parser = lambda s: sum(
+            len(sentence.tokens) for sentence in compact_conllu.iter_from_string(s)
+        )
     elif args.parser == ParserType.ALTERNATIVE:
         parser = lambda s: alt.parse(s)
     elif args.parser == ParserType.ALTERNATIVE_ITER:
