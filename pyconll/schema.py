@@ -305,13 +305,16 @@ class _MappingDescriptor[K, V](BaseFieldDescriptor[dict[K, V]]):
                 if s == {self.empty_marker!r}:
                     return {{}}
 
-                try:
-                    return {{ {key_sub_method_name}(k): {value_sub_method_name}(v)
-                              for k, v in (pair.split({self.kv_delimiter!r}, 1) for pair in \
-                              s.split({self.pair_delimiter!r})) }}
-                except ValueError as exc:
-                    raise ParseError("Could not parse pairs in {{s}}. Possibly because of missing "
-                                     "an attribute-value delimiter.") from exc
+                d = {{}}
+                pairs = s.split({self.pair_delimiter!r})
+                for pair in pairs:
+                    avs = pair.split({self.kv_delimiter!r}, 1)
+                    if len(avs) == 1:
+                        raise ParseError(f"Could not parse one of the pairs in {{s}} which did "
+                                          "not have an attribute-value delimiter.")
+                    d[{key_sub_method_name}(avs[0])] = {value_sub_method_name}(avs[1])
+
+                return d
             """)
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
