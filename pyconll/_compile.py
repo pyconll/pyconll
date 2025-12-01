@@ -48,6 +48,7 @@ def _compile_deserialize_schema_ir(
         "Attributes for column schemas must either be unassigned (None) or a FieldDescriptor."
     )
 
+_serialize_cache: dict[FieldDescriptor, tuple[str, Any]] = {}
 
 def _compile_serialize_schema_ir(
     namespace: dict[str, Any],
@@ -70,7 +71,14 @@ def _compile_serialize_schema_ir(
         )
 
     if isinstance(attr, FieldDescriptor):
-        return attr.serialize_codegen(namespace)
+        if attr in _serialize_cache:
+            (old_name, old_method) = _serialize_cache[attr]
+            namespace[old_name] = old_method
+            return old_name
+
+        new_method_name = attr.serialize_codegen(namespace)
+        _serialize_cache[attr] = (new_method_name, namespace[new_method_name])
+        return new_method_name
 
     raise RuntimeError(
         "Attributes for column schemas must either be unassigned (None) or a FieldDescriptor."
