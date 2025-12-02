@@ -106,9 +106,7 @@ def main(args: Args) -> None:
     elif args.parser == ParserType.FAST:
         parser = lambda s: fast_conllu.load_from_string(s)
     elif args.parser == ParserType.FAST_ITER:
-        parser = lambda s: sum(
-            len(sentence.tokens) for sentence in fast_conllu.iter_from_string(s)
-        )
+        parser = lambda s: sum(len(sentence.tokens) for sentence in fast_conllu.iter_from_string(s))
     elif args.parser == ParserType.ALTERNATIVE:
         parser = lambda s: alt.parse(s)
     elif args.parser == ParserType.ALTERNATIVE_ITER:

@@ -371,24 +371,29 @@ class Sentence(SentenceBase[Token]):
         )
 
 
-fast_conllu = Format(
-    Token, Sentence, field_descriptors=_standard_token_fields
-)  # pylint: disable=invalid-name
-"""
-The default Format instance which can handle CoNLL-U objects directly.
-This provides both parsing and serialization capabilities in a single interface.
-"""
-
-conllu = Format(
-    Token, Sentence, field_descriptors=_compact_token_fields
-)  # pylint: disable=invalid-name
-"""
-The Format instance which handles CoNLL-U but creates a more compact in-memory representation. This
-comes at a slight runtime penalty, but in practice the memory used is X% less. This instance
-provides both parsing and serialization capabilities in a single interface.
-"""
-
 type ConlluFormat = Format[Token, Sentence]
 """
 A type alias for the format instances which can read and write CoNLL-U files.
+"""
+
+conllu: ConlluFormat = Format(
+    Token, Sentence, field_descriptors=_compact_token_fields
+)  # pylint: disable=invalid-name
+"""
+The Format instance which handles CoNLL-U and should be used in most scenarios. It is not as fast as
+fast_conllu (about 10-15% slower) but creates a much more compact in-memory representation (about
+30%) smaller. Specifically, the largest treebanks in the CoNLL-U corpus can be difficult to load on
+a normal laptop with multiple processes open, and this change avoids memory issues. This instance
+provides both parsing and serialization capabilities in a single interface.
+"""
+
+
+fast_conllu: ConlluFormat = Format(
+    Token, Sentence, field_descriptors=_standard_token_fields
+)  # pylint: disable=invalid-name
+"""
+The Format instance which has the same interface as the default conllu Format instance, but runs
+about 10% faster but uses more memory. In the case of using the iter_* family of methods (where the
+full treebank is not loaded at once into memory anyway), this instance can be preferred. This
+provides both parsing and serialization capabilities in a single interface.
 """
