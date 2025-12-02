@@ -12,6 +12,7 @@ import pytest
 from pyconll.exception import ParseError
 from pyconll.format import ReadFormat
 from pyconll.schema import tokenspec, nullable
+from tests.unit.util import InMemorySentence
 
 
 def test_custom_token_parsing():
@@ -25,7 +26,7 @@ def test_custom_token_parsing():
         category: int
         body: Optional[str] = nullable(str, "_")
 
-    p = ReadFormat(TestToken)
+    p = ReadFormat(TestToken, InMemorySentence[TestToken])
 
     source = (
         "1\t2\tSomething random.\n"
@@ -64,7 +65,7 @@ def test_middle_sentence_comment_fails():
         category: int
         body: Optional[str] = nullable(str, "_")
 
-    p = ReadFormat(TestToken)
+    p = ReadFormat(TestToken, InMemorySentence[TestToken])
 
     source = (
         "# comment1\n"

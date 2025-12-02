@@ -10,7 +10,6 @@ For typical use cases where both read and write operations are needed, use Forma
 For specialized read-only or write-only scenarios, use ReadFormat or WriteFormat directly.
 """
 
-from collections import OrderedDict
 import io
 import os
 import string
@@ -18,8 +17,7 @@ from typing import Iterator, Optional
 
 from pyconll import _compile
 from pyconll.exception import ParseError
-from pyconll.schema import FieldDescriptor
-from pyconll.sentence import Sentence
+from pyconll.schema import FieldDescriptor, SentenceBase
 
 PathLike = str | bytes | os.PathLike
 
@@ -53,7 +51,7 @@ def _pair_down_whitespace(
     return line[start_idx:end_idx]
 
 
-class ReadFormat[T]:
+class ReadFormat[T, S: SentenceBase]:
     """
     A read-only interface for parsing CoNLL formatted data.
 
@@ -64,7 +62,8 @@ class ReadFormat[T]:
 
     def __init__(
         self,
-        schema: type[T],
+        token_schema: type[T],
+        sentence_schema: type[S],
         comment_marker: str = "#",
         delimiter: str = "\t",
         collapse_delimiters: bool = False,
@@ -75,7 +74,8 @@ class ReadFormat[T]:
         Initialize the read format handler.
 
         Args:
-            schema: The Token type to use for parsing.
+            token_schema: The Token type to use for parsing.
+            sentence_schema: The Sentence type to use for parsing.
             comment_marker: The character that marks the beginning of comments. Defaults to '#'.
             delimiter: The delimiter between the columns on a token line. Defaults to tab.
             collapse_delimiters: Flag if sequential delimiters denote an empty value or should be
@@ -91,8 +91,10 @@ class ReadFormat[T]:
             raise ValueError("The comment marker is expected to only be one character.")
 
         self.comment_marker = comment_marker
+
+        self.sentence_schema = sentence_schema
         self.token_parser = _compile.token_parser(
-            schema, delimiter, collapse_delimiters, field_descriptors, extra_primitives
+            token_schema, delimiter, collapse_delimiters, field_descriptors, extra_primitives
         )
 
     def parse_token(self, buffer: str) -> T:
@@ -107,7 +109,7 @@ class ReadFormat[T]:
         """
         return self.token_parser(buffer)
 
-    def parse_sentence(self, buffer: str) -> Sentence[T]:
+    def parse_sentence(self, buffer: str) -> S:
         """
         Parse a single sentence from the buffer.
 
@@ -135,7 +137,7 @@ class ReadFormat[T]:
 
         return sentence
 
-    def load_from_string(self, source: str) -> list[Sentence[T]]:
+    def load_from_string(self, source: str) -> list[S]:
         """
         Parse a CoNLL formatted string into a list of sentences.
 
@@ -150,7 +152,7 @@ class ReadFormat[T]:
         """
         return list(self.iter_from_string(source))
 
-    def load_from_file(self, filepath: PathLike) -> list[Sentence[T]]:
+    def load_from_file(self, filepath: PathLike) -> list[S]:
         """
         Parse a CoNLL file into a list of sentences.
 
@@ -168,7 +170,7 @@ class ReadFormat[T]:
         """
         return list(self.iter_from_file(filepath))
 
-    def load_from_resource(self, resource: io.TextIOBase) -> list[Sentence[T]]:
+    def load_from_resource(self, resource: io.TextIOBase) -> list[S]:
         """
         Parse a CoNLL resource into a list of sentences.
 
@@ -184,7 +186,7 @@ class ReadFormat[T]:
         """
         return list(self.iter_from_resource(resource))
 
-    def iter_from_string(self, source: str) -> Iterator[Sentence[T]]:
+    def iter_from_string(self, source: str) -> Iterator[S]:
         """
         Iterate over the Sentences contained within the string.
 
@@ -199,7 +201,7 @@ class ReadFormat[T]:
         """
         yield from self.iter_from_resource(io.StringIO(source))
 
-    def iter_from_file(self, filepath: PathLike) -> Iterator[Sentence[T]]:
+    def iter_from_file(self, filepath: PathLike) -> Iterator[S]:
         """
         Iterate over the Sentence contained within the file.
 
@@ -218,7 +220,7 @@ class ReadFormat[T]:
         with open(filepath, encoding="utf-8") as f:
             yield from self.iter_from_resource(f)
 
-    def iter_from_resource(self, resource: io.TextIOBase) -> Iterator[Sentence[T]]:
+    def iter_from_resource(self, resource: io.TextIOBase) -> Iterator[S]:
         """
         Iterate over the Sentences contained within the resource.
 
@@ -232,24 +234,23 @@ class ReadFormat[T]:
         Raises:
             ParseError: If there is an error parsing the input.
         """
-        meta: OrderedDict[str, Optional[str]] = OrderedDict()
-        tokens: list[T] = []
+        sentence: S = self.sentence_schema()
         empty = True
         token_line_seen = False
         sentence_seen = False
 
-        def step_next_sentence() -> Sentence[T]:
-            nonlocal meta, tokens, empty, token_line_seen, sentence_seen
+        def step_next_sentence():
+            nonlocal sentence, empty, token_line_seen, sentence_seen
 
-            sentence = Sentence[T](meta, tokens)
+            sentence.__finalize__()
+            old = sentence
 
-            meta = OrderedDict()
-            tokens = []
+            sentence = self.sentence_schema()
             empty = True
             token_line_seen = False
             sentence_seen = True
 
-            return sentence
+            return old
 
         comment_len = len(self.comment_marker)
 
@@ -275,18 +276,17 @@ class ReadFormat[T]:
                 if equal_sep < 0:
                     key = _pair_down_whitespace(line, comment_len)
                     if key is not None:
-                        meta[key] = None
+                        sentence.__accept_meta__(key, None)
                 else:
                     key = _pair_down_whitespace(line, comment_len, equal_sep) or ""
                     value = _pair_down_whitespace(line, equal_sep + 1) or ""
-
-                    meta[key] = value
+                    sentence.__accept_meta__(key, value)
 
             else:
                 token_line_seen = True
                 try:
                     token = self.token_parser(line)
-                    tokens.append(token)
+                    sentence.__accept_token__(token)
                 except ParseError as exc:
                     raise ParseError(
                         f"Error parsing token on line number {line_num} of the line source."
@@ -307,7 +307,7 @@ class WriteFormat[T]:
 
     def __init__(
         self,
-        schema: type[T],
+        token_schema: type[T],
         comment_marker: str = "#",
         delimiter: str = "\t",
         field_descriptors: Optional[dict[str, Optional[FieldDescriptor]]] = None,
@@ -317,7 +317,8 @@ class WriteFormat[T]:
         Initialize the write format handler.
 
         Args:
-            schema: The Token type to use for serialization.
+            token_schema: The Token type to use for serialization.
+            sentence_schema: The Sentence type to use for serialization.
             comment_marker: The prefix to use for comments or metadata. Defaults to '#'.
             delimiter: The delimiter between Token columns. Defaults to tab.
             field_descriptors: The descriptors for the fields on the schema as a mapping from the
@@ -328,7 +329,7 @@ class WriteFormat[T]:
                 tokenspec decorator.
         """
         self.serializer = _compile.token_serializer(
-            schema, delimiter, field_descriptors, extra_primitives
+            token_schema, delimiter, field_descriptors, extra_primitives
         )
         self.comment_marker = comment_marker
 
@@ -344,7 +345,7 @@ class WriteFormat[T]:
         """
         return self.serializer(token)
 
-    def serialize_sentence(self, sentence: Sentence[T]) -> str:
+    def serialize_sentence[S: SentenceBase](self, sentence: S) -> str:
         """
         Serialize a Sentence to a string representation.
 
@@ -358,7 +359,7 @@ class WriteFormat[T]:
         self.write_sentence(sentence, buffer)
         return buffer.getvalue()
 
-    def write_sentence(self, sentence: Sentence[T], writable: io.TextIOBase) -> None:
+    def write_sentence[S: SentenceBase](self, sentence: S, writable: io.TextIOBase) -> None:
         """
         Write an individual sentence to an IO buffer.
 
@@ -382,7 +383,7 @@ class WriteFormat[T]:
             writable.write(self.serializer(token))
             writable.write("\n")
 
-    def write_corpus(self, corpus: Iterator[Sentence[T]], writable: io.TextIOBase) -> None:
+    def write_corpus[S: SentenceBase](self, corpus: Iterator[S], writable: io.TextIOBase) -> None:
         """
         Write out the entire corpus to the IO buffer.
 
@@ -398,7 +399,7 @@ class WriteFormat[T]:
             writable.write("\n")
 
 
-class Format[T](ReadFormat[T], WriteFormat[T]):
+class Format[T, S: SentenceBase](ReadFormat[T, S], WriteFormat[T]):
     """
     A unified interface for both parsing and serializing CoNLL formatted data.
 
@@ -413,7 +414,8 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
 
     def __init__(
         self,
-        schema: type[T],
+        token_schema: type[T],
+        sentence_schema: type[S],
         comment_marker: str = "#",
         delimiter: str = "\t",
         collapse_delimiters: bool = False,
@@ -424,7 +426,8 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
         Initialize the format handler with both read and write capabilities.
 
         Args:
-            schema: The Token type to use for parsing and serialization.
+            token_schema: The Token type to use for parsing and serialization.
+            sentence_schema: The Sentence type to use for parsing and serialization.
             comment_marker: The character that marks the beginning of comments. Defaults to '#'.
             delimiter: The delimiter between the columns on a token line. Defaults to tab.
             collapse_delimiters: Flag if sequential delimiters denote an empty value or should be
@@ -438,7 +441,8 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
         """
         ReadFormat.__init__(
             self,
-            schema,
+            token_schema,
+            sentence_schema,
             comment_marker,
             delimiter,
             collapse_delimiters,
@@ -446,5 +450,10 @@ class Format[T](ReadFormat[T], WriteFormat[T]):
             extra_primitives,
         )
         WriteFormat.__init__(
-            self, schema, comment_marker, delimiter, field_descriptors, extra_primitives
+            self,
+            token_schema,
+            comment_marker,
+            delimiter,
+            field_descriptors,
+            extra_primitives,
         )

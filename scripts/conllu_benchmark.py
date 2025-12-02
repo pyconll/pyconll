@@ -15,7 +15,7 @@ import conllu as alt
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pyconll.conllu import compact_conllu, conllu
+from pyconll.conllu import fast_conllu, conllu
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -23,8 +23,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 class ParserType(Enum):
     STANDARD = (auto(),)
     STANDARD_ITER = (auto(),)
-    COMPACT = (auto(),)
-    COMPACT_ITER = (auto(),)
+    FAST = (auto(),)
+    FAST_ITER = (auto(),)
     ALTERNATIVE = (auto(),)
     ALTERNATIVE_ITER = auto()
 
@@ -103,12 +103,10 @@ def main(args: Args) -> None:
         parser = lambda s: conllu.load_from_string(s)
     elif args.parser == ParserType.STANDARD_ITER:
         parser = lambda s: sum(len(sentence.tokens) for sentence in conllu.iter_from_string(s))
-    elif args.parser == ParserType.COMPACT:
-        parser = lambda s: compact_conllu.load_from_string(s)
-    elif args.parser == ParserType.COMPACT_ITER:
-        parser = lambda s: sum(
-            len(sentence.tokens) for sentence in compact_conllu.iter_from_string(s)
-        )
+    elif args.parser == ParserType.FAST:
+        parser = lambda s: fast_conllu.load_from_string(s)
+    elif args.parser == ParserType.FAST_ITER:
+        parser = lambda s: sum(len(sentence.tokens) for sentence in fast_conllu.iter_from_string(s))
     elif args.parser == ParserType.ALTERNATIVE:
         parser = lambda s: alt.parse(s)
     elif args.parser == ParserType.ALTERNATIVE_ITER:

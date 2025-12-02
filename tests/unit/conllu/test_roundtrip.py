@@ -7,12 +7,11 @@ produces identical output, ensuring format preservation.
 
 import io
 
-from pyconll.conllu import Token
-from pyconll.format import Format
+from pyconll.conllu import ConlluFormat
 from tests.unit.util import fixture_location
 
 
-def test_string_output(conllu_format: Format[Token]):
+def test_string_output(conllu_format: ConlluFormat):
     """
     Test that the strings are properly created.
     """

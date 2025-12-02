@@ -12,6 +12,8 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    MutableMapping,
+    MutableSequence,
     cast,
     Optional,
     TYPE_CHECKING,
@@ -762,3 +764,77 @@ def tokenspec(
         return decorator
 
     return decorator(cls)
+
+
+class SentenceBase[T](ABC):
+    """
+    The interface that all Sentence implementations need to accept to work with the
+    (de)serialization libraries. This defines the operations on the sentence for how to handle new
+    metadata and tokens while parsing a text stream along with how to access the values themselves
+    once in memory.
+    """
+
+    @property
+    @abstractmethod
+    def meta(self) -> MutableMapping[str, Optional[str]]:
+        """
+        The read view of the meta property.
+
+        Returns:
+            The mapping that represents the sentence's metadata.
+        """
+
+    @meta.setter
+    @abstractmethod
+    def meta(self, value: MutableMapping[str, Optional[str]]) -> None:
+        """
+        The set operation on the meta property.
+
+        Args:
+            value: The new mapping to set the metadata to.
+        """
+
+    @abstractmethod
+    def __accept_meta__(self, key: str, value: Optional[str]) -> None:
+        """
+        The lifecycle operation during parsing where the next metadata pair is received by the
+        Sentence object.
+
+        Args:
+            key: The key of the metadata.
+            value: The value of the metadata or None if the metadata is a singleton.
+        """
+
+    @property
+    @abstractmethod
+    def tokens(self) -> MutableSequence[T]:
+        """
+        The read view of the tokens property.
+
+        Returns:
+            The sequence that represents the sentence's tokens.
+        """
+
+    @tokens.setter
+    @abstractmethod
+    def tokens(self, value: MutableSequence[T]) -> None:
+        """
+        The set operation on the tokens property.
+
+        Args:
+            value: The new sequence to set the tokens to.
+        """
+
+    @abstractmethod
+    def __accept_token__(self, t: T) -> None:
+        """
+        The lifecycle operation during parsing where the next parsed token is received by the
+        Sentence object.
+
+        Args:
+            t: The next parsed token object to receive on this Sentence.
+        """
+
+    @abstractmethod
+    def __finalize__(self) -> None:
+        """Called once there is no more information to parse for the sentence."""

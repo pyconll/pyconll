@@ -6,12 +6,13 @@ data and parsing in this module is central to the CoNLL-U format.
 import functools
 import math
 import sys
-from typing import Optional, Sequence
+from typing import Optional, OrderedDict
 
 from pyconll import tree
 from pyconll.format import Format
 from pyconll.schema import (
     FieldDescriptor,
+    SentenceBase,
     mapping_ext,
     nullable,
     mapping,
@@ -275,45 +276,124 @@ _compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
 }
 
 
-def tree_from_tokens(tokens: Sequence[Token]) -> Tree[Token]:
+class Sentence(SentenceBase[Token]):
     """
-    Create a tree from the default, pre-defined CoNLL-U tokens.
+    A sentence in a CoNLL-U file. A sentence consists of several components.
 
-    This follows the assumptions of the CoNLL-U format, such as that the root token has a parent id
-    of "0", and that empty and multiword tokens do not participate in the underlying tree structure.
+    First, are comments. Each sentence must have two comments per UD v2
+    guidelines, which are sent_id and text. Comments are stored as a dict in
+    the meta field. For singleton comments with no key-value structure, the
+    value in the dict has a value of None.
 
-    Args:
-        tokens: The token objects to create a tree structure from.
+    Note the sent_id field is also assigned to the id property, and the text
+    field is assigned to the text property for usability, and their importance
+    as comments. The text property is read only along with the paragraph and
+    document id. This is because the paragraph and document id are not defined
+    per Sentence but across multiple sentences. Instead, these fields can be
+    changed through changing the metadata of the Sentences.
 
-    Returns:
-        The constructed Tree object.
+    Then comes the token annotations. Each sentence is made up of many token
+    lines that provide annotation to the text provided. While a sentence usually
+    means a collection of tokens, in this CoNLL-U sense, it is more useful to
+    think of it as a collection of annotations with some associated metadata.
+    Therefore the text of the sentence cannot be changed with this class, only
+    the associated annotations can be changed.
     """
 
-    def assert_val[K](val: Optional[K]) -> K:
-        if val is None:
-            raise ValueError("The value cannot be None here.")
-        return val
+    __slots__ = ["meta", "tokens"]
 
-    return tree.from_tokens(
-        tokens,
-        "0",
-        lambda k: assert_val(k.id),
-        lambda k: assert_val(k.head),
-        lambda k: k.is_empty_node() or k.is_multiword(),
-    )
+    def __init__(self) -> None:
+        """
+        Create a new structured Sentence object.
+        """
+        self.meta: OrderedDict[str, Optional[str]] = OrderedDict[str, Optional[str]]()
+        self.tokens: list[Token] = []
+
+    def __accept_meta__(self, key: str, value: Optional[str]) -> None:
+        """
+        Accept the next metadata values.
+
+        Args:
+            key: The key of the metadata.
+            value: The value of the metadata or None if it is a singleton.
+        """
+        self.meta[key] = value
+
+    def __accept_token__(self, t: Token) -> None:
+        """
+        Accept the next token value.
+
+        Args:
+            t: The next token value for this Sentence to accept.
+        """
+        self.tokens.append(t)
+
+    def __finalize__(self) -> None:
+        """
+        There is nothing to finalize for this Sentence type.
+        """
+
+    def __repr__(self) -> str:
+        """
+        Create a string that represents this Sentence object.
+
+        Returns:
+            The constructed string.
+        """
+        return f"Sentence(meta={self.meta!r}, tokens={self.tokens!r})"
+
+    def to_tree(self) -> Tree[Token]:
+        """
+        Create a tree from the default, pre-defined CoNLL-U tokens.
+
+        This follows the assumptions of the CoNLL-U format, such as that the root token has a parent
+        id of "0", and that empty and multiword tokens do not participate in the underlying tree
+        structure.
+
+        Args:
+            tokens: The token objects to create a tree structure from.
+
+        Returns:
+            The constructed Tree object.
+        """
+
+        def assert_val[K](val: Optional[K]) -> K:
+            if val is None:
+                raise ValueError("The value cannot be None here.")
+            return val
+
+        return tree.from_tokens(
+            self.tokens,
+            "0",
+            lambda k: assert_val(k.id),
+            lambda k: assert_val(k.head),
+            lambda k: k.is_empty_node() or k.is_multiword(),
+        )
 
 
-conllu = Format(Token, field_descriptors=_standard_token_fields)  # pylint: disable=invalid-name
+type ConlluFormat = Format[Token, Sentence]
 """
-The default Format instance which can handle CoNLL-U objects directly.
-This provides both parsing and serialization capabilities in a single interface.
+A type alias for the format instances which can read and write CoNLL-U files.
 """
 
-compact_conllu = Format(
-    Token, field_descriptors=_compact_token_fields
+conllu: ConlluFormat = Format(
+    Token, Sentence, field_descriptors=_compact_token_fields
 )  # pylint: disable=invalid-name
 """
-The Format instance which handles CoNLL-U but creates a more compact in-memory representation. This
-comes at a slight runtime penalty, but in practice the memory used is X% less. This instance
+The Format instance which handles CoNLL-U and should be used in most scenarios. It is not as fast as
+fast_conllu (about 10-15% slower) but creates a much more compact in-memory representation (about
+30%) smaller. Specifically, the largest treebanks in the CoNLL-U corpus can be difficult to load on
+a normal laptop with multiple processes open, and this change avoids memory issues. This instance
+provides both parsing and serialization capabilities in a single interface.
+"""
+
+
+fast_conllu: ConlluFormat = Format(
+    Token, Sentence, field_descriptors=_standard_token_fields
+)  # pylint: disable=invalid-name
+"""
+The Format instance which has the same interface as the default conllu Format instance, but runs
+about 10% faster but uses more memory. In the case of using the iter_* family of methods (where the
+full treebank is not loaded at once into memory anyway), this instance can be preferred. This
 provides both parsing and serialization capabilities in a single interface.
 """

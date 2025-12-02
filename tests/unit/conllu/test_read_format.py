@@ -8,14 +8,12 @@ different newline formats and whitespace handling.
 
 import pytest
 
-from pyconll.conllu import Token
-from pyconll.format import Format
-from pyconll.sentence import Sentence
+from pyconll.conllu import ConlluFormat, Sentence
 
 from tests.unit.util import assert_token_equivalence, fixture_location
 
 
-def test_load_from_string(conllu_format: Format[Token]):
+def test_load_from_string(conllu_format: ConlluFormat):
     """
     Test that a CoNLL file can properly be loaded from a string.
     """
@@ -38,7 +36,7 @@ def test_load_from_string(conllu_format: Format[Token]):
     assert c[3].meta["sent_id"] == "fr-ud-dev_00004"
 
 
-def test_load_from_file(conllu_format: Format[Token]):
+def test_load_from_file(conllu_format: ConlluFormat):
     """
     Test that a CoNLL file can properly be loaded from a filename.
     """
@@ -50,7 +48,7 @@ def test_load_from_file(conllu_format: Format[Token]):
     assert sent.tokens[9].form == "donc"
 
 
-def test_load_from_windows_newline_file(conllu_format: Format[Token]):
+def test_load_from_windows_newline_file(conllu_format: ConlluFormat):
     """
     Test that a CoNLL file can properly be loaded from a filename with windows newlines.
     """
@@ -63,7 +61,7 @@ def test_load_from_windows_newline_file(conllu_format: Format[Token]):
     assert sent.tokens[9].misc == {}
 
 
-def test_no_ending_newline(conllu_format: Format[Token]):
+def test_no_ending_newline(conllu_format: ConlluFormat):
     """
     Test correct creation when the ending of the file ends in no newline.
     """
@@ -81,7 +79,7 @@ def test_no_ending_newline(conllu_format: Format[Token]):
     assert conll[2].meta["sent_id"] == "fr-ud-dev_00003"
 
 
-def test_many_newlines(conllu_format: Format[Token]):
+def test_many_newlines(conllu_format: ConlluFormat):
     """
     Test correct Conll parsing when there are too many newlines.
     """
@@ -102,7 +100,7 @@ def test_many_newlines(conllu_format: Format[Token]):
     assert conll[3].meta["sent_id"] == "fr-ud-dev_00004"
 
 
-def test_load_from_resource(conllu_format: Format[Token]):
+def test_load_from_resource(conllu_format: ConlluFormat):
     """
     Test that a CoNLL file can properly be loaded from a string.
     """
@@ -115,7 +113,7 @@ def test_load_from_resource(conllu_format: Format[Token]):
         assert sent.tokens[9].form == "donc"
 
 
-def test_equivalence_across_load_operations(conllu_format: Format[Token]):
+def test_equivalence_across_load_operations(conllu_format: ConlluFormat):
     """
     Test that the Conll object created from a string, path, and resource is the same if
     the underlying source is the same.
@@ -127,9 +125,7 @@ def test_equivalence_across_load_operations(conllu_format: Format[Token]):
     with open(fixture_location("long.conll"), encoding="utf-8") as resource:
         resource_c = conllu_format.load_from_resource(resource)
 
-    def assert_equivalent_conll_objs(
-        conll1: list[Sentence[Token]], conll2: list[Sentence[Token]]
-    ) -> None:
+    def assert_equivalent_conll_objs(conll1: list[Sentence], conll2: list[Sentence]) -> None:
         assert len(conll1) == len(conll1)
         for i in range(len(conll1)):
             assert conll1[i].meta["sent_id"] == conll2[i].meta["sent_id"]
@@ -144,7 +140,7 @@ def test_equivalence_across_load_operations(conllu_format: Format[Token]):
     assert_equivalent_conll_objs(file_c, resource_c)
 
 
-def test_iter_from_string(conllu_format: Format[Token]):
+def test_iter_from_string(conllu_format: ConlluFormat):
     """
     Test that CoNLL files in string form can be iterated over without memory.
     """
@@ -156,7 +152,7 @@ def test_iter_from_string(conllu_format: Format[Token]):
     assert expected_ids == actual_ids
 
 
-def test_iter_from_file(conllu_format: Format[Token]):
+def test_iter_from_file(conllu_format: ConlluFormat):
     """
     Test that CoNLL files can be iterated over without memory given the
     filename.
@@ -170,7 +166,7 @@ def test_iter_from_file(conllu_format: Format[Token]):
     assert expected_ids == actual_ids
 
 
-def test_iter_from_resource(conllu_format: Format[Token]):
+def test_iter_from_resource(conllu_format: ConlluFormat):
     """
     Test that an arbitrary resource can be iterated over.
     """
@@ -181,7 +177,7 @@ def test_iter_from_resource(conllu_format: Format[Token]):
         assert expected_ids == actual_ids
 
 
-def test_invalid_conll(conllu_format: Format[Token]):
+def test_invalid_conll(conllu_format: ConlluFormat):
     """
     Test that an invalid sentence results in an invalid Conll object.
     """
@@ -189,7 +185,7 @@ def test_invalid_conll(conllu_format: Format[Token]):
         conllu_format.load_from_file(fixture_location("invalid.conll"))
 
 
-def test_extra_whitespace_conll(conllu_format: Format[Token]):
+def test_extra_whitespace_conll(conllu_format: ConlluFormat):
     """
     Test that extra spacing on a newline separating two sentences can be handled.
     """
