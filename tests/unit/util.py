@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Optional, OrderedDict
 
 from pyconll.conllu import Sentence, Token, conllu
-from pyconll.schema import SentenceBase
 from pyconll.tree import Tree
 
 
@@ -113,19 +112,3 @@ def parse_sentence(lines: str) -> Sentence[Token]:
         raise RuntimeError("Expected exactly one sentence in the lines given.")
 
     return sentences[0]
-
-
-class InMemorySentence[T](SentenceBase[T]):
-    __slots__ = ["meta", "tokens"]
-
-    def __init__(self) -> None:
-        self.meta: OrderedDict[str, Optional[str]] = OrderedDict()
-        self.tokens: list[T] = []
-
-    def __accept_meta__(self, key: str, value: Optional[str]) -> None:
-        self.meta[key] = value
-
-    def __accept_token__(self, t: T) -> None:
-        self.tokens.append(t)
-
-    def __finalize__(self) -> None: ...

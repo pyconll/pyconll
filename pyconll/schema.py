@@ -1,7 +1,9 @@
 # mypy: disable-error-code="misc"
 
 """
-Module for structural Token parsing schema components and building blocks.
+Module containing concepts for defining the schema of a CoNLL format such as through structural
+Token parsing schema components, the descriptor building blocks, and Sentence interface
+requirements.
 """
 
 from abc import ABC, abstractmethod
@@ -733,13 +735,13 @@ def tokenspec(
         extra = set(extra_primitives) if extra_primitives else set()
         setattr(cls, "__pyconll_spec_data", _SpecData(fields, extra))
 
+        namespace: dict[str, Any] = {}
+
         def def_method(name: str, temp: Template) -> None:
             assert_absent(cls, name)
             ir = process_ir(temp)
             exec(ir, namespace)  # pylint: disable=exec-used
             setattr(cls, name, namespace[name])
-
-        namespace: dict[str, Any] = {}
 
         post_init_ir = t"self.__post_init__()" if hasattr(cls, "__post_init__") else t""
         def_method(
@@ -766,7 +768,7 @@ def tokenspec(
     return decorator(cls)
 
 
-class SentenceBase[T](ABC):
+class AbstractSentence[T](ABC):
     """
     The interface that all Sentence implementations need to accept to work with the
     (de)serialization libraries. This defines the operations on the sentence for how to handle new

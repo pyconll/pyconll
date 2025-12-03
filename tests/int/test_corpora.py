@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import hashlib
 import logging
 import operator
@@ -14,7 +13,7 @@ import requests
 
 from pyconll.conllu import conllu
 from pyconll.format import Format
-from pyconll.schema import SentenceBase
+from pyconll.schema import AbstractSentence
 from tests.int.corpora import corpora, CorporaRegistration
 
 
@@ -375,7 +374,7 @@ def test_corpus(corpus: Path, exceptions: list[Path], pytestconfig: pytest.Confi
             _test_treebank(conllu, path, skip_write)
 
 
-def _test_treebank[T, S: SentenceBase](
+def _test_treebank[T, S: AbstractSentence](
     format: Format[T, S], treebank_path: Path, skip_write: bool
 ) -> None:
     """

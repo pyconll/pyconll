@@ -33,22 +33,26 @@ Creating a custom format for CoNLL-X:
 .. code:: python
 
     from pyconll.format import Format
-    from pyconll.schema import TokenSchema, nullable, unique_array
+    from pyconll.schema import tokenspec, nullable, unique_array, field
+    from pyconll.conllu import Sentence
+    from typing import Optional
 
-    class TokenX(TokenSchema):
+    @tokenspec
+    class TokenX:
         id: int
         form: str
         lemma: str
         cpostag: str
         postag: str
-        feats: set[str] = unique_array(str, "|", "_")
+        feats: set[str] = field(unique_array(str, "|", "_"))
         head: int
         deprel: str
-        phead: Optional[int] = nullable(int, "_")
-        pdeprel: Optional[str] = nullable(str, "_")
+        phead: Optional[int] = field(nullable(int, "_"))
+        pdeprel: Optional[str] = field(nullable(str, "_"))
 
     # Create format instance
-    conllx = Format(TokenX, comment_marker="#", delimiter="\\t")
+    # Note: Using Sentence from pyconll.conllu for now
+    conllx = Format(TokenX, Sentence[TokenX], comment_marker="#", delimiter="\t")
 
     # Load data
     sentences = conllx.load_from_file("data.conllx")
@@ -86,6 +90,52 @@ The Format class uses dynamic code generation (via Python's ``compile()`` and ``
 - Reuse Format instances rather than recreating them.
 
 For CoNLL-U specifically, use the pre-configured ``conllu`` instance from ``pyconll.conllu`` rather than creating your own.
+
+Advanced: Dynamic Field Descriptors
+----------------------------------
+
+The ``Format`` constructor accepts a ``field_descriptors`` parameter that allows you to provide field descriptors dynamically instead of as class attributes. This is useful for:
+
+- Switching between different serialization strategies at runtime
+- Performance tuning (e.g., using ``sys.intern`` for string interning)
+- Sharing token classes across multiple formats
+
+.. code:: python
+
+    from pyconll.format import Format
+    from pyconll.schema import tokenspec, nullable, via, FieldDescriptor
+    from pyconll.shared import Sentence
+    import sys
+    from typing import Optional
+
+    @tokenspec
+    class Token:
+        id: str
+        form: str
+        lemma: str
+        upos: str
+
+    # Define descriptors separately
+    standard_descriptors: dict[str, Optional[FieldDescriptor]] = {
+        'id': None,  # None for primitive types (str, int, float)
+        'form': nullable(str, "_"),
+        'lemma': nullable(str, "_"),
+        'upos': nullable(str, "_"),
+    }
+
+    # Compact version using string interning for memory efficiency
+    compact_descriptors: dict[str, Optional[FieldDescriptor]] = {
+        'id': via(sys.intern),
+        'form': nullable(via(sys.intern), "_"),
+        'lemma': nullable(via(sys.intern), "_"),
+        'upos': nullable(via(sys.intern), "_"),
+    }
+
+    # Create two different Format instances with the same Token class
+    standard_format = Format(Token, Sentence[Token], field_descriptors=standard_descriptors)
+    compact_format = Format(Token, Sentence[Token], field_descriptors=compact_descriptors)
+
+When both class attributes (using ``field()``) and ``field_descriptors`` are provided, ``field_descriptors`` takes precedence. The ``extra_primitives`` parameter allows you to specify additional types that should be treated as primitives (constructed via their type constructor, serialized via ``str()``).
 
 API
 ----------------------------------

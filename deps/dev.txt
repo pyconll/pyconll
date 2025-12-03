@@ -17,9 +17,11 @@ imagesize==1.4.1
 iniconfig==2.1.0
 isort==6.1.0
 Jinja2==3.1.6
+librt==0.6.3
+line_profiler==5.0.0
 MarkupSafe==3.0.3
 mccabe==0.7.0
-mypy==1.18.2
+mypy==1.19.0
 mypy_extensions==1.1.0
 packaging==25.0
 pathspec==0.12.1
