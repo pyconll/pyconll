@@ -18,7 +18,6 @@ from typing import Iterator, Optional
 from pyconll import _compile
 from pyconll.exception import ParseError
 from pyconll.schema import AbstractSentence, FieldDescriptor
-from pyconll.shared import Sentence
 
 PathLike = str | bytes | os.PathLike
 
