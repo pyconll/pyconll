@@ -3,6 +3,7 @@
 import sys
 from typing import Optional
 import pytest
+from pyconll.exception import SchemaError
 from pyconll.schema import (
     field,
     mapping,
@@ -240,7 +241,7 @@ def test_varcols_schema_multiple_varcols_error():
         first: list[str] = field(varcols(str))
         second: list[int] = field(varcols(int))
 
-    with pytest.raises(RuntimeError, match="more than one varcols"):
+    with pytest.raises(SchemaError):
         _compile.token_parser(InvalidToken, "\t", False)
 
 

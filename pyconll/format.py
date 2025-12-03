@@ -17,7 +17,7 @@ from typing import Iterator, Optional
 
 from pyconll import _compile
 from pyconll.exception import ParseError
-from pyconll.schema import FieldDescriptor, SentenceBase
+from pyconll.schema import AbstractSentence, FieldDescriptor
 
 PathLike = str | bytes | os.PathLike
 
@@ -51,7 +51,7 @@ def _pair_down_whitespace(
     return line[start_idx:end_idx]
 
 
-class ReadFormat[T, S: SentenceBase]:
+class ReadFormat[T, S: AbstractSentence]:
     """
     A read-only interface for parsing CoNLL formatted data.
 
@@ -345,7 +345,7 @@ class WriteFormat[T]:
         """
         return self.serializer(token)
 
-    def serialize_sentence[S: SentenceBase](self, sentence: S) -> str:
+    def serialize_sentence[S: AbstractSentence](self, sentence: S) -> str:
         """
         Serialize a Sentence to a string representation.
 
@@ -359,7 +359,7 @@ class WriteFormat[T]:
         self.write_sentence(sentence, buffer)
         return buffer.getvalue()
 
-    def write_sentence[S: SentenceBase](self, sentence: S, writable: io.TextIOBase) -> None:
+    def write_sentence[S: AbstractSentence](self, sentence: S, writable: io.TextIOBase) -> None:
         """
         Write an individual sentence to an IO buffer.
 
@@ -383,7 +383,9 @@ class WriteFormat[T]:
             writable.write(self.serializer(token))
             writable.write("\n")
 
-    def write_corpus[S: SentenceBase](self, corpus: Iterator[S], writable: io.TextIOBase) -> None:
+    def write_corpus[S: AbstractSentence](
+        self, corpus: Iterator[S], writable: io.TextIOBase
+    ) -> None:
         """
         Write out the entire corpus to the IO buffer.
 
@@ -399,7 +401,7 @@ class WriteFormat[T]:
             writable.write("\n")
 
 
-class Format[T, S: SentenceBase](ReadFormat[T, S], WriteFormat[T]):
+class Format[T, S: AbstractSentence](ReadFormat[T, S], WriteFormat[T]):
     """
     A unified interface for both parsing and serializing CoNLL formatted data.
 

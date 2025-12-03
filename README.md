@@ -201,6 +201,7 @@ Version 4.0 introduced a flexible schema system (`TokenSchema`) that allows you 
 from typing import Optional
 from pyconll.format import Format
 from pyconll.schema import TokenSchema, field, nullable, unique_array
+from pyconll.shared import Sentence
 
 class MyToken(TokenSchema):
     id: int
@@ -210,7 +211,7 @@ class MyToken(TokenSchema):
     head: int
     deprel: str
     feats: set[str] = field(unique_array(str, ",", "_"))
-my_format = Format(MyToken, delimiter='\t')
+my_format = Format(MyToken, Sentence[MyToken], delimiter='\t')
 
 token_line = "3\ttest\t_\tNOUN\t2\tAUX\tfeat1,feat2"
 first_token: MyToken = my_format.parse_token(token_line)

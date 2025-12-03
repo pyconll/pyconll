@@ -295,22 +295,24 @@ Version 4.0 allows you to define custom token formats:
 .. code:: python
 
     from pyconll.format import Format
-    from pyconll.schema import TokenSchema, nullable, unique_array
+    from pyconll.schema import tokenspec, nullable, unique_array, field, SentenceBase
+    from pyconll.shared import Sentence
+    from typing import Optional
 
-    class CoNLLX(TokenSchema):
+    @tokenspec
+    class CoNLLX:
         id: int
         form: str
         lemma: str
         cpostag: str
         postag: str
-        feats: set[str] = unique_array(str, "|", "_")
+        feats: set[str] = field(unique_array(str, "|", "_"))
         head: int
         deprel: str
-        phead: Optional[int] = nullable(int, "_")
-        pdeprel: Optional[str] = nullable(str, "_")
+        phead: Optional[int] = field(nullable(int, "_"))
+        pdeprel: Optional[str] = field(nullable(str, "_"))
 
-    # Create format
-    conllx = Format(CoNLLX)
+    conllx = Format(CoNLLX, Sentence[CoNLLX])
 
     # Use it
     sentences = conllx.load_from_file('data.conllx')

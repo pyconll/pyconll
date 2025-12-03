@@ -6,13 +6,12 @@ data and parsing in this module is central to the CoNLL-U format.
 import functools
 import math
 import sys
-from typing import Optional, OrderedDict
+from typing import Optional
 
-from pyconll import tree
+from pyconll import shared, tree
 from pyconll.format import Format
 from pyconll.schema import (
     FieldDescriptor,
-    SentenceBase,
     mapping_ext,
     nullable,
     mapping,
@@ -276,7 +275,7 @@ _compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
 }
 
 
-class Sentence(SentenceBase[Token]):
+class Sentence(shared.Sentence[Token]):
     """
     A sentence in a CoNLL-U file. A sentence consists of several components.
 
@@ -300,47 +299,7 @@ class Sentence(SentenceBase[Token]):
     the associated annotations can be changed.
     """
 
-    __slots__ = ["meta", "tokens"]
-
-    def __init__(self) -> None:
-        """
-        Create a new structured Sentence object.
-        """
-        self.meta: OrderedDict[str, Optional[str]] = OrderedDict[str, Optional[str]]()
-        self.tokens: list[Token] = []
-
-    def __accept_meta__(self, key: str, value: Optional[str]) -> None:
-        """
-        Accept the next metadata values.
-
-        Args:
-            key: The key of the metadata.
-            value: The value of the metadata or None if it is a singleton.
-        """
-        self.meta[key] = value
-
-    def __accept_token__(self, t: Token) -> None:
-        """
-        Accept the next token value.
-
-        Args:
-            t: The next token value for this Sentence to accept.
-        """
-        self.tokens.append(t)
-
-    def __finalize__(self) -> None:
-        """
-        There is nothing to finalize for this Sentence type.
-        """
-
-    def __repr__(self) -> str:
-        """
-        Create a string that represents this Sentence object.
-
-        Returns:
-            The constructed string.
-        """
-        return f"Sentence(meta={self.meta!r}, tokens={self.tokens!r})"
+    __slots__ = ()
 
     def to_tree(self) -> Tree[Token]:
         """
