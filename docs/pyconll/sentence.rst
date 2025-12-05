@@ -72,6 +72,6 @@ Accessing Tokens
 
 API
 ----------------------------------
-.. automodule:: pyconll.sentence
+.. automodule:: pyconll.shared
     :members:
     :exclude-members: __dict__, __weakref__
