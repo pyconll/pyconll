@@ -27,6 +27,12 @@ class CorporaRegistration:
 # and is on a path toward more flexibility and robustness.
 corpora = [
     CorporaRegistration(
+        "2.17",
+        "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-6036/ud-treebanks-v2.17.tgz",
+        "bf30726e238f9c4379ffb0d6f8c3eaf4ecad9f72ab42104b0130b61603915872",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ),
+    CorporaRegistration(
         "2.16",
         "https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-5901/ud-treebanks-v2.16.tgz",
         "87710204b6441736a8a9fed779585aa88b6eeafe231fa2ed9282c0cd9e30960b",

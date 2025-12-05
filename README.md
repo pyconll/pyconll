@@ -24,13 +24,13 @@ As with most python packages, simply use `pip` to install from PyPi.
 pip install pyconll
 ```
 
-`pyconll` is also *usually* available as a conda package on the `pyconll` channel. Packages in the version range [2.2.0, 4.0.0a0) are on conda. Version 4.0.0 will be added once conda adds full support for python 3.14
+`pyconll` is also *usually* available as a conda package on the `pyconll` channel. Packages in the version range `[2.2.0, 4.0.0a0)` are on conda. Version 4.0.0 will be added once conda adds full support for python 3.14
 
 ```
 conda install -c pyconll pyconll
 ```
 
-The 4.0 release of pyconll only supports Python 3.14 and newer. Earlier releases cover other LTS Python versions but 4.0 introduced a large revamp to pyconll which significantly improved parsing flexibility and efficiency, while also improving the object model to better align with actual usage. It is recommended to move to this version if possible, and only bug patches will be taken on pre-4.0.0 versions.
+The pyconll 4.0 and newer start support at Python 3.14 and newer. Earlier releases cover other LTS Python versions but large changes introduced in 4.0 benefitted from the latest features in Python. As this release handles nearly all pending issues (and significantly increased flexibility), I do not expect another breaking release anytime soon, and typical LTS support should be expected again moving forward.
 
 
 ### Use
@@ -38,11 +38,11 @@ The 4.0 release of pyconll only supports Python 3.14 and newer. Earlier releases
 This tool is intended to be a **minimal**, **low level**, **expressive** and **pragmatic** library in a widely used programming language. pyconll creates a thin API on top of raw CoNLL annotations that is simple and intuitive.
 
 It offers the following features:
-* Regular CI testing and validation against all UD v2.x versions to ensure compatibility.
-* A flexible schema system for working with CoNLL-U (and now custom tabular formats).
+* Regular CI testing and validation against all UD versions to ensure compatibility and correctness.
 * A typed API for better development experience and well defined semantics.
 * A focus on usability and simplicity in design (zero runtime dependencies)
-* Various performance optimizations for smaller memory footprint and faster parsing (for nearly all UD treebanks pyconll is usually 100-200% faster than alternative libraries).
+* The standard conllu parser is fast (usually 100-200% faster than other Python competitors), and allows for flexibility in choosing the runtime and memory tradeoffs via fast_conllu, conllu (and a future compact_conllu).
+* A flexible schema system for working with custom tabular formats.
 
 See the following code example to understand the basics of the API.
 
@@ -77,7 +77,7 @@ for sent in review_sentences:
     print(sent.meta['sent_id'])
 ```
 
-A full definition of the API can be found in the [documentation](https://pyconll.readthedocs.io/) or follow the [quick start guide](https://pyconll.readthedocs.io/en/stable/starting.html) for a focused introduction.
+The full API can be found in the [documentation](https://pyconll.readthedocs.io/) or follow the [quick start guide](https://pyconll.readthedocs.io/en/stable/starting.html) for more examples.
 
 
 ### Migrating to Version 4.0
@@ -102,7 +102,7 @@ corpus = conllu.load_from_file('train.conllu')
 
 #### Return Type Changes
 
-The `load_from_file` and similar methods now return `list[Sentence[Token]]` instead of a `Conll` object. The only real purpose of `Conll` was to be sentence container and be able to serialize the entire corpus.
+The `load_from_file` and similar methods return `list[Sentence[Token]]` instead of a `Conll` object. The only purpose of `Conll` was to be sentence container and be able to serialize the entire corpus, which did not seem worth the abstraction on reflection, and is now better handled by the `Format` class.
 
 **Before:**
 ```python
@@ -120,7 +120,7 @@ for sentence in corpus:  # Standard Python list
 
 #### Sentence Changes
 
-Sentences no longer support indexing tokens by ID. The motivation behind this is that it was creating an extra data structure when it may not be needed for the application, and also Sentences for the moment are generic to the Token type, and this relationship may not exist in other Token types. Build your own index if needed, but a future version may introduce an appropriate generic Sentence construction to automatically build this structure at parse time:
+Sentences no longer support indexing tokens by ID. The motivation here was avoiding an extra data structure that may not be needed for the use case. This mapping can be easily created via a one-line dict comprehension so there was not a huge complexity benefit either.
 
 **Before:**
 ```python
@@ -139,7 +139,7 @@ for sentence in corpus:
             head_token = token_by_id[token.head]
 ```
 
-Metadata access also changed. There are no longer special metadata fields (since Sentence is generic to Token type). The general principles of singleton keys and whitespace trimming remain the same.
+Metadata access also changed. There are no longer special metadata fields of id and text since the semantics on modification were unclear. The general principles of singleton keys and whitespace trimming remain the same. The `meta` member on a sentence supports `MutableMapping` so the metadata changes can be written directly to this object.
 
 **Before:**
 ```python
@@ -151,22 +151,6 @@ sentence_text = sentence.text
 ```python
 sentence_id = sentence.meta['sent_id']
 sentence_text = sentence.meta['text']
-```
-
-#### Tree Changes
-
-Tree creation is now a separate function rather than a method on Sentence:
-
-**Before:**
-```python
-tree = sentence.to_tree()
-```
-
-**After:**
-```python
-from pyconll.conllu import tree_from_tokens
-
-tree = tree_from_tokens(sentence.tokens)
 ```
 
 #### Serialization Changes
@@ -189,20 +173,21 @@ with open('output.conllu', 'w') as f:
 from pyconll.conllu import conllu
 
 # Write to file
-with open('output.conllu', 'w') as f:
+with open('output.conllu', 'w', encoding='utf-8') as f:
     conllu.write_corpus(corpus, f)
 ```
 
 ### Custom Formats (New in 4.0)
 
-Version 4.0 introduced a flexible schema system (`TokenSchema`) that allows you to define custom token formats beyond CoNLL-U. This makes it possible to work with CoNLL-X, CoNLL 2006, or any other column-based format by defining your own token schema and creating a `Format` instance. Since I do not currently have much experience with these other formats I have not pre-added them to this library, but my expectation is that in time, these definitions will be filled out.
+Version 4.0 introduced a flexible schema system that allows you to define custom token formats beyond CoNLL-U. This makes it possible to work with CoNLL-X, CoNLL 2006, or any other column-based format by defining your own token schema and creating a `Format` instance. Since I do not currently have much experience with these other formats I have not pre-added them to this library, but my expectation is that these definitions will be added over time. This way the same way there is `from pyconll.conllu import conllu` there will also be `from pyconll.conllx import conllx`.
 
 ```python
 from typing import Optional
 from pyconll.format import Format
-from pyconll.schema import TokenSchema, field, nullable, unique_array
+from pyconll.schema import field, nullable, tokenspec, unique_array
 from pyconll.shared import Sentence
 
+@tokenspec
 class MyToken(TokenSchema):
     id: int
     form: Optional[str] = field(nullable(str, "_"))
@@ -221,7 +206,7 @@ empty_feats_token_line = "4\tanother\t_\tNOUN\t2\tAUX\t_"
 second_token: MyToken = my_format.parse_token(empty_feats_token_line)
 assert ((first_token.id, first_token.form, first_token.lemma, first_token.feats) == (4, 'another', None, {}))
 
-sentences = my_format.load_from_file('data.conll')
+sentences: list[Sentence[MyToken]] = my_format.load_from_file('data.conll')
 ```
 
 For more details, see the [documentation](https://pyconll.readthedocs.io/) or samples in the examples folder.

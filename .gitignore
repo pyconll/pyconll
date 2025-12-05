@@ -11,6 +11,7 @@ tests/int/_corpora_cache
 # Local use files
 .python-version
 CLAUDE.md
+**/*.csv
 
 # Packaging files
 MANIFEST
