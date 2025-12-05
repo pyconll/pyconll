@@ -5,12 +5,12 @@ treebanks, and errors when outputting CoNLL objects.
 
 
 class ParseError(ValueError):
-    """
-    Error that results from an improper value into a parsing routine.
-    """
+    """Error that results from an improper value into a parsing routine."""
 
 
 class FormatError(ValueError):
-    """
-    Error that results from trying to format a CoNLL object to a string.
-    """
+    """Error that results from trying to format a CoNLL object to a string."""
+
+
+class SchemaError(ValueError):
+    """Error that results from an invalid schema being compiled."""

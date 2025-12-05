@@ -2,7 +2,7 @@ name: Pyconll Release to Conda
 on:
   release:
     types:
-      - released
+      - published
   workflow_dispatch:
 
 jobs:
@@ -14,12 +14,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.14'
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
           activate-conda: true
-          python-version: '3.12'
+          python-version: '3.14'
       - name: Configure conda channels
         run: |
           conda config --add channels conda-forge
@@ -30,5 +30,6 @@ jobs:
           conda install conda-verify
           conda install anaconda-client
       - name: Build and upload conda package
+        if: startsWith(github.ref, 'refs/tags')
         run: |
           conda build --token ${{ secrets.CONDA_API_TOKEN }} --user pyconll meta.yaml

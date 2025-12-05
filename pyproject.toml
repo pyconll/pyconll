@@ -1,0 +1,45 @@
+[project]
+name = "pyconll"
+authors = [{ name = "Matias Grioni", email = "matgrioni@gmail.com" }]
+description = "Read and manipulate CoNLL files"
+license = "MIT"
+keywords = ["nlp", "conllu", "conll", "universal dependencies"]
+readme = "README.md"
+requires-python = "~=3.14"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Utilities"
+]
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://pyconll.github.io"
+source = "https://github.com/pyconll/pyconll"
+documentation = "https://pyconll.readthedocs.io/en/stable/"
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
+
+[tool.setuptools]
+packages = ["pyconll"]
+
+[tool.setuptools.dynamic]
+version = { attr = "pyconll.__version__" }
+
+[tool.setuptools.package-data]
+pyconll = ["py.typed", "_version"]
+
+[tool.black]
+line-length = 100
+target-version = ["py314"]
+preview = true
+
+[build-system]
+requires = ["setuptools", "util"]
+build-backend = "setuptools.build_meta"

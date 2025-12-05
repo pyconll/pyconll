@@ -4,10 +4,14 @@ __pycache__/
 .mypy_cache/
 venv/
 *.pyc
+htmlcov/
+.coverage
 tests/int/_corpora_cache
 
-# Local env files
+# Local use files
 .python-version
+CLAUDE.md
+**/*.csv
 
 # Packaging files
 MANIFEST

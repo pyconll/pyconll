@@ -3,6 +3,7 @@ name: DI
 on:
   schedule:
     - cron: 0 0 1 * *
+  workflow_dispatch:
 
 jobs:
   datatest:
@@ -14,8 +15,12 @@ jobs:
           ref: dev
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.14'
           cache: 'pip'
+      - uses: actions/cache@v4
+        with:
+          path: tests/int/_corpora_cache/artifacts
+          key: di-corpora-artifacts-${{ hashFiles('tests/int/corpora.py') }}
       - name: Run
         run: |
           pip install -r requirements.txt

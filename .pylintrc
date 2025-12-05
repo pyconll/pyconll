@@ -88,7 +88,7 @@ persistent=yes
 
 # Minimum Python version to use for version dependent checks. Will default to
 # the version used to run pylint.
-py-version=3.10
+py-version=3.14
 
 # Discover python modules and packages in the file system subtree.
 recursive=no
@@ -98,10 +98,6 @@ recursive=no
 # directory used to determine a package namespace for modules located under the
 # source root.
 source-roots=
-
-# When enabled, pylint would attempt to guess common misconfiguration and emit
-# user-friendly hints instead of false-positive error messages.
-suggestion-mode=yes
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
@@ -159,10 +155,6 @@ class-const-naming-style=UPPER_CASE
 
 # Naming style matching correct class names.
 class-naming-style=PascalCase
-
-# Regular expression matching correct class names. Overrides class-naming-
-# style. If left empty, class names will be checked with the set naming style.
-class-rgx=[^\\W\\da-z][^\\W_]*$
 
 # Naming style matching correct constant names.
 const-naming-style=UPPER_CASE
@@ -299,7 +291,7 @@ max-attributes=15
 max-bool-expr=5
 
 # Maximum number of branch for function / method body.
-max-branches=12
+max-branches=15
 
 # Maximum number of locals for function / method body.
 max-locals=25

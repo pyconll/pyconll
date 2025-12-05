@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-12-05
+### Added
+- Add structural schema support via tokenspec decorator mechanism which allows for custom schema definitions.
+- Create Format, ReadFormat, and WriteFormat to define operations that can be done for a given structural schema.
+- Create shared module with AbstractSentence implementation which can be used for most custom format use cases.
+
+### Changed
+- To support latest Python type hint syntax and features, move minimum supported version up to 3.14.
+
 ## [3.3.1] - 2025-10-11
 ### Changed
 - Updated GitHub workflows for new action versions.
