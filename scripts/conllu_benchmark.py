@@ -53,8 +53,8 @@ class Args:
 
 
 EXCLUSIONS: dict[tuple[ParserType, MeasurementType], set[str]] = {
-    (ParserType.FAST, MeasurementType.RUNTIME): { "cs_pdtc-ud-train" },
-    (ParserType.FAST, MeasurementType.MEMORY): { "cs_pdtc-ud-train" }
+    (ParserType.FAST, MeasurementType.RUNTIME): {"cs_pdtc-ud-train"},
+    (ParserType.FAST, MeasurementType.MEMORY): {"cs_pdtc-ud-train"},
 }
 
 
