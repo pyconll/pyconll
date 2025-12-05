@@ -10,7 +10,6 @@ The tree module provides:
 
 - ``Tree[T]`` - A generic tree node containing data of type T
 - ``from_tokens()`` - A function to build trees from sequences of tokens
-- For CoNLL-U specifically, use ``tree_from_tokens()`` from the ``pyconll.conllu`` module
 
 Structure
 ----------------------------------
@@ -46,16 +45,16 @@ Use ``tree.from_tokens()`` to create trees from any sequence of tokens:
 CoNLL-U Tree Creation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For CoNLL-U tokens, use the convenience function:
+For the CoNLL-U model, Sentences have a ``to_tree`` method which can be used directly.
 
 .. code:: python
 
-    from pyconll.conllu import conllu, tree_from_tokens
+    from pyconll.conllu import conllu
 
     sentences = conllu.load_from_file('train.conllu')
 
     for sentence in sentences:
-        tree = tree_from_tokens(sentence.tokens)
+        tree = sentence.to_tree()
 
         # Tree root is the token with head="0"
         root_token = tree.data
@@ -71,10 +70,10 @@ Traversing Trees
 
 .. code:: python
 
-    from pyconll.conllu import conllu, tree_from_tokens
+    from pyconll.conllu import conllu
 
     sentences = conllu.load_from_file('train.conllu')
-    tree = tree_from_tokens(sentences[0].tokens)
+    tree = sentences[0].to_tree()
 
     # Access root data
     root = tree.data
@@ -100,7 +99,7 @@ Example: Finding Non-Projective Dependencies
 
 .. code:: python
 
-    from pyconll.conllu import conllu, tree_from_tokens
+    from pyconll.conllu import conllu
 
     def has_nonprojective(tree, start=None, end=None):
         """Check if tree has non-projective dependencies."""
@@ -121,20 +120,9 @@ Example: Finding Non-Projective Dependencies
 
     sentences = conllu.load_from_file('train.conllu')
     for sentence in sentences:
-        tree = tree_from_tokens(sentence.tokens)
+        tree = sentence.to_tree()
         if has_nonprojective(tree):
-            print(f"Non-projective: {sentence.meta.get('sent_id')}")
-
-Version 4.0 Changes
-----------------------------------
-
-.. note::
-    **Version 4.0** changed how trees are created:
-
-    - **Before:** ``tree = sentence.to_tree()``
-    - **After:** ``tree = tree_from_tokens(sentence.tokens)`` (from ``pyconll.conllu``)
-
-    Or use the generic ``tree.from_tokens()`` for custom token types.
+            print(f"Non-projective: {sentence.meta['sent_id']}")
 
 API
 ----------------------------------

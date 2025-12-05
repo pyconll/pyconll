@@ -36,6 +36,7 @@ For more information, the github_ project page has examples, tests, and source c
 
    Getting Started <starting>
    Migration Guide <migration>
+   Custom Formats <custom>
    README <readme>
    CHANGELOG <changelog>
    pyconll/conllu

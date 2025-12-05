@@ -6,22 +6,22 @@ The ``format`` module defines the core interface for reading and writing tabular
 Overview
 ----------------------------------
 
-The Format system is built around the ``TokenSchema`` protocol, allowing you to define custom token types and automatically generate optimized parsers and serializers for them. This makes ``pyconll`` flexible enough to work with CoNLL-U or any other tabular format.
+The Format system is built around the ``tokenspec`` decorator and the ``AbstractSentence`` ABC, allowing you to define custom token and sentence types and automatically generate optimized parsers and serializers for them. This makes ``pyconll`` flexible enough to work with CoNLL-U or any other tabular format.
 
 The ``Format`` class compiles reading and writing logic based on your token schema at initialization time.
 
 Classes
 ----------------------------------
 
-ReadFormat[T]
+ReadFormat[T, S]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Provides methods for parsing tabular data into Python objects. It provides operations for Tokens and Sentences, but most usage would be primarily on collections of Sentences.
 
-WriteFormat[T]
+WriteFormat[T, S]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Provides methods for serializing Python objects to tabular format. Like ReadFormat, it provides operations for Tokens and Sentences, but most usage would be primarily on collections of Sentences.
 
-Format[T]
+Format[T, S]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Combines both ``ReadFormat`` and ``WriteFormat`` functionality. This is the class you'll typically use. By separating out the read and write side future changes allowing for serialization or deserialization only types is possible.
 
@@ -34,7 +34,7 @@ Creating a custom format for CoNLL-X:
 
     from pyconll.format import Format
     from pyconll.schema import tokenspec, nullable, unique_array, field
-    from pyconll.conllu import Sentence
+    from pyconll.shared import Sentence
     from typing import Optional
 
     @tokenspec
@@ -51,7 +51,6 @@ Creating a custom format for CoNLL-X:
         pdeprel: Optional[str] = field(nullable(str, "_"))
 
     # Create format instance
-    # Note: Using Sentence from pyconll.conllu for now
     conllx = Format(TokenX, Sentence[TokenX], comment_marker="#", delimiter="\t")
 
     # Load data
@@ -89,7 +88,7 @@ The Format class uses dynamic code generation (via Python's ``compile()`` and ``
 - Once created, parsing and serialization are optimized and cached.
 - Reuse Format instances rather than recreating them.
 
-For CoNLL-U specifically, use the pre-configured ``conllu`` instance from ``pyconll.conllu`` rather than creating your own.
+For CoNLL-U specifically, use the pre-configured ``conllu`` or ``fast_conllu`` instance from ``pyconll.conllu`` rather than creating your own.
 
 Advanced: Dynamic Field Descriptors
 ----------------------------------
@@ -135,7 +134,7 @@ The ``Format`` constructor accepts a ``field_descriptors`` parameter that allows
     standard_format = Format(Token, Sentence[Token], field_descriptors=standard_descriptors)
     compact_format = Format(Token, Sentence[Token], field_descriptors=compact_descriptors)
 
-When both class attributes (using ``field()``) and ``field_descriptors`` are provided, ``field_descriptors`` takes precedence. The ``extra_primitives`` parameter allows you to specify additional types that should be treated as primitives (constructed via their type constructor, serialized via ``str()``).
+When both class attributes (using ``field()``) and ``field_descriptors`` are provided, ``field_descriptors`` takes precedence. The ``extra_primitives`` parameter allows you to specify additional types that should be treated as primitives (constructed via their type constructor, serialized via ``str()``). This also takes precedence over anything provided on ``@tokenspec``. Note that one downside of the ``field_descriptors`` parameter is not that no type checking is performed, as opposed to using ``field()`` on the class definition, so this should be used with care and only in instances where the exact schema implementation will vary at runtime.
 
 API
 ----------------------------------

@@ -20,7 +20,7 @@ To start, a CoNLL-U resource must be loaded. The ``pyconll.conllu`` module provi
     my_conll_file_location = './ud/train.conllu'
     train = conllu.load_from_file(my_conll_file_location)
 
-Loading methods return a ``list[Sentence]``. Some methods like ``iter_from_file`` return an iterator over ``Sentences`` and do not load the entire corpus into memory at once, which is useful for very large files.
+Loading methods return a ``list[Sentence]``. Some methods like ``iter_from_file`` return an iterator over ``Sentence`` and do not load the entire corpus into memory at once, which is useful for very large files and also faster due to reduced memory pressure.
 
 Traversing CoNLL-U
 ----------------------------------
@@ -44,7 +44,7 @@ Statistics such as lemmas for a certain closed class POS or number of non-projec
                 if token.upos == 'NOUN':
                     noun_token_transformation(token)
 
-Note that most objects in ``pyconll`` are mutable, except for a select few fields, so changes on the ``Token`` object remain with the ``Sentence`` and can be output back into CoNLL format when processing is complete.
+Note that objects in ``pyconll`` are mutable, so changes are possible on the ``Token`` or ``Sentence`` objects and can be serialized out again to a CoNLL-U file when processing is complete.
 
 Outputting CoNLL-U
 ----------------------------------

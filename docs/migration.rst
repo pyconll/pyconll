@@ -17,11 +17,10 @@ Quick Migration Checklist
 ----------------------------------
 
 1. Update imports from ``import pyconll`` to ``from pyconll.conllu import conllu``. All methods that were previously exposed on ``pyconll`` can now be found on the ``conllu`` instance.
-2. Change return type expectations from ``Conll`` to ``list[Sentence]``
-3. Update token access from ``sentence[token_index]`` to ``sentence.tokens``
+2. Change return type annotations for ``load_from_*`` and ``iter_from_*`` from ``Conll`` to ``list[Sentence]``
+3. Update token access from ``sentence[token_index]`` to ``sentence.tokens[token_index]``
 4. Update metadata access from ``sentence.id`` to ``sentence.meta['sent_id']``
-5. Change tree creation from ``sentence.to_tree()`` to ``pyconll.conllu.tree_from_tokens(sentence.tokens)``
-6. Update serialization from ``.conll()`` methods to ``WriteFormat`` methods
+5. Update serialization from ``.conll()`` methods to ``WriteFormat`` methods
 
 Detailed Migration Steps
 ----------------------------------
@@ -158,36 +157,7 @@ Sentences no longer support indexing by token ID. Build your own index if needed
 
 Metadata is now accessed as a standard OrderedDict.
 
-6. Creating Dependency Trees
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Before:**
-
-.. code:: python
-
-    for sentence in corpus:
-        tree = sentence.to_tree()  # Method on Sentence
-        root = tree.data
-        for child in tree:
-            print(child.data.form)
-
-**After:**
-
-.. code:: python
-
-    from pyconll.conllu import conllu, tree_from_tokens
-
-    corpus = conllu.load_from_file('train.conllu')
-
-    for sentence in corpus:
-        tree = tree_from_tokens(sentence.tokens)  # Standalone function
-        root = tree.data
-        for child in tree:
-            print(child.data.form)
-
-Tree creation is now a separate function rather than a method on Sentence.
-
-7. Serialization (Writing Output)
+6. Serialization (Writing Output)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Before:**
@@ -217,7 +187,7 @@ Tree creation is now a separate function rather than a method on Sentence.
     with open('output.conllu', 'w') as f:
         conllu.write_corpus(corpus, f)
 
-Serialization is now handled by the Format instance rather than methods on objects.
+Serialization is now handled by the Format instance rather than methods on objects. This is not a common scenario but is listed here for completeness.
 
 Complete Migration Example
 ----------------------------------
@@ -255,7 +225,7 @@ Complete Migration Example
 
 .. code:: python
 
-    from pyconll.conllu import conllu, tree_from_tokens
+    from pyconll.conllu import conllu
 
     # Load
     train = conllu.load_from_file('./ud/train.conllu')
@@ -263,10 +233,10 @@ Complete Migration Example
     # Process
     for sentence in train:
         # Access metadata
-        print(f"Sentence: {sentence.meta.get('sent_id')}")
+        print(f"Sentence: {sentence.meta['sent_id']}")
 
         # Build tree
-        tree = tree_from_tokens(sentence.tokens)
+        tree = sentence.to_tree()
 
         # Build token index for lookups
         token_by_id = {t.id: t for t in sentence.tokens}
@@ -276,59 +246,13 @@ Complete Migration Example
             if token.upos == 'VERB':
                 # Look up head
                 if token.head != '0':
-                    head = token_by_id.get(token.head)
+                    head = token_by_id[token.head]
                     if head:
                         print(f"{token.form} -> {head.form}")
 
     # Write output
     with open('output.conllu', 'w') as f:
         conllu.write_corpus(train, f)
-
-New Features in 4.0
-----------------------------------
-
-Custom Token Schemas
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Version 4.0 allows you to define custom token formats:
-
-.. code:: python
-
-    from pyconll.format import Format
-    from pyconll.schema import tokenspec, nullable, unique_array, field, SentenceBase
-    from pyconll.shared import Sentence
-    from typing import Optional
-
-    @tokenspec
-    class CoNLLX:
-        id: int
-        form: str
-        lemma: str
-        cpostag: str
-        postag: str
-        feats: set[str] = field(unique_array(str, "|", "_"))
-        head: int
-        deprel: str
-        phead: Optional[int] = field(nullable(int, "_"))
-        pdeprel: Optional[str] = field(nullable(str, "_"))
-
-    conllx = Format(CoNLLX, Sentence[CoNLLX])
-
-    # Use it
-    sentences = conllx.load_from_file('data.conllx')
-
-See the schema_ and format_ documentation for more details.
-
-Performance Improvements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Version 4.0 uses compiled parsers and serializers:
-
-- Faster parsing (25-35% improvement)
-- Lower memory footprint
-- Better type safety
-
-The compilation happens once when creating a Format instance, so reuse Format instances for best performance.
 
 Troubleshooting
 ----------------------------------
@@ -358,14 +282,6 @@ The ``Conll`` object is gone. Use the Format instance:
     with open('output.conllu', 'w') as f:
         conllu.write_corpus(sentences, f)
 
-**AttributeError: 'Token' object has no attribute 'conll'**
-
-Use the Format instance:
-
-.. code:: python
-
-    token_string = conllu.serialize_token(token)
-
 Getting Help
 ----------------------------------
 
@@ -375,8 +291,6 @@ If you encounter issues during migration:
 - Review the examples_ in the repository
 - Ask questions on GitHub_
 
-.. _schema: pyconll/schema.html
-.. _format: pyconll/format.html
 .. _documentation: index.html
 .. _examples: https://github.com/pyconll/pyconll/tree/master/examples
 .. _GitHub: https://github.com/pyconll/pyconll/issues
