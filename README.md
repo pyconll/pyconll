@@ -188,7 +188,7 @@ from pyconll.schema import field, nullable, tokenspec, unique_array
 from pyconll.shared import Sentence
 
 @tokenspec
-class MyToken(TokenSchema):
+class MyToken:
     id: int
     form: Optional[str] = field(nullable(str, "_"))
     lemma: Optional[str] = field(nullable(str, "_"))
