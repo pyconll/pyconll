@@ -52,7 +52,10 @@ class Args:
     output_csv: Path
 
 
-EXCLUSIONS_BY_PARSER: dict[ParserType, set[str]] = {}
+EXCLUSIONS: dict[tuple[ParserType, MeasurementType], set[str]] = {
+    (ParserType.FAST, MeasurementType.RUNTIME): { "cs_pdtc-ud-train" },
+    (ParserType.FAST, MeasurementType.MEMORY): { "cs_pdtc-ud-train" }
+}
 
 
 def kernel(
@@ -71,7 +74,7 @@ def kernel(
             logging.info("Skipping %s because it does not fall within the current coverage", file)
             continue
 
-        if file.name in exclusions:
+        if file.stem in exclusions:
             logging.info("Skipping %s because it is excluded for this parser.", file)
             results[file] = []
             continue
@@ -164,7 +167,7 @@ def main(args: Args) -> None:
         parser,
         measure,
         args.coverage,
-        EXCLUSIONS_BY_PARSER.get(args.parser, set()),
+        EXCLUSIONS.get((args.parser, args.measurement), set()),
     )
 
     with open(args.output_csv, "w", encoding="utf-8") as f:

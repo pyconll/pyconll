@@ -40,9 +40,9 @@ This tool is intended to be a **minimal**, **low level**, **expressive** and **p
 It offers the following features:
 * Regular CI testing and validation against all UD v2.x versions to ensure compatibility.
 * A flexible schema system for working with CoNLL-U (and now custom tabular formats).
-* A typed API for better development experience and better semantics.
+* A typed API for better development experience and well defined semantics.
 * A focus on usability and simplicity in design (zero runtime dependencies)
-* Various performance optimizations for smaller memory footprint and faster parsing.
+* Various performance optimizations for smaller memory footprint and faster parsing (for nearly all UD treebanks pyconll is usually 100-200% faster than alternative libraries).
 
 See the following code example to understand the basics of the API.
 
