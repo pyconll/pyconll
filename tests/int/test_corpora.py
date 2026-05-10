@@ -1,20 +1,17 @@
 import hashlib
 import logging
 import operator
-import os
 from pathlib import Path
 import tarfile
 import tempfile
 from typing import Callable, Optional
-from urllib import parse
 
 import pytest
-import requests
 
 from pyconll.conllu import conllu
 from pyconll.format import Format
 from pyconll.schema import AbstractSentence
-from tests.int.corpora import corpora, CorporaRegistration
+from tests.int.corpora import corpora, CorporaRegistration, CorpusSource
 
 
 def _cross_platform_stable_fs_iter(dir):
@@ -101,57 +98,6 @@ def hash_path(hash_obj, path, block_size):
     return hash_obj.hexdigest()
 
 
-def _get_filename_from_url(url):
-    """
-    For a url that represents a network file, return the filename part.
-
-    Args:
-        url: The url to extract the filename from.
-
-    Returns:
-        The filename part at the end of the url with the extension.
-    """
-    parsed = parse.urlparse(url)
-    name = Path(parsed.path).name
-    unquoted = parse.unquote(name)
-
-    return unquoted
-
-
-def download_file(url, dest, chunk_size, attempts):
-    """
-    Downloads a file from a url, resilient to failures and controlling speed.
-
-    Args:
-        url: The url to download the file from.
-        dest: The location on disk to store the downloaded file to.
-        chunk_size: The size of the file chunks when streaming the download.
-        attempts: The number of failures to be resistant to. Assumes the server
-            can accept ranged requests on download.
-    """
-    head_r = requests.head(url)
-    content_length = int(head_r.headers["Content-Length"])
-
-    attempt = 0
-    dest_loc = str(dest)
-    byte_loc = 0
-
-    with open(dest_loc, "wb") as f:
-        while attempt < attempts:
-            with requests.get(
-                url, headers={"Range": "bytes={}-".format(byte_loc)}, stream=True
-            ) as r:
-                for chunk in r.iter_content(chunk_size=chunk_size):
-                    f.write(chunk)
-                    f.flush()
-
-            byte_loc = os.stat(dest_loc).st_size
-            if byte_loc >= content_length:
-                break
-
-            attempt += 1
-
-
 def delete_dir(path):
     """
     Recursively deletes a directory and all contents within it.
@@ -210,23 +156,23 @@ def clean_subdir(direc, subdir):
         p.mkdir()
 
 
-def download_file_to_location(url, location, hash_sha256):
+def download_file_to_location(url: CorpusSource, location, hash_sha256):
     """
     Download a file (final name matching the URL) to a specified directory.
 
     Args:
-        url: The url of the file to download
+        url: The source of the file to download.
         location: The location or final destination name of the file.
         hash_sha256: The hash of the file at the end to confirm successful download.
     """
     if location.exists():
         location.unlink()
     logging.info("Starting to download %s to %s.", url, location)
-    download_file(url, location, 16384, 15)
+    url.download_to(location, 16384)
     logging.info("Download succeeded to %s.", location)
 
     if not validate_hash_sha256(location, hash_sha256):
-        raise RuntimeError(f"Not able to successfully download url {url} to location {location}.")
+        raise RuntimeError(f"Not able to successfully download {url} to location {location}.")
 
 
 def extract_tgz(p: Path, tgz: Path) -> None:
@@ -243,7 +189,7 @@ def extract_tgz(p: Path, tgz: Path) -> None:
 
 
 def url_zip(
-    entry_id: str, contents_hash: str, zip_hash: str, url: str
+    entry_id: str, contents_hash: str, zip_hash: str, url: CorpusSource
 ) -> Callable[[bool, Path, Path], Path]:
     """
     Creates a cacheable fixture that is a url download that is a zip.
@@ -264,7 +210,7 @@ def url_zip(
         if skip:
             return final_path
 
-        fn = _get_filename_from_url(url)
+        fn = url.filename()
         zip_path = artifacts_path / fn
 
         if not validate_hash_sha256(final_path, contents_hash):
