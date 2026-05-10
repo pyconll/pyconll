@@ -5,11 +5,19 @@ on:
     - cron: 0 0 1 * *
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   datatest:
     name: Data Integration across UD
     runs-on: ubuntu-24.04
     steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::881490118399:role/<your-role-name>
+          aws-region: us-east-1
       - uses: actions/checkout@v5
         with:
           ref: dev
