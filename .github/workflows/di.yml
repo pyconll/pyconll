@@ -16,12 +16,12 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::881490118399:role/pyconll-di
           aws-region: us-east-1
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: '3.14'
           cache: 'pip'
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: tests/int/_corpora_cache/artifacts
           key: di-corpora-artifacts-${{ hashFiles('tests/int/corpora.py') }}
