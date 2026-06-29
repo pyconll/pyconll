@@ -261,6 +261,18 @@ def test_misc_parsing(conllu_format: ConlluFormat):
     assert token.misc["Independent"] == set(("P", "Q"))
 
 
+def test_misc_comma_value(conllu_format: ConlluFormat):
+    """
+    Test that a misc value of a single comma is parsed as a set containing that comma and roundtrips.
+    """
+    token_line = "33	cintre	cintre	NOUN	_	Gender=Masc|Number=Sing	" "30	nmod	_	Key=,|SpaceAfter=No"
+    token = conllu_format.parse_token(token_line)
+
+    assert token.misc["Key"] == {","}
+    assert token.misc["SpaceAfter"] == {"No"}
+    assert conllu_format.serialize_token(token) == token_line
+
+
 def test_deps_parsing(conllu_format: ConlluFormat):
     """
     Test that the deps field is properly parsed.

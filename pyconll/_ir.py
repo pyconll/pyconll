@@ -63,40 +63,36 @@ def _safe_to_str(template: Template) -> str:
             case str() as s:
                 parts.append(s)
             case Interpolation(interpolated_value, _, conversion, format_spec):
-                explicit_type = None
+                data_type = None
                 match interpolated_value:
-                    case (value, explicit_type):
+                    case (value, data_type):
                         ...
                     case _:
                         value = interpolated_value
 
-                inferred_type = None
-                pre_interpolation_op = None
+                templated = False
                 if format_spec == "t":
-                    inferred_type = Template
-                    pre_interpolation_op = _safe_to_str
+                    templated = True
+                    data_type = Template
+                    if conversion is not None:
+                        raise RuntimeError("Cannot provide a conversion on a template value.")
 
-                if (
-                    inferred_type is not None
-                    and explicit_type is not None
-                    and explicit_type != inferred_type
-                ):
-                    raise RuntimeError(
-                        "If an explicit type is provided along with an inferred type, they must "
-                        "match."
-                    )
+                    if data_type is not None and data_type != Template:
+                        raise RuntimeError(
+                            "If an explicit type is provided with a :t format, it must be Template"
+                        )
 
-                desired_type = inferred_type or explicit_type or str
+                desired_type = data_type or str
                 if type(value) != desired_type:  # pylint: disable=unidiomatic-typecheck
                     raise RuntimeError(
                         f"The type of the value {type(value)} does not match the desired "
                         f"{desired_type}."
                     )
 
-                if pre_interpolation_op is not None:
-                    value = pre_interpolation_op(value)
-                value = convert(value, conversion)
-                if pre_interpolation_op is None:
+                if templated:
+                    value = _safe_to_str(value)
+                else:
+                    value = convert(value, conversion)
                     value = format(value, format_spec)
 
                 parts.append(value)

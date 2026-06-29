@@ -275,6 +275,16 @@ class TestUniqueArray:
         assert_deserialization(desc, "1|2|3|1", {1, 2, 3})
         assert_serialization(desc, {3, 1, 2}, "1|2|3")
 
+    def test_unique_array_single_escape_hatch(self):
+        """Test that single_escape_hatch treats a lone delimiter as a single-element set containing it."""
+        desc = unique_array(str, ",", ordering_key=lambda x: x, single_escape_hatch=True)
+        assert_conversions(desc, {","}, ",")
+
+    def test_unique_array_single_escape_hatch_absent(self):
+        """Test that without single_escape_hatch a lone delimiter is split into empty strings."""
+        desc = unique_array(str, ",", ordering_key=lambda x: x)
+        assert_deserialization(desc, ",", {""})
+
 
 class TestMapping:
     """Tests for the mapping factory method."""

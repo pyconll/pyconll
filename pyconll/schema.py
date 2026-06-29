@@ -222,6 +222,7 @@ class _UniqueArrayDescriptor[T](BaseFieldDescriptor[set[T]]):
     delimiter: str
     empty_marker: str
     ordering_key: Optional[Callable[[T], "SupportsRichComparison"]]
+    single_escape_hatch: bool
 
     def _do_deserialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
         sub_method_name = _deserialize_sub_method_name(namespace, self.mapper)
@@ -234,6 +235,8 @@ class _UniqueArrayDescriptor[T](BaseFieldDescriptor[set[T]]):
             def {method_name}(s):
                 if s == {self.empty_marker!r}:
                     return set()
+                if {(self.single_escape_hatch, bool)} and s == {self.delimiter!r}:
+                    return {{ {self.delimiter!r} }}
                 return {return_ir:t}""")
 
     def _do_serialize_codegen(self, namespace: dict[str, Any], method_name: str) -> CodeType:
@@ -488,6 +491,7 @@ def unique_array[T](
     delimiter: str,
     empty_marker: str = "",
     ordering_key: Optional[Callable[[T], Any]] = None,
+    single_escape_hatch: bool = False,
 ) -> _UniqueArrayDescriptor[T]:
     """
     Describe a serialization schema for a set.
@@ -497,11 +501,15 @@ def unique_array[T](
         delimiter: The string which separates set elements in the serialized representation.
         empty_marker: The string representation which maps to an empty set.
         ordering_key: If provided, describes the order in which the set entries are serialized.
+        single_escape_hatch: If set, means that a single delimter value is interpreted as a single
+            item set, rather than two empty strings which collapse into one element.
 
     Returns:
         The FieldDescriptor to use for compiling the structural Token parser.
     """
-    return _UniqueArrayDescriptor(el_mapper, delimiter, empty_marker, ordering_key)
+    return _UniqueArrayDescriptor(
+        el_mapper, delimiter, empty_marker, ordering_key, single_escape_hatch
+    )
 
 
 def fixed_array[T](
