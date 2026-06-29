@@ -6,7 +6,7 @@ Version 4.0 allows you to define custom token formats to parse and serialize bey
 .. code:: python
 
     from pyconll.format import Format
-    from pyconll.schema import tokenspec, nullable, unique_array, field, SentenceBase
+    from pyconll.schema import tokenspec, nullable, unique_array, field
     from pyconll.shared import Sentence
     from typing import Optional
 

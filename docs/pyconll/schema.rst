@@ -304,20 +304,20 @@ While the typical approach is to use ``field()`` as class attributes, you can al
 
 When both class attributes and ``field_descriptors`` are provided, ``field_descriptors`` takes precedence. This allows you to override the class-level descriptors at Format creation time.
 
-SentenceBase Interface
+AbstractSentence Interface
 ----------------------------------
 
-The ``SentenceBase`` is an abstract interface that defines how Sentence implementations work with the Format system. Any Sentence type used with Format must implement this interface.
+``AbstractSentence`` is an abstract interface that defines how Sentence implementations work with the Format system. Any Sentence type used with Format must implement this interface.
 
 Required Methods and Properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
-    from pyconll.schema import SentenceBase
+    from pyconll.schema import AbstractSentence
     from typing import OrderedDict
 
-    class MySentence(SentenceBase[MyToken]):
+    class MySentence(AbstractSentence[MyToken]):
         def __init__(self) -> None:
             # Must have a no-argument constructor
             self._meta: OrderedDict[str, Optional[str]] = OrderedDict()
@@ -352,6 +352,8 @@ Required Methods and Properties
             pass
 
 The lifecycle methods (``__accept_meta__``, ``__accept_token__``, ``__finalize__``) allow custom sentence implementations to process data incrementally during parsing, enabling streaming scenarios and custom initialization logic.
+
+A functional equivalent to MySentence is provided in ``pyconll.shared.Sentence[T]`` as this is likely the most common sentence implementation that will be needed in conll based parsing.
 
 API
 ----------------------------------
