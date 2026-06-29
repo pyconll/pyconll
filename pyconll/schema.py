@@ -501,7 +501,7 @@ def unique_array[T](
         delimiter: The string which separates set elements in the serialized representation.
         empty_marker: The string representation which maps to an empty set.
         ordering_key: If provided, describes the order in which the set entries are serialized.
-        single_escape_hatch: If set, means that a single delimter value is interpreted as a single
+        single_escape_hatch: If set, means that a single delimiter value is interpreted as a single
             item set, rather than two empty strings which collapse into one element.
 
     Returns:
