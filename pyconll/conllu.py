@@ -227,7 +227,7 @@ _standard_token_fields: dict[str, Optional[FieldDescriptor]] = {
     "deps": mapping(str, fixed_array(str, ":"), "|", ":", "_", lambda p: _TokenIdComparer(p[0])),
     "misc": mapping_ext(
         str,
-        unique_array(str, ",", "", str.lower),
+        unique_array(str, ",", "", str.lower, True),
         None,
         "|",
         "=",
@@ -265,7 +265,7 @@ _compact_token_fields: dict[str, Optional[FieldDescriptor]] = {
     ),
     "misc": mapping_ext(
         _intern,
-        unique_array(_intern, ",", "", str.lower),
+        unique_array(_intern, ",", "", str.lower, True),
         None,
         "|",
         "=",

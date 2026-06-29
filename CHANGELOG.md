@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-06-28
+### Changed
+- MISC column parsing will treat values will treat "," as that value rather than as a delimiter between empty strings.
+
 ## [4.0.0] - 2025-12-05
 ### Added
 - Add structural schema support via tokenspec decorator mechanism which allows for custom schema definitions.
