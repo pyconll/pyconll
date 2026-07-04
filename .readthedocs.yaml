@@ -14,4 +14,7 @@ formats:
 
 python:
   install:
-    - requirements: requirements.txt
+    - method: uv
+      command: sync
+      groups:
+        - all
