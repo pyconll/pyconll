@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - More accurate type hints on write_sentence and write_corpus.
 - Improve and correct examples which had some type and usage gaps with current API.
 - Miscellaneous build and project setup changes. Mostly internal improvements for project management.
+- Improved test coverage for various edge cases.
 
 ## [4.1.0] - 2026-06-28
 ### Changed
