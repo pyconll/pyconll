@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-07-04
+### Changed
+- More accurate type hints on write_sentence and write_corpus.
+- Improve and correct examples which had some type and usage gaps with current API.
+- Miscellaneous build and project setup changes. Mostly internal improvements for project management.
+- Improved test coverage for various edge cases.
+
 ## [4.1.0] - 2026-06-28
 ### Changed
 - MISC column parsing will treat values will treat "," as that value rather than as a delimiter between empty strings.
@@ -148,7 +155,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Fixed
 - ``find_ngrams`` in the ``util`` module did not properly match case insensitivity.
 - ``conllable`` is now properly included in wildcard imports from ``pyconll``.
-- Issue when loading a CoNLL file over a network if the file contained UTF-8 characters. requests default assumes ASCII enconding on HTTP responses.
+- Issue when loading a CoNLL file over a network if the file contained UTF-8 characters. requests default assumes ASCII encoding on HTTP responses.
 - The Token columns deps and feats were not properly sorted by attribute (either numeric index or case invariant lexicographic sort) on serialization
 
 ### Changed

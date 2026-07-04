@@ -308,7 +308,7 @@ def _create_tree_helper[K, I](
 
 def from_tokens[K, I](
     tokens: Sequence[K],
-    starting_id: I,
+    root_id: I,
     to_id: Callable[[K], I],
     to_head: Callable[[K], I],
     skip: Optional[Callable[[K], bool]] = None,
@@ -320,7 +320,7 @@ def from_tokens[K, I](
 
     Args:
         tokens: The tokens to create the tree from.
-        starting_id: The root token of the tree will be a child of this id.
+        root_id: The root token of the tree will be a child of this id.
         to_id: The mapper from the token to its id.
         to_head: The mapper from the token to the id of its parent.
         skip: The optional guard to skip certain tokens that may not participate in the Tree
@@ -339,7 +339,7 @@ def from_tokens[K, I](
             children_tokens[h] = [token]
 
     builder: _TreeBuilder[K] = _TreeBuilder()
-    starters = children_tokens.get(starting_id)
+    starters = children_tokens.get(root_id)
     if starters is None:
         raise ValueError("The current sentence has no root token.")
 

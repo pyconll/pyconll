@@ -388,6 +388,75 @@ def test_collapse_with_mapping_descriptor():
     assert token.features == {"key1": "val1", "key2": "val2"}
 
 
+def test_token_parser_requires_tokenspec():
+    """
+    Test that token_parser raises RuntimeError when the class was not decorated with @tokenspec.
+    """
+
+    class PlainClass:
+        name: str
+
+    with pytest.raises(RuntimeError, match="@tokenspec"):
+        _compile.token_parser(PlainClass, "\t")
+
+
+def test_token_serializer_requires_tokenspec():
+    """
+    Test that token_serializer raises SchemaError when the class was not decorated with @tokenspec.
+    """
+
+    class PlainClass:
+        name: str
+
+    with pytest.raises(SchemaError, match="@tokenspec"):
+        _compile.token_serializer(PlainClass, "\t")
+
+
+def test_tokenspec_cannot_be_applied_twice():
+    """
+    Test that applying @tokenspec to a class that already has it raises RuntimeError.
+    """
+    with pytest.raises(RuntimeError, match="@tokenspec"):
+
+        @tokenspec
+        @tokenspec
+        class DoubleDecorated:
+            field: str
+
+
+def test_tokenspec_slots_raises_when_class_has_slots():
+    """
+    Test that @tokenspec(slots=True) raises RuntimeError if the class already defines __slots__.
+    """
+    with pytest.raises(RuntimeError):
+
+        @tokenspec(slots=True)
+        class SlottedToken:
+            __slots__ = ("field",)
+            field: str
+
+
+def test_tokenspec_slots_parent_with_slots_ok():
+    """
+    Test that @tokenspec(slots=True) works when a parent class has __slots__ but the class itself
+    does not.
+    """
+
+    class Parent:
+        __slots__ = ()
+
+    @tokenspec(slots=True)
+    class Child(Parent):
+        field: str
+
+    parser = _compile.token_parser(Child, "\t")
+    serializer = _compile.token_serializer(Child, "\t")
+
+    token = parser("hello")
+    assert token.field == "hello"
+    assert serializer(token) == "hello"
+
+
 def test_extra_primitives():
     """
     Test that extra primitives can be added on the Token class definition.

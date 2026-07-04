@@ -36,7 +36,7 @@ def _compile_deserialize_schema_ir(
 
     if isinstance(attr, FieldDescriptor):
         if attr in _deserialize_cache:
-            (old_name, old_method) = _deserialize_cache[attr]
+            old_name, old_method = _deserialize_cache[attr]
             namespace[old_name] = old_method
             return old_name
 
@@ -74,7 +74,7 @@ def _compile_serialize_schema_ir(
 
     if isinstance(attr, FieldDescriptor):
         if attr in _serialize_cache:
-            (old_name, old_method) = _serialize_cache[attr]
+            old_name, old_method = _serialize_cache[attr]
             namespace[old_name] = old_method
             return old_name
 

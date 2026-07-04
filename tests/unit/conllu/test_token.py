@@ -148,7 +148,9 @@ def test_to_string(conllu_format: ConlluFormat):
     """
     Test if a token's string representation is accurate.
     """
-    token_line = "26	surmonté	surmonter	VERB	_	Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_"
+    token_line = (
+        "26	surmonté	surmonter	VERB	_	Gender=Masc|Number=Sing|Tense=Past|VerbForm=Part	22	acl	_	_"
+    )
     token = conllu_format.parse_token(token_line)
 
     assert conllu_format.serialize_token(token) == token_line
