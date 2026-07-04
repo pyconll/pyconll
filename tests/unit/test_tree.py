@@ -5,9 +5,11 @@ These tests verify Tree and TreeBuilder functionality independent of any
 specific format like CoNLL-U.
 """
 
+from typing import NamedTuple
+
 import pytest
 
-from pyconll.tree import Tree, _TreeBuilder
+from pyconll.tree import Tree, _TreeBuilder, from_tokens
 
 from tests.unit.util import assert_tree_structure
 
@@ -205,6 +207,20 @@ def test_cannot_remove_out_of_range():
 
     with pytest.raises(IndexError):
         builder.remove_child(5)
+
+
+def test_from_tokens_multiple_root_tokens():
+    """
+    Test that from_tokens raises when more than one token has the root_id as its head.
+    """
+
+    class _T(NamedTuple):
+        id: int
+        head: int
+
+    tokens = [_T(id=1, head=0), _T(id=2, head=0), _T(id=3, head=1)]
+    with pytest.raises(ValueError, match="exactly one root"):
+        from_tokens(tokens, 0, lambda t: t.id, lambda t: t.head)
 
 
 def test_on_copy_not_on_root():
