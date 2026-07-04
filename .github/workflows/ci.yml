@@ -32,10 +32,10 @@ jobs:
           uv sync --locked --all-extras --dev
       - name: Run tests
         run: |
-          make coveragetest
+          uv run make coveragetest
       - name: Publish to coveralls.io
         run: |
-          coveralls --service=github
+          uv run coveralls --service=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -61,8 +61,7 @@ jobs:
           key: int-corpora-cache-${{ hashFiles('tests/int/corpora.py') }}
       - name: Run
         run: |
-          pip install -r requirements.txt
-          make inttest
+          uv run make inttest
 
   lint:
     name: Lint
@@ -76,4 +75,4 @@ jobs:
       - name: Run
         run: |
           uv sync --locked --all-extras --dev
-          make lint
+          uv run make lint

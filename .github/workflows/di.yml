@@ -30,4 +30,4 @@ jobs:
           key: di-corpora-artifacts-${{ hashFiles('tests/int/corpora.py') }}
       - name: Run
         run: |
-          make datatest
+          uv run make datatest
