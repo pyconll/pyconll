@@ -7,10 +7,16 @@ format:
 # Lint check on the files using pylint, yapf, mypy, etc and outputs error code
 # if any of them have issues.
 lint:
-	python -m pylint --rcfile .pylintrc pyconll/ && \
-	codespell pyconll/ docs/ scripts/ && \
-	python -m black --check --quiet pyconll/ tests/ examples/ scripts/ && \
-	python -m mypy pyconll/ scripts/
+	@failed=""; \
+	run() { "$$@" || failed="$$failed\n  $$*"; }; \
+	run python -m pylint --rcfile .pylintrc pyconll/; \
+	run python -m black --check --quiet pyconll/ tests/ examples/ scripts/; \
+	run python -m mypy pyconll/ scripts/ examples/; \
+	run codespell pyconll/ docs/ scripts/ examples/ CHANGELOG.md README.md --skip="docs/_build"; \
+	if [ -n "$$failed" ]; then \
+		printf "\nFailed commands:%b\n" "$$failed"; \
+		exit 1; \
+	fi
 
 # Unit test scenario for fast CI builds and local testing
 unittest:

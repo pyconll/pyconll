@@ -21,8 +21,11 @@ args = parser.parse_args()
 corpus = conllu.load_from_file(args.filename)
 for sentence in corpus:
     for token in sentence.tokens:
+        if token.form is None:
+            continue
+
         if token.form.lower() in COUNTRIES:
-            token.misc["COUNTRY"] = "YES"
+            token.misc["COUNTRY"] = {"YES"}
             token.upos = "PROPN"
 
 # Print to standard out which can then be redirected.

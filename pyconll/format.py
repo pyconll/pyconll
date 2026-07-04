@@ -13,7 +13,7 @@ For specialized read-only or write-only scenarios, use ReadFormat or WriteFormat
 import io
 import os
 import string
-from typing import Iterator, Optional
+from typing import IO, Iterable, Iterator, Optional
 
 from pyconll import _compile
 from pyconll.exception import ParseError
@@ -359,7 +359,7 @@ class WriteFormat[T]:
         self.write_sentence(sentence, buffer)
         return buffer.getvalue()
 
-    def write_sentence[S: AbstractSentence](self, sentence: S, writable: io.TextIOBase) -> None:
+    def write_sentence[S: AbstractSentence](self, sentence: S, writable: IO[str]) -> None:
         """
         Write an individual sentence to an IO buffer.
 
@@ -383,9 +383,7 @@ class WriteFormat[T]:
             writable.write(self.serializer(token))
             writable.write("\n")
 
-    def write_corpus[S: AbstractSentence](
-        self, corpus: Iterator[S], writable: io.TextIOBase
-    ) -> None:
+    def write_corpus[S: AbstractSentence](self, corpus: Iterable[S], writable: IO[str]) -> None:
         """
         Write out the entire corpus to the IO buffer.
 
