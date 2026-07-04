@@ -70,9 +70,7 @@ def _safe_to_str(template: Template) -> str:
                     case _:
                         value = interpolated_value
 
-                templated = False
                 if format_spec == "t":
-                    templated = True
                     data_type = Template
                     if conversion is not None:
                         raise RuntimeError("Cannot provide a conversion on a template value.")
@@ -89,7 +87,7 @@ def _safe_to_str(template: Template) -> str:
                         f"{desired_type}."
                     )
 
-                if templated:
+                if isinstance(value, Template):
                     value = _safe_to_str(value)
                 else:
                     value = convert(value, conversion)

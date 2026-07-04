@@ -30,21 +30,3 @@ quickinttest:
 # Data test scenario across all supported data sets to be run periodically.
 datatest:
 	python -m pytest tests/int --corpora-skip-write --log-cli-level info
-
-build:
-	python -m build --sdist --wheel
-
-clean:
-	find . -path ./venv -prune -o -type d -name "__pycache__" -exec rm -rf {} +
-
-	if [ -d 'dist' ]; then \
-		rm -r dist; \
-	fi
-
-	if [ -d 'build' ]; then \
-		rm -r build; \
-	fi
-
-	if [ -d 'pyconll.egg-info' ]; then \
-		rm -r pyconll.egg-info; \
-	fi
