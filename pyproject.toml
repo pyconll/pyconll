@@ -54,6 +54,7 @@ dev = [
     "codespell>=2.4.2",
     "conllu>=6.0.0",
     "coverage>=7.15.0",
+    "coveralls>=4.1.0",
     "guppy3",
     "mypy>=2.1.0",
     "mypy-extensions>=1.1.0",
