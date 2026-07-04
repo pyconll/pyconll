@@ -30,7 +30,7 @@ disable_error_code = ["import-untyped"]
 packages = ["pyconll"]
 
 [tool.setuptools.dynamic]
-version = { attr = "pyconll.__version__" }
+version = { file = "pyconll/_version" }
 
 [tool.setuptools.package-data]
 pyconll = ["py.typed", "_version"]
@@ -44,7 +44,7 @@ preview = true
 guppy3 = { git = "https://github.com/zhuyifei1999/guppy3.git", rev = "da86ab98abf20c57b9ead4d653157af8baaa8efd" }
 
 [build-system]
-requires = ["setuptools", "util"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
