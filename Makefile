@@ -28,10 +28,10 @@ coveragetest:
 
 # Integration test scenario for releases validation and support.
 inttest:
-	python -m pytest tests/int/ --corpora-skip-write --corpora-versions 2.17 --log-cli-level info
+	python -m pytest tests/int/ --corpora-skip-write --corpora-versions 2.18 --log-cli-level info
 
 quickinttest:
-	python -m pytest tests/int/ --corpora-skip-write --corpora-skip-fixture --corpora-versions 2.17 --log-cli-level info
+	python -m pytest tests/int/ --corpora-skip-write --corpora-skip-fixture --corpora-versions 2.18 --log-cli-level info
 
 # Data test scenario across all supported data sets to be run periodically.
 datatest:

@@ -68,10 +68,16 @@ _REGION = "us-east-1"
 # and is on a path toward more flexibility and robustness.
 corpora = [
     CorporaRegistration(
+        "2.18",
+        AwsS3Object(bucket=_BUCKET, key="ud-treebanks-v2.18.tgz", region=_REGION),
+        "a93fe8520bc4c5ff34670d9a93a5a7689c018c1e59643fa27e03036717841b8a",
+        "75293bd718b3271512740cb463267c87fbb5062506938efec905cc900cd84e69",
+    ),
+    CorporaRegistration(
         "2.17",
         AwsS3Object(bucket=_BUCKET, key="ud-treebanks-v2.17.tgz", region=_REGION),
         "bf30726e238f9c4379ffb0d6f8c3eaf4ecad9f72ab42104b0130b61603915872",
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "13b70a1394dbf5dd8310bea05dd83b5f4a2969939862bc2d93d4da4ad877c1f0",
     ),
     CorporaRegistration(
         "2.16",
