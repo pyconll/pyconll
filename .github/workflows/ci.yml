@@ -61,7 +61,7 @@ jobs:
           key: int-corpora-cache-${{ hashFiles('tests/int/corpora.py') }}
       - name: Run
         run: |
-          uv run make inttest
+          uv run make inttest VERSIONS=2.18
 
   lint:
     name: Lint
