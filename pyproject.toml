@@ -51,6 +51,7 @@ build-backend = "setuptools.build_meta"
 dev = [
     "black>=26.5.1",
     "boto3>=1.43.40",
+    "botocore[crt]>=1.43.40",
     "codespell>=2.4.2",
     "conllu>=6.0.0",
     "coverage>=7.15.0",
